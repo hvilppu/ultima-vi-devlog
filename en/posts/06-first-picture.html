@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The first picture | Rebuilding Ultima VI</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/06-ensimmainen-kuva.html" hreflang="fi">FI</a><span>/</span><a href="06-first-picture.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Rebuilding Ultima VI</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 06</nav>
+
+<h1>The first picture</h1>
+
+<p class="lede">
+Five milestones of invisible work finally show up on screen, by not using the game
+engine's tilemap at all.
+</p>
+
+<p>
+Up to this point the project had produced a lot of verified data and nothing you could look
+at. Tiles, a world, sixteen thousand objects, portraits, a font, and 85 passing tests, none
+of which had ever been near the engine that is supposed to run the game. That is a
+comfortable place to stay and a bad place to stay: every assumption about how this would
+work inside Unity was still untested.
+</p>
+
+<h2>Not using the tilemap</h2>
+
+<p>
+The obvious approach is the engine's built-in tilemap: slice the artwork into 2048 sprites,
+build tile assets, fill a grid. The plan said to do exactly that. I did something else, and
+the reason is the project's goal rather than performance.
+</p>
+
+<p>
+The original drew the world into a window of 176&times;176 pixels, eleven tiles
+square, by writing palette indices into a buffer. So that is what the remake does.
+A renderer composes the window as indices, and colour is resolved only at the final step.
+</p>
+
+<p>
+Three things fall out of that choice:
+</p>
+
+<ul>
+  <li><strong>It is closer to 1:1.</strong> A tilemap inserts its own sprite slicing and
+      pixel alignment between the data and the screen, a whole category of problems
+      that buys nothing here.</li>
+  <li><strong>The day and night palettes keep working.</strong> The game ships six lighting
+      palettes. Holding indices until the last moment is precisely what makes them usable;
+      baking colours in would throw them away.</li>
+  <li><strong>It is testable.</strong> The composer touches no engine types at all, so it
+      can be driven directly from tests.</li>
+</ul>
+
+<p>
+Performance was never the argument. The window is under 31,000 pixels.
+</p>
+
+<h2>Testing a renderer properly</h2>
+
+<p>
+"It draws something" is not a test. The strongest check walks every square of the composed
+window and compares <em>every pixel</em> against the tile the map says belongs at that
+position, skipping squares that have an object standing on them.
+</p>
+
+<p>
+Two more earn their place. One finds a square holding an object and asserts the terrain
+underneath it actually changed, because otherwise objects could silently fail to draw and the
+first test would still pass. The other composes a view, composes somewhere else, then
+composes the first view again and requires an identical result, because the renderer reuses
+one buffer and a stale pixel is exactly the kind of bug that survives a casual look.
+</p>
+
+<pre><code>Unity EditMode tests
+total=32  passed=32  failed=0  duration=0.53s</code></pre>
+
+<p>
+Those run headless from the command line, as does the scene creation, so none of it depends
+on anyone clicking through the editor.
+</p>
+
+<h2>Where the test count went</h2>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Suite</th><th class="num">Tests</th><th>Covers</th></tr></thead>
+  <tbody>
+    <tr><td>Format library</td><td class="num">64</td><td>decompression, palettes, tiles, map, objects, names, portraits, font</td></tr>
+    <tr><td>Exporter</td><td class="num">21</td><td>image writing, world round-trip, runtime binaries, the command line itself</td></tr>
+    <tr><td>Engine (in Unity)</td><td class="num">32</td><td>data loading and the renderer</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+That second row only exists because of an uncomfortable question partway through the
+project: was everything actually tested? It was not. The format library had 47 tests and the
+exporter had none: the image writer, the world writer and the preview renderer had all
+shipped unverified. Finding that out led to a rule now written into the project's own plan:
+tests are written in the same step as the code, they run against the real game data wherever
+possible, and an expected number is <em>measured</em> before it is asserted rather than
+guessed and then loosened until it passes.
+</p>
+
+<p>
+That last clause is not hypothetical. Guessing bounds had already produced three failing
+tests that I was tempted to simply relax.
+</p>
+
+<h2>What runs now</h2>
+
+<p>
+Open the scene, press play, and the view moves across Britannia with the arrow keys:
+terrain and objects in their correct places, at the original's native resolution, scaled by
+whole pixels so nothing is ever resampled.
+</p>
+
+<p>
+It is not a game. There is no player, no collision, no time passing. But the entire export
+pipeline is now proven end to end in the engine that will ship it, which was the point.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p><a href="07-the-invisible-sea.html">The invisible sea</a>:
+     the renderer passes
+     every test it has, then draws a blank white screen on first run.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data or artwork is
+     included here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

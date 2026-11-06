@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The invisible sea | Rebuilding Ultima VI</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/07-nakymaton-meri.html" hreflang="fi">FI</a><span>/</span><a href="07-the-invisible-sea.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Rebuilding Ultima VI</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 07</nav>
+
+<h1>The invisible sea</h1>
+
+<p class="lede">
+The first time the renderer ran in the editor it drew a blank white square. Everything was
+working. A third of the world simply has no artwork.
+</p>
+
+<p>
+The previous post ended with a renderer that passed every test it had, including one that
+compares every pixel of the composed window against the tile the map says belongs there.
+Then the project was actually started up, and the result was a white rectangle with one
+small grey object sitting in the middle of it.
+</p>
+
+<p>
+The useful part of that screenshot is what was <em>right</em>. The window was the correct
+size, correctly centred, scaled by whole pixels, and something was clearly being drawn at
+the centre square. The geometry, the scaling and the object pass were all fine. Only the
+terrain was wrong, and it was uniformly wrong.
+</p>
+
+<h2>Asking the data</h2>
+
+<p>
+White is palette index 255, which is also the index that means transparent. So the question
+became: what terrain does the map hold where the view starts, and what do those tiles
+contain?
+</p>
+
+<pre><code>terrain at the view centre        tile 12
+the whole 11&times;11 window           tile 12, every square
+tile 12 pixel distribution        index 255 &times; 256</code></pre>
+
+<p>
+Tile 12 is 256 transparent pixels. Not corrupted, not mis-indexed, simply empty. And
+it is not a rare tile:
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Tile</th><th class="num">Squares in the world</th><th class="num">Visible pixels</th></tr></thead>
+  <tbody>
+    <tr><td><code>12</code></td><td class="num">322,558</td><td class="num">0</td></tr>
+    <tr><td><code>8</code></td><td class="num">111,301</td><td class="num">0</td></tr>
+    <tr><td><code>10</code></td><td class="num">66,306</td><td class="num">0</td></tr>
+    <tr><td><code>14</code></td><td class="num">64,019</td><td class="num">0</td></tr>
+    <tr><td><code>1</code></td><td class="num">92,139</td><td class="num">124</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+Tiles 8 through 15 are all completely empty, and between them they cover well over half a
+million squares. Grass, sitting among them in the table, is perfectly normal. So the empty
+ones are water, and the sea had been invisible the entire time, in the exported
+atlas too, where eight blank cells among 2048 are easy to miss.
+</p>
+
+<h2>Where the water actually lives</h2>
+
+<p>
+Those same eight numbers had already turned up somewhere else. The animation table, left
+deliberately uninterpreted several posts earlier, opens with exactly 8, 9, 10, 11, 12, 13,
+14, 15 in its first array. Its second array holds 448, 456, 464, 472, 480, 488, 496, 504
+, evenly spaced eight apart, which is what you would expect of eight-frame cycles.
+</p>
+
+<p>
+That suggested a reading: the first array names a tile with no artwork of its own, and the
+second names the tile its frames begin at. One query settles it:
+</p>
+
+<pre><code>entries in the table                           29
+first-array tiles that are completely blank    29 / 29
+second-array tiles that are fully drawn        29 / 29</code></pre>
+
+<p>
+Twenty-nine out of twenty-nine in both directions is not a coincidence. An animated tile is
+a placeholder; the engine substitutes frames from elsewhere at draw time. Nothing in the
+static data was ever going to render the ocean.
+</p>
+
+<p>
+That also closes one of the open questions carried since the object work, and it was
+answered by the data alone, without reading the original's code at all. The third array is
+still unexplained; its values run past 2048, so it is not a tile list, and the frame timing
+is presumably in there somewhere. Until that is understood the renderer draws the first
+frame and nothing cycles, which is enough to make the world visible and no more than is
+actually known.
+</p>
+
+<h2>The test that should have caught it</h2>
+
+<p>
+This is the uncomfortable part. The renderer had a test comparing every pixel of every
+window square against the expected tile, and it passed throughout.
+</p>
+
+<p>
+It passed because it asked the wrong question. It compared the renderer's output against
+<em>the same tile lookup the renderer itself used</em>. Both sides agreed that the ocean was
+blank, so the comparison succeeded. A test that shares its subject's assumption cannot
+detect that the assumption is wrong.
+</p>
+
+<p>
+What catches this class of bug is a test anchored to something outside the code under test.
+The new ones are:
+</p>
+
+<ul>
+  <li>Every tile the animation table marks must be blank, and every tile it points at must not be. Both are checked across all 2048 tiles rather than the handful being sampled.</li>
+  <li>The water tiles specifically must resolve to artwork that exists.</li>
+</ul>
+
+<p>
+Those are statements about the data, not about agreement between two halves of my own code.
+Had either existed earlier, the white screen would have been a red test instead of a
+surprise at startup.
+</p>
+
+<p>
+The pixel-comparison test was also corrected, since it was comparing against unresolved
+tiles. Worth being precise about what that means: the test was not weakened to make it pass,
+it was pointed at the right expectation. Those two things look identical in a diff and are
+opposites in practice.
+</p>
+
+<h2>Afterwards</h2>
+
+<pre><code>view at the starting position
+  before   index 255 &times; 30,976   (entirely white)
+  after    0 white pixels, dominated by indices 121-125</code></pre>
+
+<p>
+Indices in the 121 to 125 range are the blues. The starting view sits in open ocean, which
+is why the failure was total rather than partial. Of all the places to begin, that one
+showed nothing but the bug.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p><a href="08-the-gap-in-the-wall.html">The gap in the wall</a>:
+     the sea shows up, and a hole appears beside every doorway.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data or artwork is
+     included here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

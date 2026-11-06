@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ensimmäinen kuva | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="06-ensimmainen-kuva.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/06-first-picture.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 06</nav>
+
+<h1>Ensimmäinen kuva</h1>
+
+<p class="lede">
+Viisi milestonea näkymätöntä työtä päätyy vihdoin ruudulle, nimenomaan jättämällä
+pelimoottorin tilemapin käyttämättä.
+</p>
+
+<p>
+Tähän asti projekti oli tuottanut paljon todennettua dataa eikä mitään katsottavaa. Tiilet,
+maailma, kuusitoistatuhatta objektia, portretit, fontti ja 85 läpimenevää testiä, joista
+yksikään ei ollut ollut lähellä sitä moottoria jonka on tarkoitus ajaa peli. Se on mukava
+paikka jäädä ja huono paikka jäädä: jokainen oletus siitä miten tämä toimisi Unityn sisällä
+oli yhä testaamatta.
+</p>
+
+<h2>Tilemapin jättäminen käyttämättä</h2>
+
+<p>
+Ilmeinen tapa on moottorin sisäänrakennettu tilemap: pilko grafiikka 2048 spriteksi, rakenna
+tiiliassetit, täytä ruudukko. Suunnitelmassa luki tasan niin. Tein jotain muuta, ja syy on
+projektin tavoite eikä suorituskyky.
+</p>
+
+<p>
+Alkuperäinen piirsi maailman 176&times;176 pikselin ikkunaan, yksitoista tiiltä neliössä,
+kirjoittamalla paletti-indeksejä puskuriin. Niin tekee myös remake. Renderöijä kokoaa ikkunan
+indekseinä, ja väri ratkaistaan vasta viimeisessä vaiheessa.
+</p>
+
+<p>
+Siitä valinnasta seuraa kolme asiaa:
+</p>
+
+<ul>
+  <li><strong>Se on lähempänä 1:1-tavoitetta.</strong> Tilemap työntää oman
+      sprite-pilkontansa ja pikselikohdistuksensa datan ja ruudun väliin, kokonaisen
+      ongelmaluokan joka ei osta tässä mitään.</li>
+  <li><strong>Vuorokaudenajan paletit pysyvät toimivina.</strong> Pelin mukana tulee kuusi
+      valaistuspalettia. Indeksien pitäminen viime hetkeen asti on juuri se, mikä tekee
+      niistä käyttökelpoisia. Värien polttaminen sisään heittäisi ne pois.</li>
+  <li><strong>Se on testattavissa.</strong> Kokoaja ei kosketa moottorin tyyppejä lainkaan,
+      joten sitä voi ajaa suoraan testeistä.</li>
+</ul>
+
+<p>
+Suorituskyky ei ollut koskaan argumentti. Ikkunassa on alle 31 000 pikseliä.
+</p>
+
+<h2>Renderöijän testaaminen kunnolla</h2>
+
+<p>
+"Se piirtää jotain" ei ole testi. Vahvin tarkistus kävelee kootun ikkunan jokaisen ruudun
+läpi ja vertaa <em>jokaista pikseliä</em> siihen tiileen, jonka kartta sanoo kuuluvan siihen
+kohtaan, ohittaen ruudut joilla seisoo objekti.
+</p>
+
+<p>
+Kaksi muuta ansaitsevat paikkansa. Toinen etsii ruudun jolla on objekti ja vaatii että
+maasto sen alla oikeasti muuttui, koska muuten objektit voisivat hiljaa jäädä piirtymättä ja
+ensimmäinen testi menisi silti läpi. Toinen kokoaa näkymän, kokoaa jotain muuta, ja kokoaa
+ensimmäisen uudelleen vaatien identtisen tuloksen, koska renderöijä käyttää samaa puskuria
+uudelleen ja vanhentunut pikseli on juuri sellainen bugi joka selviää ohimennen katsomisesta.
+</p>
+
+<pre><code>Unity EditMode -testit
+total=32  passed=32  failed=0  duration=0.53s</code></pre>
+
+<p>
+Nuo ajetaan komentoriviltä ilman käyttöliittymää, samoin scenen luonti, joten mikään siitä ei
+riipu siitä että joku klikkailee editorissa.
+</p>
+
+<h2>Mihin testimäärä meni</h2>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Kokonaisuus</th><th class="num">Testejä</th><th>Kattaa</th></tr></thead>
+  <tbody>
+    <tr><td>Formaattikirjasto</td><td class="num">64</td><td>purkaminen, paletit, tiilet, kartta, objektit, nimet, portretit, fontti</td></tr>
+    <tr><td>Exportteri</td><td class="num">21</td><td>kuvien kirjoitus, maailman edestakainen kierto, ajonaikaiset binäärit, komentorivi</td></tr>
+    <tr><td>Moottori (Unityssä)</td><td class="num">32</td><td>datan lataus ja renderöijä</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+Tuo keskimmäinen rivi on olemassa vain epämiellyttävän kysymyksen takia kesken projektin:
+oliko kaikki oikeasti testattu? Ei ollut. Formaattikirjastolla oli 47 testiä ja exportterilla
+ei yhtään. Kuvien kirjoittaja, maailman kirjoittaja ja esikatselurenderöijä olivat kaikki
+menneet läpi todentamatta. Sen selviäminen johti sääntöön, joka on nyt kirjattu projektin
+omaan suunnitelmaan: testit kirjoitetaan samassa työvaiheessa kuin koodi, ne ajetaan oikeaa
+pelidataa vasten aina kun suinkin mahdollista, ja odotettu luku <em>mitataan</em> ennen kuin
+se väitetään, eikä arvata ja löysennetä kunnes testi menee läpi.
+</p>
+
+<p>
+Viimeinen kohta ei ole hypoteettinen. Rajojen arvaaminen oli jo tuottanut kolme kaatuvaa
+testiä, joita teki mieli vain löysentää.
+</p>
+
+<h2>Mikä toimii nyt</h2>
+
+<p>
+Avaa scene, paina Play, ja näkymä liikkuu Britannian kartalla nuolinäppäimillä: maasto ja
+objektit oikeilla paikoillaan, alkuperäisen natiivilla tarkkuudella, kokonaisluvuilla
+skaalattuna niin ettei mitään koskaan uudelleennäytteistetä.
+</p>
+
+<p>
+Se ei ole peli. Ei pelaajaa, ei törmäystä, ei kuluvaa aikaa. Mutta koko exportputki on nyt
+todistettu päästä päähän siinä moottorissa joka sen julkaisee, mikä oli koko pointti.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p><a href="07-nakymaton-meri.html">Näkymätön meri</a>:
+     renderöijä läpäisee jokaisen testinsä ja piirtää sitten tyhjän valkoisen ruudun.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa tai grafiikkaa
+     ei ole mukana täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

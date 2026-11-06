@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Näkymätön meri | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="07-nakymaton-meri.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/07-the-invisible-sea.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 07</nav>
+
+<h1>Näkymätön meri</h1>
+
+<p class="lede">
+Ensimmäisellä ajolla editorissa renderöijä piirsi tyhjän valkoisen neliön. Kaikki toimi.
+Kolmanneksella maailmasta ei yksinkertaisesti ole grafiikkaa.
+</p>
+
+<p>
+Edellinen postaus päättyi renderöijään joka läpäisi jokaisen testinsä, mukaan lukien sen
+joka vertaa kootun ikkunan jokaista pikseliä siihen tiileen jonka kartta sanoo kuuluvan
+siihen kohtaan. Sitten projekti käynnistettiin oikeasti, ja tuloksena oli valkoinen
+suorakaide, jonka keskellä istui yksi pieni harmaa esine.
+</p>
+
+<p>
+Kuvakaappauksen hyödyllinen osa on se mikä oli <em>oikein</em>. Ikkuna oli oikean kokoinen,
+oikein keskitetty, kokonaisluvuilla skaalattu, ja keskiruudulle piirtyi selvästi jotain.
+Geometria, skaalaus ja objektien piirto olivat kaikki kunnossa. Vain maasto oli väärin, ja
+se oli väärin tasaisesti.
+</p>
+
+<h2>Datalta kysyminen</h2>
+
+<p>
+Valkoinen on paletti-indeksi 255, joka on myös se indeksi joka tarkoittaa läpinäkyvää.
+Kysymykseksi muodostui siis: mitä maastoa kartta pitää siinä kohdassa josta näkymä alkaa, ja
+mitä ne tiilet sisältävät?
+</p>
+
+<pre><code>maasto nakyman keskella          tiili 12
+koko 11x11 ikkuna                tiili 12, joka ruutu
+tiilen 12 pikselijakauma         indeksi 255 x 256</code></pre>
+
+<p>
+Tiili 12 on 256 läpinäkyvää pikseliä. Ei korruptoitunut, ei väärin indeksoitu, vain tyhjä.
+Eikä se ole harvinainen tiili:
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Tiili</th><th class="num">Ruutuja maailmassa</th><th class="num">Näkyviä pikseleitä</th></tr></thead>
+  <tbody>
+    <tr><td><code>12</code></td><td class="num">322 558</td><td class="num">0</td></tr>
+    <tr><td><code>8</code></td><td class="num">111 301</td><td class="num">0</td></tr>
+    <tr><td><code>10</code></td><td class="num">66 306</td><td class="num">0</td></tr>
+    <tr><td><code>14</code></td><td class="num">64 019</td><td class="num">0</td></tr>
+    <tr><td><code>1</code></td><td class="num">92 139</td><td class="num">124</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+Tiilet 8 ja 15 väliltä ovat kaikki täysin tyhjiä, ja yhdessä ne kattavat reilusti yli puoli
+miljoonaa ruutua. Ruoho, joka istuu taulukossa niiden seassa, on täysin normaali. Tyhjät ovat
+siis vettä, ja meri oli ollut näkymätön koko ajan, myös viedyssä tiiliatlaksessa jossa
+kahdeksan tyhjää ruutua 2048:n joukossa on helppo ohittaa.
+</p>
+
+<h2>Missä vesi oikeasti asuu</h2>
+
+<p>
+Samat kahdeksan numeroa olivat jo tulleet vastaan muualla. Animaatiotaulukko, jonka olin
+tietoisesti jättänyt tulkitsematta useampi postaus sitten, alkaa tasan numeroilla 8, 9, 10,
+11, 12, 13, 14, 15. Sen toinen taulukko sisältää arvot 448, 456, 464, 472, 480, 488, 496,
+504, tasaisin kahdeksan välein, mikä on juuri sitä mitä kahdeksan framen jaksoilta odottaisi.
+</p>
+
+<p>
+Se ehdotti tulkintaa: ensimmäinen taulukko nimeää tiilen jolla ei ole omaa grafiikkaa, ja
+toinen sen tiilen josta sen framet alkavat. Yksi kysely ratkaisee asian:
+</p>
+
+<pre><code>merkintoja taulukossa                          29
+ensimmaisen taulukon tyhjia tiilia             29 / 29
+toisen taulukon piirrettyja tiilia             29 / 29</code></pre>
+
+<p>
+Kaksikymmentäyhdeksän kahdestakymmenestäyhdeksästä molempiin suuntiin ei ole sattuma.
+Animoitu tiili on paikanvaraaja, ja moottori korvaa sen frameilla muualta piirtohetkellä.
+Mikään staattisessa datassa ei olisi koskaan piirtänyt merta.
+</p>
+
+<p>
+Se sulkee samalla yhden objektityön ajoilta kannetuista avoimista kysymyksistä, ja se
+ratkesi pelkästä datasta lukematta alkuperäisen koodia lainkaan. Kolmas taulukko on yhä
+selittämättä: sen arvot ylittävät 2048, joten se ei ole tiililista, ja framejen ajoitus on
+oletettavasti siellä jossain. Siihen asti renderöijä piirtää ensimmäisen framen eikä mikään
+kierrä, mikä riittää tekemään maailmasta näkyvän eikä väitä enempää kuin mitä oikeasti
+tiedetään.
+</p>
+
+<h2>Testi jonka olisi pitänyt havaita se</h2>
+
+<p>
+Tässä on epämiellyttävä osa. Renderöijällä oli testi joka vertasi jokaisen ikkunaruudun
+jokaista pikseliä odotettuun tiileen, ja se meni läpi koko ajan.
+</p>
+
+<p>
+Se meni läpi koska se kysyi väärää kysymystä. Se vertasi renderöijän tulosta <em>samaan
+tiilihakuun jota renderöijä itse käytti</em>. Molemmat olivat yhtä mieltä siitä että meri on
+tyhjä, joten vertailu onnistui. Testi joka jakaa kohteensa oletuksen ei voi havaita oletuksen
+olevan väärä.
+</p>
+
+<p>
+Tämän vikaluokan nappaa testi joka on ankkuroitu johonkin testattavan koodin ulkopuoliseen.
+Uudet ovat:
+</p>
+
+<ul>
+  <li>Jokaisen animaatiotaulun merkitsemän tiilen täytyy olla tyhjä, ja jokaisen kohteen
+      täytyy olla ei-tyhjä. Molemmat tarkistetaan kaikista 2048 tiilestä eikä vain
+      otannasta.</li>
+  <li>Vesitiilien täytyy erityisesti ratketa grafiikkaan joka on olemassa.</li>
+</ul>
+
+<p>
+Nuo ovat väittämiä datasta, eivät kahden oman koodini puoliskon yksimielisyydestä. Jos
+kumpikaan olisi ollut olemassa aiemmin, valkoinen ruutu olisi ollut punainen testi eikä
+yllätys käynnistyksessä.
+</p>
+
+<p>
+Myös alkuperäinen pikselivertailutesti korjattiin, koska se vertasi resolvoimattomiin
+tiiliin. On syytä olla täsmällinen siitä mitä se tarkoittaa: testiä ei löysennetty jotta se
+menisi läpi, vaan se kohdistettiin oikeaan odotukseen. Nuo kaksi näyttävät diffissä
+identtisiltä ja ovat käytännössä vastakohtia.
+</p>
+
+<h2>Jälkeenpäin</h2>
+
+<pre><code>nakyma aloituskohdassa
+  ennen   indeksi 255 x 30 976   (taysin valkoinen)
+  jalkeen 0 valkoista pikselia, hallitsevina indeksit 121-125</code></pre>
+
+<p>
+Indeksit välillä 121 ja 125 ovat sinisiä. Aloitusnäkymä sijaitsee avomerellä, mikä on syy
+siihen miksi vika oli täydellinen eikä osittainen. Kaikista mahdollisista aloituspaikoista
+juuri se näytti pelkän bugin.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p><a href="08-aukko-seinassa.html">Aukko seinässä</a>:
+     meri näkyy, mutta ovien viereen jää reikä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa tai grafiikkaa
+     ei ole mukana täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

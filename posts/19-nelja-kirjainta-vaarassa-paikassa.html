@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neljä kirjainta, väärässä paikassa | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="19-nelja-kirjainta-vaarassa-paikassa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/19-four-letters-in-the-wrong-place.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 19</nav>
+
+<h1>Neljä kirjainta, väärässä paikassa</h1>
+
+<p class="lede">
+Keskustelumoottori on valmis. Matkalla selvisi että pelistä kerrottu tarina on tosi, mutta eri
+paikassa kuin kaikki luulevat.
+</p>
+
+<p>
+Jäljellä oli kaksi käskyä. Toinen kirjoittaa skriptin sisäiseen taulukkoon, toinen etsii
+merkkijonoa taulukosta. Kun ne olivat tehty, toteuttamattomien käskyjen luku korpustestissä
+putosi nollaan.
+</p>
+
+<h2>Skripti on työmuistia</h2>
+
+<p>
+Kirjoituskäsky pakotti päätöksen jota olin lykännyt. Alkuperäiselle ladattu skripti on
+<em>muokattavaa työmuistia</em>: sijoitus taulukkoon muuttaa ajossa olevaa skriptiä, ja muutos
+kestää niin kauan kuin keskustelu. Minulle skripti oli vain luettavia tavuja exportista.
+</p>
+
+<p>
+Vaihtoehtoja oli kaksi. Kopioida skripti keskustelun ajaksi muokattavaan puskuriin, tai pitää
+muutokset erillisessä päällekkäistaulussa jota luku tarkistaa. Jälkimmäinen ei olisi koskenut
+yhteenkään allekirjoitukseen, mutta se olisi oma mekanisminsa jota alkuperäisessä ei ole, ja
+hidastaisi lukupolun kaikille.
+</p>
+
+<p>
+Valitsin kopion. Jäljittely on tämän projektin koko pointti, ja kirjoitettava puskuri
+<em>on</em> se mitä alkuperäinen tekee. Suurin skripti on 7249 tavua, eli hinta ei ole
+punnittava. Saman hahmon puhuttelu uudelleen aloittaa muuttumattomasta alkuperäisestä, koska
+alkuperäinenkin lataa skriptin joka kerta uudelleen.
+</p>
+
+<p>
+Pelkäsin että muutos leviää kaikkialle. Se ei levinnyt: vain kirjoituspolku tarvitsi
+kirjoitettavan viittauksen, koska kirjoitettava muuntuu lukukelpoiseksi itsestään. Lukupuoli
+säilyi ennallaan kokonaan.
+</p>
+
+<p>
+Testi tälle ei ole "ei heitä poikkeusta" vaan <strong>skripti lukee takaisin sen minkä
+kirjoitti</strong>: sijoitus muuttaa taulukkoa, ja saman skriptin myöhempi lauseke lukee
+muuttuneen arvon. Se on koko syy miksi puskuri tarvittiin, joten se on se mitä pitää testata.
+</p>
+
+<h2>Neljä kirjainta on totta</h2>
+
+<p>
+Kirjoitin postauksessa 16, että moottori ei typistä avainsanoja neljään kirjaimeen ja että
+sanonta syntyi siitä miten skriptit on kirjoitettu. Se pitää yhä paikkansa avainsanojen
+täsmäytyksestä.
+</p>
+
+<p>
+Mutta merkkijonohaku typistää. Se vertaa taulukon alkiota <strong>enintään neljän merkin
+verran</strong>, lyhyempää alkiota sen oman pituuden verran.
+</p>
+
+<p>
+Sanonta ei siis ole keksitty. Se kuvaa käskyä jota toimitetut skriptit käyttävät
+<strong>kaksi kertaa</strong>, eikä sitä täsmäytystä johon jokainen pelin keskustelu nojaa.
+Tarina on tosi ja väärässä paikassa yhtä aikaa, mikä on minusta hauskin laji löytöä.
+</p>
+
+<p>
+Haku paljasti toisenkin eron. Tähtisääntöä ei ole: alkuperäinen tarkistaa tähden siellä missä
+se täsmäyttää avainsanoja, ei vertailussa. Jouduin siis jakamaan vertailuni kahtia, muuten
+jokainen tähdellä alkava hakutaulukon alkio täsmäisi mihin tahansa.
+</p>
+
+<p>
+Ja hakutaulukon vastaus on <em>alkioiden määrä</em> kun mikään ei täsmää, ei miinus yksi.
+Miinus yksi olisi ilmeinen valinta ja lukisi viimeisenä alkiona kaikessa mikä indeksoi
+vastauksella.
+</p>
+
+<h2>Kolme kertaa väärässä, kolme kertaa testissä</h2>
+
+<p>
+Tämä viipale teki minut nöyräksi testien suhteen. Kolme kertaa testi kaatui, ja joka kerta
+syy oli testissä eikä koodissa.
+</p>
+
+<p>
+Lausekkeessa taulukkoluku ottaa indeksin pinosta eikä tunne sitä "ei indeksiä" -muotoa jota
+olin käyttänyt. Taulukkoluku on etumerkillinen, joten kirjoittamani arvo luki negatiivisena.
+Ja tähtitestissä odotin indeksiä 1, vaikka oikea vastaus on alkioiden määrä: jos tähti ei
+vastaa, mikään ei vastaa.
+</p>
+
+<h2>Ja neljäs, jonka auditointi nappasi</h2>
+
+<p>
+Pre-commit-tarkistus etsii löysiä väitteitä, ja se osoitti yhteen: <code>suurempi kuin
+nolla</code>. Katsoin mitä testi oikeasti ajaa.
+</p>
+
+<p>
+Testin nimi lupasi että haku juoksee skriptin loppuun kun lopetusmerkki puuttuu. Se ei tehnyt
+sitä. Se pysähtyi kolmen alkion jälkeen nollatavuun, joka luki <strong>tyhjänä
+alkiona</strong>, ja tyhjä alkio täsmää mihin tahansa. Testi oli siis väärässä paikassa ja
+väitti silti menevänsä läpi.
+</p>
+
+<p>
+Rakensin skriptin uudelleen niin että haun jälkeen ei ole yhtään nollatavua, jolloin se
+todella juoksee loppuun, ja kirjoitin tyhjälle alkiolle oman testinsä. Löysä väite korvautui
+kahdella tarkalla, ja samalla selvisi sääntö jota en ollut huomannut.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>toteuttamattomia korpustestissa:  89  ->  36  ->  0
+keskustelu alkoi ja paattyi:            199 / 199
+
+U6Engine.Tests   433 / 433   ilman Unitya
+U6Formats.Tests  266 / 266
+U6Export.Tests    38 / 38</code></pre>
+
+<p>
+Yksi käsky heittää yhä: arvohaku. Yksikään skripti ei käytä sitä, joten toteutusta ei voi
+tarkistaa mitään vasten, ja tarkistamaton toteutus näyttäisi valmiilta olematta sitä. Selkeä
+poikkeus on rehellisempi.
+</p>
+
+<h2>Seuraava on jotain mikä näkyy</h2>
+
+<p>
+Keskustelumoottori on ollut valmis enginessä jo jonkin aikaa, mutta pelissä ei näy mitään
+uutta. Seuraavaksi se muuttuu: fontti ajonaikaisena datana, glyfipiirtäjä ja talk-komento.
+Fontti on jo jäsennetty, mutta se viedään vain PNG-arkkina katselua varten eikä tiedostona
+jota lataaja lukisi.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Keskusteluikkuna Unityn puolelle. Ensimmäinen pitkään aikaan joka näkyy pelissä eikä
+     vain testiajossa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

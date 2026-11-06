@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Only the first one answers | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/16-vain-ensimmainen-vastaa.html" hreflang="fi">FI</a><span>/</span><a href="16-only-the-first-one-answers.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 16</nav>
+
+<h1>Only the first one answers</h1>
+
+<p class="lede">
+Keyword matching is done. The corpus test found three things, and the worst of them was mine.
+</p>
+
+<p>
+The matching rule is short. A keyword answers if it is the beginning of any word of the input,
+over the keyword's whole length, ignoring case. You could write that in one line and test it
+once. That would be a mistake, because the rule is short but it has six edges.
+</p>
+
+<h2>Four letters is a story, not a rule</h2>
+
+<p>
+It is often said about this game that the engine truncates keywords to four letters. It does
+not. The scripts are simply written with four letter keywords, 3002 of the 4563 shipped ones,
+and a story about the engine grew out of that.
+</p>
+
+<p>
+The difference is measurable and now pinned in both directions. The keyword
+<code>heal</code> answers the word "healer", because the comparison runs for the keyword's
+length. The keyword <code>healer</code> does not answer the word "heal", because nothing
+shortens it. If the engine truncated, both would answer.
+</p>
+
+<h2>Three edge cases written the way they are computed</h2>
+
+<p>
+A default answer is the keyword <code>*</code>, and the original checks <strong>only its first
+character</strong>. The keyword <code>*sword</code> would therefore answer anything. No data
+would show the difference: all 237 default answers are a bare star. I still wrote the rule the
+way the original computes it, because a keyword is data, and data can change.
+</p>
+
+<p>
+For the same reason an empty keyword answers any word: a comparison over zero characters
+succeeds before it looks at one. And case is folded only for A to Z, because the original's
+<code>tolower</code> leaves everything else alone in the code page the game runs in.
+</p>
+
+<p>
+Pressing return on its own ends the conversation, and how that works pleased me.
+<strong>An empty line is replaced by the word "bye"</strong> before any comparison. Return is
+not handled as a command anywhere; it is simply turned into the word almost every character has
+a keyword for. Eleven characters do not, and for those return falls through to the default
+answer.
+</p>
+
+<h2>A wildcard that matches the gap between words</h2>
+
+<p>
+The character <code>?</code> is a wildcard. The comparison walks the keyword, not the word, and
+never checks that the word is long enough. With an ordinary character that is harmless, because
+a word's terminator cannot equal a keyword character. A wildcard matches the terminator as
+happily as a letter.
+</p>
+
+<pre><code>keyword  "a?b"
+input    "a b"    -&gt; matches</code></pre>
+
+<p>
+The original holds the whole input as one buffer with its spaces overwritten by terminators, so
+the comparison carries on into the next word. Not one of the 4563 keywords contains a wildcard,
+so the game never shows this. I reproduced it anyway, because the rule is in the engine.
+</p>
+
+<h2>Three skips, three different rules</h2>
+
+<p>
+I wrote earlier about the skip that does not nest. There are three of them, and they differ.
+</p>
+
+<pre><code>branch              steps over jump, byte, word     not an address
+unmatched answer    steps over jump, byte, word     not an address
+answered list       steps over                      nothing at all</code></pre>
+
+<p>
+The third reads bytes until it reads the end of the answers and steps over no operands at all.
+An operand byte that happens to hold that value therefore ends the skip in the middle of an
+instruction. Each has its own test, and I checked them by tidying the skips into correctness on
+purpose: exactly three tests failed, and nothing else. Each test pins its own fault rather than
+something else by accident.
+</p>
+
+<h2>An unanswered question walks into the data table</h2>
+
+<p>
+The unmatched skip backs up one byte for a keyword list and for a script mark, but not for the
+end of the answers. In the first two cases that is right. In the third, the run carries straight
+on into whatever follows the answers, and scripts keep their word tables there.
+</p>
+
+<p>
+The protection against that is the <code>*</code> default answer, but two characters have none
+behind their last question. For character 185 the table's first word is 0x0080, whose low byte
+is in the instruction range without having a meaning, and <strong>the player sees "Unknown
+command." in the middle of a conversation</strong>. For character 58 the run leaves the script
+entirely.
+</p>
+
+<h2>My own fault was the worst of the three</h2>
+
+<p>
+The corpus test runs all 3089 keyword lists twice, once with input that matches and once with
+input that cannot. On the first run it failed in dozens of places.
+</p>
+
+<p>
+The cause was a resume position one byte out. When an array is indexed, the index expression
+eats the separator it ends on, and the assignment still needs that separator. The original
+therefore hands back a position one byte earlier, but <strong>only for a word array</strong>.
+Not for a string array, because there the caller reads characters next rather than a separator.
+</p>
+
+<p>
+One byte, and only in the indexed form. My hand written tests had never reached that form. The
+corpus test reached it dozens of times immediately.
+</p>
+
+<p>
+A second find from the same run: an unknown instruction does not stop the conversation. Bytes
+0x80 to 0x9F are instructions by the only rule there is, that anything from 0x80 up is one, and
+not one of them has a meaning. The original prints "Unknown command." and carries on with the
+next byte. My interpreter threw, which would have stopped the conversation where the original
+keeps going.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>3089  keyword lists
+4563  keywords, of which 237 a bare *
+   0  keywords containing a wildcard
+3057  matching input answered, out of 3057
+2525  non matching answered anyway, through the * defaults
+   2  runs leaving the script
+  89  answers reaching an unimplemented instruction</code></pre>
+
+<p>
+The line "3057 out of 3057" is the one that pins the matcher. If matching stopped working these
+runs would still complete, just without answering. The 2525 was surprising at first, but the
+explanation is the unmatched skip itself: it hands the round to the next list, and 237 lists
+answer anything.
+</p>
+
+<pre><code>U6Engine.Tests   391 / 391   without Unity
+U6Formats.Tests  266 / 266
+U6Export.Tests    38 / 38</code></pre>
+
+<p>
+I measured the numbers by running first and pinned them afterwards. A loosened bound, bent until
+the test passes, is worse than no test.
+</p>
+
+<h2>One contradiction in my own papers</h2>
+
+<p>
+While updating the documents I noticed that the interpreter document claimed as measured
+something the bug report explicitly declines to claim: whether any of those eight script
+addresses sits in a region that really does get skipped. The bug report is right, I have not
+checked. The claim is gone.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The input instructions and the question round loop, the part that asks. After that a
+     conversation works end to end, and then building the conversation window on the Unity side
+     is worth doing.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

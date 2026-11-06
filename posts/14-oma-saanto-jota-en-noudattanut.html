@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oma sääntö jota en noudattanut | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="14-oma-saanto-jota-en-noudattanut.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/14-the-rule-i-did-not-follow.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 14</nav>
+
+<h1>Oma sääntö jota en noudattanut</h1>
+
+<p class="lede">
+Suunnitelmassa on lukenut alusta asti, että pelilogiikka pidetään erillään Unitystä. En
+noudattanut sitä, eikä mikään muistuttanut asiasta ennen kuin lasku lankesi.
+</p>
+
+<p>
+Projektin arkkitehtuurikuvauksessa on yksi korostettu periaate:
+</p>
+
+<blockquote>
+<p>
+<strong>Keskeinen periaate:</strong> <code>U6Engine</code> ei saa viitata
+<code>UnityEngine</code>-namespaceen. Pelilogiikka on silloin ajettavissa konsolitestissä
+tuhansia vuoroja sekunnissa, mikä on ainoa käytännöllinen tapa validoida taistelu- ja
+AI-säännöt alkuperäistä vasten.
+</p>
+</blockquote>
+
+<p>
+Sitä kokoonpanoa ei ollut olemassa. Olin kirjoittanut kartan, törmäykset, ovet, kellon,
+valaistuksen, satunnaislukugeneraattorin, taistelukaavat ja hahmonkehityksen kaikki samaan
+<code>U6Runtime</code>-kokoonpanoon Unity-sidonnaisen piirtokoodin kanssa. Jokainen yksittäinen
+tiedosto oli pieni ja järkevä päätös sillä hetkellä. Yhdessä ne olivat suunnitelman
+rikkominen.
+</p>
+
+<h2>Lasku</h2>
+
+<p>
+Velka ei näy ennen kuin se peritään. Tässä perintä tuli edellisen postauksen aikana: en saanut
+Unityn eräajoa ajamaan testejä, kolmella eri yrityksellä, eikä <em>yhtäkään</em> sääntöä saanut
+ajettua ilman editoria. 79 uutta testiä taistelusta ja hahmonkehityksestä olivat editorin
+vankina.
+</p>
+
+<p>
+Juuri sen estämiseksi periaate oli kirjoitettu. Sen tarkoitus ei ollut siisteys vaan
+ajettavuus, ja se kohta tuli todistetuksi kantapään kautta.
+</p>
+
+<h2>Jako oli halpa, koska koodi oli jo valmiina</h2>
+
+<p>
+Mittasin ennen kuin aloin: 19 tiedostoa 22:sta ei viitannut Unityyn lainkaan. Siirto oli
+mekaaninen, ei uudelleenkirjoitus. Kolme jäi Unityn puolelle: näkymäkomponentti, paletin muunnos
+ja polkujen etsintä.
+</p>
+
+<p>
+Olennaisin osa ei kuitenkaan ollut siirto vaan se, että periaate on nyt <strong>koneen
+valvoma kahdesta suunnasta</strong>:
+</p>
+
+<pre><code>Unityssä   U6Engine.asmdef  "noEngineReferences": true
+           -> viittaus Unityyn kaataa kaannoksen
+
+Unityn     Tools/U6Engine/U6Engine.csproj
+ulkona     -> kaantaa samat tiedostot ilman Unityn kirjastoja</code></pre>
+
+<p>
+Sama csproj alistaa Unity-koodin myös Tools-puolen laatuportille: nullable, analysaattorit,
+varoitukset virheinä. Sitä Unityn oma kääntäjä ei tee.
+</p>
+
+<h2>Mitä käännös löysi heti</h2>
+
+<p>
+Ensimmäinen käännösyritys kaatui kolmeen todelliseen kytkentään, joita kukaan ei ollut
+huomannut. Kaikki kolme olivat samaa lajia: <em>pelidataa, joka oli ajautunut Unity-koodin
+sisään</em>.
+</p>
+
+<p>
+<strong>Paletti.</strong> <code>U6GameData</code> rakensi Unityn <code>Color32</code>-taulukoita.
+Jaoin sen: engine lukee ja tarkistaa tavut, Unityn puoli muuntaa ne piirrettäviksi kerran
+latauksessa eikä pikseli kerrallaan. Sivutuotteena muunnos siirtyi pois piirtosilmukasta.
+</p>
+
+<p>
+<strong>Aloituspaikka ja Avatarin tiilinumero.</strong> Nämä olivat vakioina
+näkymäkomponentissa. Ne eivät ole renderöintiä vaan pelidataa, ja siirtyivät omaan luokkaansa.
+Sen myötä testi joka tarkistaa ettei peli ala seinän sisältä ei enää tarvitse editoria
+kertoakseen missä peli alkaa.
+</p>
+
+<p>
+<strong>Polkujen etsintä.</strong> Engine päättää nyt mikä hakemisto kelpaa, Unity kertoo sille
+missä Unity pitää tavaroitaan. Testiapuri löytää exportin kävelemällä hakemistopuuta ylöspäin,
+mikä toimii sekä editorissa että konsoliajossa.
+</p>
+
+<h2>Näennäinen kate</h2>
+
+<p>
+Kattavuustarkistus uudessa rakenteessa paljasti vielä yhden asian, joka on hyvä esimerkki
+siitä miten mittari voi valehdella.
+</p>
+
+<p>
+<code>U6View</code> oli aina laskettu katetuksi. Se oli katettu siksi, että testit viittasivat
+siihen hakeakseen aloituspaikan vakiot. Kun vakiot siirtyivät pois, kate katosi, ja kävi ilmi
+että <strong>yksikään testi ei ole koskaan ajanut riviäkään sen omaa koodia</strong>.
+</p>
+
+<p>
+Se on MonoBehaviour, jonka käynnistys ajetaan vain play-tilassa, joten mielekäs testi vaatii
+scenen. Kirjasin sen puutteeksi enkä korjannut: väärä korjaus olisi ollut kirjoittaa testi joka
+näyttää katteelta mutta ei aja mitään, eli täsmälleen se tilanne josta juuri päästiin.
+</p>
+
+<h2>Kolme virhettä omistajan editoriin asti</h2>
+
+<p>
+Siirto itsessään oli mekaaninen, mutta sen todentaminen ei ollut. Kolme käännösvirhettä pääsi
+läpi, yksi kerrallaan, ja jokaisessa vika oli sama: <strong>tarkistukseni kattoi vähemmän kuin
+mitä siitä raportoin.</strong>
+</p>
+
+<p>
+Ensin kirjoitin Unity-only-testin jota en voinut ajaa, ja julkaisin sen silti. Sitten
+käännöstarkistus kattoi skriptit muttei testikokoonpanoa, ja raportoin silti "Unity-puoli
+kääntyy". Kolmanneksi nimetty kokoonpano jätti roikkuvan viitteen
+<code>U6Editor.asmdef</code>:iin, eikä se voinut paljastua, koska tarkistus käänsi kaiken
+<em>yhdeksi</em> kokoonpanoksi. Yhden kokoonpanon sisällä kaikki näkyy kaikille, joten puuttuva
+kokoonpanoviite on rakenteellisesti näkymätön.
+</p>
+
+<p>
+Korjaus on siksi rakenteellinen eikä kosmeettinen: nyt on <strong>yksi tarkistusprojekti per
+asmdef</strong>, täsmälleen samoilla viitteillä kuin asmdef ilmoittaa, sekä skripti joka
+tarkistaa että jokainen asmdef-viite osoittaa olemassa olevaan kokoonpanoon.
+</p>
+
+<pre><code>U6Engine.csproj             engine, ilman Unitya lainkaan
+U6Unity.Check.csproj        -&gt; U6Engine + InputSystem
+U6Editor.Check.csproj       -&gt; U6Engine + U6Unity + UnityEditor
+U6EditModeTests.Check.csproj -&gt; U6Engine + U6Unity + nunit
+CheckAsmdefs.ps1            viitteet osoittavat olemassa olevaan</code></pre>
+
+<p>
+Sama virhelaji kuin aiemmin kattavuusauditissa, joka oli ankkuroitu rivin alkuun eikä nähnyt
+sisennettyjä tyyppejä. Molemmissa mittari kertoi mitä halusin kuulla.
+</p>
+
+<h2>Testit</h2>
+
+<p>
+Säännöt ajetaan nyt <code>dotnet test</code>:llä, sekunnissa, ilman editoria:
+</p>
+
+<pre><code>U6Engine.Tests    274 / 274   ilman Unitya
+U6Formats.Tests   266 / 266
+U6Export.Tests     32 / 32</code></pre>
+
+<p>
+Unityn puolelle jää viisi testiä, ja ne ovat juuri ne jotka tarkistavat
+<code>Color32</code>-muunnoksen. Se on oikea jako: Unityä tarvitaan siihen mitä Unity oikeasti
+tekee.
+</p>
+
+<p>
+Kirjasin myös ohjeisiin säännön joka tästä seuraa: tee rakenteellinen työ ennen kuin kirjoitat
+sen päälle lisää. "Siirto on helppo myöhemmin" on sama lause joka on nyt kerran maksanut.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Keskustelutulkki, joka on suunnitelman suurin yksittäinen pala. Se rakennetaan nyt
+     oikeaan paikkaan, ja sitä voi ajaa 199 skriptiä vasten ilman että editoria avataan
+     kertaakaan.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

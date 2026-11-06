@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kirjoitettu sana | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="11-kirjoitettu-sana.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/11-the-written-word.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 11</nav>
+
+<h1>Kirjoitettu sana</h1>
+
+<p class="lede">
+Kirjat ja kyltit olivat tarkoitus olla helppo loppusilaus. Ne olivat, mutta matkalla selvisi
+että sama prosenttimerkki tarkoittaa kahta eri asiaa sen mukaan mitä reittiä teksti tulostuu.
+</p>
+
+<p>
+Vaiheen A viimeinen rasti oli kaksi tekstitiedostoa: kirjat, kyltit ja laatat yhdessä, ja
+mukana toimitettu dokumentaatio toisessa. Odotin tunnin työtä. Rakenne oli juuri niin
+suoraviivainen kuin odotin, mutta sen ympärillä oli enemmän kuin arvasin.
+</p>
+
+<h2>Laatu on indeksi, ja se alkaa ykkösestä</h2>
+
+<p>
+Luettava esine ei sisällä tekstiään. Se sisältää indeksin laatukentässään, samassa kentässä
+jossa muilla esineillä on kulumisaste tai taikavoima. Ja indeksi alkaa <strong>ykkösestä</strong>,
+siinä missä jokainen muu pelin indeksi alkaa nollasta.
+</p>
+
+<p>
+Tämä on juuri sellainen yksityiskohta joka ei kaadu vaan tuottaa väärän kirjan. Jokainen
+kyltti näyttäisi naapurinsa tekstin, ja huomaisi sen vasta pelatessa. Siksi siitä on oma
+testinsä, ja siksi rajojen ulkopuolinen laatu heittää poikkeuksen sen sijaan että palauttaisi
+jotain.
+</p>
+
+<pre><code>offsettaulu   128 x u16   =   256 tavua
+tekstit       128 kpl     = 24876 tavua
+                              ----------
+                              25132 tavua</code></pre>
+
+<p>
+Taulun pituus on sen ensimmäinen merkintä, eli 256, joten tekstien määrä on 128. Sama
+kiertotie kuin muotokuvatiedostoissa. Tiedostossa ei ole yhtään ylimääräistä tavua.
+</p>
+
+<h2>Teksti on pientä ohjelmointia</h2>
+
+<p>
+Mielenkiintoinen osa ei ollut rakenne vaan sisältö. Teksti ei ole pelkkiä kirjaimia, vaan
+siinä on ohjausmerkkejä, ja ne ovat tavallisia tulostuvia merkkejä. Siksi kirja ei voi
+sisältää suoraa pienempi-kuin-merkkiä: se vaihtaisi riimukirjasimeen.
+</p>
+
+<pre><code>#c  $c   tulosta muuttuja
+/   \    yksikko- tai monikkomuoto viimeksi tulostetun luvun mukaan
+^c       erikoiskuvio
+@        seuraava sana on avainsana
+*        odota nappainta
+&amp;        gargish-osio, piilossa ellei pelaaja ymmarra gargishia
+&lt; &gt;      riimukirjasin paalle ja pois
+`        isonna seuraava merkki</code></pre>
+
+<p>
+Kirjat käyttävät näitä paljon enemmän kuin keskustelut. Mittasin: 94 riimukirjasimen vaihtoa
+52 tekstissä, 32 gargish-osiota 26 tekstissä, 30 näppäintä odottavaa taukoa. Keskusteludatassa
+gargish-osioita ei ole yhtään, mutta kirjoissa on.
+</p>
+
+<p>
+Yksi mittaus osoittautui tarpeellisemmaksi kuin luulin: <strong>sulkeutuvatko osiot</strong>.
+Sekä riimukirjasin että gargish kääntävät tilaa joka jäisi päälle seuraavaan tulostukseen, jos
+teksti jättäisi sen avoimeksi. Sulkeutuvat, kaikissa 128 tekstissä. Se ei ole
+itsestäänselvyys vaan tarkistettava asia, ja nyt se on testi.
+</p>
+
+<h2>Prosenttimerkin kaksi merkitystä</h2>
+
+<p>
+Tässä oli päivän löydös. Dekompilaation mukaan `%` tekstin keskellä peruu vireillä olevan
+yksikkö- tai monikkovalinnan eikä tee itsenään mitään. Mutta datassa oli 15 prosenttimerkkiä,
+ja joka ikistä seurasi joko kenoviiva tai hattumerkki. Ei yhtään kohtaa jossa peruminen olisi
+tarpeen.
+</p>
+
+<p>
+Vastaus oli siinä, <em>miten</em> kirjan teksti tulostetaan. Keskustelut menevät
+merkkirutiinin läpi, jossa `%` on ohjausmerkki. Kirjan teksti sen sijaan annetaan tulostimelle
+<strong>muotoilumerkkijonona</strong>, kuten printf. Siellä `%` kuluu muotoilukäsittelyyn, ja
+sitä seuraava merkki tulostuu ilman mitään ohjausmerkkikäsittelyä.
+</p>
+
+<p>
+Eli kirjoissa `%` on ainoa tapa näyttää suora kenoviiva tai hattumerkki. Ero ei ole tekstissä
+vaan reitissä, ja se tarkoittaa että tekstin piirtäjän on muistettava kummalla reitillä ollaan.
+</p>
+
+<p>
+Samalla paljastui piilevä vika. Koska teksti on muotoilumerkkijono, `%d` tai `%s` kirjassa
+saisi tulostimen lukemaan argumentin jota ei koskaan annettu, eli roskaa pinosta. Yksikään 15
+esiintymästä ei ole muotoilumerkki, joten se ei laukea. Mutta testi vaatii nyt, että jokaista
+prosenttimerkkiä seuraa kenoviiva tai hattumerkki, joten jos tekstidataa joskus muokataan, se
+huomataan.
+</p>
+
+<h2>Tiedosto jota kukaan ei lue</h2>
+
+<p>
+Toinen tiedosto osoittautui erikoiseksi tapaukseksi. Se on tavallista ASCIIa, 2901 riviä,
+pisin rivi 79 merkkiä, taitettu 80 merkin näytölle. Etsin ohjelmasta kohtaa joka avaa sen.
+Sellaista ei ole.
+</p>
+
+<p>
+Se on mukana toimitettu dokumentti, ei datatiedosto. Se ei vaikuta pelin käyttäytymiseen
+millään tavalla, joten sille ei tarvita jäsennintä eikä sitä kannata mallintaa. Luin siitä
+rivit, jotta export voi kantaa sen mukanaan, ja kirjasin löydöksen ylös. Joskus oikea vastaus
+on todeta ettei tässä ole tehtävää.
+</p>
+
+<h2>Testit</h2>
+
+<p>
+52 uutta. Yksikään ei väitä mitään pelin sanoista: pituudet, lukumäärät ja tarkistussumma
+riittävät, joten repoon ei päädy riviä pelin tekstiä.
+</p>
+
+<pre><code>Unity EditMode   180 / 180
+Formaattikirjasto 216 / 216
+Exportteri        23 / 23
+                 -----------
+                 419 testia</code></pre>
+
+<p>
+Tämän myötä <strong>vaihe A on valmis</strong> yhtä kohtaa lukuun ottamatta:
+introanimaatioiden framejen pikselikoodaus on vielä auki, ja se estää vain lopetuskohtauksen.
+Kaikki muut tiedostomuodot on purettu ja todennettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Loput sääntötaulukot: loitsut, hahmonkehitys ja kaupan hinnat. Sen jälkeen keskustelutulkki,
+     joka on nyt suunnitelman suurin yksittäinen pala.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa tai grafiikkaa
+     ei ole mukana täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

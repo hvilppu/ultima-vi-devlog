@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The written word | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/11-kirjoitettu-sana.html" hreflang="fi">FI</a><span>/</span><a href="11-the-written-word.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 11</nav>
+
+<h1>The written word</h1>
+
+<p class="lede">
+Books and signs were meant to be an easy finishing touch. They were, but along the way it
+turned out that the same percent sign means two different things depending on which route the
+text takes to the screen.
+</p>
+
+<p>
+The last item in phase A was two text files: books, signs and plaques in one, and the
+documentation that ships with the game in the other. I expected an hour's work. The structure
+was exactly as straightforward as I expected, but there was more around it than I guessed.
+</p>
+
+<h2>Quality is an index, and it counts from one</h2>
+
+<p>
+A readable object does not contain its text. It contains an index in its quality field, the
+same field that holds wear or magical charge on other objects. And that index starts at
+<strong>one</strong>, where every other index in the game starts at zero.
+</p>
+
+<p>
+This is exactly the kind of detail that does not crash but hands back the wrong book. Every
+sign would show its neighbour's text, and you would only notice while playing. So it has a test
+of its own, and a quality outside the table throws rather than returning something.
+</p>
+
+<pre><code>offset table   128 x u16   =   256 bytes
+texts          128         = 24876 bytes
+                               ----------
+                               25132 bytes</code></pre>
+
+<p>
+The table's length is its own first entry, 256, so there are 128 texts. The same trick the
+portrait files use. There is not a single spare byte in the file.
+</p>
+
+<h2>Text is a small amount of programming</h2>
+
+<p>
+The interesting part was not the structure but the content. The text is not just letters: it
+carries escapes, and those escapes are ordinary printable characters. That is why a book cannot
+contain a plain less-than sign, because it would switch to the runic font.
+</p>
+
+<pre><code>#c  $c   print a variable
+/   \    singular or plural, by the last number printed
+^c       special glyph
+@        the following word is a keyword
+*        wait for a key
+&amp;        gargish section, hidden unless the player understands gargish
+&lt; &gt;      runic font on and off
+`        capitalise the next character</code></pre>
+
+<p>
+Books lean on these much harder than conversations do. Measured: 94 switches into the runic
+font across 52 texts, 32 gargish sections across 26 texts, 30 waits for a keypress. The
+conversation data contains no gargish sections at all, but the books do.
+</p>
+
+<p>
+One measurement turned out to matter more than I expected: <strong>whether the sections
+close</strong>. Both the runic font and the gargish marker toggle state that would stay switched
+on into whatever is printed next, if a text left it open. They all close, in all 128 texts. That
+is not a given but something to check, and now it is a test.
+</p>
+
+<h2>Two meanings for one percent sign</h2>
+
+<p>
+This was the find of the day. According to the decompilation, a percent sign in the middle of
+text cancels a pending singular or plural selection and does nothing on its own. But the data
+held 15 percent signs, and every single one was followed by either a backslash or a caret. Not
+one place where cancelling would be needed.
+</p>
+
+<p>
+The answer was in <em>how</em> book text is printed. Conversations go through the character
+routine, where the percent sign is an escape. Book text, in contrast, is handed to the printer
+as a <strong>format string</strong>, like printf. There the percent sign is consumed by the
+format handling, and the character after it is printed with no escape handling at all.
+</p>
+
+<p>
+So in a book the percent sign is the only way to show a plain backslash or caret. The
+difference is not in the text but in the route, which means the text renderer has to remember
+which route it is on.
+</p>
+
+<p>
+The same thing exposed a latent fault. Because the text is a format string, a <code>%d</code>
+or <code>%s</code> in a book would make the printer read an argument that was never passed,
+meaning garbage off the stack. None of the 15 is a conversion character, so it never fires. But
+a test now demands that every percent sign be followed by a backslash or a caret, so if the
+text data is ever edited, it gets noticed.
+</p>
+
+<h2>A file nobody reads</h2>
+
+<p>
+The second file turned out to be a special case. It is plain ASCII, 2901 lines, longest line 79
+characters, laid out for an eighty column screen. I went looking for the place in the program
+that opens it. There is no such place.
+</p>
+
+<p>
+It is a document that ships with the game, not a data file. It has no effect on how the game
+behaves, so it needs no parser and there is nothing worth modelling. I read the lines out of it
+so the export can carry it along, and wrote the finding down. Sometimes the right answer is to
+state that there is no work here.
+</p>
+
+<h2>Tests</h2>
+
+<p>
+Fifty two new ones. Not one of them asserts anything about the game's words: lengths, counts
+and a checksum are enough, so not a line of the game's text enters the repository.
+</p>
+
+<pre><code>Unity EditMode     180 / 180
+Format library     216 / 216
+Exporter            23 / 23
+                   -----------
+                   419 tests</code></pre>
+
+<p>
+With this, <strong>phase A is finished</strong> except for one item: the pixel encoding of the
+intro animation frames is still open, and it blocks only the ending. Every other file format has
+been taken apart and verified.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The remaining rule tables: spells, character development and shop prices. Then the
+     conversation interpreter, now the single largest piece left in the plan.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data or
+     graphics are included here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

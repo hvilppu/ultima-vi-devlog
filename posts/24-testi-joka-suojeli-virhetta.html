@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testi joka suojeli virhettä | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="24-testi-joka-suojeli-virhetta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/24-the-test-that-protected-the-bug.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 24</nav>
+
+<h1>Testi joka suojeli virhettä</h1>
+
+<p class="lede">
+Panin kuusi agenttia murtamaan omat väitteeni siitä mitä maailma-adapterin seitsemän vastaavaa
+jäsentä tekevät. <strong>Yksikään väite ei säilynyt ehjänä.</strong> Pahin löytö ei ollut koodissa
+vaan testissä jonka olin kirjoittanut tuntia aiemmin suojelemaan samaa virhettä jonka olin juuri
+korjannut naapurista.
+</p>
+
+<h2>Miksi kumoaja eikä katselmoija</h2>
+
+<p>
+Edellinen postaus kertoi kolmesta viasta samassa luokassa. Niissä kaikissa oli sama muoto:
+luin ympäröivää koodia enkä sitä opcode-käsittelijää jonka sääntöä olin toteuttamassa. Yksikään
+ei kaatanut testiä. Yksikään ei näyttänyt väärältä.
+</p>
+
+<p>
+Ja juuri se viimeinen kohta ratkaisee. Katselmoija lukee toteutuksen ja kysyy onko se järkevä,
+ja kaikki kolme <em>olivat</em> järkeviä. Kumoaja lukee <strong>ensin alkuperäisen</strong> ja
+menee sitten etsimään mistä toteutus on eri mieltä. Se on eri kysymys, ja ainoa joka tämän
+saa kiinni.
+</p>
+
+<p>
+Kuusi kumoajaa, yksi väite kullekin, tehtävänä murtaa eikä vahvistaa. Rakenne on nyt projektin
+pysyvä osa.
+</p>
+
+<h2>Se joka kirpaisee</h2>
+
+<p>
+Hahmon nimen portti oli väärin: portitin sen puoluejäsenyydellä, alkuperäinen portittaa hahmon
+tilatavun ylimmällä bitillä. Korjasin sen, kirjoitin luokalle testit, kirjasin sen.
+</p>
+
+<p>
+Samassa tiedostossa, kahdeksan riviä alempana, oli <code>IsInParty</code>, joka etsi hahmoa
+puoluepaikoista. Alkuperäinen kysyy siinä viittä ehtoa: pelaaja ohjaa hahmoa, hahmo on ruudulla,
+eikä hahmo ole kuollut, unessa tai halvaantunut. Paikkahaku ei ole yksikään niistä.
+</p>
+
+<p>
+Se on siis sama virhe, samassa tiedostossa, samassa pakassa. Korjasin yhden ja
+<strong>kirjoitin toiselle testin joka naulasi väärän säännön oikeaksi</strong>. Kun kumoaja
+löysi sen, testisarjassa oli kaksi testiä jotka aktiivisesti puolustivat arvausta.
+</p>
+
+<h2>Elävä vika, mitattuna</h2>
+
+<p>
+Vahvin raportti rakensi oman koettimensa oikeaa vientiä vasten. Komposeri testasi valoa
+<em>sen ruudun</em> kohdalla jolla esine seisoo. Alkuperäinen testaa sen ruudun jolle
+<em>kukin esineen tiili laskeutuu</em>, erikseen.
+</p>
+
+<p>
+Ero on kaikki mikä on yhtä ruutua leveämpää. Valossa seisova esine ei ulotu pimeään, ja
+pimeässä seisova ulottuu valoon. Mittasin molemmat suunnat panemalla vanhan portin takaisin:
+</p>
+
+<pre><code>pimeita ruutuja joilla esine     897  ->  0
+valoisia ruutuja joilla esine  34193  ->  35073</code></pre>
+
+<p>
+897 on tasan sama luku jonka kumoaja sai itsenäisesti. Pimeässä seisova hahmo laskettiin siis
+ruudulla olevaksi, jos naapurissa sattui olemaan leveä esine.
+</p>
+
+<h2>Väite tarkkuudesta joka ei kestänyt tarkistusta</h2>
+
+<p>
+Tämä on se joka muutti käsitystäni siitä mitä mittaaminen vaatii.
+</p>
+
+<p>
+Suunnitelmassa luki lippunumeroista kahdeksan ja yli, että valittu lukema toimii
+<strong>ja</strong> uskottava väärä kaatuu testissä. Projektin oma sääntö vaatii juuri tuon
+jälkimmäisen puoliskon, ja olin kirjoittanut sen ylös ikään kuin se olisi ollut tehty.
+</p>
+
+<p>
+Testi käyttää arvoja 8, 31 ja -1. Käärivän lukeman alla nekin antavat siirtomäärät 8, 31 ja 31
+kuudentoista bitin arvolle, eli kaikki nollan.
+</p>
+
+<pre><code>arvo    minun lukema    kaariva lukema
+   8    ei mitaan       ei mitaan
+  31    ei mitaan       ei mitaan
+  -1    ei mitaan       ei mitaan
+  32    ei mitaan       bitti 0        <- ainoa erotteleva, testaamatta</code></pre>
+
+<p>
+Diskriminaattori ei siis erottele. Ja kumpi lukema on oikea riippuu kohdeprosessorista ja siitä
+mitä kääntäjä tuotti, eikä kumpaakaan ole repossa. Oikea vastaus on <strong>ratkaisematta</strong>,
+ja niin se nyt lukee. Toimitetussa datassa asia on tavoittamaton, koska kaikki 788 lippupaikkaa
+käyttävät bittejä 0-7.
+</p>
+
+<h2>Tieto oli jo talossa</h2>
+
+<p>
+Kahdesta nimikäskystä toinen vastaa sanalla "you" kun hahmo on Avatar. Otin parametrin vastaan
+ja heitin sen pois.
+</p>
+
+<p>
+Sääntö on kirjoitettu oikein <em>tämän repon</em> opcode-taulukkoon, englanniksi, kaksi
+tiedostoa sivussa. Tulkki välittää lipun oikein. Maailma ohittaa sen. Toteutus siis arvasi
+vastauksen vaikka vastaus oli kirjoitettuna viereen.
+</p>
+
+<h2>Kolme liikaa, ja sama ansa kuin ennen</h2>
+
+<p>
+Kumoaja sanoi lippukirjoituksia olevan 423, ei suunnitelman 422. Mittasin itse ja sain 425
+kirjoitusta ja 366 testiä, eli kolme käskyä liikaa: yksi jokaista kolmea lippukäskyä.
+</p>
+
+<p>
+Niin tasainen virhe ei ole sattuma, ja se on tämän projektin jo kirjattu ansa: hahmonumero on
+skriptin tavussa yksi, ja kolme hahmoa kantaa numeroa joka on myös lippukäsky.
+</p>
+
+<pre><code>hahmo 164 = 0xA4 = aseta lippu
+hahmo 165 = 0xA5 = nollaa lippu
+hahmo 171 = 0xAB = testaa lippu</code></pre>
+
+<p>
+Sama vikaluokka söi aikoinaan tulostuskäskyjen laskennan, hahmo 181 numerolla 0xB5. Otsikon yli
+hyppääminen poistaa tasan ne kolme, ja luku on 423. Näillä luvuilla ei ollut tähän asti yhtään
+testiä, nyt on.
+</p>
+
+<p>
+Samalla korjautui kehystys joka oli väärin joka paikassa: tavattu-lippu <em>kirjoitetaan</em> 274
+kertaa, ja se on 210 asetusta ja 64 nollausta. Neljäsosa kirjoituksista nollaa lipun.
+</p>
+
+<h2>172 ei liikkunut</h2>
+
+<p>
+Odotin sen laskevan, koska <code>IsInParty</code> on nyt paljon tiukempi. Se ei laskenut.
+</p>
+
+<p>
+Se on tulos eikä pettymys, ja se vahvistaa sen mitä postaus 23 sanoi luvusta: se on alaraja
+sille mikä on rikki, ei yläraja sille mikä toimii. Väärä vastaus ei pysäytä keskustelua, vaan
+vie sen toiseen haaraan. Juuri siksi luku ei kelpaa valmiusasteeksi, ja juuri siksi testi
+väittää sen erikseen.
+</p>
+
+<h2>Kumoajat olivat itse väärässä kahdesti</h2>
+
+<p>
+Yksi väitti kulkuvälinepoikkeusta kirjaamattomaksi. Se on kirjattu kolmessa paikassa, mutta
+<strong>suomeksi</strong>, joten englanninkielinen haku ei löytänyt sitä. Toinen kirjasi
+mitattavan luvun mittaamattomaksi, koska testi on Unityn kansiossa; se ajautuu headlessina
+yhdellä komennolla.
+</p>
+
+<p>
+Kumpikin muutti tarkistettavissa olevan kysymyksen varmaksi vääräksi lauseeksi, mikä on se yksi
+asia jota kumoajalta ei saa tulla. Molemmat ovat nyt pakollisia faktoja ohjeessa, ja sääntö
+sanoo että kumoajan löytö vahvistetaan itse ennen kuin sen perusteella korjataan: väärä
+kumoaminen jota korjataan tekee oikeasta koodista väärää.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>kumoajia                     6
+vaitteita                    7
+ehjana selvinneita           0
+
+elavia vikoja                2  korjattu ja mitattu
+piilevia vikoja              4  korjattu
+omia ylivaitteita            6  heikennetty tai poistettu
+testeja jotka naulasivat
+  vaaran saannon             3  kirjoitettu uudelleen
+
+U6Formats.Tests  276 / 276
+U6Export.Tests    49 / 49
+U6Engine.Tests   554 / 554</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Inventaariot, ja niistä <code>WhoCarries</code> ensin. Tällä kertaa kumoajat lukevat
+     käsittelijän ennen kuin kirjoitan rivin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

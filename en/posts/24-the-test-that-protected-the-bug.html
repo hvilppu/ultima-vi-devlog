@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The test that protected the bug | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/24-testi-joka-suojeli-virhetta.html" hreflang="fi">FI</a><span>/</span><a href="24-the-test-that-protected-the-bug.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 24</nav>
+
+<h1>The test that protected the bug</h1>
+
+<p class="lede">
+I set six agents to break my own claims about what the world adapter's seven answering members
+do. <strong>Not one claim survived intact.</strong> The worst finding was not in the code but in
+a test I had written an hour earlier, which protected the same bug I had just fixed next door.
+</p>
+
+<h2>Why a refuter and not a reviewer</h2>
+
+<p>
+The last post described three defects in one class. All of them had the same shape: I read the
+surrounding code instead of the opcode handler whose rule I was implementing. None of them
+failed a test. None of them looked wrong.
+</p>
+
+<p>
+That last point is the one that decides it. A reviewer reads the implementation and asks whether
+it is sensible, and all three <em>were</em> sensible. A refuter reads <strong>the original
+first</strong> and then goes looking for where the implementation disagrees. That is a different
+question, and the only one that catches this.
+</p>
+
+<p>
+Six refuters, one claim each, told to break rather than confirm. The structure is now a
+permanent part of the project.
+</p>
+
+<h2>The one that stings</h2>
+
+<p>
+The gate on a character's name was wrong: I gated it on party membership, where the original
+gates on the top bit of the character status byte. I fixed it, wrote the class its own tests,
+and wrote it down.
+</p>
+
+<p>
+In the same file, eight lines further down, sat <code>IsInParty</code>, which searched the party
+places for the character number. The original asks five conditions there: the player commands
+them, they are on screen, and they are not dead, asleep or paralysed. A search of the places is
+none of those.
+</p>
+
+<p>
+So it is the same mistake, in the same file, in the same pass. I fixed one and
+<strong>wrote the other a test that pinned the wrong rule as correct</strong>. By the time a
+refuter found it, the suite held two tests actively defending a guess.
+</p>
+
+<h2>A live bug, measured</h2>
+
+<p>
+The strongest report built its own probe against the real export. The composer tested the light
+on <em>the square the object stands on</em>. The original tests the square
+<em>each of the object's tiles lands on</em>, separately.
+</p>
+
+<p>
+The difference is everything wider than one square. An object standing in the light does not
+reach into the dark, and one standing in the dark does reach into the light. I measured both
+directions by putting the old gate back:
+</p>
+
+<pre><code>dark squares carrying an object     897  ->  0
+lit squares carrying an object    34193  ->  35073</code></pre>
+
+<p>
+897 is exactly the number the refuter arrived at independently. A character standing in the dark
+was counted as on screen whenever a wide object happened to stand next door.
+</p>
+
+<h2>A claim of rigour that did not survive checking</h2>
+
+<p>
+This is the one that changed how I think about what measuring takes.
+</p>
+
+<p>
+The plan said of flag numbers eight and above that the chosen reading works
+<strong>and</strong> that a plausible wrong one fails the test. The project's own rule demands
+precisely that second half, and I had written it down as though it were done.
+</p>
+
+<p>
+The test uses the values 8, 31 and -1. Under the wrapping reading those give shift counts of 8,
+31 and 31 on a sixteen bit value, which is zero every time.
+</p>
+
+<pre><code>value   my reading    wrapping reading
+    8   nothing       nothing
+   31   nothing       nothing
+   -1   nothing       nothing
+   32   nothing       bit 0        &lt;- the only discriminator, untested</code></pre>
+
+<p>
+So the discriminator does not discriminate. And which reading is right depends on the target CPU
+and on what the compiler emitted, neither of which is in the repository. The right answer is
+<strong>undetermined</strong>, and that is what it says now. It is unreachable in the shipped
+data, because all 788 flag sites use bits 0-7.
+</p>
+
+<h2>The knowledge was already in the building</h2>
+
+<p>
+One of the two name instructions answers with the word "you" when the character is the Avatar. I
+accepted the parameter and threw it away.
+</p>
+
+<p>
+The rule is written correctly in <em>this repository's</em> opcode table, in English, two files
+away. The interpreter passes the flag correctly. The world ignores it. So the implementation
+guessed an answer that was written down beside it.
+</p>
+
+<h2>Three too many, and the same trap as before</h2>
+
+<p>
+A refuter put the flag writes at 423, not the plan's 422. I measured for myself and got 425
+writes and 366 tests: three instructions too many, one for each of the three flag instructions.
+</p>
+
+<p>
+A mistake that uniform is not a coincidence, and it is a trap this project has already
+recorded: the
+character number sits in byte one of the script, and three characters carry a number that is
+also a flag instruction.
+</p>
+
+<pre><code>character 164 = 0xA4 = set flag
+character 165 = 0xA5 = clear flag
+character 171 = 0xAB = test flag</code></pre>
+
+<p>
+The same class of fault once inflated the count of printing instructions, through character 181
+being 0xB5. Skipping the header removes exactly those three, and the number is 423. These
+figures had no test at all until now.
+</p>
+
+<p>
+The same pass corrected a framing that was wrong everywhere: the met flag is
+<em>written</em> 274 times, and that is 210 sets and 64 clears. A quarter of the writes clear it.
+</p>
+
+<h2>172 did not move</h2>
+
+<p>
+I expected it to fall, because <code>IsInParty</code> is far stricter now. It did not.
+</p>
+
+<p>
+That is a result and not a disappointment, and it confirms what post 23 said about the number:
+it is a floor on what is broken, not a ceiling on what works. A wrong answer does not stop a
+conversation, it sends it down the other branch. That is exactly why the number is no measure of
+completeness, and exactly why the test asserts as much.
+</p>
+
+<h2>The refuters were themselves wrong twice</h2>
+
+<p>
+One claimed the vehicle exemption was unrecorded. It is recorded in three places, but in
+<strong>Finnish</strong>, so an English search found nothing. Another filed a measurable figure
+as unmeasurable, because the test lives in Unity's folder; it runs headlessly with one command.
+</p>
+
+<p>
+Each turned a checkable question into a confident wrong sentence, which is the one thing a
+refuter must not produce. Both are now mandatory facts in the instructions, and the rule says a
+refuter's finding is confirmed by me before anything is changed on the strength of it: a wrong
+refutation that gets fixed makes correct code incorrect.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>refuters                     6
+claims                       7
+survived intact              0
+
+live defects                 2  fixed and measured
+latent defects               4  fixed
+overclaims of my own         6  weakened or removed
+tests that pinned
+  the wrong rule             3  rewritten
+
+U6Formats.Tests  276 / 276
+U6Export.Tests    49 / 49
+U6Engine.Tests   554 / 554</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Inventories, and <code>WhoCarries</code> first among them. This time the refuters read the
+     handler before I write a line.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

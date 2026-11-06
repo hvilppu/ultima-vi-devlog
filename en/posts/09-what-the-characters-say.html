@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What the characters say | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/09-mita-hahmot-sanovat.html" hreflang="fi">FI</a><span>/</span><a href="09-what-the-characters-say.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 09</nav>
+
+<h1>What the characters say</h1>
+
+<p class="lede">
+Conversations are bytecode: 199 scripts, 85 instructions, a small language of their own. My
+reader appeared to work on the first try, and it was wrong in a way only counting could show.
+</p>
+
+<p>
+The characters in Ultima VI do not recite canned lines. Each has a script, and a script is a
+program: conditions, variables, jumps, flags, giving and taking items. Ask a smith about his
+job and an interpreter is running.
+</p>
+
+<h2>Two files, two different numberings</h2>
+
+<p>
+The scripts live in two files, each starting with a table of addresses. The table's own length
+is written nowhere. It is the <em>smallest address in it</em>, because the first script follows
+the table immediately. The portrait files use the same trick.
+</p>
+
+<p>
+The harder part is the numbering. In the first file the table index is the character number. In
+the second the table starts over from zero, and zero means character 99.
+</p>
+
+<pre><code>CONVERSE.A   table 396 bytes = 99 entries    index      = character   characters 2-98
+CONVERSE.B   table 500 bytes = 125 entries   index + 99 = character   characters 99-202</code></pre>
+
+<p>
+None of this had to be guessed. Every block repeats its own character number right at the
+start, so it can be compared against the table index. In the first file they agree 97 times out
+of 97; in the second the difference is a constant 99 across all 102. The loader checks this on
+every block, and one test runs the loader with the wrong base on purpose to confirm that the
+check actually fires. An untested check is not a check.
+</p>
+
+<h2>The reader that did not crash</h2>
+
+<p>
+A script is a simple stream: bytes below 0x80 are text, bytes above are instructions. I wrote
+the enum, wrote the loop, and out came a tidy looking token stream. No exceptions, no garbage.
+</p>
+
+<p>
+Then I counted. Every script should hold exactly one description and one opening section,
+because that is how the format is built. Mine reported eleven descriptions in some scripts.
+</p>
+
+<p>
+The cause was operands. Most instructions take their arguments as an expression, which is
+itself a stream of instructions, but the constants and the jump carry raw bytes. A jump address
+is <em>four bytes</em>, and those bytes often happen to contain 0xF1, 0xEE or 0xFF. My loop read
+them as instructions: as a description, as the end of an answer list, as the start of a new
+script.
+</p>
+
+<p>
+Measurement settled the operand's length. Assume one byte and 9 of the 5000 jump targets fall
+outside their script. With four bytes all 5000 land inside, and in all 5000 cases the top two
+bytes are zero.
+</p>
+
+<pre><code>operand 1 byte     target inside the script   4991 / 5000
+operand 4 bytes    target inside the script   5000 / 5000
+                   descriptions per script    exactly 1, in all 199</code></pre>
+
+<p>
+This is the second time in this project that passing code was wrong and only structural
+counting revealed it. The first was the invisible sea. The pattern is the same: the mistake
+does not crash, it produces something plausible.
+</p>
+
+<h2>The most common instruction</h2>
+
+<p>
+With the reader fixed I made a histogram. Right after the expression machinery, the most common
+instruction is 0xCB, 2725 times. It means "wait for a key". It ends nearly every page of
+printed text, which is why it occurs more often in the data than the equality comparison does.
+</p>
+
+<p>
+Smaller findings from the same pass: of the keywords, 3002 are four letters long and 759 are a
+single letter, yet the engine does not cut anything to four letters. The scripts were simply
+written that way. Two characters speak but have no keywords at all, three lack a catch-all
+answer, and eleven have no farewell.
+</p>
+
+<h2>Two bugs in the original</h2>
+
+<p>
+The interpreter's conditionals do not nest: when a condition is false, the skip stops at the
+first end marker it finds rather than at its own match. In my data a nested conditional occurs
+in exactly one script out of 199, and that is precisely where it bites.
+</p>
+
+<pre><code>@3888 IF   (condition)
+@3917   GOTO 3778        &lt;- unconditional jump out
+@3922   IF  LEAVEPARTY   &lt;- inner
+@3942   ENDIF
+@3943 ENDIF</code></pre>
+
+<p>
+The block from 3922 onward is unreachable for two reasons at once. If the condition is true,
+the body jumps away before it. If the condition is false, the skip stops at the inner end
+marker and resumes past it. The intent was clearly to find a party member who could be asked
+to leave when the party is full. In practice the character simply says he cannot join.
+</p>
+
+<p>
+The second is a typo in a script. In one carrying-capacity check an array index is marked as a
+string variable where every comparable place uses an integer variable. There are 478 array
+reads in the whole data set, and exactly one is indexed by a string variable. That uniqueness
+is what makes it a mistake rather than deliberate structure.
+</p>
+
+<p>
+Neither gets fixed. The goal is 1:1, so the bugs are reproduced too. They just get written
+down, so that nobody later mistakes them for ours.
+</p>
+
+<h2>Tests</h2>
+
+<p>
+Fifty new ones. The strongest locks the whole parse against a SHA-256 digest covering numbers,
+lengths, token kinds, instruction bytes and operands but <em>no text</em>. Any change in how a
+script is read moves the digest, and not a line of the game's dialogue enters the repository.
+</p>
+
+<pre><code>Unity EditMode     180 / 180
+Format library     121 / 121
+Exporter            23 / 23
+                   -----------
+                   324 tests</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The remaining rule tables: spells, character development and shop prices. Then the
+     interpreter itself, meaning the expression stack and the skip rules with their missing
+     nesting. The format is finished, so what is left is the thing that runs it.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data or
+     graphics are included here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

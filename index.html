@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ultima VI uudelleen</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="index.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="en/index.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla, tiedostomuoto kerrallaan.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+<p class="lede">
+Tämä on devlog henkilökohtaisesta projektista: puran laillisesti omistamani kopion pelistä
+<em>Ultima VI: The False Prophet</em>, selvitän jokaisen tiedoston sen levyiltä ja rakennan
+pelin uudelleen natiivina C#-ohjelmana, joka käyttäytyy tasan kuten alkuperäinen. Ei
+remasterointia, ei laatuparannuksia. Sama ruutu, samat säännöt, samat bugit.
+</p>
+
+<p>
+Postaukset kertovat työstä siinä järjestyksessä kuin se tapahtui. Päivämääriä ei ole, koska
+ainoa seuraamisen arvoinen asia on se, mikä oikeasti toimii.
+</p>
+
+<h2>Tilanne</h2>
+
+<div class="board">
+  <div class="stat"><span class="v">879</span><span class="k">testiä läpi</span></div>
+  <div class="stat"><span class="v">2048</span><span class="k">tiiltä purettu</span></div>
+  <div class="stat"><span class="v">1024&sup2;</span><span class="k">maailman tiiltä</span></div>
+  <div class="stat"><span class="v">16838</span><span class="k">objektia paikallaan</span></div>
+</div>
+
+<div class="phase">
+  <h3>Vaihe A: datan purkaminen</h3>
+  <ul class="milestones">
+    <li><span class="tick done">ok</span> Projektirunko ja laatuportti</li>
+    <li><span class="tick done">ok</span> Purkaminen ja väripaletit</li>
+    <li><span class="tick done">ok</span> Tiiligrafiikka</li>
+    <li><span class="tick part">osa</span> Portretit ja fontti valmiit, kokoruudun grafiikka yhä auki</li>
+    <li><span class="tick done">ok</span> Maailmankartta ja viisi luolatasoa</li>
+    <li><span class="tick done">ok</span> Objektit ja objektityypit</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <h3>Vaihe B: sääntöjen palauttaminen</h3>
+  <ul class="milestones">
+    <li><span class="tick done">ok</span> Referenssilähteet paikannettu ja kartoitettu</li>
+    <li><span class="tick part">osa</span> Sääntöjen louhinta: kuusi kahdestatoista, arpakuutio, hirviöstatit ja taistelukaavat</li>
+    <li class="todo"><span class="tick todo">seur</span> Musiikki</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <h3>Vaihe C: moottori</h3>
+  <ul class="milestones">
+    <li><span class="tick done">ok</span> Renderöinti Unityssä</li>
+    <li><span class="tick done">ok</span> Liikkuminen, törmäys, ovet, luolat, vuorokaudenaika</li>
+    <li class="todo"><span class="tick todo">seur</span> Inventaario, kauppa, esineiden käyttö, taistelu, taikuus</li>
+    <li class="todo"><span class="tick todo">&middot;</span> Hahmot, aikataulut, keskustelu</li>
+    <li class="todo"><span class="tick todo">&middot;</span> Kulkuvälineet, kuuportit, juonen tila</li>
+    <li class="todo"><span class="tick todo">&middot;</span> Tallennus ja lataus</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <h3>Vaihe D: loppu pelistä</h3>
+  <ul class="milestones">
+    <li class="todo"><span class="tick todo">&middot;</span> Intro, lopetus, käyttöliittymä</li>
+    <li class="todo"><span class="tick todo">&middot;</span> Paketointi ja läpipeluu</li>
+  </ul>
+</div>
+
+<h2>Postaukset</h2>
+
+<ol class="posts">
+  <li>
+    <span class="n">01</span>
+    <a href="posts/01-mita-levyilla-on.html">Mitä levyillä oikeastaan on</a>
+    <p>Viitisenkymmentä datatiedostoa, ei dokumentaatiota, ja yksi pakkausmenetelmä niiden
+       kaikkien edessä.</p>
+  </li>
+  <li>
+    <span class="n">02</span>
+    <a href="posts/02-tiilet.html">Tiilet ja luku jossa ei ollut järkeä</a>
+    <p>Kaksi kolmasosaa grafiikasta on muodossa, jonka offsetit näyttävät vääriltä, kunnes
+       tajuaa mihin ne on mitattu.</p>
+  </li>
+  <li>
+    <span class="n">03</span>
+    <a href="posts/03-maailma.html">Britannian kokoaminen</a>
+    <p>Miljoona tiiltä 32 kilotavussa, ja järjestysvirhe joka näyttää täysin uskottavalta
+       siihen asti kun sen renderöi.</p>
+  </li>
+  <li>
+    <span class="n">04</span>
+    <a href="posts/04-objektit.html">Kuusitoistatuhatta objektia ja yksi epäilyttävä bitti</a>
+    <p>Maassa makaavien ja arkussa olevien esineiden erottaminen toisistaan, poissulkemalla.</p>
+  </li>
+  <li>
+    <span class="n">05</span>
+    <a href="posts/05-lahdekoodi.html">Joku teki vaikean osan jo</a>
+    <p>Alkuperäisestä on olemassa dekompilaatio. Se poisti projektin suurimman riskin ja
+       löysi saman tien oman bugini.</p>
+  </li>
+  <li>
+    <span class="n">06</span>
+    <a href="posts/06-ensimmainen-kuva.html">Ensimmäinen kuva</a>
+    <p>Viisi milestonea näkymätöntä työtä päätyy vihdoin ruudulle, nimenomaan jättämällä
+       pelimoottorin tilemapin käyttämättä.</p>
+  </li>
+  <li>
+    <span class="n">07</span>
+    <a href="posts/07-nakymaton-meri.html">Näkymätön meri</a>
+    <p>Renderöijä piirsi tyhjän valkoisen neliön. Kolmanneksella maailmasta ei ole lainkaan
+       grafiikkaa, ja testi joka olisi pitänyt havaita se kysyi väärää kysymystä.</p>
+  </li>
+  <li>
+    <span class="n">08</span>
+    <a href="posts/08-aukko-seinassa.html">Aukko seinässä</a>
+    <p>Ovien viereen jäi reikä. Osa esineistä on kahden ruudun kokoisia, ja niistä piirtyi
+       vain puolet.</p>
+  </li>
+  <li>
+    <span class="n">09</span>
+    <a href="posts/09-mita-hahmot-sanovat.html">Mitä hahmot sanovat</a>
+    <p>Keskustelut ovat omaa tavukoodia. Jäsennin näytti toimivan heti, ja siinä oli virhe
+       jota vain laskeminen pystyi näyttämään.</p>
+  </li>
+  <li>
+    <span class="n">10</span>
+    <a href="posts/10-kuninkaan-paiva.html">Kuninkaan päivä</a>
+    <p>Viimeinen todentamaton tiedostomuoto. Oikean bittijaon tunnistaa siitä, että hahmot
+       eivät päädy mereen.</p>
+  </li>
+  <li>
+    <span class="n">11</span>
+    <a href="posts/11-kirjoitettu-sana.html">Kirjoitettu sana</a>
+    <p>Kirjat ja kyltit. Sama prosenttimerkki tarkoittaa kahta eri asiaa sen mukaan mitä
+       reittiä teksti tulostuu.</p>
+  </li>
+  <li>
+    <span class="n">12</span>
+    <a href="posts/12-taikuuden-sanat.html">Taikuuden sanat</a>
+    <p>Loitsut on käännetty ohjelmaan. Taulun paljasti ominaisuus, joka oli alun perin pelkkä
+       varaus tuleville loitsuille.</p>
+  </li>
+  <li>
+    <span class="n">13</span>
+    <a href="posts/13-kokemus-joka-ei-johda-mihinkaan.html">Kokemus joka ei johda mihinkään</a>
+    <p>Kokemus ei nosta tasoa lainkaan. Ja kesken työn huomasin kirjoittaneeni
+       dokumentaatioon väitteen joka oli väärä.</p>
+  </li>
+  <li>
+    <span class="n">14</span>
+    <a href="posts/14-oma-saanto-jota-en-noudattanut.html">Oma sääntö jota en noudattanut</a>
+    <p>Suunnitelmassa luki alusta asti, että pelilogiikka pidetään erillään Unitystä. Lasku
+       lankesi vasta kun testejä ei saanut ajettua.</p>
+  </li>
+  <li>
+    <span class="n">15</span>
+    <a href="posts/15-kone-joka-puhuu.html">Kone joka puhuu</a>
+    <p>Keskustelutulkki ajaa kaikkien 199 hahmon skriptit. Kiinnostavimpia olivat kolme
+       sääntöä jotka ovat väärin ja joita ei saa korjata.</p>
+  </li>
+  <li>
+    <span class="n">16</span>
+    <a href="posts/16-vain-ensimmainen-vastaa.html">Vain ensimmäinen vastaa</a>
+    <p>Avainsanojen täsmäytys. Neljän kirjaimen typistys on tarina eikä sääntö, ja
+       korpustesti löysi kolme asiaa joista pahin oli omani.</p>
+  </li>
+  <li>
+    <span class="n">17</span>
+    <a href="posts/17-se-joka-kysyy.html">Se joka kysyy</a>
+    <p>Keskustelu toimii päästä päähän 198 hahmolla. Yksi on huonokuuloinen, ja yksi
+       testini ei voinut kaatua.</p>
+  </li>
+  <li>
+    <span class="n">18</span>
+    <a href="posts/18-199-kahdesta-sadasta.html">199 / 199</a>
+    <p>Viimeinen puuttuva käsky, hahmonumero joka luki käskynä, ja toinen testi joka ei
+       erottanut mitään.</p>
+  </li>
+  <li>
+    <span class="n">19</span>
+    <a href="posts/19-nelja-kirjainta-vaarassa-paikassa.html">Neljä kirjainta, väärässä paikassa</a>
+    <p>Keskustelumoottori valmis. Pelistä kerrottu tarina on tosi, mutta eri käskystä kuin
+       kaikki luulevat.</p>
+  </li>
+  <li>
+    <span class="n">20</span>
+    <a href="posts/20-kirjasin-jota-ei-ollut.html">Kirjasin jota ei ollut</a>
+    <p>Riimukirjasin on saman fontin ylempi puolisko. Oma luokkani oli väärässä
+       kokoonpanossa, ja liput paljastivat alkuperäisen vian.</p>
+  </li>
+  <li>
+    <span class="n">21</span>
+    <a href="posts/21-numero-joka-puuttui.html">Numero joka puuttui</a>
+    <p>Aioin laittaa hahmot kartalle ja huomasin ettei viedyillä objekteilla ole
+       numeroa. Kaksi mittausta päätyi samoihin kahteen hahmoon.</p>
+  </li>
+  <li>
+    <span class="n">22</span>
+    <a href="posts/22-yhdeksan-ruutua-eika-yksitoista.html">Yhdeksän ruutua, ei yksitoista</a>
+    <p>Hahmot kartalla. Ruudulla olo on tarkempi sääntö kuin oletin, ja yksi sen osa ei
+       ole suodatin vaikka siltä näyttää.</p>
+  </li>
+  <li>
+    <span class="n">23</span>
+    <a href="posts/23-uskottava-ei.html">Uskottava ei</a>
+    <p>172 keskustelua 196:sta menee läpi oikeaa maailmaa vasten. Luku on mitattavissa
+       vain siksi, että rakentamaton maailma kieltäytyy vastaamasta.</p>
+  </li>
+  <li>
+    <span class="n">24</span>
+    <a href="posts/24-testi-joka-suojeli-virhetta.html">Testi joka suojeli virhettä</a>
+    <p>Kuusi kumoajaa omia väitteitäni vasten, eikä yksikään säilynyt ehjänä. Pahin
+       löytö oli testi jonka olin juuri kirjoittanut suojelemaan virhettä.</p>
+  </li>
+</ol>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Inventaariot, ja niistä <code>WhoCarries</code> ensin: se yksin pysäyttää 15
+     keskustelua. Tällä kertaa kumoajat lukevat käsittelijän ensin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa tai grafiikkaa
+     ei ole mukana täällä eikä repossa. Työkalut lukevat oman asennuksesi ja kirjoittavat
+     tarvitsemansa paikallisesti.</p>
+  <p><em>Ultima VI: The False Prophet</em> on oikeudenhaltijoidensa omaisuutta. Tämä loki
+     kuvaa omaa koodia, joka on kirjoitettu toimimaan sen kanssa.</p>
+</footer>
+
+</main>
+</body>
+</html>

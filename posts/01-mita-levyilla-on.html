@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mitä levyillä oikeastaan on | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="01-mita-levyilla-on.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/01-what-is-on-the-disks.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 01</nav>
+
+<h1>Mitä levyillä oikeastaan on</h1>
+
+<p class="lede">
+Viitisenkymmentä datatiedostoa, ei dokumentaatiota, ja yksi pakkausmenetelmä niiden kaikkien
+edessä.
+</p>
+
+<p>
+Asennettu peli on litteä hakemisto lyhyitä isoilla kirjaimilla kirjoitettuja nimiä, joilla ei
+ole päätteitä tai on epäinformatiivinen pääte: <code>MAP</code>, <code>CHUNKS</code>,
+<code>TILEFLAG</code>, <code>BASETILE</code>, <code>LOOK.LZD</code>,
+<code>OBJTILES.VGA</code>. Seitsemän pientä tiedostoa <code>U6.1</code> ja <code>U6.7</code>
+väliltä osoittautuvat alkuperäisten levykkeiden nimilapuiksi, ja ne ovat hiljaisen
+hyödyllisiä: ne nimeävät levyt sanoilla <em>Program</em>, <em>Introduction</em>,
+<em>Endgame</em>, <em>Game</em>, <em>Map</em> ja <em>Populace A/B</em>. Se kertoo, miten
+kehittäjät itse ryhmittelivät datansa, ennen kuin olet lukenut siitä yhtään tavua.
+</p>
+
+<p>
+Suurin osa hakemistosta on turhaa. Sama grafiikka on mukana viidesti, kerran kutakin aikakauden
+näyttöstandardia kohden: CGA, EGA, Tandy, Hercules ja VGA. Se on 89 tiedostoa, jotka voi
+sivuuttaa suoraan. Jäljelle jää noin viisikymmentä, joilla on merkitystä.
+</p>
+
+<h2>Yksi formaatti avaa puolet hakemistosta</h2>
+
+<p>
+Ensimmäinen todellinen este on, että monet tiedostot alkavat neljällä tavulla, jotka
+näyttävät pituudelta, ja muuttuvat sen jälkeen kohinaksi. <code>LZMAP</code> alkaa
+32-bittisellä arvolla 32 256. Hakemistossa on myös pakkaamaton tiedosto nimeltä
+<code>MAP</code>, ja se on tasan 32 256 tavua pitkä.
+</p>
+
+<p>
+Siinä on koko vihje. Tiedostot on pakattu LZW:llä, otsakkeen neljä tavua kertovat puretun
+koon, ja pakattu virta on jono vaihtuvamittaisia koodeja pakattuna alin bitti ensin:
+yhdeksän bittiä aluksi, kasvaen kahteentoista sanakirjan täyttyessä. Koodi 256 nollaa
+sanakirjan ja 257 päättää virran.
+</p>
+
+<p>
+Purkajan kirjoittaminen vie puoli tuntia. Sen todentaminen on kiinnostavampi osa, ja otsake
+tekee siitä ilmaista: jokainen tiedosto ilmoittaa itse mihin kokoon sen pitäisi purkautua,
+joten dekooderin voi tarkistaa kahdeksaa eri tiedostoa vasten tietämättä mitään niiden
+sisällöstä.
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Tiedosto</th><th class="num">Pakattu</th><th class="num">Purkautuu</th><th>Mitä se oli</th></tr></thead>
+  <tbody>
+    <tr><td><code>LZMAP</code></td><td class="num">17 566</td><td class="num">32 256</td><td>kopio karttatiedostosta</td></tr>
+    <tr><td><code>LZOBJBLK</code></td><td class="num">43 974</td><td class="num">72 912</td><td>kaikki objektit pinnalla</td></tr>
+    <tr><td><code>LZDNGBLK</code></td><td class="num">39 620</td><td class="num">69 213</td><td>kaikki objektit maan alla</td></tr>
+    <tr><td><code>LOOK.LZD</code></td><td class="num">4 193</td><td class="num">5 914</td><td>kaiken nimet</td></tr>
+    <tr><td><code>MASKTYPE.VGA</code></td><td class="num">1 515</td><td class="num">3 968</td><td>miten kukin tiili on tallennettu</td></tr>
+    <tr><td><code>MAPTILES.VGA</code></td><td class="num">47 199</td><td class="num">117 408</td><td>kaksi kolmasosaa grafiikasta</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+Kaikki kahdeksan purkautuivat tasan ilmoitettuun kokoon ensimmäisellä ajolla. Noista koista ja
+niiden tarkistussummista tuli projektin ensimmäiset regressiotestit, eivätkä ne ole liikkuneet
+sen jälkeen.
+</p>
+
+<h2>Nimet ilmaiseksi</h2>
+
+<p>
+<code>LOOK.LZD</code> on se tiedosto, joka tekee kaikesta muusta luettavaa. Se on litteä jono
+tietueita: 16-bittinen tiilinumero ja sen perässä nollaan päättyvä merkkijono. Tiili 1 on
+ruoho, tiili 15 vesi, tiili 51 puu.
+</p>
+
+<p>
+Yksi yksityiskohta osoittautuu pieneksi vuoden 1990 näppäryydeksi. Osassa nimistä on kaksi
+merkkiä, <code>/</code> ja <code>\</code>. Kaikki ennen kauttaviivaa on yhteistä, merkkien
+välissä oleva osa täydentää yksikön ja viimeinen osa monikon. Yksi merkkijono, molemmat
+muodot, ei toista taulukkoa. Leipä ja leivät tulevat samasta seitsemästätoista tavusta.
+</p>
+
+<p>
+Viisisataakolmetoista tiiltä kantaa nimeä. Siitä taulukosta tuli oraakkeli lähes jokaiselle
+myöhemmälle löydökselle: aina kun jokin bittikenttä vaati tulkintaa, kysymykseksi muodostui
+<em>millä tiilillä tämä bitti on päällä, ja mitä ne ovat nimeltään?</em>
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p><a href="02-tiilet.html">Tiilet ja luku jossa ei ollut järkeä</a>:
+     grafiikka on indeksoitu taululla, jonka offsetit ovat vääriä siihen asti kun selvität
+     mihin ne on mitattu.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa tai grafiikkaa
+     ei ole mukana täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

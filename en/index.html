@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rebuilding Ultima VI</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../index.html" hreflang="fi">FI</a><span>/</span><a href="index.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="index.html">Rebuilding Ultima VI</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity, one file format at a time.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+<p class="lede">
+This is a devlog for a personal project: taking a legally owned copy of <em>Ultima VI: The
+False Prophet</em> apart, understanding every file on its disks, and rebuilding the game as a
+native C# program that behaves exactly like the original. No remaster, no quality-of-life
+changes. The same screen, the same rules, the same bugs.
+</p>
+
+<p>
+The posts below are about the engineering, in the order the work happened. There are no dates
+because the only thing worth tracking is what actually runs.
+</p>
+
+<h2>Where it stands</h2>
+
+<div class="board">
+  <div class="stat"><span class="v">879</span><span class="k">tests passing</span></div>
+  <div class="stat"><span class="v">2048</span><span class="k">tiles decoded</span></div>
+  <div class="stat"><span class="v">1024&sup2;</span><span class="k">world tiles</span></div>
+  <div class="stat"><span class="v">16838</span><span class="k">objects placed</span></div>
+</div>
+
+<div class="phase">
+  <h3>Phase A: pulling the data out</h3>
+  <ul class="milestones">
+    <li><span class="tick done">done</span> Project skeleton and the quality gate</li>
+    <li><span class="tick done">done</span> Decompression and colour palettes</li>
+    <li><span class="tick done">done</span> Tile graphics</li>
+    <li><span class="tick part">part</span> Portraits and font done, full-screen art still undecoded</li>
+    <li><span class="tick done">done</span> The world map and five dungeon levels</li>
+    <li><span class="tick done">done</span> Objects and object types</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <h3>Phase B: recovering the rules</h3>
+  <ul class="milestones">
+    <li><span class="tick done">done</span> Reference sources located and mapped</li>
+    <li><span class="tick part">part</span> Rule extraction: six of twelve, including the dice, creature statistics and combat</li>
+    <li class="todo"><span class="tick todo">next</span> Music</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <h3>Phase C: the engine</h3>
+  <ul class="milestones">
+    <li><span class="tick done">done</span> Rendering in Unity</li>
+    <li><span class="tick done">done</span> Movement, collision, doors, dungeons, time of day</li>
+    <li class="todo"><span class="tick todo">next</span> Inventory, trade, item use, combat, magic</li>
+    <li class="todo"><span class="tick todo">&middot;</span> Characters, schedules, conversation</li>
+    <li class="todo"><span class="tick todo">&middot;</span> Vehicles, moongates, plot state</li>
+    <li class="todo"><span class="tick todo">&middot;</span> Saving and loading</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <h3>Phase D: the rest of the game</h3>
+  <ul class="milestones">
+    <li class="todo"><span class="tick todo">&middot;</span> Intro, endgame, interface</li>
+    <li class="todo"><span class="tick todo">&middot;</span> Packaging and a full playthrough</li>
+  </ul>
+</div>
+
+<h2>Posts</h2>
+
+<ol class="posts">
+  <li>
+    <span class="n">01</span>
+    <a href="posts/01-what-is-on-the-disks.html">What is actually on the disks</a>
+    <p>Fifty-odd data files, no documentation, and one compression scheme standing between
+       me and all of it.</p>
+  </li>
+  <li>
+    <span class="n">02</span>
+    <a href="posts/02-the-tiles.html">The tiles, and a number that made no sense</a>
+    <p>Two thirds of the artwork is stored in a format whose offsets look wrong, until you
+       realise what they are measured against.</p>
+  </li>
+  <li>
+    <span class="n">03</span>
+    <a href="posts/03-the-world.html">Assembling Britannia</a>
+    <p>A million tiles squeezed into 32 KB, and an ordering mistake that looks perfectly
+       plausible until you render it.</p>
+  </li>
+  <li>
+    <span class="n">04</span>
+    <a href="posts/04-the-objects.html">Sixteen thousand objects and one suspicious bit</a>
+    <p>Finding the flag that separates things lying on the ground from things inside a chest,
+       by elimination.</p>
+  </li>
+  <li>
+    <span class="n">05</span>
+    <a href="posts/05-the-source.html">Someone already did the hard part</a>
+    <p>A decompilation of the original exists. It removed the project's biggest risk and
+       immediately caught a bug of my own.</p>
+  </li>
+  <li>
+    <span class="n">06</span>
+    <a href="posts/06-first-picture.html">The first picture</a>
+    <p>Five milestones of invisible work finally show up on screen, specifically by not using
+       the game engine's tilemap at all.</p>
+  </li>
+  <li>
+    <span class="n">07</span>
+    <a href="posts/07-the-invisible-sea.html">The invisible sea</a>
+    <p>The renderer drew a blank white square. A third of the world turns out to have no
+       artwork at all, and the test that should have caught it was asking the wrong question.</p>
+  </li>
+  <li>
+    <span class="n">08</span>
+    <a href="posts/08-the-gap-in-the-wall.html">The gap in the wall</a>
+    <p>A hole appeared beside every doorway. Some objects cover two squares, and only half of
+       each was being drawn.</p>
+  </li>
+  <li>
+    <span class="n">09</span>
+    <a href="posts/09-what-the-characters-say.html">What the characters say</a>
+    <p>Conversations are bytecode. The reader appeared to work on the first try, and it was
+       wrong in a way only counting could show.</p>
+  </li>
+  <li>
+    <span class="n">10</span>
+    <a href="posts/10-the-kings-day.html">The king's day</a>
+    <p>The last unverified file format. You recognise the right bit layout by the fact that
+       nobody ends up in the sea.</p>
+  </li>
+  <li>
+    <span class="n">11</span>
+    <a href="posts/11-the-written-word.html">The written word</a>
+    <p>Books and signs. The same percent sign means two different things depending on which
+       route the text takes.</p>
+  </li>
+  <li>
+    <span class="n">12</span>
+    <a href="posts/12-the-words-of-magic.html">The words of magic</a>
+    <p>The spells are compiled into the program. What gave the table away was a feature that
+       started life as headroom for spells never added.</p>
+  </li>
+  <li>
+    <span class="n">13</span>
+    <a href="posts/13-experience-that-leads-nowhere.html">Experience that leads nowhere</a>
+    <p>Experience never raises a level at all. And halfway through I caught myself having
+       written a claim in the documentation that was false.</p>
+  </li>
+  <li>
+    <span class="n">14</span>
+    <a href="posts/14-the-rule-i-did-not-follow.html">The rule I did not follow</a>
+    <p>The plan said from the start to keep the game logic independent of Unity. The bill only
+       arrived when the tests could not be run.</p>
+  </li>
+  <li>
+    <span class="n">15</span>
+    <a href="posts/15-the-machine-that-talks.html">The machine that talks</a>
+    <p>The conversation interpreter runs all 199 scripts. The interesting part was three rules
+       that are wrong and must not be corrected.</p>
+  </li>
+  <li>
+    <span class="n">16</span>
+    <a href="posts/16-only-the-first-one-answers.html">Only the first one answers</a>
+    <p>Keyword matching. The four letter truncation is a story rather than a rule, and the
+       corpus test found three things, the worst of them mine.</p>
+  </li>
+  <li>
+    <span class="n">17</span>
+    <a href="posts/17-the-part-that-asks.html">The part that asks</a>
+    <p>Conversations work end to end for 198 characters. One is hard of hearing, and one of
+       my tests could not fail.</p>
+  </li>
+  <li>
+    <span class="n">18</span>
+    <a href="posts/18-199-out-of-199.html">199 out of 199</a>
+    <p>The last missing instruction, a character number that read as one, and a second test
+       of mine that distinguished nothing.</p>
+  </li>
+  <li>
+    <span class="n">19</span>
+    <a href="posts/19-four-letters-in-the-wrong-place.html">Four letters, in the wrong place</a>
+    <p>The conversation engine is finished. The story people tell about this parser is true,
+       but about a different instruction.</p>
+  </li>
+  <li>
+    <span class="n">20</span>
+    <a href="posts/20-the-font-that-was-not-there.html">The font that was not there</a>
+    <p>The runic font is the upper half of the same font. A class of mine was in the wrong
+       assembly, and the flags turned up an original fault.</p>
+  </li>
+  <li>
+    <span class="n">21</span>
+    <a href="posts/21-the-number-that-was-missing.html">The number that was missing</a>
+    <p>I set out to put characters on the map and found the exported objects had no
+       number. Two measurements landed on the same two characters.</p>
+  </li>
+  <li>
+    <span class="n">22</span>
+    <a href="posts/22-nine-squares-not-eleven.html">Nine squares, not eleven</a>
+    <p>Characters on the map. Being on screen is a more particular rule than I expected,
+       and one part of it is not a filter.</p>
+  </li>
+  <li>
+    <span class="n">23</span>
+    <a href="posts/23-a-plausible-no.html">A plausible no</a>
+    <p>172 conversations out of 196 get through against the real world. The number is
+       measurable only because the unbuilt world refuses to answer.</p>
+  </li>
+  <li>
+    <span class="n">24</span>
+    <a href="posts/24-the-test-that-protected-the-bug.html">The test that protected the bug</a>
+    <p>Six refuters against my own claims, and not one survived intact. The worst finding
+       was a test I had just written to protect a bug.</p>
+  </li>
+</ol>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Inventories, and <code>WhoCarries</code> first among them: that one member stops 15
+     conversations. This time the refuters read the handler first.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data or artwork is
+     included here or in the repository. The tooling reads your own installation and writes
+     everything it needs locally.</p>
+  <p><em>Ultima VI: The False Prophet</em> is the property of its rights holders. This log
+     describes original code written to interoperate with it.</p>
+</footer>
+
+</main>
+</body>
+</html>

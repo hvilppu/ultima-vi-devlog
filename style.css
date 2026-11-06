@@ -1,0 +1,368 @@
+/* Ultima VI Remake devlog -- shared styles */
+
+:root {
+    --bg: #faf8f4;
+    --bg-raised: #ffffff;
+    --bg-sunken: #f0ece4;
+    --ink: #1d1a16;
+    --ink-soft: #5c564c;
+    --ink-faint: #8a8276;
+    --rule: #ddd6c8;
+    --accent: #8a4b1e;
+    --accent-soft: #c98a4b;
+    --good: #2f6b3a;
+    --warn: #9a6b00;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+    --measure: 68ch;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #14130f;
+        --bg-raised: #1c1a16;
+        --bg-sunken: #0e0d0a;
+        --ink: #ece7dd;
+        --ink-soft: #b4ac9e;
+        --ink-faint: #7d7668;
+        --rule: #332f28;
+        --accent: #d79a5b;
+        --accent-soft: #8a6336;
+        --good: #7fb98a;
+        --warn: #d7b25b;
+    }
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: 0 1.25rem 6rem;
+}
+
+/* ---- masthead ---- */
+
+header.masthead {
+    border-bottom: 1px solid var(--rule);
+    background: var(--bg-raised);
+    margin-bottom: 3rem;
+}
+
+header.masthead .wrap { padding-top: 2.5rem; padding-bottom: 2rem; }
+
+.sitetitle {
+    font-family: var(--mono);
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.sitetitle a { color: var(--ink); text-decoration: none; }
+
+.tagline {
+    color: var(--ink-soft);
+    margin: 0.4rem 0 0;
+    font-size: 0.97rem;
+}
+
+nav.crumbs {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+}
+
+nav.crumbs a { color: var(--accent); }
+
+/* ---- language switch ---- */
+
+.langs {
+    float: right;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+}
+
+.langs a {
+    color: var(--ink-faint);
+    text-decoration: none;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+}
+
+.langs a:hover { color: var(--accent); }
+
+.langs a[aria-current="true"] {
+    color: var(--ink);
+    background: var(--bg-sunken);
+    font-weight: 600;
+}
+
+.langs span { color: var(--rule); }
+
+.masthead .wrap { position: relative; }
+
+/* ---- typography ---- */
+
+h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.75rem;
+}
+
+h2 {
+    font-size: 1.3rem;
+    margin: 2.75rem 0 0.75rem;
+    letter-spacing: -0.01em;
+}
+
+h3 {
+    font-size: 1.05rem;
+    margin: 2rem 0 0.5rem;
+}
+
+p { margin: 0 0 1.1rem; }
+
+a { color: var(--accent); }
+
+code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--bg-sunken);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+}
+
+pre {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.55;
+    background: var(--bg-sunken);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    margin: 0 0 1.4rem;
+}
+
+pre code { background: none; padding: 0; font-size: inherit; }
+
+blockquote {
+    margin: 0 0 1.4rem;
+    padding: 0.1rem 0 0.1rem 1.1rem;
+    border-left: 3px solid var(--accent-soft);
+    color: var(--ink-soft);
+}
+
+.lede {
+    font-size: 1.1rem;
+    color: var(--ink-soft);
+    margin-bottom: 2rem;
+}
+
+/* ---- tables ---- */
+
+.scroller { overflow-x: auto; margin: 0 0 1.4rem; }
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+}
+
+th, td {
+    text-align: left;
+    padding: 0.5rem 0.7rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+}
+
+th {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+}
+
+td.num { text-align: right; font-family: var(--mono); }
+
+/* ---- figures ---- */
+
+figure {
+    margin: 0 0 1.8rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+figure img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+    image-rendering: pixelated;
+    border-radius: 3px;
+}
+
+figure svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+
+figcaption {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin-top: 0.85rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--rule);
+}
+
+.missing {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    background: var(--bg-sunken);
+    border: 1px dashed var(--rule);
+    border-radius: 4px;
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+/* ---- post list ---- */
+
+ol.posts { list-style: none; padding: 0; margin: 0; counter-reset: post; }
+
+ol.posts li {
+    counter-increment: post;
+    border-top: 1px solid var(--rule);
+    padding: 1.3rem 0;
+}
+
+ol.posts li:last-child { border-bottom: 1px solid var(--rule); }
+
+ol.posts a {
+    font-size: 1.12rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: block;
+}
+
+ol.posts a:hover { text-decoration: underline; }
+
+ol.posts .n {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+ol.posts p { margin: 0.35rem 0 0; color: var(--ink-soft); font-size: 0.95rem; }
+
+/* ---- status board ---- */
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem;
+    margin: 0 0 2rem;
+}
+
+.stat {
+    background: var(--bg-raised);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+}
+
+.stat .v {
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: block;
+    line-height: 1.1;
+}
+
+.stat .k {
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.phase { margin-bottom: 1.6rem; }
+
+.phase h3 { margin: 0 0 0.6rem; font-family: var(--mono); font-size: 0.85rem;
+            text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-faint); }
+
+ul.milestones { list-style: none; padding: 0; margin: 0; }
+
+ul.milestones li {
+    display: flex;
+    gap: 0.6rem;
+    align-items: baseline;
+    padding: 0.25rem 0;
+    font-size: 0.93rem;
+}
+
+.tick { font-family: var(--mono); font-size: 0.85rem; width: 1.6rem; flex: none; }
+.tick.done { color: var(--good); }
+.tick.part { color: var(--warn); }
+.tick.todo { color: var(--ink-faint); }
+
+li.todo { color: var(--ink-faint); }
+
+/* ---- footer ---- */
+
+footer.foot {
+    border-top: 1px solid var(--rule);
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--ink-faint);
+}
+
+footer.foot p { margin: 0 0 0.6rem; }
+
+.next {
+    background: var(--bg-raised);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent-soft);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.2rem;
+    margin: 2.5rem 0 0;
+}
+
+.next .k {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--ink-faint);
+    display: block;
+    margin-bottom: 0.3rem;
+}
+
+.next p { margin: 0; }
+
+/* A correction to something this post got wrong, kept visible rather than edited away. */
+.note {
+    background: var(--bg-raised);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--ink-faint);
+    border-radius: 0 8px 8px 0;
+    padding: 0.9rem 1.1rem;
+    margin: 1.6rem 0;
+    font-size: 0.94rem;
+    color: var(--ink-soft, inherit);
+}

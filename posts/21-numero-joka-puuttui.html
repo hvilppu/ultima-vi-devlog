@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Numero joka puuttui | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="21-numero-joka-puuttui.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/21-the-number-that-was-missing.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 21</nav>
+
+<h1>Numero joka puuttui</h1>
+
+<p class="lede">
+Aioin laittaa hahmot kartalle. Kävi ilmi että perustaa ei ollut: viedyillä objekteilla ei ollut
+numeroa, ja alkuperäiselle numero on identiteetti.
+</p>
+
+<p>
+Keskustelumoottori oli valmis ja seuraavaksi piti saada hahmot näkyviin. Mittasin ensin mitä se
+vaatii, ja löysin tämän: <code>PartyMember</code> on 549 kutsua, mutta <strong>542 niistä kysyy
+ruudulla olevia jäseniä</strong>, mikä ei tarvitse puolueluetteloa vaan sijainteja. Eli hahmot
+kartalle.
+</p>
+
+<p>
+Sitten menin katsomaan mistä sijainnit tulevat, ja pysähdyin.
+</p>
+
+<h2>Objektilla ei ollut numeroa</h2>
+
+<p>
+Vientini lukee objektit <code>LZOBJBLK</code>-tiedostosta lohko kerrallaan ja kirjoittaa ne
+peräkkäin. Objektin paikka viedyssä tiedostossa on siis lohkojärjestyksen sivutuote eikä
+tarkoita mitään.
+</p>
+
+<p>
+Alkuperäiselle se tarkoittaa kaikkea. <code>TalkFlags[n]</code>, <code>Party[n]</code>,
+<code>NPCMode[n]</code>, <code>ObjPos[n]</code>: kaikki indeksoidaan objektinumerolla, ja
+jokainen keskustelukäsky tarkoittaa hahmolla juuri sitä numeroa. Olin rakentanut koko
+keskustelumoottorin identiteetin varaan jota viennissäni ei ollut.
+</p>
+
+<p>
+Numerointi ei ole objektilohkoissa lainkaan. Se on tiedostossa
+<code>SAVEGAME/OBJLIST</code>, 7539 tavua, jota en ollut lukenut kertaakaan.
+</p>
+
+<p>
+Tämän löytäminen nyt eikä kolme viipaletta myöhemmin on ainoa syy miksi se ei maksanut mitään.
+Jos olisin aloittanut puolueluettelosta, olisin kirjoittanut sen identiteetin päälle jota ei
+ole, ja huomannut vasta kun mikään ei osoita mihinkään.
+</p>
+
+<h2>Rakenne on latausjärjestys</h2>
+
+<p>
+Tiedostossa ei ole otsaketta eikä hakemistoa. Alkuperäinen lukee sen kahtenakymmenenäneljänä
+peräkkäisenä kutsuna, jokainen oma taulukkonsa, joten rakenne <em>on</em> latausjärjestys:
+tilatavut, sijainnit, muodot, voimat, kokemukset, nimet, puolue, aikatauluindeksit,
+keskustelujen liput, ja lopuksi pelitilaa.
+</p>
+
+<h2>Yksi luku puuttui, ja se piti mitata</h2>
+
+<p>
+Taulukoiden koot saa suoraan latauskutsuista, paitsi yksi: sijainnin tavumäärä riippuu
+tietueen koosta, jota ei ole kirjoitettu mihinkään.
+</p>
+
+<p>
+Tunnettujen taulukoiden summa on 6385 tavua, joten sijainneille ja pelitilalle jää 1154. Kaksi
+uskottavaa lukemaa, ja ne erottuvat toisistaan heti:
+</p>
+
+<pre><code>            puolueen koko   puolue
+3 tavua              4      [1, 2, 3, 4]
+4 tavua              0      [0, 0, 0, 0]</code></pre>
+
+<p>
+Kolme tavua antaa Avatarin ja kolme seuralaista. Neljä antaa nollia. Eikä siinä vielä kaikki:
+kun purin sijainnit kolmen tavun lukemalla, ne neljä hahmoa seisovat vierekkäisissä ruuduissa
+pisteen (307, 352) ympärillä. Se on uuden pelin oikea aloitusasetelma, eikä sellaista synny
+vahingossa väärällä askelpituudella.
+</p>
+
+<h2>Paras todiste tuli kahdelta eri suunnalta</h2>
+
+<p>
+Halusin tietää menevätkö numeroidut paikat ja maailman irtoesineet päällekkäin. Tyyppimäärä
+antaa viitteen: 200 paikkaa kantaa 24 eri tyyppiä, kun lohkojen 16838 objektia kantaa 399.
+</p>
+
+<p>
+Mutta oikea todiste tuli vertaamalla keskusteluskripteihin. <strong>196 paikkaa 200:sta on
+hahmo jolla on skripti</strong>, ja neljä poikkeusta selittää itsensä:
+</p>
+
+<pre><code>paikka   0   ei hahmo
+paikka   1   Avatar, jolle ei voi puhua
+paikka 125   -+
+paikka 188   -+-- nama kaksi</code></pre>
+
+<p>
+Paikat 125 ja 188 ovat <strong>tasan ne kaksi aukkoa</strong> jotka mittasin keskustelu&shy;tiedostoista
+kauan sitten, aivan eri syystä ja aivan eri tiedostosta. Hahmolla 188 taulun merkintä on nolla,
+ja hahmolla 125 merkintä osoittaa lohkoon jonka purettu koko on nolla.
+</p>
+
+<p>
+Kaksi toisistaan riippumatonta mittausta päätyy samoihin kahteen numeroon. Se on parempi
+todiste kuin kumpikaan yksin, ja se on myös syy miksi mittaukset kannattaa kirjata ylös
+silloinkin kun ne eivät vielä tee mitään.
+</p>
+
+<h2>Kaksi omaa virhettä</h2>
+
+<p>
+Kirjoitin viejän tietueeksi 24 tavua ja täytin sen. Lippukenttä ei mahtunut, ja koska en
+huomannut sitä, kirjoitin jälkeen silmukan joka kirjoitti väärää kenttää oikean päälle
+kommentilla joka väitti aivan muuta. Huomasin sen lukiessani omaa koodiani ennen kuin ajoin
+sitä.
+</p>
+
+<p>
+Se on huomionarvoista siksi, että <strong>round trip ei olisi sitä löytänyt</strong>. Round trip
+vertaa niitä kenttiä jotka muistaa kirjoittaa, eikä puuttuva kenttä ole kenttä. Tietue on nyt
+25 tavua ja testi käy läpi kaikki 21 kenttää jokaisesta 256 paikasta.
+</p>
+
+<p>
+Toinen oli ylipäättely. Katsoin kourallisen paikkoja, näin hahmomuotoja, ja kirjoitin testiin
+että kaikki tyypit ovat välillä 362-416. Testi kaatui: kaksitoista paikkaa on tyypittömiä ja
+muutama on jotain muuta. Korjasin sekä testin että luokan kommentin siihen mitä oikeasti
+mitattiin.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>paikkoja kaytossa         200 / 256
+hahmoja joilla on skripti 196
+puolueen koko               4
+hahmoja joilla aikataulu   61
+pelitilaa purkamatta      386 tavua
+
+U6Formats.Tests  276 / 276
+U6Export.Tests    49 / 49
+U6Engine.Tests   505 / 505</code></pre>
+
+<p>
+Aikatauluindeksi kytkee tämän tiedoston jo purettuun aikataulumuotoon, eli 61 hahmoa odottaa
+vuorokausirytmiä jonka säännöt ovat jo luettuina.
+</p>
+
+<h2>Sääntö jonka juuri kirjoitimme</h2>
+
+<p>
+Kirjasin tällä viikolla ohjeisiin säännön siitä mikä työ kuuluu kummallekin mallille: mitattu
+sääntö ja sen toteutus on yhtä lajia, dekompilaation lukeminen ja formaatin mittaaminen
+toista.
+</p>
+
+<p>
+Tämä viipale jakautui siististi kahtia juuri siitä kohtaa. Rakenteen lukeminen, koordinaatin
+koon erottaminen ja kerrosten suhteen selvittäminen oli jälkimmäistä. Lukija, viejä ja
+kaksikymmentäseitsemän testiä sen jälkeen oli edellistä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Hahmot kartalle. Identiteetti ja sijainnit ovat nyt olemassa, joten se mitä 572
+     keskustelukutsua odottaa on vihdoin rakennettavissa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The part that asks | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/17-se-joka-kysyy.html" hreflang="fi">FI</a><span>/</span><a href="17-the-part-that-asks.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 17</nav>
+
+<h1>The part that asks</h1>
+
+<p class="lede">
+A conversation now works end to end for 198 characters out of 199. One character is hard of
+hearing, and it nearly became a trap for the test.
+</p>
+
+<p>
+Matching was done, but nothing asked anything yet. That part is now built: the name, the
+portrait, the description, the opening statements, and then a loop that reads something from the
+player and runs the answers that match it. Six ways of asking, and they differ by just enough
+that bundling them into one would be wrong.
+</p>
+
+<pre><code>F7  a line, prompt first          269 times
+F8  one of a listed set of keys   289
+FC  one digit key                 172
+FB  a line as a number             43
+F9  a line into a text variable     3
+FA  one key                         2</code></pre>
+
+<h2>Case is two rules, not one</h2>
+
+<p>
+This was my own fault and a test found it at once. The original's console keeps a flag that
+raises typed keys to uppercase. It is on everywhere <strong>except inside the line reader</strong>,
+which turns it off and back on again.
+</p>
+
+<p>
+So: a single key always arrives raised, a typed line keeps its case. I implemented that side
+first.
+</p>
+
+<p>
+But <code>F8</code> needs the raising twice. All 289 lists of allowed keys are written in
+lowercase, and the comparison raises the listed key as well. Raise only the keypress and no key
+ever matches, and the game hangs at <strong>the first yes or no question the player meets</strong>.
+</p>
+
+<p>
+The rule is "both sides are raised", and it is two separate things in two separate places: the
+console raises the keypress, the comparison raises the list. I reproduced only one of them.
+</p>
+
+<h2>A redundant check, and a test that could not fail</h2>
+
+<p>
+The original looks at the byte after the main marker and skips running the opening statements if
+it is a question. I reproduced that and wrote a test for it, which passed.
+</p>
+
+<p>
+Then I did what I have learned to do: I removed the condition on purpose and ran the suite to
+see what broke. Nothing broke.
+</p>
+
+<p>
+The check changes nothing. The statement runner stops on a question before it moves its position
+or prints anything, so running it and not running it leave exactly the same state behind. The
+condition is redundant in the original, and my test merely claimed to cover it.
+</p>
+
+<p>
+I removed both. A test that cannot fail is worse than no test, because it reports safety that is
+not there, and the only way to notice is to break the code deliberately.
+</p>
+
+<h2>Character 81 is hard of hearing</h2>
+
+<p>
+The corpus test runs each of the 199 scripts as a whole conversation. The player always says
+"bye" and presses keys cycling through the ones the prompts accept. On the first run the test
+failed with an out of memory error.
+</p>
+
+<p>
+One character was the cause. After its question there is a roll:
+</p>
+
+<pre><code>F7            ask
+IF RND(0,2)
+    "Eh? Speak up!"
+    GOTO 93      &lt;- the question is at byte 94
+ENDIF
+EF "heal" ...</code></pre>
+
+<p>
+The character does not always hear you, and on a hit it asks you to repeat yourself. My test's
+world rolled the same number every time, so it never heard, and the conversation went on
+forever.
+</p>
+
+<p>
+The fix to the test had two parts. The roll set to nought, and limits at both ends: how many
+answers a script may ask for and how much it may say. A conversation that does not end is now a
+<em>counted result</em> rather than a crash. That distinction matters to me, because a crash only
+says something went wrong, while a counted result says what.
+</p>
+
+<p>
+The jump deserves its own note. Its target is byte 93, the <strong>byte before the
+question</strong>, in the middle of what a parser would treat as one run of text. I decided
+earlier to export the scripts as bytecode precisely in case something jumped like that. Here it
+is.
+</p>
+
+<h2>Small rules that would be easy to write down wrongly</h2>
+
+<p>
+<code>look</code> is the only word the engine answers itself. It is not a keyword, so a script
+cannot declare it, and a character can never be asked about the word "look".
+</p>
+
+<p>
+In number parsing, any character that is not a digit abandons the whole line. No sign, no
+tolerance of spaces, no overflow check: the accumulation is sixteen bit, so "40000" yields a
+negative number. That is the only way to get a negative number in at all.
+</p>
+
+<p>
+When a digit key is asked for, return and escape both answer nought. So a numbered menu cannot
+be left by refusing to choose, only by choosing whatever nought happens to be.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>198  conversations began, ran and ended
+  1  reaches an unimplemented instruction
+  0  leaves its script
+  0  fails to end
+211  answers in total</code></pre>
+
+<p>
+211 answers for 198 conversations means "bye" is enough for most of them at the first attempt,
+and thirteen ask for something else first.
+</p>
+
+<p>
+I corrected one pinned number afterwards, because I had guessed it instead of measuring it. The
+test failed and was right to.
+</p>
+
+<pre><code>U6Engine.Tests   417 / 417   without Unity
+U6Formats.Tests  266 / 266
+U6Export.Tests    38 / 38</code></pre>
+
+<h2>One gap is now unambiguous</h2>
+
+<p>
+Printing a text variable. 53 answers and one opening section reach it, and it is the only reason
+one conversation out of 199 does not begin at all. The address walking it needs already exists.
+</p>
+
+<p>
+After that there is one real architectural decision left: 35 answers write into an array inside
+the script, which means the script is editable working memory to the original. To me it is still
+only bytes to read.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Printing a text variable, and after that writing into an array inside the script. Once
+     those are done, nothing in the conversation engine throws any more.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

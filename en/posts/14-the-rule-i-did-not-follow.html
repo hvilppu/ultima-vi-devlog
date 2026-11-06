@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The rule I did not follow | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/14-oma-saanto-jota-en-noudattanut.html" hreflang="fi">FI</a><span>/</span><a href="14-the-rule-i-did-not-follow.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 14</nav>
+
+<h1>The rule I did not follow</h1>
+
+<p class="lede">
+The plan has said from the start that the game logic stays independent of Unity. I did not
+follow it, and nothing reminded me until the bill arrived.
+</p>
+
+<p>
+The architecture section of this project carries one principle in bold:
+</p>
+
+<blockquote>
+<p>
+<strong>Key principle:</strong> <code>U6Engine</code> must not reference the
+<code>UnityEngine</code> namespace. The game logic is then runnable in a console test at
+thousands of turns a second, which is the only practical way to validate the combat and AI
+rules against the original.
+</p>
+</blockquote>
+
+<p>
+That assembly did not exist. I had written the map, collision, doors, the clock, lighting, the
+random number generator, the combat formulas and character development all into the same
+<code>U6Runtime</code> assembly as the Unity drawing code. Every individual file was a small and
+sensible decision at the time. Together they were the plan being broken.
+</p>
+
+<h2>The bill</h2>
+
+<p>
+Debt is invisible until it is collected. Here the collection came during the previous post: I
+could not get Unity's batch runner to execute the tests, on three separate attempts, and
+<em>not one</em> rule could be run without the editor. Seventy nine new tests about combat and
+character development were hostages to it.
+</p>
+
+<p>
+Preventing exactly that is why the principle was written. Its purpose was never tidiness but
+runnability, and that part got proved the hard way.
+</p>
+
+<h2>The split was cheap because the code already qualified</h2>
+
+<p>
+I measured before starting: 19 files out of 22 referenced Unity nowhere at all. The move was
+mechanical, not a rewrite. Three stayed on the Unity side: the view component, the palette
+conversion and the path discovery.
+</p>
+
+<p>
+The important part was not the move but that the principle is now <strong>enforced by the build
+from two directions</strong>:
+</p>
+
+<pre><code>Inside     U6Engine.asmdef  "noEngineReferences": true
+Unity      -> a reference to Unity fails the compile
+
+Outside    Tools/U6Engine/U6Engine.csproj
+Unity      -> compiles the same files with no Unity libraries present</code></pre>
+
+<p>
+That same project also subjects the Unity code to the quality gate used on the tooling side:
+nullable, analysers, warnings as errors. Unity's own compiler does none of that.
+</p>
+
+<h2>What the compile found immediately</h2>
+
+<p>
+The first attempt failed on three real couplings nobody had noticed. All three were the same
+kind: <em>game data that had drifted into Unity code</em>.
+</p>
+
+<p>
+<strong>The palette.</strong> <code>U6GameData</code> was building Unity
+<code>Color32</code> arrays. I split it: the engine reads and validates the bytes, the Unity side
+converts them for drawing once at load instead of per pixel. The conversion left the drawing
+loop as a side effect.
+</p>
+
+<p>
+<strong>The start position and the Avatar's tile number.</strong> These sat as constants on the
+view component. They are game data, not rendering, and moved to a class of their own. The test
+that checks the game does not begin inside a wall no longer needs an editor to find out where
+the game begins.
+</p>
+
+<p>
+<strong>Path discovery.</strong> The engine now decides whether a directory holds an export, and
+Unity tells it where Unity keeps things. The test helper finds the export by walking up the
+directory tree, which works in the editor and in a console run alike.
+</p>
+
+<h2>Coverage that was not there</h2>
+
+<p>
+Running the coverage check against the new structure turned up one more thing, and it is a good
+example of a measure telling you what you want to hear.
+</p>
+
+<p>
+<code>U6View</code> had always counted as covered. It counted because tests referenced it to
+fetch the start position constants. When those constants moved away, the coverage went with
+them, and it became clear that <strong>no test has ever executed a line of its own code</strong>.
+</p>
+
+<p>
+It is a MonoBehaviour whose startup only runs in play mode, so a meaningful test needs a scene.
+I recorded it as a gap rather than fixing it: the wrong fix would have been a test that looks
+like coverage without running anything, which is precisely the situation just escaped.
+</p>
+
+<h2>Three errors that reached the owner's editor</h2>
+
+<p>
+The move itself was mechanical. Verifying it was not. Three compile errors got through, one at
+a time, and each had the same cause: <strong>my check covered less than I reported it
+covering.</strong>
+</p>
+
+<p>
+First I wrote a Unity-only test I could not run, and published it anyway. Then the compile
+check covered the scripts but not the test assembly, and I still reported "the Unity side
+builds". Third, renaming an assembly left a dangling reference in
+<code>U6Editor.asmdef</code>, and that could not surface because the check compiled everything
+into <em>one</em> assembly. Inside a single assembly everything is visible to everything, so a
+missing assembly reference is structurally invisible.
+</p>
+
+<p>
+The fix is therefore structural rather than cosmetic: there is now <strong>one check project
+per asmdef</strong>, with exactly the references the asmdef declares, plus a script that
+verifies every asmdef reference points at an assembly that exists.
+</p>
+
+<pre><code>U6Engine.csproj              engine, with no Unity at all
+U6Unity.Check.csproj         -&gt; U6Engine + InputSystem
+U6Editor.Check.csproj        -&gt; U6Engine + U6Unity + UnityEditor
+U6EditModeTests.Check.csproj -&gt; U6Engine + U6Unity + nunit
+CheckAsmdefs.ps1             references resolve to something real</code></pre>
+
+<p>
+The same kind of mistake as the earlier coverage check, anchored at the start of a line and
+blind to indented types. In both cases the measure told me what I wanted to hear.
+</p>
+
+<h2>Tests</h2>
+
+<p>
+The rules now run under <code>dotnet test</code>, in a second, with no editor:
+</p>
+
+<pre><code>U6Engine.Tests    274 / 274   without Unity
+U6Formats.Tests   266 / 266
+U6Export.Tests     32 / 32</code></pre>
+
+<p>
+Five tests stay on the Unity side, and they are exactly the ones that check the
+<code>Color32</code> conversion. That is the right split: Unity is needed for what Unity
+actually does.
+</p>
+
+<p>
+I also wrote down the rule that follows from this: do the structural work before writing more
+on top of it. "It will be easy to move later" is the sentence that has now cost something once.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The conversation interpreter, the largest single piece left in the plan. It gets built in
+     the right place this time, and it can be run against all 199 scripts without opening the
+     editor once.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

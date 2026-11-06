@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nine squares, not eleven | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/22-yhdeksan-ruutua-eika-yksitoista.html" hreflang="fi">FI</a><span>/</span><a href="22-nine-squares-not-eleven.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 22</nav>
+
+<h1>Nine squares, not eleven</h1>
+
+<p class="lede">
+Characters are on the map. The rule for what counts as being on screen turned out to be more
+particular than I expected, and one part of it is not a filter even though it looks like one.
+</p>
+
+<p>
+The conversation scripts ask the world 2563 questions, and the most asked of them is fetching a
+party member: 549 times. When I measured the second operand, the number split like this:
+</p>
+
+<pre><code>542 calls   only members on screen
+  7 calls   any member</code></pre>
+
+<p>
+So the most called member of the whole interface does not need a party list. It needs
+<strong>to know where everyone is standing</strong>. The rough call count had told me "party
+next", and the closer measurement said something else entirely.
+</p>
+
+<h2>The box is not the window</h2>
+
+<p>
+The game draws eleven squares by eleven. I assumed "on screen" meant that.
+</p>
+
+<p>
+It does not. The comparison is strict on both sides of five, so the counted box is
+<strong>nine squares</strong> and the window's outer ring is drawn but does not qualify. A
+character standing visibly at the edge of the view is not on screen.
+</p>
+
+<p>
+Nor is that all. The square has to be showing something as well: an object is there, or its
+tile is an object tile, or the tile is neither hidden nor darkness. A character behind a wall
+is close by coordinates and not on screen.
+</p>
+
+<h2>The level is not compared</h2>
+
+<p>
+The original compares the column and the row and nothing else. A character standing in the same
+place on a different level passes the position test.
+</p>
+
+<p>
+I do not know whether that can happen in play and did not go and find out now. I reproduced it
+as it stands and wrote a test saying so, because otherwise a signature with no level in it
+looks like an oversight rather than a decision.
+</p>
+
+<h2>A squeeze that is not a filter</h2>
+
+<p>
+This is the part I would certainly have got wrong had I reasoned from the name.
+</p>
+
+<p>
+When a script asks for "on screen member number one", it does not mean "place one, if it is on
+screen". The original builds a <strong>shorter list</strong> of the ones that are on screen
+first, and indexes that.
+</p>
+
+<pre><code>party        1  2  3  4
+on screen       2     4
+squeezed     2  4
+
+index 0  ->  2
+index 1  ->  4      the naive reading would give nought</code></pre>
+
+<p>
+I implemented the naive reading on purpose to see whether my tests could tell the difference.
+Two failed, exactly the two that pin this.
+</p>
+
+<p>
+A smaller note from the same place: nought is a real character number, and the original also
+answers nought for "nobody there". A script cannot tell "character nought" from "nobody" apart.
+That is the original's answer and it stays.
+</p>
+
+<h2>The Unity check caught one</h2>
+
+<p>
+I wrote <code>Does.Not.Contain(5)</code> in a test. The headless run accepted it, but the Unity
+check project failed: in the NUnit that Unity ships, that resolves to the string overload
+rather than the collection comparison.
+</p>
+
+<p>
+This would have reached the editor without the check. It is the same class of fault those
+projects exist for: code that compiles here and not there, with the difference somewhere other
+than what you were writing.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>characters on the map    200
+party size                 4
+the counted box            9 x 9 squares
+
+U6Formats.Tests  276 / 276
+U6Export.Tests    49 / 49
+U6Engine.Tests   526 / 526</code></pre>
+
+<h2>Next is the first clean implementation slice</h2>
+
+<p>
+The visibility half needs the composer to say which tile ended up on a square and whether an
+object was drawn there. The composer works both out already, darkness included, but produces
+nothing but pixels.
+</p>
+
+<p>
+The rule is read and all three constants are known, so <strong>nothing is left unmeasured</strong>.
+This week I wrote a rule into the project instructions about which work belongs to which model,
+and this is the first slice that lands on the implementation side from start to finish.
+</p>
+
+<p>
+After that comes a number I promised and do not yet know: once the world can answer, the corpus
+test can run all 199 conversations and say how many actually get through. I expect it is not
+199, because object calls are 28 per cent and are not built. But a guess is a guess, which is
+why it gets measured.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The composer saying what is on each square. After that being on screen answers with real
+     values, and the proportion of conversations that work becomes measurable.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

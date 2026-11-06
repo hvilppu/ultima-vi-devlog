@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aukko seinässä | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="08-aukko-seinassa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/08-the-gap-in-the-wall.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 08</nav>
+
+<h1>Aukko seinässä</h1>
+
+<p class="lede">
+Meri alkoi näkyä, mutta ovien viereen jäi reikä. Osa esineistä on kahden ruudun kokoisia, ja
+piirsin niistä vain puolet.
+</p>
+
+<p>
+Kun aloituspaikka siirtyi avomereltä Britainiin, näkyviin tuli uusi vika: ovien vieressä
+seinässä oli aukko. Maasto piirtyi, huonekalut piirtyivät, mutta oviaukkojen kehyksistä
+puuttui pala.
+</p>
+
+<h2>Liput jotka olin jo purkanut</h2>
+
+<p>
+Vastaus oli tiedostossa jonka olin purkanut jo aiemmin ja jättänyt sitten käyttämättä.
+<code>TILEFLAG</code>:n piirtotavussa on kaksi bittiä jotka eivät kerro miltä tiili näyttää
+vaan kuinka suuri se on:
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Bitti</th><th>Merkitys</th><th class="num">Objekteja maailmassa</th></tr></thead>
+  <tbody>
+    <tr><td><code>0x80</code></td><td>kaksi tiiltä leveä</td><td class="num">799</td></tr>
+    <tr><td><code>0x40</code></td><td>kaksi tiiltä korkea</td><td class="num">661</td></tr>
+    <tr><td><code>0xC0</code></td><td>molemmat, eli kaksi kertaa kaksi</td><td class="num">225</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+Renderöijäni piirsi jokaisen objektin yhtenä 16&times;16 tiilenä sen omaan ruutuun. Niille
+1685 objektille se tarkoitti, että puolet jäi piirtämättä. Ovenpielet ja korkeat
+seinäelementit sattuvat olemaan juuri tuota joukkoa, mikä selitti miksi vika näkyi
+nimenomaan ovien vieressä eikä satunnaisesti kaikkialla.
+</p>
+
+<h2>Mihin suuntaan puuttuva puolisko kuuluu</h2>
+
+<p>
+Lipullisen tiilen numeroa edeltävässä tiilessä on omaa grafiikkaa, joten pari on selvä.
+Suunta ei ole. Sen sijaan että olisin arvannut, kysyin datalta.
+</p>
+
+<p>
+Päättely on yksinkertainen. Jos moottori piirtää toisen puoliskon naapuriruutuun, siinä
+ruudussa ei voi olla omaa objektia, koska sisältö tulisi kahteen kertaan. Tyhjän
+naapuriruudun pitäisi siis olla huomattavasti yleisempi lipullisilla objekteilla kuin
+tavallisilla:
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Tapaus</th><th class="num">Naapuriruutu tyhjä</th></tr></thead>
+  <tbody>
+    <tr><td>Leveä objekti, ruutu lännessä</td><td class="num">94 %</td></tr>
+    <tr><td>Korkea objekti, ruutu pohjoisessa</td><td class="num">95 %</td></tr>
+    <tr><td>Verrokki: tavalliset objektit, ruutu lännessä</td><td class="num">48 %</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+Lipullinen tiili on esineen oikea alakulma. Leveä ulottuu yhden ruudun länteen, korkea
+yhden ruudun pohjoiseen.
+</p>
+
+<h2>Kaksi kertaa kaksi, ja miten se todennettiin</h2>
+
+<p>
+Niillä 225 objektilla joilla on molemmat liput esine peittää neljä ruutua ja tarvitsee
+neljä tiiltä. Tiilinumerot ovat peräkkäisiä, mutta missä järjestyksessä ne asettuvat?
+Toteutin uskottavimman konvention, ankkuri oikeassa alakulmassa ja edeltävät numerot
+täyttäen ensin länteen ja sitten pohjoiseen, ja merkitsin sen rehellisesti arvaukseksi.
+</p>
+
+<p>
+Arvaus ei ole hyvä lopputila, joten mittasin sen. Oikein koottu lohko on jatkuva: sen
+sisäsaumojen kohdalla pikseleitä on molemmin puolin. Väärin koottu katkeaa. Laskin
+jokaisen 21 eri 2&times;2-tiilen saumapisteet molemmilla järjestyksillä:
+</p>
+
+<pre><code>jarjestys                        saumapisteet   voittaa
+lansi ensin (oma toteutus)                921      21 / 21
+pohjoinen ensin (vaihtoehto)               80       0 / 21</code></pre>
+
+<p>
+Yksitoistakertainen ero, ei yhtään tappiota eikä tasapeliä. Se riittää. Mittarin etu
+silmämääräiseen vertailuun on, että se kattaa kaikki 21 tapausta eikä sitä neljää, jotka
+jaksoin katsoa.
+</p>
+
+<h2>Toinen vika saman mukana</h2>
+
+<p>
+Korjausta tehdessä paljastui toinen saman juuren vika. Renderöijä kävi läpi vain ikkunan
+sisällä olevat ruudut. Leveä objekti joka seisoo yhden ruudun ikkunan itäpuolella ulottuu
+kuitenkin ikkunaan, eikä sitä koskaan piirretty. Näkymän itä- ja etelälaidassa oli siis
+sama aukko aina kun jotain suurta oli juuri reunan takana.
+</p>
+
+<p>
+Nyt skannaus ulottuu yhden ruudun yli reunan ja piirto leikataan ikkunan rajoihin. Tälle on
+oma testinsä: se asettaa näkymän niin että leveä objekti jää juuri ulkopuolelle ja vaatii,
+että ikkunan reunasarake muuttuu.
+</p>
+
+<h2>Testit</h2>
+
+<p>
+Viisi uutta, ja kaksi niistä kysyy oikeaa kysymystä aiemman virheen opetuksen mukaisesti.
+Ne eivät vertaa renderöijää itseensä vaan maastoon: leveän objektin länsiruudun <em>täytyy
+erota</em> siitä mitä pelkkä maasto antaisi. Jos ylityö jää piirtämättä, ne kaatuvat.
+</p>
+
+<p>
+Mukana on myös vartija: jos maailmasta ei löydy yhtään kaksoiskokoista objektia, testi
+epäonnistuu. Muuten koko joukko voisi muuttua tyhjäksi huomaamatta, jos hakuehto joskus
+menee rikki.
+</p>
+
+<pre><code>Unity EditMode   60 / 60
+Formaattikirjasto 64 / 64
+Exportteri        23 / 23
+                 ---------
+                 147 testia</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Liikkuminen ja törmäystarkistus, jotta näkymästä tulee hahmo. Maastoliput on jo purettu
+     ja testattu, joten työ on lähinnä sen kytkemistä kiinni.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa tai grafiikkaa
+     ei ole mukana täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

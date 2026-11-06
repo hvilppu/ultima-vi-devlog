@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kirjasin jota ei ollut | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="20-kirjasin-jota-ei-ollut.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/20-the-font-that-was-not-there.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 20</nav>
+
+<h1>Kirjasin jota ei ollut</h1>
+
+<p class="lede">
+Fontti, tekstikerros ja liput. Matkalla selvisi yksi avoin kysymys, löytyi yksi alkuperäisen
+vika, ja minun piti siirtää oma luokkani väärästä kokoonpanosta oikeaan.
+</p>
+
+<h2>Riimukirjasinta ei ole olemassa</h2>
+
+<p>
+Tekstissä on kaksi ohjausmerkkiä jotka kytkevät riimukirjasimen päälle ja pois. Kirjasin oli
+dokumentissani avoimena kysymyksenä: tiesin että merkkiin asetetaan korkein bitti, mutta en
+mistä riimuglyfit tulevat.
+</p>
+
+<p>
+Vastaus on ettei niitä tule mistään erikseen. <strong>Riimukirjasin on saman fontin ylempi
+puolisko.</strong> Korkein bitti siirtää merkin paikkoihin 128-255, ja siellä ne glyfit ovat.
+Yhtä tiedostoa, kaksi aakkostoa.
+</p>
+
+<p>
+Se selittää myös luvun joka oli vaivannut. Fontissa on 256 paikkaa ja niistä 245 kantaa
+glyfin, mikä on paljon enemmän kuin yksi aakkosto tarvitsee.
+</p>
+
+<p>
+Tyhjät yksitoista paikkaa ovat nämä:
+</p>
+
+<pre><code>0  2  9  10  13  32  128  137  138  141  160</code></pre>
+
+<p>
+Kuusi alemmasta puoliskosta ja viisi ylemmästä. Huomaa että paikka 2 on tyhjä mutta 130 ei:
+<strong>ylempi puolisko ei ole alemman kopio</strong>, ja toteutus joka olettaisi niin olisi
+väärässä täsmälleen yhden paikan osalta. Siksi tyhjien lista on testissä listana eikä
+lukumääränä.
+</p>
+
+<h2>Ohjausmerkit, ja kaksi lukua jotka kertovat jotain</h2>
+
+<p>
+Mittasin käyttötiheydet ennen kuin toteutin mitään, jotta tiedän mitä rakennan.
+</p>
+
+<pre><code>@  1681 / 192 skriptia    avainsanan korostus
+$  1170 / 160             tekstimuuttuja
+*   748 / 199             odota nappainta
+#   326 /  91             lukumuuttuja
+\   25 /  21             monikkomuoto
+`     7 /   6             isonna seuraava
+&     6 /   6             gargish-osio
+%     4 /   4             peruuta
+^     3 /   2             erikoiskuvio
+/     2 /   2             yksikkomuoto
+&lt;     1 /   1             riimukirjasin auki
+&gt;     0                   riimukirjasin kiinni</code></pre>
+
+<p>
+Kaksi riviä pistää silmään. Merkki <code>*</code> on ainoa jota <strong>jokainen</strong> 199
+skriptistä käyttää. Ja riimukirjasin avataan kerran koko pelissä eikä suljeta kertaakaan.
+</p>
+
+<p>
+Luvut mitattiin kahdesti. Ensimmäinen mittaus näytti jokaiselle merkille yhden liikaa, koska se
+luki skriptin otsikon koodina ja hahmonumero voi sattua olemaan ohjausmerkin arvo: hahmo 60 on
+<code>&lt;</code> ja hahmo 62 on <code>&gt;</code>. Sama ansa osui minuun aiemmin hahmolla 181.
+Toinen kerta on helpompi huomata kuin ensimmäinen, mutta ei ilmeisesti tarpeeksi helppo.
+</p>
+
+<h2>Oma luokkani oli väärässä kokoonpanossa</h2>
+
+<p>
+Kirjoitin keskusteluikkunan Unityn puolelle, koska ikkuna kuulostaa Unity-asialta.
+Pre-commit-tarkistus huomautti ettei sillä ole testejä, ja kun menin katsomaan miksi, syy oli
+ettei se ole testattavissa ilman Unitya.
+</p>
+
+<p>
+Paitsi että se oli. Luokka ei käyttänyt Unitysta <em>mitään</em>: koko paneeli on
+indeksilaskentaa. Ainoa Unity-viittaus oli tarpeeton <code>using</code>-rivi jonka olin
+kirjoittanut tottumuksesta.
+</p>
+
+<p>
+Siirsin sen enginen puolelle ja kirjoitin sille testit. Projektin sääntö sanoo että mitä ei voi
+testata ilman Unitya on väärässä kokoonpanossa, ja tämä oli muistutus siitä että sama pätee
+toiseen suuntaan.
+</p>
+
+<h2>Sessio on nyt tilakone</h2>
+
+<p>
+Edellisessä postauksessa törmäsin siihen ettei ruutusilmukka voi estää, ja syöterajapintani
+oli estävä. Vaihtoehtoja oli kaksi: sessio omaan säikeeseensä, tai sessio tilakoneeksi joka
+palaa kutsujalle odottamaan.
+</p>
+
+<p>
+Tilakone valittiin. <code>Begin</code> ajaa ensimmäiseen kysymykseen ja kertoo mitä se haluaa,
+<code>Answer</code> vie seuraavaan. Koko syöterajapinta poistui matkalla: kun kutsuja syöttää
+vastaukset, sessiolla ei ole mitään pyydettävää.
+</p>
+
+<p>
+Kaksi asiaa paranivat sivutuotteena. Hylätty näppäin ei ole enää virhe vaan sama tarve
+uudelleen, mikä on täsmälleen mitä alkuperäinen tekee. Ja sallitut näppäimet ovat nyt
+julkisia, eli piirtäjä voi kertoa mitä saa painaa.
+</p>
+
+<p>
+<strong>Paras todiste siitä että muunnos säilytti käyttäytymisen:</strong> korpustestin
+naulatut luvut eivät liikkuneet. 199 / 199 keskustelua alkaa ja päättyy, ja vastauksia
+tarvitaan tasan 212, sama kuin estävällä mallilla.
+</p>
+
+<p>
+Yhtä asiaa en paikannut hiljaa. Alkuperäisen odotuskäsky pysäyttää lausekävelyn <em>keskellä</em>,
+ja minulla se on signaali tekstikerrokselle. Siellä missä odotus vain tahdittaa tekstiä eroa ei
+näe; siellä missä skripti muuttaa maailmaa heti odotuksen jälkeen, muutos tapahtuu nyt ennen
+näppäintä. Tarkka jäljittely vaatisi jatkamiskohdan kuljettamista läpi koko tulkin, eikä
+mikään mitattu vielä maksa sitä.
+</p>
+
+<h2>Liput, ja mittaus ennen rakentamista</h2>
+
+<p>
+Maailmarajapinnassa on 32 jäsentä. Sen sijaan että olisin arvannut mistä aloittaa, laskin
+montako kertaa kutakin kutsutaan: <strong>2563 kutsua</strong> koko datassa, ja kolme
+rakennetta kattaa 85 %.
+</p>
+
+<pre><code>liput     788  (31 %)   TestFlag, SetFlag, ClearFlag
+objektit  722  (28 %)   HasObject, TakeObject, GiveObject, ...
+puolue    667  (26 %)   PartyMember, IsInParty, ...</code></pre>
+
+<p>
+Kolmea jäsentä ei kutsuta kertaakaan. Ne saavat selkeän kieltäytymisen, eivät arvausta.
+</p>
+
+<p>
+Liput ensin, koska ne ovat suurin ryhmä eikä niillä ole riippuvuuksia. Alkuperäinen pitää
+kahdeksan lippua hahmoa kohti, yhden tavun, 256 tavun lohkon joka tallentuu sellaisenaan.
+Bitti 0 on "tavattu", ja skriptit asettavat sen 274 kertaa 422:sta.
+</p>
+
+<h2>Ja siinä sivussa alkuperäisen vika</h2>
+
+<p>
+Kun pelaaja katsoo hahmoa, peli valitsee yleisen kuvauksen ja oikean nimen välillä
+tavattu-lipusta. Ehto on kirjoitettu näin:
+</p>
+
+<pre><code>!TalkFlags[objNum] &amp; 1</code></pre>
+
+<p>
+C sitoo huutomerkin tiukemmin kuin &amp;:n, joten tämä kysyy onko <strong>koko lipputavu
+nolla</strong>, ei onko tavattu-lippu nollassa. Heti kun hahmolle asetetaan mikä tahansa lippu,
+peli pitää häntä tavattuna.
+</p>
+
+<p>
+En jättänyt sitä teoriaksi vaan mittasin kenelle lippuja asetetaan. 321 asetusta kohdistuu
+puhuteltavaan itseensä, loput kirjaimelliseen numeroon, ja niistä <strong>hahmon 178 skripti
+asettaa viisi lippua hahmolle 146</strong>. Jos puhut 178:lle ennen kuin olet tavannut 146:n,
+146:n oikea nimi näkyy ensi silmäyksellä.
+</p>
+
+<p>
+Mitä en tarkistanut: en ole ajanut alkuperäistä nähdäkseni tätä. Jäljittely odottaa koodia joka
+valitsee nimen, eli vikaa ei voi tällä hetkellä toistaa eikä jättää toistamatta. Kirjattu nyt,
+jotta se rakennetaan tietoisesti väärin eikä vahingossa oikein.
+</p>
+
+<pre><code>U6Engine.Tests   494 / 494   ilman Unitya
+U6Formats.Tests  266 / 266
+U6Export.Tests    43 / 43</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Puolue, koska se on mittauksen mukaan seuraavaksi suurin ja koska <code>PartyMember</code>
+     on yksin eniten kutsuttu jäsen koko rajapinnassa. Sen jälkeen talk-komento voi näkyä
+     pelissä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuninkaan päivä | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="10-kuninkaan-paiva.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/10-the-kings-day.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 10</nav>
+
+<h1>Kuninkaan päivä</h1>
+
+<p class="lede">
+Viimeinen todentamaton tiedostomuoto oli 3329 tavua. Siinä on 178 hahmon päivärutiini, ja
+oikean bittijaon tunnistaa siitä, että hahmot eivät päädy mereen.
+</p>
+
+<p>
+Ultima VI:n kaupunkilaiset eivät seiso paikallaan. Jokaisella on päiväjärjestys: aamulla töihin,
+puolelta päivin ruokapöytään, illalla sänkyyn. Tiedosto joka kertoo sen on pienin kaikista
+joita olen purkanut, ja silti se oli ainoa jonka rakennetta en ollut koskaan katsonut.
+</p>
+
+<h2>Yksi merkintä liikaa, ja se on tarkoitus</h2>
+
+<p>
+Alussa on taulu osoitteita, ja siinä on <em>257</em> merkintää vaikka hahmopaikkoja on 256.
+Ylimääräinen ei ole virhe vaan koko rakenteen idea: hahmon rutiini on puoliavoin väli omasta
+osoitteesta seuraavaan, joten viimeiselle hahmolle tarvitaan päätösarvo. Samalla se viimeinen
+arvo on merkintöjen kokonaismäärä, ja alkuperäinen lukee tiedostoa juuri sen verran.
+</p>
+
+<pre><code>osoitetaulu   257 x u16   =  514 tavua
+merkinnat     563 x 5     = 2815 tavua
+                            ----------
+                            3329 tavua</code></pre>
+
+<p>
+Merkintä on viisi tavua: tunti ja viikonpäivä pakattuna samaan tavuun, toiminta, ja sijainti
+kolmessa tavussa. Sijainti on pakattu <em>täsmälleen samalla bittijaolla kuin objektitietueessa</em>,
+mikä oli mukava huomio: sama purkukoodi kelpaa molemmille.
+</p>
+
+<h2>Kolme toisistaan riippumatonta todistetta</h2>
+
+<p>
+Bittijako on juuri se kohta jossa voi mennä pieleen huomaamatta. Siksi en luottanut siihen että
+koodi kääntyy, vaan etsin mittoja jotka erottavat oikean väärästä.
+</p>
+
+<p>
+<strong>Ensimmäinen:</strong> toimintatavu. Hahmon tila on yksi tavu, jonka arvoalue jakautuu
+kolmeen: taistelutilat alle 0x14, polunetsinnän ohimenevät tilat 0x80 alkaen, ja aikataulutilat
+0x87&ndash;0x9A. Aikataulumerkintään voi olla tallennettu vain se viimeinen ryhmä. Kaikki 563
+merkintää osuvat siihen. Jos kenttä luettaisiin väärästä tavusta, arvot hajoaisivat koko tavun
+alalle.
+</p>
+
+<p>
+<strong>Toinen, ja vahvin:</strong> määränpäät. Kaupunkilainen kävelee lattialle, ei mereen.
+Yhdistin aikataulun, kartan ja tiililiput ja laskin, kuinka moni pinnan määränpää osuu kuivalle
+kulkukelpoiselle maastolle.
+</p>
+
+<pre><code>valittu, x 10 bittia / y 10 bittia    98,1 %
+x ja y vaihdettu                      30,4 %
+kaksi kokonaista tavua x ja y         21,3 %
+x 12 bittia / y 10 bittia              8,3 %</code></pre>
+
+<p>
+Tämä on ristiinvertailu kolmen eri tiedostomuodon välillä, ja se pitää vain jos kaikkia kolmea
+luetaan oikein. Loput kymmenen määränpäätä osuvat veteen, ja kaikki kymmenen käskevät
+vaeltamaan tai oleilemaan. Yksikään ei käske nukkumaan sängyssä. Ne ovat uivia olentoja, eivät
+jäsennysvirhe, ja juuri sen väärä bittijako olisi tuottanut.
+</p>
+
+<p>
+<strong>Kolmas:</strong> tasokenttä. Luolataso on 256 ruutua sivultaan, ja jokainen
+luolamerkintä pysyy sen sisällä. Jos taso luettaisiin eri biteistä, koordinaatit karkaisivat
+rajan yli.
+</p>
+
+<h2>Kuningas</h2>
+
+<p>
+Selkein yksittäinen vahvistus tuli hahmolta 5. Kuusi merkintää, kaikki muutaman ruudun
+säteellä Britainin linnasta, eli samasta paikasta josta peli aloittaa pelaajan.
+</p>
+
+<pre><code>08:00  istuu     (307, 348)
+12:00  syo       (316, 367)
+14:00  istuu     (307, 348)
+18:00  syo       (316, 367)
+19:00  istuu     (301, 352)
+21:00  nukkuu    (297, 350)</code></pre>
+
+<p>
+Kello 13 ei ole mitään. Niin se kuuluukin: tuntivaihto etsii merkintää joka vastaa kelloa, ja
+jos mikään ei vastaa, <em>hahmo jatkaa sitä mitä se jo teki</em>. Oletusarvoa ei ole.
+</p>
+
+<p>
+Haku kulkee takaperin, jotta viimeinen osuma voittaa. Se ei ole toteutuksen yksityiskohta vaan
+osa käyttäytymistä: juuri siten yhden viikonpäivän erikoismerkintä syrjäyttää päivittäisen, kun
+se on tiedostossa sen jälkeen. Koko datassa viikonpäivään sidottuja merkintöjä on 23 kappaletta
+563:sta.
+</p>
+
+<h2>Yksi merkintä jota ei ole</h2>
+
+<p>
+Hahmon 190 osoiteväli lupaa kaksi merkintää. Tiedostossa on vain yksi.
+</p>
+
+<pre><code>taulu[190] = 562      hahmon 190 ensimmainen merkinta
+taulu[191] = 564      merkinnat loppuvat tahan
+taulu[256] = 563      merkintoja yhteensa, indeksit 0..562</code></pre>
+
+<p>
+Tiedosto on itsensä kanssa ristiriidassa yhdellä merkinnällä. Ja tiedosto itse on ehjä: 2815
+tavua jakautuu tasan 563:lla viiden tavun merkinnällä eikä jätä yhtään ylimääräistä tavua.
+Alkuperäinen varaa taulukolle tilaa 600 merkinnälle ja lukee niistä 563, joten merkintä 563 on
+varauksen sisällä mutta alustamaton. Tuntivaihto koskee siihen joka kerta kun kello vaihtuu.
+</p>
+
+<p>
+Tätä ei voi jäljitellä, koska alustamatonta muistia ei ole hallitussa ympäristössä. Sen sijaan
+lataaja lukee sen mitä tiedostossa on ja <em>kirjaa puutteen näkyviin</em>. Kun tekoäly
+myöhemmin päättää mitä hahmo 190 tekee, päätös tehdään tietoisena eikä vahingossa.
+</p>
+
+<h2>Testit</h2>
+
+<p>
+43 uutta. Kolme todistetta yllä ovat kaikki testeinä, myös se väärä: yksi testi laskee
+vaihdetun bittijaon tuloksen ja vaatii, että se on selvästi huonompi. Jos joku joskus
+"yksinkertaistaa" purkua, testi kaatuu sen sijaan että menisi hiljaa läpi.
+</p>
+
+<pre><code>Unity EditMode   180 / 180
+Formaattikirjasto 164 / 164
+Exportteri        23 / 23
+                 -----------
+                 367 testia</code></pre>
+
+<p>
+Tämän myötä <strong>kaikki pelin tiedostomuodot on todennettu</strong> yhtä lukuun ottamatta:
+introanimaatioiden framejen pikselikoodaus on vielä auki, ja se estää vain lopetuskohtauksen.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kirjat ja kyltit, jotka ovat suoraviivaista tekstidataa. Sen jälkeen loput
+     sääntötaulukot ja keskustelutulkki.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa tai grafiikkaa
+     ei ole mukana täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Uskottava ei | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="23-uskottava-ei.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/23-a-plausible-no.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 23</nav>
+
+<h1>Uskottava ei</h1>
+
+<p class="lede">
+Lupasin luvun ja tässä se on: <strong>172 keskustelua 196:sta</strong> menee läpi oikeaa
+maailmaa vasten. Mielenkiintoisempi osa on se, miksi luku on ylipäätään mitattavissa. Se on
+mitattavissa koska rakentamaton maailma kieltäytyy vastaamasta.
+</p>
+
+<p>
+Keskustelumoottori on ollut valmis jo jonkin aikaa, ja korpustesti on ajanut kaikki 199 skriptiä
+läpi 199 kertaa onnistuneesti. Se luku on kuitenkin mitattu maailmatuplaa vasten: luokkaa joka
+vastaa jokaiseen kysymykseen jotain. Se kertoo toimiiko tulkki. Se ei kerro mitään siitä
+toimiiko peli.
+</p>
+
+<p>
+Tällä viikolla rakensin sen maailman joka on oikeasti olemassa. Rajapinnassa on 32 metodia,
+niistä seitsemän vastaa, ja loput 25 eivät vastaa koska niiden alla ei ole mitään.
+</p>
+
+<h2>Mitä rakentamaton jäsen palauttaa</h2>
+
+<p>
+Tässä oli yksi oikea päätös tehtävänä, ja se on koko mittauksen pohja.
+</p>
+
+<p>
+Houkutteleva vaihtoehto on palauttaa tyhjä: ei kanna mitään, ei ole haavoittunut, ei ole
+puolueessa. Koodi kääntyy, mikään ei kaadu, ja kaikki 196 keskustelua menevät läpi.
+</p>
+
+<p>
+Ja juuri siinä se on pahempi kuin kaatuminen. Skripti joka kysyy "kannatko sinä avainta" ja saa
+vastauksen "en" ei kaadu. Se ottaa toisen haaran, sanoo jotain muuta ja <strong>näyttää
+täsmälleen yhtä toimivalta</strong> kuin oikein vastattu keskustelu. Läpimenevien luku olisi
+196 ja se ei mittaisi yhtään mitään.
+</p>
+
+<p>
+Joten jokainen rakentamaton jäsen heittää poikkeuksen, ja poikkeus <strong>nimeää
+itsensä</strong>:
+</p>
+
+<pre><code>The world cannot answer WhoCarries yet: inventories are not built.</code></pre>
+
+<p>
+Testi nappaa nimen ja laskee. Nyt yksi testiajo kertoo paitsi montako keskustelua menee läpi,
+myös mikä puuttuva rakenne pysäyttää montako, eli missä järjestyksessä loput kannattaa rakentaa.
+</p>
+
+<h2>Mikä pysäyttää ne 24</h2>
+
+<pre><code>WhoCarries     15     kuka kantaa tata esinetta
+SetBehaviour    3     muuta hahmon kaytosta
+Owns            2     onko hahmolla tata
+CountItems      2     montako naita on
+CanCarry        2     mahtuuko lisaa
+
+yhteensa       24     eli viisi jasenta 25:sta pysayttaa jotain</code></pre>
+
+<p>
+Inventaariot ovat 21 näistä 24:stä, ja yksi ainoa jäsen on 15. Kaksikymmentä muuta
+rakentamatonta jäsentä ei pysäytä yhtäkään keskustelua.
+</p>
+
+<p>
+Edellisessä postauksessa arvasin ettei luku ole täysi, koska objektikutsut ovat 28 prosenttia
+kaikista maailmakutsuista. Arvaus osui, mutta huomattavasti terävämmin kuin osasin arvata:
+kyse ei ole 28 prosentista vaan yhdestä kysymyksestä.
+</p>
+
+<h2>Näkyvyyttä ei voi kysyä pikseleiltä</h2>
+
+<p>
+Ennen adapteria piti tehdä se mikä viime kerralla jäi: ruudulla olon toinen puolisko.
+Geometria oli tehty, mutta sääntö vaatii myös että ruutu oikeasti näyttää jotain.
+</p>
+
+<p>
+Komposeri laski sen jo, mutta tuotti pelkät pikselit, ja valmiista kuvasta sitä ei saa takaisin.
+Tumma pikseli voi olla pimeyttä tai tumma seinä. Joten näkyvyys on kirjattava piirtäessä eikä
+pääteltävä jälkeenpäin, ja komposeri muistaa nyt kaksi asiaa ruutua kohti: mikä tiili siihen
+päätyi <strong>valaistuksen jälkeen</strong>, ja laskeutuiko siihen esineen pikseleitä.
+</p>
+
+<p>
+Jälkimmäinen merkitään siinä yhdessä paikassa jossa esineen tiili oikeasti piirtyy ruudulle.
+Se ei ole makukysymys: leveä tai korkea esine kulkee sen kohdan läpi neljä kertaa, ja jos
+merkinnän tekisi siellä missä esineet poimitaan, leveä esine peittäisi yhden ruudun.
+</p>
+
+<p class="note">
+<strong>Korjaus.</strong> Tässä luki alun perin että leveä esine merkitsee <em>kaikki</em> neljä
+ruutuaan, kuten alkuperäinen. Se oli väärin, ja löytyi postauksen 24 kumoajakierroksella:
+alkuperäinen kysyy jokaisen tiilen kohdalla sen <em>kohderuudun</em> omaa tiiliä ja jättää
+merkitsemättä jos ruutu on pimeä tai piilotettu. Mitattuna 897 pimeää ruutua kantoi esinettä
+eikä olisi saanut.
+</p>
+
+<p>
+Nyt pimeässä huoneessa seisova hahmo ei ole ruudulla, vaikka hän on kolmen ruudun päässä.
+</p>
+
+<h2>Mitä 172 ei ole</h2>
+
+<p>
+Se ei ole arvosana siitä kuinka valmis peli on, ja tämä kannattaa sanoa ääneen ennen kuin ehdin
+itse unohtaa sen.
+</p>
+
+<p>
+Keskustelu lasketaan läpimenneeksi kun se ajautui alusta loppuun pelaajalla joka sanoo vain
+<code>bye</code>. Haara jota ei kysytty ei voi pysähtyä. Siis <strong>172 on alaraja sille
+mikä on rikki</strong>, ei yläraja sille mikä toimii, ja oikea luku on jossain sen alla.
+Testi väittää tämän erikseen omana ehtonaan, jotta kukaan ei lue lukua väärin myöhemmin.
+</p>
+
+<p>
+Loput kolme 199:stä ovat skriptejä joilla ei ole omaa hahmoa lainkaan. Ne tavoitetaan maailman
+objektin kautta, eikä niiden eteen voi asettua seisomaan, joten ne eivät ole tässä ajossa.
+</p>
+
+<h2>Yksi sääntö jäi tahallaan rakentamatta</h2>
+
+<p>
+Kulkuvälineessä ollessa <strong>jokainen</strong> pelaajan ohjaama hahmo lasketaan aina ruudulla
+olevaksi. Sääntö on luettu ja kirjattu, mutta kulkuvälineitä ei ole, eikä ehtoa jota mikään ei
+kysy kannata arvata valmiiksi. Se on dokumentissa kohdassa "mitä on vielä toteuttamatta", missä
+sen kuuluu olla.
+</p>
+
+<p class="note">
+<strong>Korjaus.</strong> Kirjoitin tämän ensin muodossa "kulkuvälineessä istuva pelaajan ohjaama
+hahmo", mikä lukee hahmokohtaisena istumisena. Ehto on kaksiosainen ja sen toinen puolisko on
+globaali: se on puolueen ohjaustila, ei se kuka istuu missä. Yksi lippu kääntää siis vastauksen
+kaikille yhtä aikaa, missä tahansa he seisovat.
+</p>
+
+<h2>Oma virhe, jonka vain testit löysivät</h2>
+
+<p>
+Yksi niistä seitsemästä vastaavasta jäsenestä on hahmon nimi, ja kirjoitin sen väärin kahdella
+tavalla. Portitin nimen <strong>puoluejäsenyydellä</strong>, ja kuljin kuusitoista paikkaa.
+</p>
+
+<p>
+Alkuperäinen tekee molemmat toisin. Portti on hahmon tilatavun ylin bitti, eli "pelaaja ohjaa
+tätä", mikä on eri kysymys kuin puolueessa oleminen. Ja silmukka kulkee kahdeksan paikkaa,
+koska puolue ei voi kasvaa sen yli.
+</p>
+
+<p>
+Kumpikaan virhe ei kaatanut mitään. Korpusajossa nimeä kysytään vain puolueen jäsenistä, joten
+molemmat lukemat antavat saman vastauksen kaikkeen mitä data kysyy. Virhe löytyi vain siksi,
+että aloin kirjoittaa luokalle sen omia testejä ja luin kohdan dekompilaatiosta sitä varten.
+</p>
+
+<p>
+Samalla paljastui alkuperäisen oma poikkeama: silmukka katkeaa osumaan ja nimi luetaan siitä
+mihin laskuri jäi, joten löytämättä jäänyt hahmo saa <strong>yhdeksännen nimen</strong>, joka ei
+kuulu kenellekään. Johdonmukaisesta pelitilasta siihen ei pääse, koska bitti ja paikat pidetään
+yhtä pitävinä. Jäljitelty silti, yhdellä rivillä.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>rajapinnan metodeja        32
+niista vastaa               7
+niista heittaa             25
+pysayttaa jotain            5
+
+keskusteluja ajossa       196
+meni lapi                 172
+pysahtyi                   24
+ei paattynyt lainkaan       0
+
+U6Formats.Tests  276 / 276
+U6Export.Tests    49 / 49
+U6Engine.Tests   549 / 549</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Inventaariot, ja niistä <code>WhoCarries</code> ensin. Lista on nyt mitattu eikä arvattu,
+     mikä on mukava vaihtelu.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

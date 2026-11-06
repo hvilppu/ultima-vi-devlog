@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mitä hahmot sanovat | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="09-mita-hahmot-sanovat.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/09-what-the-characters-say.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 09</nav>
+
+<h1>Mitä hahmot sanovat</h1>
+
+<p class="lede">
+Keskustelut ovat omaa tavukoodia: 199 skriptiä, 85 käskyä, oma pieni kieli. Jäsennin näytti
+toimivan heti, ja siinä oli virhe jota vain laskeminen pystyi näyttämään.
+</p>
+
+<p>
+Ultima VI:n hahmot eivät lue valmiita vuorosanoja. Jokaisella on skripti, ja skripti on
+ohjelma: ehtoja, muuttujia, hyppyjä, lippuja, tavaran antamista ja ottamista. Kun kysyt
+sepältä työstä, ajossa on tulkki.
+</p>
+
+<h2>Kaksi tiedostoa, kaksi eri numerointia</h2>
+
+<p>
+Skriptit ovat kahdessa tiedostossa, ja kummankin alussa on taulu osoitteita. Taulun pituutta
+ei ole kirjoitettu minnekään. Se on taulun <em>pienin osoite</em>, koska ensimmäinen skripti
+alkaa heti taulun jälkeen. Sama kiertotie on muotokuvatiedostoissa.
+</p>
+
+<p>
+Hankalampi kohta on numerointi. Ensimmäisessä tiedostossa taulun indeksi on hahmon numero.
+Toisessa taulu alkaa uudestaan nollasta, ja nolla tarkoittaa hahmoa 99.
+</p>
+
+<pre><code>CONVERSE.A   taulu 396 tavua = 99 merkintaa   indeksi     = hahmo   hahmot 2-98
+CONVERSE.B   taulu 500 tavua = 125 merkintaa  indeksi + 99 = hahmo   hahmot 99-202</code></pre>
+
+<p>
+Tätä ei tarvinnut arvata. Jokainen lohko kertoo oman hahmonumeronsa heti alussa, joten sitä
+voi verrata taulun indeksiin. Ensimmäisessä tiedostossa ne vastaavat toisiaan 97 kertaa
+97:stä, toisessa ero on vakio 99 kaikilla 102:lla. Lataaja tarkistaa tämän jokaisesta
+lohkosta, ja yksi testi ajaa lataajan tarkoituksella väärällä kannalla varmistaakseen, että
+tarkistus todella laukeaa. Testaamaton tarkistus ei ole tarkistus.
+</p>
+
+<h2>Jäsennin joka ei kaatunut</h2>
+
+<p>
+Skripti on yksinkertainen virta: alle 0x80 olevat tavut ovat tekstiä, siitä ylöspäin käskyjä.
+Kirjoitin enumin, kirjoitin silmukan, ja ulos tuli siistin näköinen tokenivirta. Ei
+poikkeuksia, ei roskaa.
+</p>
+
+<p>
+Sitten laskin. Jokaisessa skriptissä pitäisi olla tasan yksi kuvaus ja yksi aloitusosa, koska
+niin muoto on rakennettu. Minun jäsennin antoi joissakin skripteissä yksitoista kuvausta.
+</p>
+
+<p>
+Syy oli operandeissa. Useimmat käskyt ottavat argumenttinsa lausekkeena, joka on itsessään
+käskyvirtaa, mutta vakiot ja hyppy kantavat raakoja tavuja. Hypyn osoite on <em>neljä
+tavua</em>, ja osoitteen tavuihin sattuu usein 0xF1, 0xEE tai 0xFF. Minun silmukka luki ne
+käskyinä: kuvauksena, vastausten loppuna, uuden skriptin alkuna.
+</p>
+
+<p>
+Mittaus ratkaisi operandin pituuden. Yhden tavun oletuksella 9 hypyn kohdetta 5000:sta jää
+skriptin ulkopuolelle. Neljällä tavulla kaikki 5000 osuvat sisään, ja kaikissa 5000
+tapauksessa kaksi ylintä tavua ovat nollia.
+</p>
+
+<pre><code>operandi 1 tavu    kohde skriptin sisalla  4991 / 5000
+operandi 4 tavua   kohde skriptin sisalla  5000 / 5000
+                   kuvauksia per skripti   tasan 1, kaikissa 199</code></pre>
+
+<p>
+Tämä on nyt toinen kerta tässä projektissa kun läpi mennyt koodi oli väärässä ja vain
+rakenteellinen laskenta näytti sen. Ensimmäinen oli näkymätön meri. Kuvio on sama: virhe ei
+kaadu, se tuottaa uskottavaa.
+</p>
+
+<h2>Yleisin käsky</h2>
+
+<p>
+Kun jäsennin oli kunnossa, tein käskyistä histogrammin. Heti lausekekoneiston jälkeen
+yleisin on 0xCB, 2725 kertaa. Se tarkoittaa "odota näppäintä". Se lopettaa lähes jokaisen
+tulostetun tekstisivun, ja siksi se on datassa yleisempi kuin yhtäsuuruusvertailu.
+</p>
+
+<p>
+Pieniä löydöksiä samalta kierrokselta: avainsanoista 3002 on neljän kirjaimen mittaisia ja
+759 yhden, mutta moottori ei typistä mitään neljään kirjaimeen. Skriptit vain on kirjoitettu
+siten. Kaksi hahmoa puhuu mutta niillä ei ole yhtään avainsanaa, kolmelta puuttuu
+oletusvastaus, ja yhdeltätoista puuttuu hyvästit.
+</p>
+
+<h2>Kaksi bugia alkuperäisessä</h2>
+
+<p>
+Tulkin ehtolauseet eivät sisäkkäisty: kun ehto on epätosi, ohitus pysähtyy ensimmäiseen
+loppumerkkiin jonka se löytää, ei vastinpariinsa. Omassa datassa sisäkkäinen ehtolause on
+tasan yhdessä skriptissä 199:stä, ja juuri siinä se osuu.
+</p>
+
+<pre><code>@3888 IF   (ehto)
+@3917   GOTO 3778        &lt;- ehdoton hyppy ulos
+@3922   IF  LEAVEPARTY   &lt;- sisempi
+@3942   ENDIF
+@3943 ENDIF</code></pre>
+
+<p>
+Lohko 3922 alkaen on saavuttamaton kahdesta syystä yhtä aikaa. Jos ehto on tosi, runko hyppää
+pois ennen sitä. Jos ehto on epätosi, ohitus pysähtyy sisempään loppumerkkiin ja jatkaa sen
+jälkeen. Tarkoitus on selvästi ollut etsiä puolueesta jäsen jota voi pyytää lähtemään, kun
+puolue on täynnä. Käytännössä hahmo vain ilmoittaa ettei voi liittyä.
+</p>
+
+<p>
+Toinen on kirjoitusvirhe skriptissä. Yhdessä kantokykytarkistuksessa taulukon indeksi on
+merkitty merkkijonomuuttujaksi siinä missä kaikissa muissa vastaavissa paikoissa on
+kokonaislukumuuttuja. Koko datassa on 478 taulukkolukua, ja merkkijonomuuttujalla indeksoituja
+on tasan yksi. Yksittäisyys on se mikä tekee siitä virheen eikä tahallisen rakenteen.
+</p>
+
+<p>
+Kumpaakaan ei korjata. Tavoite on 1:1, joten myös bugit jäljitellään. Ne vain kirjataan, ettei
+niitä joskus luulla meidän bugeiksi.
+</p>
+
+<h2>Testit</h2>
+
+<p>
+50 uutta. Vahvin lukitsee koko jäsennyksen SHA-256-tiivisteeseen, joka sisältää numerot,
+pituudet, tokenien lajit, käskytavut ja operandit mutta <em>ei tekstiä</em>. Mikä tahansa
+muutos siinä miten skripti luetaan siirtää tiivistettä, eikä repoon päädy riviä pelin
+dialogia.
+</p>
+
+<pre><code>Unity EditMode   180 / 180
+Formaattikirjasto 121 / 121
+Exportteri        23 / 23
+                 -----------
+                 324 testia</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Loput sääntötaulukot: loitsut, hahmonkehitys ja kaupan hinnat. Sen jälkeen tulkki itse,
+     eli lausekepino ja ohituksen säännöt sisäkkäisyyden puutteineen. Muoto on nyt valmis,
+     joten jäljellä on ajaja.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa tai grafiikkaa
+     ei ole mukana täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

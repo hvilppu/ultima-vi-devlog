@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Someone already did the hard part | Rebuilding Ultima VI</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/05-lahdekoodi.html" hreflang="fi">FI</a><span>/</span><a href="05-the-source.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Rebuilding Ultima VI</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 05</nav>
+
+<h1>Someone already did the hard part</h1>
+
+<p class="lede">
+A decompilation of the original exists. It removed the project's biggest risk and
+immediately caught a bug of my own.
+</p>
+
+<p>
+Data files can be reasoned about from the outside. Rules cannot. There is no amount of
+staring at bytes that tells you how damage is calculated, and a 1:1 reimplementation cannot
+settle for "close enough", so at some point the executable has to be read.
+</p>
+
+<p>
+The main binary is not friendly. Its relocation table is empty and the entry point sits
+almost at the end of the file: the classic shape of a self-extracting stub. No known packer
+signature matches, so it looked like a bespoke one, and unpacking it was budgeted as the
+single riskiest task in the whole plan. If that had failed, the 1:1 goal would have failed
+with it.
+</p>
+
+<p>
+It turns out that work has already been done, publicly, by someone else. A decompilation of
+the DOS version exists as readable C that rebuilds the original executable with very few
+differences. Roughly three hundred functions and four hundred globals carry meaningful
+names. The front-end and endgame programs are there as well.
+</p>
+
+<p>
+It even targets version 4.5, which is exactly the version the disk labels in my own
+copy identify. The project's largest unknown stopped being an unknown.
+</p>
+
+<h2>Reading it without copying it</h2>
+
+<p>
+That source carries no licence, and it is derived from someone else's game regardless. So
+the working rule for this project is strict and written down:
+</p>
+
+<blockquote>
+Read a function. Write down what it <em>does</em>, in your own words, as a note. Implement
+the C# from the note, not with the original on screen. Then verify the behaviour against the
+real game.
+</blockquote>
+
+<p>
+That middle step is not bureaucracy. It serves three purposes at once. It keeps legal
+distance. It protects the code quality: a line-by-line translation of 1990s C would
+drag segmented pointer arithmetic and three-letter globals straight into a modern codebase.
+And it is a comprehension test: if you cannot write the rule out in a sentence, you do not
+understand it well enough to reimplement it.
+</p>
+
+<p>
+Nothing from that repository is committed here. It lives in an ignored directory and is
+treated as documentation.
+</p>
+
+<h2>What it caught straight away</h2>
+
+<p>
+The file holding tile behaviour is 7,168 bytes. Earlier I had read it as three tables of
+2,048 bytes with a 1,024-byte remainder at the end, which is a reasonable guess that fits
+perfectly. It is also wrong. The real layout is four tables of different sizes, and the odd
+one sits in the <em>middle</em>:
+</p>
+
+<figure>
+<svg viewBox="0 0 640 150" role="img" aria-label="Diagram showing the assumed three-plane layout against the real four-table layout">
+  <g font-family="monospace" font-size="11" fill="#8a8276">
+    <text x="0" y="12">ASSUMED</text>
+    <text x="0" y="92">ACTUAL</text>
+  </g>
+  <g stroke="#ddd6c8">
+    <rect x="0" y="20" width="160" height="34" fill="#c98a4b" fill-opacity="0.12"/>
+    <rect x="160" y="20" width="160" height="34" fill="#c98a4b" fill-opacity="0.2"/>
+    <rect x="320" y="20" width="160" height="34" fill="#c98a4b" fill-opacity="0.28"/>
+    <rect x="480" y="20" width="80" height="34" fill="none" stroke-dasharray="3 3"/>
+  </g>
+  <g font-family="monospace" font-size="10" fill="#5c564c" text-anchor="middle">
+    <text x="80" y="41">plane 1</text><text x="240" y="41">plane 2</text>
+    <text x="400" y="41">plane 3</text><text x="520" y="41">tail?</text>
+  </g>
+  <g stroke="#ddd6c8">
+    <rect x="0" y="100" width="160" height="34" fill="#c98a4b" fill-opacity="0.12"/>
+    <rect x="160" y="100" width="160" height="34" fill="#c98a4b" fill-opacity="0.2"/>
+    <rect x="320" y="100" width="80" height="34" fill="#8a4b1e" fill-opacity="0.45"/>
+    <rect x="400" y="100" width="160" height="34" fill="#c98a4b" fill-opacity="0.28"/>
+  </g>
+  <g font-family="monospace" font-size="10" fill="#5c564c" text-anchor="middle">
+    <text x="80" y="121">terrain</text><text x="240" y="121">display</text>
+    <text x="360" y="121" fill="#ece7dd">weights</text><text x="480" y="121">secondary</text>
+  </g>
+  <path d="M400,70 L400,96" stroke="#8a4b1e" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <text x="408" y="80" font-family="monospace" font-size="10" fill="#8a4b1e">1024 bytes of drift starts here</text>
+</svg>
+<figcaption>
+A 1,024-byte table of object weights sits between the second and third tile tables. Reading
+the file as three equal planes puts everything after it out of alignment, and returns
+data that looks entirely plausible.
+</figcaption>
+</figure>
+
+<p>
+This is the failure mode that makes reverse engineering slow. Nothing crashes. No range
+check fires. You get bytes back, they vary per tile, they look like flags. The error would
+have surfaced weeks later as movement behaving oddly in ways nobody could reproduce.
+</p>
+
+<p>
+It is worth being clear about whose mistake that was: mine, not the original's. It went into
+the project's own notes, not into the log of original bugs.
+</p>
+
+<h2>Named at last</h2>
+
+<p>
+With the layout right, the bits have meanings. Terrain carries wet, impassable, wall and
+damaging, plus four edge bits. Display carries opaque, window, foreground and
+blocks-missiles, and its lowest two bits are not flags at all but a light emission
+level, which would have been easy to misread as two more booleans.
+</p>
+
+<p>
+I verified each one against the name table rather than taking it on trust. The damaging bit
+lands on traps, webs, spikes, lava and fire fields. The light level lands on magical items
+and glowing things; a fire field emits light level 2. The weight table gives zero for floor
+and earth, and sensible values for everything a player can carry.
+</p>
+
+<p>
+Two of the twelve rule tables are now recovered. Ten to go, and the one I want most is the
+random number generator. Without matching it, verifying combat can only ever be
+statistical.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p><a href="06-first-picture.html">The first picture</a>:
+     five milestones of
+     invisible work finally show up on screen.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data or artwork is
+     included here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

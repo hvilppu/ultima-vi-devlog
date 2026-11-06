@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>199 / 199 | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="18-199-kahdesta-sadasta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/18-199-out-of-199.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 18</nav>
+
+<h1>199 / 199</h1>
+
+<p class="lede">
+Yksi käsky puuttui, ja sen myötä jokaista pelin hahmoa voi nyt puhutella, keskustella ja jättää
+ilman että mikään heittää poikkeusta matkalla.
+</p>
+
+<p>
+Käsky on merkkijonon tulostus. Se ei tulosta tekstiä jonka skripti kirjoittaa auki, vaan nimeää
+merkkijonon jostain muualta. Ennen tätä se oli ainoa syy miksi yksi 199 keskustelusta ei
+käynnistynyt lainkaan.
+</p>
+
+<h2>Mitattu ensin, ja mittaus oli väärässä</h2>
+
+<p>
+Laskin ensin montako kertaa käskyä käytetään. Vastaus oli 25, ja muodot jakautuivat näin: 24
+nimeää merkkijonon skriptin sisäisestä taulukosta, ja yksi alkaa tavulla 0x53, joka on kirjain
+S.
+</p>
+
+<p>
+Se yksi ei ollut käsky lainkaan. Se oli <strong>hahmon 181 oma numero</strong> skriptin
+otsikossa, ja 181 on heksana 0xB5, sama kuin tulostuskäsky. Kävelyni aloitti skriptin alusta
+eikä ohittanut otsikkoa, joten se luki hahmonumeron käskynä.
+</p>
+
+<p>
+Oikea luku on siis 24, ja <strong>kaikki 24 ovat samaa muotoa</strong>. Alkuperäisessä on kolme
+muotoa, ja kaksi niistä ei esiinny datassa kertaakaan. Toteutin kaikki kolme, mutta kirjasin
+kahden olevan luettu dekompilaatiosta eikä mitattu datasta. Ero on olennainen: mitattu on
+varmaa, luettu on parasta ymmärrystäni.
+</p>
+
+<h2>Muoto jota kukaan ei käytä on silti omalaatuinen</h2>
+
+<p>
+Tekstimuuttujamuoto ei ole lauseke vaan käsin jäsennetty jono:
+</p>
+
+<pre><code>B5  &lt;tavu joka luetaan ja hylataan&gt;  &lt;indeksi&gt;  B3  &lt;tavu jonka yli hypataan&gt;</code></pre>
+
+<p>
+Kaksi tavua joita ei katsota, yksi kummassakin päässä. Oikea skripti laittaisi niihin
+todennäköisesti lausekkeen alun ja lopun, mutta koska yksikään skripti ei käytä tätä muotoa, en
+tiedä sitä, enkä väitä tietävän.
+</p>
+
+<h2>Testini meni läpi mutta ei erottanut mitään</h2>
+
+<p>
+Kirjoitin tälle muodolle testin ja se meni läpi. Sitten tein mitä olen oppinut tekemään:
+poistin sen viimeisen tavun ohituksen tarkoituksella nähdäkseni kaatuuko testi.
+</p>
+
+<p>
+Se ei kaatunut.
+</p>
+
+<p>
+Syy oli minun testiskriptissäni. Olin laittanut siihen viimeiseen tavuun lausekkeen lopun, niin
+kuin arvelin oikean skriptin tekevän. Lausekkeen loppu ei tee mitään myöskään silloin kun se
+suoritetaan, joten testi ei voinut nähdä eroa ohittamisen ja suorittamisen välillä. Se vahvisti
+turvaa jota ei ollut.
+</p>
+
+<p>
+Vaihdoin tavun kirjaimeksi. Ohitettuna se vaikenee, suoritettuna se tulostuu. Nyt saman
+mutaation tekeminen kaataa testin. Toinen mutaatio samalla ajolla, merkkijonotaulukon
+kävely sanataulukkona, kaatoi testin heti, eli se puoli oli alusta asti kunnossa.
+</p>
+
+<p>
+Tämä on nyt toinen kerta kun mutaatioajo paljastaa testini. Molemmat kerrat testi näytti ihan
+järkevältä, ja molemmat kerrat sen huomasi vain rikkomalla koodin.
+</p>
+
+<h2>Luvut liikkuivat, ja oikeaan suuntaan</h2>
+
+<p>
+Kolme korpustestiä kaatui, kaikki naulattuihin lukuihin, eikä yksikään käsin kirjoitettu testi
+liikahtanut. Se on juuri oikea merkki: muutos osui siihen mihin sen pitikin.
+</p>
+
+<pre><code>                              ennen   jalkeen
+aloitusosia odottamassa         172       173
+aloitusosia toteuttamatta         1         0
+avainsanalistoja tasmasi       3057      3065
+vastauksia toteuttamatta         89        36
+keskustelu alkoi ja paattyi     198       199</code></pre>
+
+<p>
+89 - 36 = 53, ja 53 on tasan se määrä vastauksia jotka osuivat tähän käskyyn. Luvut mittasin
+ajamalla ja naulasin sitten.
+</p>
+
+<h2>Mitä tämä tarkoittaa</h2>
+
+<p>
+Jokaista pelin hahmoa voi nyt puhutella, keskustella ja jättää. Nimi, portretti, kuvaus,
+aloituslauseet, kysymykset, avainsanojen täsmäytys, vastaukset ja lähtö. 199 / 199, eikä
+yksikään osu matkalla toteuttamattomaan käskyyn.
+</p>
+
+<pre><code>U6Engine.Tests   423 / 423   ilman Unitya
+U6Formats.Tests  266 / 266
+U6Export.Tests    38 / 38</code></pre>
+
+<p>
+Jäljellä heittää enää kaksi asiaa, eikä kumpikaan estä keskustelua alkamasta: kirjoitus skriptin
+sisäiseen taulukkoon ja merkkijonohaku.
+</p>
+
+<p>
+Ensimmäinen niistä on viimeinen pala joka vaatii päätöksen eikä vain toteutusta. Alkuperäiselle
+ladattu skripti on <em>muokattavaa työmuistia</em>, minulle se on toistaiseksi vain luettavia
+tavuja. Se ero pitää ratkaista ennen kuin päälle rakennetaan kauppa ja käyttöliittymä, eikä
+sen jälkeen.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Skripti kirjoitettavaan puskuriin keskustelun ajaksi, ja merkkijonohaku. Sen jälkeen
+     keskustelumoottorissa ei heitä enää mikään poikkeusta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

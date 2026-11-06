@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kokemus joka ei johda mihinkään | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="13-kokemus-joka-ei-johda-mihinkaan.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/13-experience-that-leads-nowhere.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 13</nav>
+
+<h1>Kokemus joka ei johda mihinkään</h1>
+
+<p class="lede">
+Hahmonkehityksen piti olla taulukko. Se osoittautui kaavoiksi ja yhdeksi funktioksi, jota ei
+kutsuta mistään. Ja kesken työn huomasin kirjoittaneeni dokumentaatioon väitteen joka oli väärä.
+</p>
+
+<p>
+M8:n listalla luki "hahmonkehitys: kokemustasot, statien kasvu, kantokyky". Odotin louhivani
+taulukon, jossa on kokemusrajat tasoittain. Sellaista ei ole.
+</p>
+
+<h2>Funktio jota ei kutsuta</h2>
+
+<p>
+Alkuperäisessä on funktio joka laskee tason kokemuspisteistä. Se on lyhyt, se on oikein, ja se
+on merkitty kutsumattomaksi:
+</p>
+
+<pre><code>taso = 1
+niin kauan kuin kokemus &gt; 99:
+    kokemus = kokemus / 2
+    taso = taso + 1</code></pre>
+
+<p>
+Se antaisi tason 2 sadalla pisteellä ja kaksinkertaistaisi vaatimuksen joka kerta, päätyen
+tasoon 8 kuudella tuhannella neljälläsadalla. Kokemuksen katto on 9999, joten taso 9 olisi jäänyt
+saavuttamattomaksi vaikka funktiota olisi kutsuttu.
+</p>
+
+<p>
+Mutta sitä ei kutsuta. <strong>Ainoa asia joka nostaa tasoa koko pelissä on keskustelukäsky</strong>,
+ja sitä käyttävät kahdeksan hyveen alttaria sekä Iolon piilotettu debug-valikko. Sama koskee
+voimaa, näppäryyttä ja älyä: ne tulevat alttareilta, pysähtyvät kolmeenkymmeneen, eikä
+taisteleminen nosta niistä yhtäkään.
+</p>
+
+<p>
+Tämä on minusta projektin kiinnostavin yksittäinen löydös tähän mennessä, ei siksi että se olisi
+monimutkainen, vaan siksi että se on <em>näkymätön</em>. Jos kytkisin kokemuksen tasoihin, peli
+kääntyisi, ajaisi, näyttäisi oikealta ja pelaisi kuin eri peli ensimmäisestä taistelusta alkaen.
+Eikä mikään testi huomaisi sitä, koska kaikki testit kertovat mitä koodi tekee, eivät mitä sen
+pitäisi jättää tekemättä.
+</p>
+
+<p>
+Siksi toteutin hylätyn kaavan nimellä <code>LevelForExperienceUnused</code> ja kirjoitin
+testin, joka luettelee luokan julkiset metodit ja vaatii, että tuo on ainoa reitti kokemuksesta
+tasoon. Jos joku joskus lisää toisen, testi kaatuu ja pakottaa kysymään kysymyksen ääneen.
+</p>
+
+<h2>Väite jonka tarkistin ja joka oli väärä</h2>
+
+<p>
+Kirjoitin koodin dokumentaatioon, että kokemuspisteitä ei lueta mistään: ne vain kertyvät
+kattoon asti eivätkä tee mitään. Se tuntui johdonmukaiselta päätelmältä siitä, ettei tasoja
+lasketa niistä.
+</p>
+
+<p>
+Sitten tarkistin sen. Kokemusta luetaan kolmessa paikassa, ja yksi niistä oli mekaniikka jota
+en tiennyt olevan olemassa:
+</p>
+
+<pre><code>jos karma &lt; 98:
+    kokemus = kokemus * karma / 100</code></pre>
+
+<p>
+<strong>Kuolleista herääminen vie kokemusta karman suhteessa.</strong> Sama koskee sekä Avataria
+ruumiilta herätettäessä että seuralaista ylösnousemusloitsulla. Karma alkaa 75:stä, joten
+tyypillisellä pelaajalla kuoleminen maksaa neljänneksen kokemuksesta.
+</p>
+
+<p>
+Ja koska ehto on kynnys eikä liukuva, karman pudotus 98:sta 97:ään maksaa kolme prosenttia, ei
+yhtä. Vain kaksi ylintä karmapistettä ostavat vapautuksen.
+</p>
+
+<p>
+Tämä on hyvä muistutus siitä, että "ei mitään" on väite siinä missä mikä tahansa muukin, ja
+vaatii yhtä paljon todistamista. Päättelin sen johdonmukaisuudesta enkä mitannut. Korjasin
+dokumentaation ja kirjasin virheen suunnitelmaan sen sijaan että olisin siivonnut sen pois.
+</p>
+
+<h2>Kaksi rajaa, ei yhtä</h2>
+
+<p>
+Kantokyky oli suoraviivaisempi mutta sisälsi yhden kohdan jonka olisi helppo yksinkertaistaa
+väärin. Rajoja on kaksi: päällä olevat varusteet saavat painaa korkeintaan voiman verran kiviä,
+ja kaikki kannettava yhteensä kaksi kertaa sen.
+</p>
+
+<p>
+Ne tarkistetaan <strong>erikseen</strong>. Haarniska jota hahmo ei jaksa pukea päälle mahtuu
+silti reppuun. Jos rajat yhdistäisi yhdeksi tarkistukseksi, tuo mahdollisuus katoaisi hiljaa,
+eikä kukaan huomaisi ennen kuin joku yrittäisi kantaa löytämäänsä panssaria kotiin.
+</p>
+
+<p>
+Pieni yksityiskohta samasta kohdasta: kantokyky käyttää <em>raakaa</em> voimaa. Kirous vie
+kolme pistettä voimasta taistelussa, mutta ei kevennä reppua. Testi vertaa näitä kahta
+rinnakkain, jotta kukaan ei myöhemmin "korjaa" sitä johdonmukaiseksi.
+</p>
+
+<h2>Testit</h2>
+
+<p>
+79 uutta. Mutta tällä kertaa Unityn eräajo ei suostunut ajamaan niitä: se kääntää projektin ja
+poistuu ajamatta mitään, kolmella eri yrityksellä. Lisenssi yhdistyy, testikehys on asennettu ja
+testien kokoonpanomäärittely on kunnossa.
+</p>
+
+<p>
+Ajoin ne siis ensin erillisellä NUnit-ajolla samoista lähdetiedostoista, vanhat taistelutestit
+mukana vertailukohtana. Se todentaa koodin, muttei ole sama asia kuin Unityn oma ajo, joten
+kirjasin erotuksen näkyviin enkä laskenut lukuja yhteen.
+</p>
+
+<p>
+Editorin Test Runner ajoi ne lopulta kaikki läpi, mikä rajaa ongelman: testit löytyvät ja
+toimivat, vika on nimenomaan eräajossa. Se on nyt kirjattu tunnetuksi työkalurajoitteeksi, ja
+pre-commit-komento ohjeistaa ottamaan Unity-luvun editorista eikä eräajosta.
+</p>
+
+<pre><code>Unity EditMode     259 / 259
+Formaattikirjasto  266 / 266
+Exportteri          32 / 32
+                  -----------
+                  557 testia</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Vaiheesta B on jäljellä vain kaupan hinnat, ja ne kannattaa tehdä keskustelutulkin kanssa
+     koska kaupankäynti kulkee skriptien läpi. Eli seuraavaksi tulkki.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

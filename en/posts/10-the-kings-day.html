@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The king's day | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/10-kuninkaan-paiva.html" hreflang="fi">FI</a><span>/</span><a href="10-the-kings-day.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 10</nav>
+
+<h1>The king's day</h1>
+
+<p class="lede">
+The last unverified file format was 3329 bytes. It holds the daily routine of 178 characters,
+and you recognise the right bit layout by the fact that nobody ends up in the sea.
+</p>
+
+<p>
+The townspeople of Ultima VI do not stand still. Each has a timetable: to work in the morning,
+to the table at noon, to bed in the evening. The file that says so is the smallest one I have
+taken apart, and it was still the only one whose structure I had never looked at.
+</p>
+
+<h2>One entry too many, and that is the point</h2>
+
+<p>
+It starts with a table of addresses, and that table has <em>257</em> entries although there are
+only 256 character slots. The extra one is not a mistake, it is the whole idea: a character's
+routine is the half open range from its own pointer to the next, so the last character needs a
+bound after it. That final value is also the total number of entries, and the original reads
+exactly that much of the file.
+</p>
+
+<pre><code>pointer table   257 x u16   =  514 bytes
+entries         563 x 5     = 2815 bytes
+                              ----------
+                              3329 bytes</code></pre>
+
+<p>
+An entry is five bytes: the hour and the weekday packed into one byte, the behaviour, and the
+destination in three bytes. The destination uses <em>exactly the same bit layout as an object
+record</em>, which was a pleasant find: one unpacking serves both.
+</p>
+
+<h2>Three independent proofs</h2>
+
+<p>
+A bit layout is precisely the kind of thing that can be wrong without anything complaining. So
+instead of trusting that the code compiles, I looked for measurements that separate the right
+answer from the wrong ones.
+</p>
+
+<p>
+<strong>First:</strong> the behaviour byte. A character's mode is one byte whose value range
+splits three ways: combat modes below 0x14, the transient pathfinding states from 0x80, and the
+schedule modes from 0x87 to 0x9A. Only that last group can be stored in a timetable entry. All
+563 entries fall inside it. Read the field from the wrong byte and the values scatter across
+the whole range.
+</p>
+
+<p>
+<strong>Second, and strongest:</strong> the destinations. A townsperson walks to a floor, not
+into the sea. I combined the timetable, the map and the tile flags and counted how many surface
+destinations stand on dry walkable ground.
+</p>
+
+<pre><code>chosen, x 10 bits / y 10 bits     98.1 %
+x and y swapped                   30.4 %
+two whole bytes as x and y        21.3 %
+x 12 bits / y 10 bits              8.3 %</code></pre>
+
+<p>
+This is a cross check between three different file formats, and it only holds if all three are
+read correctly. The remaining ten destinations are in water, and all ten say wander or loiter.
+Not one says sleep in a bed. They are creatures that swim, not a parse error, and a parse error
+is exactly what a wrong layout would have produced.
+</p>
+
+<p>
+<strong>Third:</strong> the level field. A dungeon level is 256 squares across, and every
+dungeon entry stays inside it. Read the level from different bits and the coordinates spill over
+the edge.
+</p>
+
+<h2>The king</h2>
+
+<p>
+The clearest single confirmation came from character 5. Six entries, all within a handful of
+squares of the castle in Britain, which is where the game starts the player.
+</p>
+
+<pre><code>08:00  sits      (307, 348)
+12:00  eats      (316, 367)
+14:00  sits      (307, 348)
+18:00  eats      (316, 367)
+19:00  sits      (301, 352)
+21:00  sleeps    (297, 350)</code></pre>
+
+<p>
+At one in the afternoon there is nothing. That is correct: the hourly switch looks for an entry
+matching the clock, and when none matches, <em>the character keeps doing whatever it was already
+doing</em>. There is no fallback.
+</p>
+
+<p>
+The search runs backwards so that the last match wins. That is not an implementation detail but
+part of the behaviour: it is how an entry limited to one weekday overrides a daily one, by
+sitting after it in the file. Across the whole data set, 23 entries out of 563 are tied to a
+weekday.
+</p>
+
+<h2>One entry that does not exist</h2>
+
+<p>
+Character 190's pointer range promises two entries. The file holds one.
+</p>
+
+<pre><code>table[190] = 562      first entry of character 190
+table[191] = 564      its entries end here
+table[256] = 563      entries in total, indices 0..562</code></pre>
+
+<p>
+The file contradicts itself by one entry. And the file itself is sound: 2815 bytes divide
+evenly into 563 five byte entries with nothing left over. The original reserves room for 600
+entries and reads 563 of them, so entry 563 is inside the allocation but uninitialised. The
+hourly switch touches it every time the clock turns.
+</p>
+
+<p>
+This cannot be reproduced, because uninitialised memory does not exist in a managed runtime.
+Instead the loader reads what the file actually contains and <em>records the shortfall where it
+can be seen</em>. When the AI later decides what character 190 does, that decision will be made
+deliberately rather than by accident.
+</p>
+
+<h2>Tests</h2>
+
+<p>
+Forty three new ones. All three proofs above are tests, including the wrong one: a test computes
+the result for the swapped layout and demands that it be clearly worse. If anyone ever
+"simplifies" the unpacking, that test fails instead of passing quietly.
+</p>
+
+<pre><code>Unity EditMode     180 / 180
+Format library     164 / 164
+Exporter            23 / 23
+                   -----------
+                   367 tests</code></pre>
+
+<p>
+With this, <strong>every file format in the game is verified</strong> except one: the pixel
+encoding of the intro animation frames is still open, and it blocks nothing but the ending.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Books and signs, which are straightforward text data. After that the remaining rule
+     tables and the conversation interpreter.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data or
+     graphics are included here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

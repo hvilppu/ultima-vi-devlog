@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The words of magic | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/12-taikuuden-sanat.html" hreflang="fi">FI</a><span>/</span><a href="12-the-words-of-magic.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 12</nav>
+
+<h1>The words of magic</h1>
+
+<p class="lede">
+The spell data is in no file at all. It is compiled into the program, and what gave it away was
+a feature that started life as nothing but headroom for spells that were never added.
+</p>
+
+<p>
+The creature statistics had to be dug out of the executable earlier, because they appear in no
+data file. The spells live in the same place. The difference is that this time the search turned
+out to be unusually safe, and the reason is a pleasing one.
+</p>
+
+<h2>The gaps give the table away</h2>
+
+<p>
+Ultima VI has eight circles of magic with ten spells each, so eighty spells. But the numbering
+reserves <strong>sixteen</strong> numbers per circle. Six numbers in every circle are empty,
+most likely headroom that was never used.
+</p>
+
+<p>
+The ingredient table is 128 bytes, one per spell number. So 48 of them are always zero, and
+those zeros sit in exact places: the last six of every group of sixteen.
+</p>
+
+<pre><code>circle 1  61 82 82 60 24 12 50 00 84 80  00 00 00 00 00 00
+circle 2  82 84 0E 1C 16 0D 12 88 88 2C  00 00 00 00 00 00
+circle 3  A2 84 84 81 A8 60 52 03 E0 A0  00 00 00 00 00 00
+...                                      ^^^^^^^^^^^^^^^^^
+                                         six zeros, always</code></pre>
+
+<p>
+I searched the whole 200 kilobyte program for places where this pattern repeats eight times and
+the other slots are mostly non-zero. <strong>There was exactly one hit.</strong> The shape needed
+no extra condition at all, which is a stronger result than the creature table, where I needed
+four conditions together.
+</p>
+
+<h2>The names were at the end of pointers</h2>
+
+<p>
+The spell names are not in the table but stored as pointers into the program's data segment. And
+where that segment starts is recorded nowhere, so a pointer value of 0x135F says nothing on its
+own.
+</p>
+
+<p>
+I could have searched for some known string and taken the difference, but that would have leaned
+on whatever happens to be in the game's text. A better way was in the pointers themselves: when
+consecutive pointers address consecutive strings, <strong>the gaps between them are the lengths
+of those strings</strong>.
+</p>
+
+<pre><code>pointers   135F 136D 1378 1384 138F 139B 13A2 13AA
+gaps         14   11   12   11   12    7    8</code></pre>
+
+<p>
+So I looked for the base address at which all eight pointers land on printable text and all seven
+gaps match the string lengths. There is exactly one such base in the whole file. The search leans
+on no word of English, only on proportions of length.
+</p>
+
+<p>
+After that everything else opened up, because the tables sit next to each other in the data
+segment: the names, the 26 syllables, the incantation letters, the ingredient names and the
+circle names were all at fixed distances from the ingredient table.
+</p>
+
+<h2>Letters are syllables</h2>
+
+<p>
+The incantations surprised me in how compactly they are stored. Each spell has a run of two to
+four letters, and each letter indexes a table of 26 syllables, where A is the first and Z the
+last.
+</p>
+
+<pre><code>IL    -> In Lor               Light
+IM    -> In Mani              Heal
+IMC   -> In Mani Corp         Resurrect
+VCBM  -> Vas Corp Bet Mani    Armageddon</code></pre>
+
+<p>
+The syllables are read from the program rather than written into the code. They are data, and a
+reimplementation has no business deciding what the words of magic are.
+</p>
+
+<p>
+These four are also in the tests, for a reason: their incantations are published in the game's
+own documentation, so they confirm the extraction <em>from outside the data</em> rather than
+against itself. Most tests compare data to itself, which is why the few external anchors are
+worth having.
+</p>
+
+<h2>The bit order is not what you would expect</h2>
+
+<p>
+The ingredient byte is a bit mask over eight substances. Those substances are object types 65 to
+72, consecutively. But the bit order does <strong>not</strong> follow the object type order:
+</p>
+
+<pre><code>bit 0  0x01  mandrake root   type 69
+bit 1  0x02  nightshade      type 70
+bit 2  0x04  black pearl     type 65
+bit 3  0x08  blood moss      type 66
+bit 4  0x10  spider silk     type 71
+bit 5  0x20  garlic          type 67
+bit 6  0x40  ginseng         type 68
+bit 7  0x80  sulfurous ash   type 72</code></pre>
+
+<p>
+This is exactly the kind of place that would go wrong quietly: the wrong order would swap
+ingredients between spells and nothing would crash. So the object types of the bits are cross
+checked against my own <code>LOOK.LZD</code>, matching a number read from the program against a
+name in a data file.
+</p>
+
+<h2>A couple of details from the data</h2>
+
+<p>
+The most demanding spell in ingredients is Resurrect, needing six of the eight. The most used
+substance is sulfurous ash at 43 spells, the rarest is ginseng at 13. Two spells need no
+ingredients at all, and one of them is Armageddon: the most expensive spell in the eighth circle
+in magic points, consuming nothing but the caster.
+</p>
+
+<h2>What did not exist</h2>
+
+<p>
+The plan promised to extract each spell's effect and its targeting type as well. That was a
+wrong expectation: they are not a table. Each spell has its own branch of code that decides for
+itself whether it asks for a direction, a square, a character, or nothing.
+</p>
+
+<p>
+I recorded that in the plan as an expectation that turned out wrong, rather than quietly dropping
+the item. The spells get implemented one at a time in phase C, and each will need its own test
+then.
+</p>
+
+<h2>Tests</h2>
+
+<p>
+Fifty new ones. There is now also a pre-commit command of my own, which checks before every
+commit that the tests pass, that every public type is tested <em>in both directions</em> (real
+data in, malformed data refused), that there is no test in the set that cannot fail, and that the
+plan and this log are current.
+</p>
+
+<pre><code>Unity EditMode     180 / 180
+Format library     266 / 266
+Exporter            32 / 32
+                   -----------
+                   478 tests</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Character development and carrying capacity, the last standalone table in M8. After that
+     the conversation interpreter, with shop prices alongside it.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data or
+     graphics are included here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

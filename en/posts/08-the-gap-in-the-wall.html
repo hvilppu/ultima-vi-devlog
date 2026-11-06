@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The gap in the wall | Rebuilding Ultima VI</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/08-aukko-seinassa.html" hreflang="fi">FI</a><span>/</span><a href="08-the-gap-in-the-wall.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Rebuilding Ultima VI</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 08</nav>
+
+<h1>The gap in the wall</h1>
+
+<p class="lede">
+The sea started showing up, but a hole appeared beside every doorway. Some objects cover two
+squares, and I was drawing half of them.
+</p>
+
+<p>
+Once the starting position moved off the open ocean and into Britain, a new fault became
+visible: the wall beside doorways had a hole in it. Terrain drew, furniture drew, but part
+of each door frame was missing.
+</p>
+
+<h2>Flags I had already decoded</h2>
+
+<p>
+The answer was in a file I had decoded earlier and then never used. Two bits in the display
+byte of <code>TILEFLAG</code> say nothing about how a tile looks and everything about how
+big it is:
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Bit</th><th>Meaning</th><th class="num">Objects in the world</th></tr></thead>
+  <tbody>
+    <tr><td><code>0x80</code></td><td>two tiles wide</td><td class="num">799</td></tr>
+    <tr><td><code>0x40</code></td><td>two tiles tall</td><td class="num">661</td></tr>
+    <tr><td><code>0xC0</code></td><td>both, so two by two</td><td class="num">225</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+My renderer drew every object as a single 16&times;16 tile in its own square. For those 1685
+objects that meant half of each one was never drawn. Door frames and tall wall sections
+happen to be exactly that set, which is why the fault appeared beside doors rather than
+scattered randomly.
+</p>
+
+<h2>Which way the missing half belongs</h2>
+
+<p>
+The tile number below a flagged tile has artwork of its own, so the pairing is obvious. The
+direction is not. Rather than guess, I asked the data.
+</p>
+
+<p>
+The reasoning is simple. If the engine draws the second half into a neighbouring square,
+that square cannot hold an object of its own, because the content would appear twice. An
+empty neighbour should therefore be far more common for flagged objects than for ordinary
+ones:
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Case</th><th class="num">Neighbour empty</th></tr></thead>
+  <tbody>
+    <tr><td>Wide object, square to the west</td><td class="num">94 %</td></tr>
+    <tr><td>Tall object, square to the north</td><td class="num">95 %</td></tr>
+    <tr><td>Baseline: ordinary objects, square to the west</td><td class="num">48 %</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+The flagged tile is the bottom right corner of the object. A wide one reaches one square
+west, a tall one reaches one square north.
+</p>
+
+<h2>Two by two, and how it was settled</h2>
+
+<p>
+For the 225 objects carrying both flags the thing covers four squares and needs four tiles.
+The tile numbers are consecutive, but in what arrangement? I implemented the most plausible
+convention, anchor at the bottom right with the preceding numbers filling west and then
+north, and labelled it honestly as a guess.
+</p>
+
+<p>
+A guess is a poor place to leave something, so I measured it. A correctly assembled block is
+continuous: along its internal seams there are pixels on both sides. A wrongly assembled one
+breaks. I scored the seams of all 21 distinct two by two tiles under both arrangements:
+</p>
+
+<pre><code>arrangement                      seam score   wins
+west first (my implementation)          921    21 / 21
+north first (the alternative)            80     0 / 21</code></pre>
+
+<p>
+An elevenfold difference, with no losses and no ties. That settles it. The advantage of a
+measure over eyeballing is that it covers all 21 cases rather than the four I had the
+patience to look at.
+</p>
+
+<h2>A second fault found alongside</h2>
+
+<p>
+Fixing this exposed another fault with the same root. The renderer only walked squares
+inside the window. A wide object standing one square east of the window still reaches into
+it, and was never drawn. The east and south edges of the view therefore had the same hole
+whenever something large stood just past the border.
+</p>
+
+<p>
+The scan now extends one square beyond the edge and drawing is clipped to the window
+bounds. That has its own test: it places the view so a wide object falls just outside, and
+requires the window's edge column to change.
+</p>
+
+<h2>Tests</h2>
+
+<p>
+Five new ones, and two of them ask the right question following the lesson of the earlier
+mistake. They do not compare the renderer against itself, they compare against terrain: the
+square west of a wide object <em>must differ</em> from what bare terrain would give. If the
+overhang goes undrawn, they fail.
+</p>
+
+<p>
+There is a guard as well: if the world contains no double-sized objects at all, the test
+fails. Otherwise the whole group could quietly become vacuous if the search condition ever
+breaks.
+</p>
+
+<pre><code>Unity EditMode     60 / 60
+Format library     64 / 64
+Exporter           23 / 23
+                  ----------
+                  147 tests</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Movement and collision, turning the view into a character. The terrain flags are already
+     decoded and tested, so the work is mostly wiring them up.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data or artwork is
+     included here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

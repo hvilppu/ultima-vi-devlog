@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yhdeksän ruutua, ei yksitoista | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="22-yhdeksan-ruutua-eika-yksitoista.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/22-nine-squares-not-eleven.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 22</nav>
+
+<h1>Yhdeksän ruutua, ei yksitoista</h1>
+
+<p class="lede">
+Hahmot ovat kartalla. Sääntö siitä mikä lasketaan "ruudulla olemiseksi" osoittautui
+tarkemmaksi kuin oletin, ja yksi sen osa ei ole suodatin vaikka siltä näyttää.
+</p>
+
+<p>
+Keskusteluskriptit kysyvät maailmalta 2563 asiaa, ja eniten kutsuttu niistä on puolueen jäsenen
+hakeminen: 549 kertaa. Kun mittasin toisen operandin, luku jakautui näin:
+</p>
+
+<pre><code>542 kutsua   vain ruudulla olevat jasenet
+  7 kutsua   mika tahansa jasen</code></pre>
+
+<p>
+Eli eniten kutsuttu jäsen koko rajapinnassa ei tarvitse puolueluetteloa vaan <strong>tietoa
+siitä missä kukin seisoo</strong>. Karkea kutsuluku oli sanonut minulle "puolue seuraavaksi",
+ja tarkempi mittaus sanoi jotain aivan muuta.
+</p>
+
+<h2>Laatikko ei ole ikkuna</h2>
+
+<p>
+Peli piirtää yksitoista ruutua kertaa yksitoista. Luulin että "ruudulla" tarkoittaa sitä.
+</p>
+
+<p>
+Ei tarkoita. Vertailu on tiukka molemmin puolin viittä, joten laskettu laatikko on
+<strong>yhdeksän ruutua</strong> ja ikkunan uloin kehä piirtyy mutta ei kelpaa. Hahmo joka
+seisoo näkyvissä ruudun reunalla ei ole "ruudulla".
+</p>
+
+<p>
+Eikä siinä kaikki. Ruudun pitää lisäksi oikeasti näyttää jotain: siinä on esine, tai sen tiili
+on esinetiili, tai se ei ole piilotettu eikä pimeä. Seinän takana seisova hahmo on
+koordinaateiltaan lähellä mutta ei ruudulla.
+</p>
+
+<h2>Tasoa ei verrata</h2>
+
+<p>
+Alkuperäinen vertaa saraketta ja riviä eikä mitään muuta. Hahmo joka seisoo samassa paikassa
+eri tasolla läpäisee sijaintitestin.
+</p>
+
+<p>
+En tiedä voiko se tapahtua pelissä, enkä lähtenyt selvittämään sitä nyt. Jäljittelin sen
+sellaisenaan ja kirjoitin siitä oman testin, koska muuten allekirjoitus jossa ei ole tasoa
+näyttää unohdukselta eikä päätökseltä.
+</p>
+
+<h2>Puristus joka ei ole suodatin</h2>
+
+<p>
+Tämä on se kohta jonka olisin varmasti kirjoittanut väärin jos olisin päätellyt sen nimestä.
+</p>
+
+<p>
+Kun skripti pyytää "ruudulla olevan jäsenen numero yksi", se ei tarkoita "paikka yksi, jos se
+on ruudulla". Alkuperäinen rakentaa ensin <strong>lyhyemmän listan</strong> niistä jotka ovat
+ruudulla, ja indeksoi vasta sitä.
+</p>
+
+<pre><code>puolue        1  2  3  4
+ruudulla         2     4
+puristettu    2  4
+
+indeksi 0  ->  2
+indeksi 1  ->  4      naiivi lukema antaisi nollan</code></pre>
+
+<p>
+Toteutin naiivin lukeman tahallani nähdäkseni huomaavatko testini eron. Kaksi testiä kaatui,
+tasan ne jotka tämän naulaavat.
+</p>
+
+<p>
+Pieni lisähuomio samasta kohdasta: nolla on oikea hahmonumero, ja alkuperäinen vastaa nollalla
+myös silloin kun ketään ei ole. Skripti ei siis voi erottaa "hahmo nolla" ja "ei ketään"
+toisistaan. Se on alkuperäisen vastaus ja se jää.
+</p>
+
+<h2>Unity-tarkistus nappasi yhden</h2>
+
+<p>
+Kirjoitin testiin <code>Does.Not.Contain(5)</code>. Headless-ajo hyväksyi sen, mutta
+Unity-tarkistusprojekti kaatui: siinä NUnit-versiossa jonka Unity toimittaa, tuo ratkeaa
+merkkijono-ylikuormaan eikä kokoelmavertailuun.
+</p>
+
+<p>
+Tämä olisi mennyt editoriin asti ilman tarkistusta. Se on sama vikaluokka jonka takia
+tarkistusprojektit ovat olemassa: koodi joka kääntyy täällä muttei siellä, ja ero on jossain
+aivan muualla kuin siinä mitä oli kirjoittamassa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>hahmoja kartalla         200
+puolueen koko              4
+laskettu laatikko          9 x 9 ruutua
+
+U6Formats.Tests  276 / 276
+U6Export.Tests    49 / 49
+U6Engine.Tests   526 / 526</code></pre>
+
+<h2>Seuraava on ensimmäinen puhdas toteutusviipale</h2>
+
+<p>
+Näkyvyyspuolisko tarvitsee komposerilta tiedon siitä mikä tiili ruutuun päätyi ja piirrettiinkö
+siihen esine. Komposeri laskee molemmat jo, myös pimeyden, mutta tuottaa pelkät pikselit.
+</p>
+
+<p>
+Sääntö on luettu ja kaikki kolme vakiota tiedossa, joten <strong>mittaamatonta ei ole
+jäljellä</strong>. Kirjoitin tällä viikolla ohjeisiin säännön siitä mikä työ kuuluu kummallekin
+mallille, ja tämä on ensimmäinen viipale joka osuu alusta loppuun toteutuspuolelle.
+</p>
+
+<p>
+Sen jälkeen tulee luku jonka lupasin ja jota en vielä tiedä: kun maailma osaa vastata, korpustesti
+voi ajaa kaikki 199 keskustelua ja kertoa montako niistä oikeasti menee läpi. Arvaan ettei se
+ole 199, koska objektikutsut ovat 28 prosenttia eivätkä ole tehty. Mutta arvaus on arvaus, ja
+sen takia se mitataan.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Komposeri kertomaan ruutukohtaisen näkymän. Sen jälkeen ruudulla olo vastaa oikeilla
+     arvoilla, ja keskustelujen läpimenoprosentti on mitattavissa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

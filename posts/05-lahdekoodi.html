@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Joku teki vaikean osan jo | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="05-lahdekoodi.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/05-the-source.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 05</nav>
+
+<h1>Joku teki vaikean osan jo</h1>
+
+<p class="lede">
+Alkuperäisestä on olemassa dekompilaatio. Se poisti projektin suurimman riskin ja löysi
+saman tien oman bugini.
+</p>
+
+<p>
+Datatiedostoja voi päätellä ulkopuolelta. Sääntöjä ei voi. Mikään määrä tavujen tuijottamista
+ei kerro, miten vahinko lasketaan, eikä 1:1-uudelleentoteutus voi tyytyä riittävän lähelle.
+Jossain vaiheessa suoritettava binääri on siis luettava.
+</p>
+
+<p>
+Pääbinääri ei ole ystävällinen. Sen relokaatiotaulu on tyhjä ja sisäänmeno sijaitsee lähes
+tiedoston lopussa: klassinen itsepurkautuvan stubin muoto. Yksikään tunnettu pakkaajan
+tunniste ei täsmää, joten kyseessä näytti olevan oma viritys, ja sen purkaminen oli
+budjetoitu koko suunnitelman riskialtteimmaksi tehtäväksi. Jos se olisi epäonnistunut,
+1:1-tavoite olisi kaatunut sen mukana.
+</p>
+
+<p>
+Osoittautuu, että työ on jo tehty, julkisesti, jonkun muun toimesta. DOS-version
+dekompilaatio on olemassa luettavana C-koodina, joka kääntyy takaisin alkuperäiseksi
+binääriksi hyvin pienin eroin. Noin kolmellasadalla funktiolla ja neljälläsadalla globaalilla
+on merkityksellinen nimi. Front-end ja lopetusohjelma ovat mukana.
+</p>
+
+<p>
+Se kohdistuu jopa versioon 4.5, joka on tasan se versio jonka oman kopioni levylaput
+ilmoittavat. Projektin suurin tuntematon lakkasi olemasta tuntematon.
+</p>
+
+<h2>Lukeminen ilman kopiointia</h2>
+
+<p>
+Tuolla lähdekoodilla ei ole lisenssiä, ja se on joka tapauksessa johdannainen jonkun toisen
+pelistä. Siksi tämän projektin työtapa on tiukka ja kirjattu ylös:
+</p>
+
+<blockquote>
+Lue funktio. Kirjoita ylös mitä se <em>tekee</em>, omin sanoin, muistiinpanoksi. Toteuta C#
+muistiinpanosta, ei alkuperäinen ruudulla. Todenna sitten käyttäytyminen oikeaa peliä vasten.
+</blockquote>
+
+<p>
+Tuo keskimmäinen askel ei ole byrokratiaa. Se palvelee kolmea asiaa kerralla. Se pitää
+juridisen etäisyyden. Se suojaa koodin laatua: rivi riviltä käännetty 1990-luvun C raahaisi
+segmentoidun osoitinaritmetiikan ja kolmikirjaimiset globaalit suoraan moderniin
+koodipohjaan. Ja se on ymmärryksen koe: jos et pysty kirjoittamaan sääntöä auki yhdellä
+lauseella, et ymmärrä sitä tarpeeksi hyvin toteuttaaksesi sen.
+</p>
+
+<p>
+Mitään tuosta repositoriosta ei committoida tänne. Se asuu ignoroidussa hakemistossa ja sitä
+kohdellaan dokumentaationa.
+</p>
+
+<h2>Mitä se löysi saman tien</h2>
+
+<p>
+Tiilien käyttäytymistä kuvaava tiedosto on 7 168 tavua. Olin aiemmin lukenut sen kolmena
+2 048 tavun taulukkona ja 1 024 tavun jäännöksenä lopussa, mikä on järkevä arvaus ja menee
+tasan. Se on myös väärä. Todellinen rakenne on neljä erikokoista taulukkoa, ja outo on
+<em>keskellä</em>:
+</p>
+
+<figure>
+<svg viewBox="0 0 640 150" role="img" aria-label="Kaavio jossa verrataan oletettua kolmen tason rakennetta ja todellista neljan taulukon rakennetta">
+  <g font-family="monospace" font-size="11" fill="#8a8276">
+    <text x="0" y="12">OLETUS</text>
+    <text x="0" y="92">TODELLISUUS</text>
+  </g>
+  <g stroke="#ddd6c8">
+    <rect x="0" y="20" width="160" height="34" fill="#c98a4b" fill-opacity="0.12"/>
+    <rect x="160" y="20" width="160" height="34" fill="#c98a4b" fill-opacity="0.2"/>
+    <rect x="320" y="20" width="160" height="34" fill="#c98a4b" fill-opacity="0.28"/>
+    <rect x="480" y="20" width="80" height="34" fill="none" stroke-dasharray="3 3"/>
+  </g>
+  <g font-family="monospace" font-size="10" fill="#5c564c" text-anchor="middle">
+    <text x="80" y="41">taso 1</text><text x="240" y="41">taso 2</text>
+    <text x="400" y="41">taso 3</text><text x="520" y="41">hanta?</text>
+  </g>
+  <g stroke="#ddd6c8">
+    <rect x="0" y="100" width="160" height="34" fill="#c98a4b" fill-opacity="0.12"/>
+    <rect x="160" y="100" width="160" height="34" fill="#c98a4b" fill-opacity="0.2"/>
+    <rect x="320" y="100" width="80" height="34" fill="#8a4b1e" fill-opacity="0.45"/>
+    <rect x="400" y="100" width="160" height="34" fill="#c98a4b" fill-opacity="0.28"/>
+  </g>
+  <g font-family="monospace" font-size="10" fill="#5c564c" text-anchor="middle">
+    <text x="80" y="121">maasto</text><text x="240" y="121">piirto</text>
+    <text x="360" y="121" fill="#ece7dd">painot</text><text x="480" y="121">toissijainen</text>
+  </g>
+  <path d="M400,70 L400,96" stroke="#8a4b1e" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <text x="408" y="80" font-family="monospace" font-size="10" fill="#8a4b1e">1024 tavun siirtyma alkaa tasta</text>
+</svg>
+<figcaption>
+Objektityyppien painotaulukko, 1 024 tavua, sijaitsee toisen ja kolmannen tiilitaulukon
+välissä. Tiedoston lukeminen kolmena yhtä suurena tasona siirtää kaiken sen jälkeisen pois
+kohdistuksesta, ja palauttaa täysin uskottavan näköistä dataa.
+</figcaption>
+</figure>
+
+<p>
+Tämä on se vikatyyppi, joka tekee reverse engineeringistä hidasta. Mikään ei kaadu. Yksikään
+rajatarkistus ei laukea. Saat tavuja takaisin, ne vaihtelevat tiileittäin, ne näyttävät
+lipuilta. Virhe olisi tullut esiin viikkoja myöhemmin outona liikkumisena tavoilla joita
+kukaan ei olisi osannut toistaa.
+</p>
+
+<p>
+On syytä sanoa selvästi kenen virhe se oli: minun, ei alkuperäisen. Se meni projektin omiin
+muistiinpanoihin, ei alkuperäisen bugien lokiin.
+</p>
+
+<h2>Vihdoin nimettyinä</h2>
+
+<p>
+Kun rakenne on oikein, biteillä on merkityksiä. Maasto kantaa tiedot märkä, kulkukelvoton,
+seinä ja vahingoittava, sekä neljä reunabittiä. Piirto kantaa tiedot läpinäkymätön, ikkuna,
+etuala ja estää ammukset, ja sen alimmat kaksi bittiä eivät ole lippuja lainkaan vaan
+valonsäteilytaso. Ne olisi ollut helppo lukea väärin kahtena ylimääräisenä totuusarvona.
+</p>
+
+<p>
+Todensin jokaisen nimitaulukkoa vasten sen sijaan että olisin uskonut sanaan. Vahingoittava
+bitti osuu ansoihin, verkkoihin, piikkeihin, laavaan ja tulikenttiin. Valonsäteilytaso osuu
+taikaesineisiin ja hehkuviin asioihin: tulikenttä säteilee tasolla 2. Painotaulukko antaa
+nollan lattialle ja maalle, ja järkeviä arvoja kaikelle mitä pelaaja voi kantaa.
+</p>
+
+<p>
+Kaksi kahdestatoista sääntötaulukosta on nyt palautettu. Kymmenen jäljellä, ja eniten haluan
+satunnaislukugeneraattoria. Ilman sen täsmäämistä taistelun todentaminen voi olla vain
+tilastollista.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p><a href="06-ensimmainen-kuva.html">Ensimmäinen kuva</a>:
+     viisi milestonea näkymätöntä työtä päätyy vihdoin ruudulle.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa tai grafiikkaa
+     ei ole mukana täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

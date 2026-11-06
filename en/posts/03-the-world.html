@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assembling Britannia | Rebuilding Ultima VI</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/03-maailma.html" hreflang="fi">FI</a><span>/</span><a href="03-the-world.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Rebuilding Ultima VI</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 03</nav>
+
+<h1>Assembling Britannia</h1>
+
+<p class="lede">
+A 1024&times;1024 world squeezed into 32 KB, and an ordering mistake that looks perfectly
+plausible until you render it.
+</p>
+
+<p>
+The surface of the game world is a million tiles. The file that describes it is 32,256
+bytes. The trick is that almost nothing is stored directly.
+</p>
+
+<p>
+<code>CHUNKS</code> is a library of 1024 reusable 8&times;8 tile patches, 64 bytes each,
+filling exactly 64 KB. <code>MAP</code> then describes the world purely as references into
+that library. A forest is one chunk pointed at a few hundred times.
+</p>
+
+<p>
+The references are packed twelve bits each, two per three bytes. That gives room for 4096
+chunks where only 1024 exist, and the top two bits are never used. The arithmetic works
+out exactly:
+</p>
+
+<pre><code>surface   128 &times; 128 refs &times; 1.5 bytes  = 24,576
+dungeons    5 levels &times; 32 &times; 32 &times; 1.5 =  7,680
+                                          -------
+                                           32,256</code></pre>
+
+<p>
+One other thing falls out immediately. Every byte in <code>CHUNKS</code> is a tile number,
+and the maximum value is 255, which means terrain only ever uses the first 256 tiles.
+Everything else in the world, every tree and door and barrel, is placed separately as an
+object. The map is just ground, water and walls.
+</p>
+
+<h2>The ordering trap</h2>
+
+<p>
+Here is the part that would have quietly ruined everything. The obvious reading is that the
+128&times;128 chunk references run in plain row-major order: left to right, top to bottom.
+That reading consumes exactly the right number of bytes and raises no errors anywhere.
+</p>
+
+<p>
+It is also wrong. The surface is divided into an 8&times;8 grid of <em>super chunks</em>, each
+16&times;16 chunks, and the references are stored one complete super chunk at a time.
+</p>
+
+<figure>
+<svg viewBox="0 0 640 200" role="img" aria-label="Diagram contrasting row-major ordering across the whole map with super-chunk-at-a-time ordering">
+  <g font-family="monospace" font-size="11" fill="#8a8276">
+    <text x="0" y="12">ROW-MAJOR across the whole map</text>
+    <text x="330" y="12">SUPER CHUNK at a time, the actual order</text>
+  </g>
+  <g stroke="#ddd6c8" fill="none">
+    <rect x="0" y="22" width="256" height="128"/>
+    <rect x="330" y="22" width="256" height="128"/>
+  </g>
+  <g stroke="#ddd6c8" stroke-width="0.5" fill="none">
+    <path d="M32,22 V150 M64,22 V150 M96,22 V150 M128,22 V150 M160,22 V150 M192,22 V150 M224,22 V150"/>
+    <path d="M0,54 H256 M0,86 H256 M0,118 H256"/>
+  </g>
+  <g stroke="#ddd6c8" stroke-width="0.5" fill="none">
+    <path d="M362,22 V150 M394,22 V150 M426,22 V150 M458,22 V150 M490,22 V150 M522,22 V150 M554,22 V150"/>
+    <path d="M330,54 H586 M330,86 H586 M330,118 H586"/>
+  </g>
+  <path d="M4,38 H252" stroke="#c98a4b" stroke-width="2"/>
+  <path d="M4,70 H252" stroke="#c98a4b" stroke-width="2"/>
+  <path d="M4,102 H252" stroke="#c98a4b" stroke-width="2"/>
+  <rect x="330" y="22" width="32" height="32" fill="#c98a4b" fill-opacity="0.3"/>
+  <rect x="362" y="22" width="32" height="32" fill="#c98a4b" fill-opacity="0.22"/>
+  <rect x="394" y="22" width="32" height="32" fill="#c98a4b" fill-opacity="0.14"/>
+  <g font-family="monospace" font-size="10" fill="#8a4b1e">
+    <text x="338" y="42">1</text><text x="370" y="42">2</text><text x="402" y="42">3</text>
+  </g>
+  <g font-family="monospace" font-size="11" fill="#8a8276">
+    <text x="0" y="172">consumes exactly the right</text>
+    <text x="0" y="188">number of bytes, and is wrong</text>
+    <text x="330" y="172">each 16&times;16 block is finished</text>
+    <text x="330" y="188">before the next one begins</text>
+  </g>
+</svg>
+<figcaption>
+Both readings consume the same 24,576 bytes and neither triggers a range error. Only
+rendering the result tells them apart.
+</figcaption>
+</figure>
+
+<p>
+I rendered both. One produced a coherent continent; the other produced a scrambled mess of
+128-tile squares. That settled it in about four seconds of looking.
+</p>
+
+<p>
+The super chunk structure got independent confirmation from somewhere else entirely. The
+object data is split across 69 separate files named <code>OBJBLKAA</code> through
+<code>OBJBLKHI</code>. Eight by eight is 64 surface files, plus five more for the dungeon
+levels. 64 + 5 = 69. The same division shows up in two unrelated places in the data, which
+is about as good as structural evidence gets.
+</p>
+
+<h2>What it looks like</h2>
+
+<figure>
+<img src="../../Images/worldmap_preview.png" alt="Overview of the decoded surface terrain, one pixel per tile" width="512" loading="lazy">
+<figcaption>
+The decoded surface at one pixel per tile, coloured by each tile's average colour. Coastlines,
+rivers, mountain ranges, roads and the footprints of towns are all terrain. No objects
+are drawn here yet. This image is generated locally from your own installation: it is not in the
+source repository, and is copied onto this site when the site is published.
+</figcaption>
+</figure>
+
+<p>
+That overview is not decoration. It is the project's cheapest regression test: a checksum
+tells you the bytes changed, but only a picture tells you the continent is still the right
+shape. It is generated on every export, alongside one image per dungeon level.
+</p>
+
+<p>
+The checksum exists too, of course:
+</p>
+
+<pre><code>surface terrain, 1024 &times; 1024 bytes
+SHA-256  f026f8223d1c00d513a7fefd47e1bbb557e88f953b80f7d5fe977baacafa31ef</code></pre>
+
+<h2>One small decision</h2>
+
+<p>
+The plan called for exporting the world as 16-bit tile numbers. Since terrain demonstrably
+only uses values 0&ndash;255, I wrote bytes instead. Widening the field would have been
+speculation about a future need, and it would have doubled the size for nothing. The whole
+world, all six levels, compresses to about 200 KB.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p><a href="04-the-objects.html">Sixteen thousand objects and one suspicious bit</a>:
+     separating things on the ground from things inside a chest, by elimination.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data or artwork is
+     included here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

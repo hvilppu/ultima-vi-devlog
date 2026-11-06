@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vain ensimmäinen vastaa | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="16-vain-ensimmainen-vastaa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/16-only-the-first-one-answers.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 16</nav>
+
+<h1>Vain ensimmäinen vastaa</h1>
+
+<p class="lede">
+Avainsanojen täsmäytys on valmis. Korpustesti löysi kolme asiaa, ja pahin niistä oli omani.
+</p>
+
+<p>
+Täsmäytyssääntö on lyhyt. Avainsana vastaa, jos se on jonkin syötteen sanan alku koko
+avainsanan pituudelta, kirjainkoosta riippumatta. Sellaisen voisi kirjoittaa yhdellä rivillä
+ja yhdellä testillä. Se olisi virhe, koska sääntö on lyhyt mutta sillä on kuusi reunaa.
+</p>
+
+<h2>Neljä kirjainta on tarina, ei sääntö</h2>
+
+<p>
+Tästä pelistä sanotaan usein, että moottori typistää avainsanat neljään kirjaimeen. Se ei ole
+totta. Skriptit vain on kirjoitettu nelikirjaimisilla avainsanoilla, 3002 kappaletta 4563:sta,
+ja siitä on syntynyt tarina moottorista.
+</p>
+
+<p>
+Ero on mitattavissa ja nyt naulattu kahteen suuntaan. Avainsana <code>heal</code> vastaa sanaa
+"healer", koska vertailu kestää avainsanan pituuden. Avainsana <code>healer</code> ei vastaa
+sanaa "heal", koska mikään ei typistä sitä. Jos moottori typistäisi, molemmat vastaisivat.
+</p>
+
+<h2>Kolme reunatapausta, jotka kirjoitin laskennan mukaan</h2>
+
+<p>
+Oletusvastaus on avainsana <code>*</code>, ja alkuperäinen tarkistaa siitä <strong>vain
+ensimmäisen merkin</strong>. Avainsana <code>*sword</code> vastaisi siis mihin tahansa. Dataa
+jossa niin kävisi ei ole: kaikki 237 oletusvastausta ovat pelkkä tähti. Kirjoitin silti
+säännön niin kuin alkuperäinen sen laskee, koska avainsana on dataa, ja data voi muuttua.
+</p>
+
+<p>
+Samasta syystä tyhjä avainsana vastaa mihin tahansa sanaan: nollan merkin vertailu onnistuu
+ennen kuin se katsoo yhtäkään. Ja kirjainkoosta jätetään pois vain A-Z, koska alkuperäisen
+<code>tolower</code> ei koske muihin merkkeihin siinä koodisivussa jossa peli ajetaan.
+</p>
+
+<p>
+Pelkkä Enter päättää keskustelun, ja se on toteutettu tavalla joka minua ilahdutti.
+<strong>Tyhjä syöte korvataan sanalla "bye"</strong> ennen vertailua. Enteriä ei käsitellä
+komentona missään; se vain muuttuu sanaksi jolle lähes jokaisella hahmolla on avainsana.
+Yhdellätoista hahmolla ei ole, ja niillä Enter putoaa oletusvastaukseen.
+</p>
+
+<h2>Jokerimerkki, joka täsmää sanavälin yli</h2>
+
+<p>
+Merkki <code>?</code> on jokerimerkki. Täsmäytys kävelee avainsanaa eikä sanaa, eikä se
+tarkista että sana riittää. Tavallisella merkillä se ei haittaa, koska sanan päätösmerkki ei
+voi olla sama kuin avainsanan merkki. Jokerimerkki täsmää päätösmerkkiin siinä missä
+kirjaimeen.
+</p>
+
+<pre><code>avainsana  "a?b"
+syote      "a b"     -&gt; tasmaa</code></pre>
+
+<p>
+Alkuperäinen pitää koko syötteen yhtenä puskurina jonka välilyönnit on korvattu
+päätösmerkeillä, joten vertailu jatkuu seuraavaan sanaan. Yksikään 4563 avainsanasta ei
+sisällä jokerimerkkiä, joten peli ei näytä tätä koskaan. Toteutin sen silti, koska sääntö on
+moottorissa.
+</p>
+
+<h2>Kolme ohitusta, kolme eri sääntöä</h2>
+
+<p>
+Kirjoitin aiemmin ohituksesta joka ei sisäkkäisty. Niitä on kolme, ja ne eroavat toisistaan.
+</p>
+
+<pre><code>ehtohaara          ohittaa hypyn, tavun, sanan     ei osoitetta
+vastaamaton vastaus ohittaa hypyn, tavun, sanan     ei osoitetta
+vastattu lista      ohittaa                         ei mitaan</code></pre>
+
+<p>
+Kolmas lukee tavuja kunnes lukee vastausten lopun eikä ohita yhtään operandia. Operanditavu
+jonka arvo sattuu olemaan se merkki päättää siis ohituksen kesken käskyä. Jokaisella on oma
+testinsä, ja varmistin ne siistimällä ohitukset tahallaan oikeiksi: tasan kolme testiä
+kaatui, ei yhtään muuta. Jokainen testi naulaa siis oman vikansa eikä vahingossa jotain muuta.
+</p>
+
+<h2>Vastaamaton kysymys kävelee datatauluun</h2>
+
+<p>
+Vastaamaton ohitus peruuttaa yhden tavun avainsanalistalle ja skriptin alkumerkille, muttei
+vastausten lopulle. Kahdessa ensimmäisessä tapauksessa se on oikein. Kolmannessa ajo jatkuu
+suoraan siihen mitä vastausten jälkeen sattuu olemaan, ja skriptit pitävät siellä
+sanataulukoitaan.
+</p>
+
+<p>
+Suojana on <code>*</code>-oletusvastaus, mutta kahdella hahmolla sitä ei ole viimeisen
+kysymyksen takana. Hahmolla 185 taulukon ensimmäinen sana on 0x0080, jonka alempi tavu on
+käskyalueella mutta jolla ei ole merkitystä, ja <strong>pelaaja näkee keskustelun keskellä
+tekstin "Unknown command."</strong>. Hahmolla 58 ajo menee skriptin ulkopuolelle kokonaan.
+</p>
+
+<h2>Oma vikani oli näistä pahin</h2>
+
+<p>
+Korpustesti ajaa kaikki 3089 avainsanalistaa kahdesti, kerran täsmäävällä syötteellä ja kerran
+syötteellä joka ei voi täsmätä. Ensimmäisellä ajolla se kaatui kymmeniin kohtiin.
+</p>
+
+<p>
+Syy oli yhden tavun paluukohta. Kun taulukkoa indeksoidaan, indeksilauseke syö sen erottimen
+johon se päättyy, ja sijoitus tarvitsee sen erottimen vielä. Alkuperäinen palauttaa siksi
+paikan yhtä tavua aiemmaksi, mutta <strong>vain sanataulukolle</strong>. Merkkijonotaulukolle
+ei, koska siellä kutsuja lukee seuraavaksi merkkejä eikä erotinta.
+</p>
+
+<p>
+Yksi tavu, ja vain indeksoidussa muodossa. Käsin kirjoittamani testit eivät olleet koskaan
+osuneet siihen muotoon. Korpustesti osui siihen kymmeniä kertoja heti.
+</p>
+
+<p>
+Toinen löytö samalta ajolta: tuntematon käsky ei pysäytä keskustelua. Tavut 0x80 - 0x9F ovat
+käskyjä sen ainoan säännön mukaan joka on, eli että kaikki 0x80:stä ylöspäin on käsky, eikä
+yhdelläkään ole merkitystä. Alkuperäinen tulostaa "Unknown command." ja jatkaa seuraavasta
+tavusta. Minun tulkkini heitti poikkeuksen, eli olisi pysäyttänyt keskustelun kohdassa jossa
+alkuperäinen jatkaa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>3089  avainsanalistaa
+4563  avainsanaa, joista 237 pelkka *
+   0  avainsanaa joissa jokerimerkki
+3057  tasmaava syote vastattiin, 3057:sta
+2525  tasmaamaton vastattiin silti, * oletusvastausten kautta
+   2  menee skriptin ulkopuolelle
+  89  vastausta osuu toteuttamattomaan kaskyyn</code></pre>
+
+<p>
+Rivi "3057 / 3057" on se joka naulaa täsmäyttimen. Jos täsmäytys lakkaisi toimimasta, nämä
+ajot valmistuisivat silti, vain vastaamatta. Luku 2525 oli ensin yllättävä, mutta selitys on
+juuri vastaamaton ohitus: se antaa kierroksen seuraavalle listalle, ja 237 listaa vastaa mihin
+tahansa.
+</p>
+
+<pre><code>U6Engine.Tests   391 / 391   ilman Unitya
+U6Formats.Tests  266 / 266
+U6Export.Tests    38 / 38</code></pre>
+
+<p>
+Mittasin luvut ensin ajamalla ja naulasin sitten. Löysätty raja, jota väännetään kunnes testi
+menee läpi, on pahempi kuin ei testiä.
+</p>
+
+<h2>Yksi ristiriita omissa papereissani</h2>
+
+<p>
+Dokumentteja päivittäessä huomasin, että tulkkidokumentti väitti mitatuksi asian jonka
+bugiraportti sanoo tarkistamattomaksi: osuuko jokin niistä kahdeksasta osoitevakiosta alueelle
+jota todella joskus ohitetaan. Bugiraportti on oikeassa, en ole tarkistanut. Väite on
+poistettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Syöteopcodet ja kysymyskierroksen silmukka, eli se joka kysyy. Sen jälkeen keskustelu
+     toimii päästä päähän, ja silloin keskusteluikkunan rakentaminen Unityn puolelle
+     kannattaa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

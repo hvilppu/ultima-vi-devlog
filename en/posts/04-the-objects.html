@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sixteen thousand objects and one suspicious bit | Rebuilding Ultima VI</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/04-objektit.html" hreflang="fi">FI</a><span>/</span><a href="04-the-objects.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Rebuilding Ultima VI</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 04</nav>
+
+<h1>Sixteen thousand objects and one suspicious bit</h1>
+
+<p class="lede">
+Finding the flag that separates things lying on the ground from things inside a chest, by
+elimination.
+</p>
+
+<p>
+The terrain is only the floor. Everything a player can see or touch (trees,
+buildings, doors, barrels, swords, people, monsters) is an object, and there are
+16,838 of them in the starting world: 9,098 above ground and 7,740 below.
+</p>
+
+<p>
+Each one is eight bytes. The byte that holds the status flags is obvious enough, and so are
+the blocks of records, each prefixed by a count. The hard part is that the coordinates
+straddle byte boundaries, and there are several plausible ways to divide them up.
+</p>
+
+<h2>Letting the data choose the layout</h2>
+
+<p>
+My first reading produced dungeon objects with a y coordinate of 576. A dungeon level is
+256&times;256 tiles. That is not a rounding error, that is a wrong answer.
+</p>
+
+<p>
+Rather than guess again, I let the dungeons arbitrate. There are exactly five dungeon
+levels, stored as five blocks. If the bit division is right, then the level field in the
+records of block <em>n</em> should contain nothing but the value <em>n</em>, and every
+coordinate should fit inside 256. Only one division of the 24 bits across three bytes
+satisfies both:
+</p>
+
+<pre><code>x    = b1 | ((b2 &amp; 0x03) &lt;&lt; 8)        10 bits
+y    = (b2 &gt;&gt; 2) | ((b3 &amp; 0x0F) &lt;&lt; 6)  10 bits
+z    = b3 &gt;&gt; 4                          4 bits</code></pre>
+
+<p>
+With that layout the five dungeon blocks yield level numbers 1 through 5 exactly, and the
+surface blocks yield 0 throughout. The data verified the format for me.
+</p>
+
+<h2>The objects that are not anywhere</h2>
+
+<p>
+Not quite. A few hundred records still had impossible coordinates, and they were scattered
+across every block. Something else was going on.
+</p>
+
+<p>
+The explanation is that not every object is on the map. Objects inside a chest, a barrel or
+a character's pack are stored in the same list as the ones lying on the ground, and their
+coordinate fields are reused for something else entirely. There has to be a flag that says
+which is which, and it has to live in the status byte.
+</p>
+
+<p>
+Eight candidate bits, and a clean way to test each one. Every surface block corresponds to a
+single 128&times;128 super chunk, so if I filter out the objects a given bit marks, the
+survivors should all fall inside one super chunk. The right bit should make nearly all 64
+blocks resolve cleanly; the wrong ones should make no difference at all.
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Bit tested</th><th class="num">Blocks that resolve to one super chunk</th></tr></thead>
+  <tbody>
+    <tr><td><code>0x01</code></td><td class="num">9 / 64</td></tr>
+    <tr><td><code>0x02</code></td><td class="num">9 / 64</td></tr>
+    <tr><td><code>0x04</code></td><td class="num">9 / 64</td></tr>
+    <tr><td><code>0x08</code></td><td class="num"><strong>53 / 64</strong></td></tr>
+    <tr><td><code>0x10</code></td><td class="num">9 / 64</td></tr>
+    <tr><td><code>0x20</code></td><td class="num">9 / 64</td></tr>
+    <tr><td><code>0x40</code></td><td class="num">9 / 64</td></tr>
+    <tr><td><code>0x80</code></td><td class="num">9 / 64</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+Bit <code>0x08</code> marks an object as contained. 1,705 of the 16,838 objects are inside
+something else. The result is not subtle, which is what makes it trustworthy: every
+other bit scores identically to doing nothing at all.
+</p>
+
+<h2>Seven that still do not fit</h2>
+
+<p>
+After that filter, seven dungeon records out of 7,740 remain stubbornly out of bounds. All
+seven carry a different status bit, <code>0x10</code>.
+</p>
+
+<p>
+Seven samples is not enough to build a rule from, so I did not build one. The parser keeps
+them, a test pins the count at exactly seven so that any change to the parser moves the
+number and fails, and the finding went into a separate log of anomalies to resolve once I
+can read the original's own handling of the status byte. Writing a plausible-sounding rule
+from seven observations is how you get a bug that surfaces forty hours later.
+</p>
+
+<h2>Quantity and quality</h2>
+
+<p>
+The last two bytes of each record were a mystery for a while: clearly two small values, but
+which was which? The answer came from the original's own code, which packs them into a
+single 16-bit value with one in the high byte and one in the low byte. That fixes the order
+, but reading it somewhere is not the same as confirming it, so I cross-checked
+against the name table from the first post.
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Field</th><th>Which object types actually use it</th></tr></thead>
+  <tbody>
+    <tr><td>byte 6, high values</td><td>gold coins, gold nuggets, arrows, bolts, bags</td></tr>
+    <tr><td>byte 7, non-zero</td><td>books, keys, shrines, ship deeds, tombstones, scrolls</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+Byte 6 runs high on exactly the things you would stack. Byte 7 is non-zero on exactly the
+things that need telling apart: <em>which</em> book, <em>which</em> key. Quantity and
+quality, confirmed from two independent directions.
+</p>
+
+<p>
+One oddity sits at the top of both lists: an object type called <em>egg</em>, far more common
+than anything else and using both bytes. Eggs turn out to be the game's creature spawn
+markers, with the two bytes as parameters. They are invisible, they are everywhere, and they
+are why the most common object in Britannia is something no player ever sees.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p><a href="05-the-source.html">Someone already did the hard part</a>:
+     a
+     decompilation exists, and it immediately caught a bug of mine.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data or artwork is
+     included here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

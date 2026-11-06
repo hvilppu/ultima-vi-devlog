@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What is actually on the disks | Rebuilding Ultima VI</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/01-mita-levyilla-on.html" hreflang="fi">FI</a><span>/</span><a href="01-what-is-on-the-disks.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Rebuilding Ultima VI</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 01</nav>
+
+<h1>What is actually on the disks</h1>
+
+<p class="lede">
+Fifty-odd data files, no documentation, and one compression scheme standing between me and
+all of it.
+</p>
+
+<p>
+The installed game is a flat directory of short, uppercase names with no extensions or
+unhelpful ones: <code>MAP</code>, <code>CHUNKS</code>, <code>TILEFLAG</code>,
+<code>BASETILE</code>, <code>LOOK.LZD</code>, <code>OBJTILES.VGA</code>. Seven small files
+named <code>U6.1</code> through <code>U6.7</code> turn out to be the labels of the original
+floppies, and they are quietly useful: they name the disks <em>Program</em>,
+<em>Introduction</em>, <em>Endgame</em>, <em>Game</em>, <em>Map</em> and
+<em>Populace&nbsp;A/B</em>, which tells you how the developers grouped their own data before
+you have read a single byte of it.
+</p>
+
+<p>
+Most of the directory is redundant. The same artwork ships five times over, once per
+graphics standard of the era: CGA, EGA, Tandy, Hercules and VGA. That is 89 files
+that can be ignored outright. What is left is about fifty that matter.
+</p>
+
+<h2>One format unlocks half the directory</h2>
+
+<p>
+The first real obstacle is that many files start with four bytes that look like a length and
+then dissolve into noise. <code>LZMAP</code> begins with a 32-bit value of 32,256. There is
+also an uncompressed file called <code>MAP</code> in the directory, and it is exactly 32,256
+bytes long.
+</p>
+
+<p>
+That is the whole hint. The files are LZW-compressed with a four byte header giving the
+decompressed size, and the compressed stream is a run of variable-width codes packed
+least-significant-bit first: nine bits to start, growing to twelve as the dictionary fills,
+with code 256 resetting the dictionary and 257 ending the stream.
+</p>
+
+<p>
+Writing the decompressor is half an hour. Verifying it is the interesting part, and the
+header makes that free: every file declares what it should expand to, so the decoder can be
+checked against eight different files at once without knowing anything about what they
+contain.
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>File</th><th class="num">Compressed</th><th class="num">Expands to</th><th>What it turned out to be</th></tr></thead>
+  <tbody>
+    <tr><td><code>LZMAP</code></td><td class="num">17,566</td><td class="num">32,256</td><td>a copy of the map file</td></tr>
+    <tr><td><code>LZOBJBLK</code></td><td class="num">43,974</td><td class="num">72,912</td><td>every object on the surface</td></tr>
+    <tr><td><code>LZDNGBLK</code></td><td class="num">39,620</td><td class="num">69,213</td><td>every object underground</td></tr>
+    <tr><td><code>LOOK.LZD</code></td><td class="num">4,193</td><td class="num">5,914</td><td>the name of everything</td></tr>
+    <tr><td><code>MASKTYPE.VGA</code></td><td class="num">1,515</td><td class="num">3,968</td><td>how each tile is stored</td></tr>
+    <tr><td><code>MAPTILES.VGA</code></td><td class="num">47,199</td><td class="num">117,408</td><td>two thirds of the artwork</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+All eight decoded to exactly the declared size on the first run. Those sizes and their
+checksums became the first regression tests in the project, and they have not moved since.
+</p>
+
+<h2>Names, for free</h2>
+
+<p>
+<code>LOOK.LZD</code> is the file that makes everything else legible. It is a flat run of
+records: a 16-bit tile number followed by a zero-terminated string. Tile 1 is grass, tile 15
+is water, tile 51 is a tree.
+</p>
+
+<p>
+There is one wrinkle that turns out to be a small piece of 1990 cleverness. Some names carry
+two marker characters, <code>/</code> and <code>\</code>. Everything before the slash is
+shared, the part between the markers finishes the singular, and the part after finishes the
+plural. One string, both forms, no second table. A loaf of bread and loaves of bread come out
+of the same seventeen bytes.
+</p>
+
+<p>
+Five hundred and thirteen tiles carry a name. That table became the oracle for nearly every
+discovery that followed: whenever a bit field needed interpreting, the question became
+<em>which tiles have this bit set, and what are they called?</em>
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p><a href="02-the-tiles.html">The tiles, and a number that made no sense</a>:
+     the artwork is indexed by a table whose offsets are wrong until you work out what they
+     are measured against.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data or artwork is
+     included here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

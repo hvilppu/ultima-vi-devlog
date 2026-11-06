@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Four letters, in the wrong place | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/19-nelja-kirjainta-vaarassa-paikassa.html" hreflang="fi">FI</a><span>/</span><a href="19-four-letters-in-the-wrong-place.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 19</nav>
+
+<h1>Four letters, in the wrong place</h1>
+
+<p class="lede">
+The conversation engine is finished. On the way it turned out that the story people tell about
+this game's parser is true, just not where anyone thinks it is.
+</p>
+
+<p>
+Two instructions were left. One writes into an array inside the script, the other searches an
+array for a string. With those done, the count of unimplemented instructions in the corpus test
+fell to nought.
+</p>
+
+<h2>A script is working memory</h2>
+
+<p>
+The writing instruction forced a decision I had been putting off. To the original, a loaded
+script is <em>editable working memory</em>: an assignment to an array changes the running script,
+and the change lasts as long as the conversation does. To me a script was only bytes to read
+from the export.
+</p>
+
+<p>
+There were two options. Copy the script into a writable buffer for the length of a conversation,
+or keep the changes in a separate overlay that every read consults. The second would not have
+touched a single signature, but it is a mechanism the original does not have, and it would slow
+the read path down for everybody.
+</p>
+
+<p>
+I chose the copy. Faithfulness is the whole point of this project, and a writable buffer
+<em>is</em> what the original does. The largest script is 7249 bytes, so the cost is not worth
+weighing. Talking to the same character again starts from the unchanged original, because the
+original reloads the script every time as well.
+</p>
+
+<p>
+I expected the change to spread everywhere. It did not: only the writing path needed a writable
+reference, because a writable one converts to a readable one by itself. The reading side was
+untouched.
+</p>
+
+<p>
+The test for this is not "it does not throw" but <strong>the script reads back what it
+wrote</strong>: the assignment changes the array, and a later expression in the same script
+reads the changed value. That is the entire reason the buffer was needed, so it is the thing to
+test.
+</p>
+
+<h2>Four letters is real</h2>
+
+<p>
+In post 16 I wrote that the engine does not shorten keywords to four letters, and that the
+saying came from how the scripts happen to be written. That is still true of keyword matching.
+</p>
+
+<p>
+But the string search does shorten. It compares an array entry over <strong>at most four
+characters</strong>, and a shorter entry over its own length.
+</p>
+
+<p>
+So the saying is not invented. It describes an instruction the shipped scripts use
+<strong>twice</strong>, and not the matching that every conversation in the game depends on. The
+story is true and in the wrong place at the same time, which is my favourite kind of finding.
+</p>
+
+<p>
+The search revealed a second difference. There is no star rule: the original checks for a star
+where it matches keywords, not in the comparison. So I had to split my comparison in two,
+otherwise every search entry beginning with a star would have matched anything.
+</p>
+
+<p>
+And a search answers with the <em>number of entries</em> when nothing matches, not minus one.
+Minus one would be the obvious choice and would read as the last entry in anything that indexes
+with the answer.
+</p>
+
+<h2>Wrong three times, caught three times</h2>
+
+<p>
+This slice was humbling about tests. Three times a test failed, and every time the fault was in
+the test rather than the code.
+</p>
+
+<p>
+In an expression, reading an array takes its index from the stack and has no "no index" form,
+which I had used. An array word is signed, so the value I wrote read back negative. And in the
+star test I expected index one, when the right answer is the entry count: if the star does not
+answer, nothing answers.
+</p>
+
+<h2>And a fourth, which the audit caught</h2>
+
+<p>
+The pre-commit check looks for loose assertions, and it pointed at one: <code>greater than
+zero</code>. I went and looked at what the test actually ran.
+</p>
+
+<p>
+Its name promised that a search runs to the end of the script when the terminator is missing. It
+did no such thing. It stopped three entries in, at a zero byte, which reads as an <strong>empty
+entry</strong>, and an empty entry matches anything. The test was in the wrong place and passing
+anyway.
+</p>
+
+<p>
+I rebuilt the script so that nothing after the array contains a zero byte, which makes it really
+run to the end, and gave the empty entry a test of its own. One loose assertion became two exact
+ones, and a rule I had not noticed came out of it.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>unimplemented in the corpus test:  89  ->  36  ->  0
+conversations begun and ended:          199 / 199
+
+U6Engine.Tests   433 / 433   without Unity
+U6Formats.Tests  266 / 266
+U6Export.Tests    38 / 38</code></pre>
+
+<p>
+One instruction still throws: the value search. No script uses it, so an implementation could
+not be checked against anything, and an unchecked one would look finished without being so. A
+clear refusal is more honest.
+</p>
+
+<h2>Next is something you can see</h2>
+
+<p>
+The conversation engine has been coming together for a while now, and none of it shows in the
+game. That changes next: the font as runtime data, a glyph renderer and a talk command. The font
+is already parsed, but it is only exported as a PNG sheet for inspection rather than as a file
+the loader reads.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The conversation window on the Unity side. The first thing in a long while that shows in
+     the game rather than in a test run.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

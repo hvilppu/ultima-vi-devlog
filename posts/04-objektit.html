@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuusitoistatuhatta objektia ja yksi epäilyttävä bitti | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="04-objektit.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/04-the-objects.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 04</nav>
+
+<h1>Kuusitoistatuhatta objektia ja yksi epäilyttävä bitti</h1>
+
+<p class="lede">
+Maassa makaavien ja arkussa olevien esineiden erottaminen toisistaan, poissulkemalla.
+</p>
+
+<p>
+Maasto on vain lattia. Kaikki mitä pelaaja voi nähdä tai koskettaa (puut, rakennukset, ovet,
+tynnyrit, miekat, ihmiset, hirviöt) on objekti, ja niitä on aloitusmaailmassa 16 838:
+9 098 maan päällä ja 7 740 sen alla.
+</p>
+
+<p>
+Kukin on kahdeksan tavua. Statuslippuja kantava tavu on ilmeinen, samoin tietuelohkot, joista
+kukin alkaa lukumäärällä. Vaikea osa on, että koordinaatit ylittävät tavurajoja, ja niiden
+jakamiseen on useita uskottavia tapoja.
+</p>
+
+<h2>Annetaan datan valita bittijako</h2>
+
+<p>
+Ensimmäinen tulkintani tuotti luolaobjekteja, joiden y-koordinaatti oli 576. Luolataso on
+256&times;256 tiiltä. Se ei ole pyöristysvirhe vaan väärä vastaus.
+</p>
+
+<p>
+Sen sijaan että olisin arvannut uudestaan, annoin luolien ratkaista asian. Luolatasoja on
+tasan viisi, ja ne on tallennettu viitenä lohkona. Jos bittijako on oikein, lohkon
+<em>n</em> tietueiden tasokentän pitäisi sisältää vain arvoa <em>n</em>, ja jokaisen
+koordinaatin pitäisi mahtua 256:een. Vain yksi tapa jakaa 24 bittiä kolmeen tavuun täyttää
+molemmat ehdot:
+</p>
+
+<pre><code>x    = b1 | ((b2 &amp; 0x03) &lt;&lt; 8)        10 bittia
+y    = (b2 &gt;&gt; 2) | ((b3 &amp; 0x0F) &lt;&lt; 6)  10 bittia
+z    = b3 &gt;&gt; 4                          4 bittia</code></pre>
+
+<p>
+Tällä jaolla viisi luolalohkoa antavat tasonumerot 1 ja 5 väliltä tasan oikein, ja
+pintalohkot antavat läpeensä nollan. Data todensi formaatin puolestani.
+</p>
+
+<h2>Objektit jotka eivät ole missään</h2>
+
+<p>
+Ei aivan. Muutamalla sadalla tietueella oli yhä mahdottomat koordinaatit, ja ne olivat
+hajallaan kaikissa lohkoissa. Jotain muuta oli meneillään.
+</p>
+
+<p>
+Selitys on, ettei jokainen objekti ole kartalla. Arkussa, tynnyrissä tai hahmon repussa
+olevat esineet ovat samassa listassa kuin maassa makaavat, ja niiden koordinaattikentät on
+otettu aivan muuhun käyttöön. Jonkin lipun täytyy kertoa kumpi on kyseessä, ja sen täytyy
+olla statustavussa.
+</p>
+
+<p>
+Kahdeksan ehdokasbittiä, ja siisti tapa testata kukin. Jokainen pintalohko vastaa yhtä
+128&times;128 superchunkkia, joten kun suodatan pois ne objektit jotka tietty bitti merkitsee,
+eloonjääneiden pitäisi kaikkien osua yhteen superchunkkiin. Oikean bitin pitäisi saada lähes
+kaikki 64 lohkoa ratkeamaan siististi, väärien ei mitään.
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Testattu bitti</th><th class="num">Lohkoja jotka ratkeavat yhteen superchunkkiin</th></tr></thead>
+  <tbody>
+    <tr><td><code>0x01</code></td><td class="num">9 / 64</td></tr>
+    <tr><td><code>0x02</code></td><td class="num">9 / 64</td></tr>
+    <tr><td><code>0x04</code></td><td class="num">9 / 64</td></tr>
+    <tr><td><code>0x08</code></td><td class="num"><strong>53 / 64</strong></td></tr>
+    <tr><td><code>0x10</code></td><td class="num">9 / 64</td></tr>
+    <tr><td><code>0x20</code></td><td class="num">9 / 64</td></tr>
+    <tr><td><code>0x40</code></td><td class="num">9 / 64</td></tr>
+    <tr><td><code>0x80</code></td><td class="num">9 / 64</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+Bitti <code>0x08</code> merkitsee objektin olevan säiliössä. 16 838 objektista 1 705 on jonkin
+toisen sisällä. Tulos ei ole hienovarainen, ja juuri se tekee siitä luotettavan: jokainen muu
+bitti saa täsmälleen saman pistemäärän kuin se, ettei tee mitään.
+</p>
+
+<h2>Seitsemän jotka eivät vieläkään sovi</h2>
+
+<p>
+Suodatuksen jälkeen seitsemän luolatietuetta 7 740:stä jää itsepintaisesti rajojen
+ulkopuolelle. Kaikilla seitsemällä on eri statusbitti, <code>0x10</code>.
+</p>
+
+<p>
+Seitsemän havaintoa ei riitä säännön rakentamiseen, joten en rakentanut sellaista. Parseri
+säilyttää ne, testi naulaa luvun tasan seitsemään niin että mikä tahansa muutos parseriin
+siirtää lukua ja kaataa testin, ja löydös meni erilliseen poikkeamalokiin ratkaistavaksi
+sitten kun pääsen lukemaan alkuperäisen oman tavan käsitellä statustavua. Uskottavalta
+kuulostavan säännön kirjoittaminen seitsemästä havainnosta on tapa saada bugi, joka tulee
+esiin neljänkymmenen tunnin päästä.
+</p>
+
+<h2>Määrä ja laatu</h2>
+
+<p>
+Tietueen kaksi viimeistä tavua olivat pitkään arvoitus: selvästi kaksi pientä arvoa, mutta
+kumpi oli kumpi? Vastaus tuli alkuperäisen omasta koodista, joka pakkaa ne yhdeksi
+16-bittiseksi arvoksi niin että toinen on ylempi ja toinen alempi tavu. Se kiinnittää
+järjestyksen. Lukeminen jostain ei kuitenkaan ole sama asia kuin varmistaminen, joten
+ristiintarkistin ensimmäisen postauksen nimitaulukkoa vasten.
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Kenttä</th><th>Mitkä objektityypit sitä oikeasti käyttävät</th></tr></thead>
+  <tbody>
+    <tr><td>tavu 6, suuret arvot</td><td>kultakolikot, kultahiput, nuolet, nuput, pussit</td></tr>
+    <tr><td>tavu 7, nollasta poikkeava</td><td>kirjat, avaimet, pyhäköt, laivakirjat, hautakivet, kääröt</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+Tavu 6 on suuri täsmälleen niillä asioilla joita pinoaisit. Tavu 7 on nollasta poikkeava
+täsmälleen niillä jotka täytyy erottaa toisistaan: <em>mikä</em> kirja, <em>mikä</em> avain.
+Määrä ja laatu, vahvistettuna kahdesta riippumattomasta suunnasta.
+</p>
+
+<p>
+Yksi outous on molempien listojen kärjessä: objektityyppi nimeltä <em>egg</em>, paljon
+yleisempi kuin mikään muu ja käyttäen molempia tavuja. Munat osoittautuvat pelin
+olentojen syntymerkeiksi, ja kaksi tavua ovat niiden parametreja. Ne ovat näkymättömiä, niitä
+on kaikkialla, ja ne ovat syy siihen miksi Britannian yleisin objekti on jotain mitä yksikään
+pelaaja ei koskaan näe.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p><a href="05-lahdekoodi.html">Joku teki vaikean osan jo</a>:
+     dekompilaatio on olemassa, ja se löysi saman tien oman bugini.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa tai grafiikkaa
+     ei ole mukana täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

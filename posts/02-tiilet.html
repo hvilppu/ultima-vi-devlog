@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tiilet ja luku jossa ei ollut järkeä | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="02-tiilet.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/02-the-tiles.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 02</nav>
+
+<h1>Tiilet ja luku jossa ei ollut järkeä</h1>
+
+<p class="lede">
+Kaksi kolmasosaa grafiikasta on muodossa, jonka offsetit näyttävät vääriltä, kunnes tajuaa
+mihin ne on mitattu.
+</p>
+
+<p>
+Pelissä on 2048 tiiltä, kooltaan 16&times;16 pikseliä, ja ne ovat kolmessa tiedostossa jotka
+täytyy lukea yhdessä. <code>TILEINDX.VGA</code> sisältää 2048 offsettia. Purettu
+<code>MAPTILES.VGA</code> yhdistettynä <code>OBJTILES.VGA</code>:han sisältää pikselit.
+<code>MASKTYPE.VGA</code> sisältää yhden tavun tiiltä kohden, ja se kertoo miten tiili on
+tallennettu.
+</p>
+
+<p>
+Kerro indeksitaulun arvo kuudellatoista ja saat tavuoffsetin yhdistettyyn pikselivirtaan.
+Taulukko on monotoninen ja sen viimeinen merkintä osuu tasan datan loppuun, joten se osa on
+helppo vahvistaa. Koodaustavu on kiinnostavampi. Kaikkien 2048 tiilen joukossa se saa vain
+kolme arvoa.
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Arvo</th><th class="num">Tiiliä</th><th>Merkitys</th></tr></thead>
+  <tbody>
+    <tr><td><code>0</code></td><td class="num">439</td><td>256 tavua, täysin läpinäkymätön</td></tr>
+    <tr><td><code>5</code></td><td class="num">177</td><td>256 tavua, indeksi 255 on läpinäkyvä</td></tr>
+    <tr><td><code>10</code></td><td class="num">1432</td><td>jotain aivan muuta</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+Kaksi ensimmäistä ovat helppoja, ja ne voi erottaa toisistaan lukematta riviäkään
+alkuperäistä koodia: niistä 439 tiilestä joilla on arvo <code>0</code> yhdessäkään ei ole
+indeksiä 255 missään, ja kaikissa 177 tiilessä joilla on arvo <code>5</code> se esiintyy
+vähintään kerran. Se ei ole sattuma vaan määritelmä.
+</p>
+
+<h2>Pakatut tiilet</h2>
+
+<p>
+Loput 1432 tiiltä ovat pakattuja, ja ne ovat enemmistö. Niiden data alkaa yhdellä tavulla,
+joka kertaa tietueen pituuden jaettuna kuudellatoista, minkä indeksitaulu jo kertoi. Sen
+jälkeen tulee jono tietueita: 16-bittinen siirtymä, yksitavuinen pituus ja sen verran
+pikselitavuja.
+</p>
+
+<p>
+Dekooderi siis siirtää kursoria siirtymän verran, kirjoittaa pikseleitä ja siirtää taas.
+Suoraviivaista, paitsi että siirtymät ovat aivan liian suuria. Tiili on kuusitoista pikseliä
+leveä ja 256 pikseliä yhteensä, ja yleisimmät siirtymäarvot ovat välillä 160 ja 175. Yksi
+hyppy menisi kahden tiilen ohi.
+</p>
+
+<p>
+Oletin bittijaon olevan väärä ja kokeilin kaikki uskottavat tavat lukea tietueen otsake.
+Yksikään ei toiminut. Lopulta ratkaisun antoi siirtymien jakauma:
+</p>
+
+<pre><code>siirtyma     maara
+     0        1624
+   165        1577
+   164        1555
+   166        1480
+   167        1422
+     1        1384
+   163        1294
+   168        1206</code></pre>
+
+<p>
+Kaksi ryvästä. Pieniä arvoja lähellä nollaa, ja tiivis kaistale 165:n ympärillä. Jos piirrät
+esimerkiksi yksitoista pikseliä leveää hahmoa kuudentoista pikselin tiilen sisään, pienet
+arvot ovat aukkoja <em>rivin sisällä</em> ja suuret hyppy rivin lopusta seuraavan alkuun.
+Se tarkoittaa, että rivin leveys on noin 176.
+</p>
+
+<p>
+176 on 11&times;16. Se on pelin karttaikkunan leveys, yksitoista tiiltä. Siirtymiä ei ollut
+koskaan mitattu tiileen vaan kursoriin, joka kulkee sitä ruutua pitkin johon tiili lopulta
+piirretään.
+</p>
+
+<figure>
+<svg viewBox="0 0 640 250" role="img" aria-label="Kaavio jossa verrataan 16 pikselin tiiliruudukkoa ja 176 pikselin ikkunaa jota kursori oikeasti kulkee">
+  <defs>
+    <marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="#c98a4b"/>
+    </marker>
+  </defs>
+  <text x="0" y="14" font-family="monospace" font-size="12" fill="#8a8276">OLETUS: kursori kiertaa joka 16 px</text>
+  <rect x="0" y="24" width="96" height="60" fill="none" stroke="#ddd6c8"/>
+  <line x1="0" y1="44" x2="96" y2="44" stroke="#ddd6c8"/>
+  <line x1="0" y1="64" x2="96" y2="64" stroke="#ddd6c8"/>
+  <path d="M20,34 L70,34" stroke="#c98a4b" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M10,54 L80,54" stroke="#c98a4b" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="108" y="50" font-family="monospace" font-size="11" fill="#8a8276">165:n hyppy osuu</text>
+  <text x="108" y="66" font-family="monospace" font-size="11" fill="#8a8276">kauas tiilen ulkopuolelle</text>
+
+  <text x="0" y="124" font-family="monospace" font-size="12" fill="#8a8276">TODELLISUUS: kursori kiertaa joka 176 px, karttaikkuna</text>
+  <rect x="0" y="134" width="560" height="84" fill="none" stroke="#ddd6c8"/>
+  <line x1="0" y1="162" x2="560" y2="162" stroke="#ddd6c8"/>
+  <line x1="0" y1="190" x2="560" y2="190" stroke="#ddd6c8"/>
+  <rect x="0" y="134" width="51" height="84" fill="#c98a4b" fill-opacity="0.16" stroke="#c98a4b"/>
+  <path d="M12,148 L40,148" stroke="#c98a4b" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M44,148 C 300,150 300,170 12,176" stroke="#c98a4b" stroke-width="1.5" fill="none" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+  <path d="M12,176 L36,176" stroke="#c98a4b" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="572" y="166" font-family="monospace" font-size="11" fill="#8a8276">176 px</text>
+  <text x="0" y="238" font-family="monospace" font-size="11" fill="#8a8276">varjostettu sarake on ne 16 px jotka tiili oikeasti vie</text>
+</svg>
+<figcaption>
+Siirtymä on suhteessa 176 pikseliä leveään pintaan, ei 16 pikselin tiileen. Pikselit joiden
+sarake osuu yli kuudentoista ovat täytettä ja hylätään. Rivileveytenä 16 tuottaa kohinaa,
+176 tuottaa grafiikan.
+</figcaption>
+</figure>
+
+<h2>Todistaminen</h2>
+
+<p>
+Dekooderi joka tuottaa jotain ei ole sama asia kuin dekooderi joka on oikein, ja grafiikan
+kohdalla halvin oraakkeli ovat omat silmät. Purin kaikki 2048 tiiltä, latoin ne ruudukkoon
+ja katsoin: ruohoa, vettä, kiviseiniä, puulattioita, tynnyreitä, huonekaluja, aseita, ja
+rivi toisensa jälkeen olentoja ja ihmisiä. Yksiselitteisesti oikein.
+</p>
+
+<p>
+Sitten lukitsin sen pysymään oikeana. Tarkistussumma lasketaan puretuista paletti-indekseistä
+eikä valmiista kuvatiedostosta, koska kuvakooderin pakkausvalinnat ovat sen omaa asiaa mutta
+pikselidata ei saa liikkua:
+</p>
+
+<pre><code>2048 tiilta x 256 indeksia = 524 288 tavua
+SHA-256  07ea4ffe89846acdb8de468474046a3d67f8fde118c81c0d1224f3c961ebcb05</code></pre>
+
+<p>
+Tuo luku on nyt testi. Kun dekooderi myöhemmin kirjoitettiin prototyypistä varsinaiseksi
+C#-kirjastoksi, se toisti hashin tavu tavulta ensimmäisellä ajolla. Juuri sellaista tylsää
+vahvistusta uudelleenkirjoitukselta haluaa.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p><a href="03-maailma.html">Britannian kokoaminen</a>:
+     miljoona tiiltä 32 kilotavussa, ja järjestysvirhe joka näyttää täysin uskottavalta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa tai grafiikkaa
+     ei ole mukana täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A plausible no | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/23-uskottava-ei.html" hreflang="fi">FI</a><span>/</span><a href="23-a-plausible-no.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 23</nav>
+
+<h1>A plausible no</h1>
+
+<p class="lede">
+I promised a number and here it is: <strong>172 conversations out of 196</strong> get through
+against the real world. The more interesting part is why the number is measurable at all. It is
+measurable because the unbuilt world refuses to answer.
+</p>
+
+<p>
+The conversation engine has been finished for a while, and the corpus test has run all 199
+scripts from start to finish, 199 times out of 199. But that number is measured against a world
+double: a class that answers every question with something. It says whether the interpreter
+works. It says nothing at all about whether the game works.
+</p>
+
+<p>
+This week I built the world that actually exists. The interface has 32 methods, seven of them
+answer, and the other 25 do not, because there is nothing underneath them.
+</p>
+
+<h2>What an unbuilt member returns</h2>
+
+<p>
+There was one real decision here, and the whole measurement rests on it.
+</p>
+
+<p>
+The tempting option is to return nothing: carries none of those, not wounded, not in the party.
+The code compiles, nothing crashes, and all 196 conversations get through.
+</p>
+
+<p>
+Which is exactly why it is worse than a crash. A script that asks "do you carry a key" and is
+told "no" does not fail. It takes the other branch, says something else, and <strong>looks
+precisely as working</strong> as a conversation that was answered correctly. The number of
+conversations that get through would be 196, and it would measure nothing whatsoever.
+</p>
+
+<p>
+So every unbuilt member throws, and the exception <strong>names itself</strong>:
+</p>
+
+<pre><code>The world cannot answer WhoCarries yet: inventories are not built.</code></pre>
+
+<p>
+The test catches the name and counts. One test run now reports not only how many conversations
+get through, but which missing structure stops how many, which is the order to build the rest
+in.
+</p>
+
+<h2>What stops the other 24</h2>
+
+<pre><code>WhoCarries     15     who carries this object
+SetBehaviour    3     change a character's behaviour
+Owns            2     does this character have one
+CountItems      2     how many of these
+CanCarry        2     will any more fit
+
+total          24     five members out of 25 stop anything</code></pre>
+
+<p>
+Inventories are 21 of those 24, and a single member is 15 of them. The other twenty unbuilt
+members stop no conversation at all.
+</p>
+
+<p>
+Last post I guessed the number would not be complete, because object calls are 28 per cent of
+all world calls. The guess was right, but a great deal sharper than I could have guessed: it is
+not 28 per cent, it is one question.
+</p>
+
+<h2>You cannot ask the pixels about visibility</h2>
+
+<p>
+Before the adapter came the half that was left over last time: the other half of being on
+screen. The geometry was done, but the rule also requires that the square actually be showing
+something.
+</p>
+
+<p>
+The composer already worked that out, but it produced nothing but pixels, and a finished image
+cannot give it back. A dark pixel might be darkness or a dark wall. So visibility has to be
+recorded while drawing rather than inferred afterwards, and the composer now remembers two
+things per square: which tile ended up there <strong>after lighting</strong>, and whether an
+object's pixels landed on it.
+</p>
+
+<p>
+The second one is marked in the one place where an object's tile actually reaches a square.
+That is not a matter of taste: a wide or tall object passes through that point four times, and
+marking it where objects are picked instead would make a wide object cover one square.
+</p>
+
+<p class="note">
+<strong>Correction.</strong> This originally said a wide object marks <em>all four</em> of its
+squares, as the original does. That was wrong, and the refuter round in post 24 found it: the
+original asks, for each tile, about the <em>target</em> square's own tile, and records nothing
+when that square is dark or hidden. Measured, 897 dark squares carried an object and should not
+have.
+</p>
+
+<p>
+A character standing in an unlit room is now not on screen, even from three squares away.
+</p>
+
+<h2>What 172 is not</h2>
+
+<p>
+It is not a grade for how finished the game is, and that is worth saying out loud before I
+forget it myself.
+</p>
+
+<p>
+A conversation counts as getting through when it ran from the first word to the last with a
+player who only ever says <code>bye</code>. A branch that was never asked for cannot stop.
+So <strong>172 is a floor on what is broken</strong>, not a ceiling on what works, and the real
+number is somewhere below it. The test asserts this as a condition of its own, so that nobody
+reads the number wrong later.
+</p>
+
+<p>
+The remaining three of the 199 are scripts with no character of their own. They are reached
+through a world object, and there is nobody to stand in front of, so they are not in this run.
+</p>
+
+<h2>One rule left unbuilt on purpose</h2>
+
+<p>
+While the party is aboard a vehicle, <strong>every</strong> player-controlled character counts as
+being on screen. The rule is read and written down, but there are no vehicles, and a condition
+nothing asks about is not worth guessing into place. It sits in the document under what is still
+unimplemented, which is where it belongs.
+</p>
+
+<p class="note">
+<strong>Correction.</strong> I first wrote this as "a player-controlled character sitting in a
+vehicle", which reads as per-character occupancy. The condition has two halves and the second is
+global: it is the party's control state, not who is sitting where. One flag turns the answer to
+yes for all of them at once, wherever they stand.
+</p>
+
+<h2>A mistake of mine that only the tests found</h2>
+
+<p>
+One of those seven answering members is a character's name, and I wrote it wrong in two ways. I
+gated the name on <strong>party membership</strong>, and I walked sixteen places.
+</p>
+
+<p>
+The original does both differently. The gate is the top bit of the character status byte, "the
+player commands this one", which is a different question from being in the party. And the loop
+walks eight places, because the party cannot grow past eight.
+</p>
+
+<p>
+Neither mistake broke anything. In the corpus run a name is only ever asked about party members,
+so both readings answer the same for everything the data asks. The mistake surfaced only because
+I started writing the class its own tests and read the passage in the decompilation to do it.
+</p>
+
+<p>
+That turned up a quirk of the original's own: the loop breaks on a match and the name is read at
+wherever the counter stopped, so failing to find anyone reads the <strong>ninth name</strong>,
+which belongs to nobody. A consistent game state cannot reach it, because the bit and the places
+are kept in step. Reproduced anyway, in one line.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>interface methods          32
+of those, answer            7
+of those, throw            25
+stop anything               5
+
+conversations run         196
+got through               172
+stopped                    24
+never ended                 0
+
+U6Formats.Tests  276 / 276
+U6Export.Tests    49 / 49
+U6Engine.Tests   549 / 549</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Inventories, and <code>WhoCarries</code> first among them. The list is measured now
+     rather than guessed, which makes a pleasant change.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

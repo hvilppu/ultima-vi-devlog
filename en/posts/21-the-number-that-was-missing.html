@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The number that was missing | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/21-numero-joka-puuttui.html" hreflang="fi">FI</a><span>/</span><a href="21-the-number-that-was-missing.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 21</nav>
+
+<h1>The number that was missing</h1>
+
+<p class="lede">
+I set out to put characters on the map. It turned out the foundation was not there: the
+exported objects had no number, and to the original a number is identity.
+</p>
+
+<p>
+The conversation engine was finished and characters needed to show up next. I measured what
+that takes first, and found this: <code>PartyMember</code> is 549 calls, but <strong>542 of
+them ask for members currently on screen</strong>, which needs positions rather than a party
+list. So, characters on the map.
+</p>
+
+<p>
+Then I went to look at where positions come from, and stopped.
+</p>
+
+<h2>An object had no number</h2>
+
+<p>
+My export reads objects out of <code>LZOBJBLK</code> one block at a time and writes them in a
+row. An object's position in the exported file is a side effect of block order and means
+nothing.
+</p>
+
+<p>
+To the original it means everything. <code>TalkFlags[n]</code>, <code>Party[n]</code>,
+<code>NPCMode[n]</code>, <code>ObjPos[n]</code>: all indexed by object number, and every
+conversation instruction means exactly that number by a character. I had built an entire
+conversation engine on an identity my export did not carry.
+</p>
+
+<p>
+The numbering is not in the object blocks at all. It is in
+<code>SAVEGAME/OBJLIST</code>, 7539 bytes, which I had never read.
+</p>
+
+<p>
+Finding this now rather than three slices later is the only reason it cost nothing. Had I
+started with the party list, I would have written it on top of an identity that does not exist
+and noticed only when nothing pointed at anything.
+</p>
+
+<h2>The structure is the loading order</h2>
+
+<p>
+The file has no header and no directory. The original reads it as twenty four consecutive
+calls, each its own array, so the structure <em>is</em> the loading order: status bytes,
+positions, shapes, strengths, experience, names, the party, schedule indexes, the conversation
+flags, and finally some game state.
+</p>
+
+<h2>One number was missing and had to be measured</h2>
+
+<p>
+The array sizes come straight from the loading calls, except one: how many bytes a position
+takes depends on a record size that is written down nowhere.
+</p>
+
+<p>
+The known arrays sum to 6385 bytes, leaving 1154 for positions and the game state. Two
+plausible readings, and they separate immediately:
+</p>
+
+<pre><code>           party size   party
+3 bytes             4   [1, 2, 3, 4]
+4 bytes             0   [0, 0, 0, 0]</code></pre>
+
+<p>
+Three bytes gives the Avatar and three companions. Four gives noughts. And there is more: when
+the positions are decoded with the three byte reading, those four characters stand in adjacent
+squares around (307, 352). That is a new game's real opening arrangement, and a wrong stride
+does not produce one by accident.
+</p>
+
+<h2>The best evidence came from two directions</h2>
+
+<p>
+I wanted to know whether the numbered slots and the world's loose objects overlap. The variety
+of types hints at it: 200 slots carry 24 distinct types where the 16838 block objects carry 399.
+</p>
+
+<p>
+But the real evidence came from comparing against the conversation scripts. <strong>196 of the
+200 slots are a character with a script</strong>, and the four exceptions explain themselves:
+</p>
+
+<pre><code>slot   0   not a character
+slot   1   the Avatar, who cannot be talked to
+slot 125   -+
+slot 188   -+-- these two</code></pre>
+
+<p>
+Slots 125 and 188 are <strong>exactly the two gaps</strong> I measured in the conversation
+files long ago, for an entirely different reason and out of an entirely different file.
+Character 188's table entry is zero, and character 125's points at a block whose decompressed
+size is zero.
+</p>
+
+<p>
+Two independent measurements landing on the same two numbers is better evidence than either
+alone, and it is also why measurements are worth writing down even when they do nothing yet.
+</p>
+
+<h2>Two mistakes of my own</h2>
+
+<p>
+I made the exporter's record 24 bytes and filled it. The flag field did not fit, and since I
+had not noticed, I then wrote a loop that overwrote the wrong field with a comment claiming
+something else entirely. I caught it reading my own code before running it.
+</p>
+
+<p>
+It is worth noting because <strong>a round trip would not have found it</strong>. A round trip
+compares the fields you remembered to write, and a missing field is not a field. The record is
+25 bytes now and the test walks all 21 fields of all 256 slots.
+</p>
+
+<p>
+The second was overreach. I looked at a handful of slots, saw body shapes, and wrote into a
+test that every type falls between 362 and 416. The test failed: twelve slots have no type at
+all and a few are something else. I corrected the test and the class comment to what was
+actually measured.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>slots in use              200 / 256
+characters with a script  196
+party size                  4
+characters with a schedule 61
+game state undecoded      386 bytes
+
+U6Formats.Tests  276 / 276
+U6Export.Tests    49 / 49
+U6Engine.Tests   505 / 505</code></pre>
+
+<p>
+The schedule index ties this file to the schedule format decoded earlier, so 61 characters are
+waiting for a daily routine whose rules are already read.
+</p>
+
+<h2>The rule we just wrote</h2>
+
+<p>
+This week I wrote a rule into the project instructions about which work belongs to which model:
+a measured rule and its implementation are one kind, reading the decompilation and measuring a
+format are another.
+</p>
+
+<p>
+This slice split neatly at exactly that line. Reading the structure, telling the two coordinate
+sizes apart and working out how the layers relate was the second kind. The reader, the exporter
+and twenty seven tests afterwards were the first.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Characters on the map. Identity and positions exist now, so what 572 conversation calls
+     have been waiting for can finally be built.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

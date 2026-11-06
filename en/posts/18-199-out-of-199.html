@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>199 out of 199 | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/18-199-kahdesta-sadasta.html" hreflang="fi">FI</a><span>/</span><a href="18-199-out-of-199.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 18</nav>
+
+<h1>199 out of 199</h1>
+
+<p class="lede">
+One instruction was missing, and with it every character in the game can now be approached,
+talked to and left without anything throwing along the way.
+</p>
+
+<p>
+The instruction prints a string. Not text the script spells out, but a string it names from
+somewhere else. Until now it was the only reason one conversation out of 199 would not start at
+all.
+</p>
+
+<h2>Measured first, and the measurement was wrong</h2>
+
+<p>
+I began by counting how often the instruction is used. The answer was 25, in two shapes: 24
+name a string out of an array inside the script, and one starts with the byte 0x53, which is
+the letter S.
+</p>
+
+<p>
+That one was not an instruction at all. It was <strong>character 181's own number</strong> in
+the script header, and 181 in hex is 0xB5, the same as the printing instruction. My walk started
+at the beginning of the script and did not step over the header, so it read a character number
+as an instruction.
+</p>
+
+<p>
+The real count is 24, and <strong>all 24 are the same shape</strong>. The original has three
+shapes and two of them never appear in the data. I implemented all three but recorded that two
+of them were read from the decompilation rather than measured from data. That distinction
+matters: measured is certain, read is my best understanding.
+</p>
+
+<h2>The shape nobody uses is odd anyway</h2>
+
+<p>
+The text variable shape is not an expression but a hand parsed sequence:
+</p>
+
+<pre><code>B5  &lt;byte read and ignored&gt;  &lt;index&gt;  B3  &lt;byte stepped over&gt;</code></pre>
+
+<p>
+Two bytes that are never looked at, one at each end. A real script would probably put the start
+and the end of an expression there, but since no script uses this shape I do not know that, and
+I am not claiming to.
+</p>
+
+<h2>My test passed without distinguishing anything</h2>
+
+<p>
+I wrote a test for that shape and it passed. Then I did what I have learned to do: I removed the
+skipping of that last byte on purpose, to see whether the test would fail.
+</p>
+
+<p>
+It did not.
+</p>
+
+<p>
+The fault was in my test script. I had put the end of an expression in that last byte, which is
+what I assumed a real script would do. The end of an expression does nothing when it is executed
+either, so the test could not tell the difference between the byte being skipped and the byte
+being run. It was confirming safety that was not there.
+</p>
+
+<p>
+I changed the byte to a letter. Skipped it stays silent, executed it is printed. Now the same
+mutation fails the test. A second mutation in the same run, walking the string array as a word
+array, failed its test immediately, so that side had been right from the start.
+</p>
+
+<p>
+This is the second time a mutation run has caught a test of mine. Both times the test read
+perfectly sensibly, and both times the only way to notice was to break the code.
+</p>
+
+<h2>The numbers moved, and in the right direction</h2>
+
+<p>
+Three corpus tests failed, all on pinned numbers, and not one hand written test moved. That is
+exactly the right signal: the change hit what it was supposed to hit.
+</p>
+
+<pre><code>                              before    after
+openings waiting for input       172      173
+openings unimplemented             1        0
+keyword lists matched           3057     3065
+answers unimplemented             89       36
+conversations begun and ended    198      199</code></pre>
+
+<p>
+89 minus 36 is 53, and 53 is exactly the number of answers that reached this instruction. I
+measured the numbers by running and pinned them afterwards.
+</p>
+
+<h2>What this means</h2>
+
+<p>
+Every character in the game can now be approached, talked to and left. Name, portrait,
+description, opening statements, questions, keyword matching, answers and departure. 199 out of
+199, and none of them reaches an unimplemented instruction on the way.
+</p>
+
+<pre><code>U6Engine.Tests   423 / 423   without Unity
+U6Formats.Tests  266 / 266
+U6Export.Tests    38 / 38</code></pre>
+
+<p>
+Two things still throw, and neither stops a conversation from starting: writing into an array
+inside the script, and searching a string.
+</p>
+
+<p>
+The first of those is the last piece that needs a decision rather than just an implementation.
+To the original a loaded script is <em>editable working memory</em>; to me it is still only bytes
+to read. That difference has to be settled before a shop and a user interface are built on top
+of it, not afterwards.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The script into a writable buffer for the length of a conversation, and the string search.
+     After that nothing in the conversation engine throws any more.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The machine that talks | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/15-kone-joka-puhuu.html" hreflang="fi">FI</a><span>/</span><a href="15-the-machine-that-talks.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 15</nav>
+
+<h1>The machine that talks</h1>
+
+<p class="lede">
+The conversation interpreter now runs the scripts of all 199 characters. The interesting part
+was not the rules that work, but the three that are wrong and must not be corrected.
+</p>
+
+<p>
+The instruction set and the file format were already done. What remained was the thing that
+runs them: an expression stack, the skipping of untaken branches, jumps, assignments. It felt
+like mechanical work, and most of it was.
+</p>
+
+<h2>Three rules that must not be tidied</h2>
+
+<p>
+<strong>Dividing by zero leaves the dividend.</strong> The original prints an error and stores
+nothing, so the dividend survives on the stack as the answer. Returning zero would look tidier
+and would be a different game.
+</p>
+
+<p>
+<strong>Four relational operators compare unsigned, and equality does not.</strong> The original
+casts only the former. So minus one is greater than one, and still equal to itself. Reproduce
+only one half of that and the result looks like a rounding difference and behaves like a
+different rule.
+</p>
+
+<p>
+<strong>The skip does not nest.</strong> When a condition is false, the scan forward stops at
+the first end marker it meets rather than at its own match. A false outer condition therefore
+stops at the inner conditional's end, and the rest of the outer body runs anyway.
+</p>
+
+<pre><code>IF (false)
+    "outer body"        &lt;- skipped
+    IF (true)
+        "inner body"    &lt;- skipped
+    ENDIF               &lt;- the skip stops here
+    "rest of outer"     &lt;- runs anyway
+ENDIF</code></pre>
+
+<p>
+This is the mechanism that makes character 164's party dismissal branch unreachable, which I
+wrote about earlier. "Fixing" the skip would bring it to life, and no test would notice.
+</p>
+
+<p>
+A fourth, smaller one: the skip steps over the operands of a jump and of the byte and word
+constants, but not over the four bytes of a script address. I wrote a test that demonstrates
+the leak happening, because a latent fault that is not tested has not been reproduced, it has
+been forgotten.
+</p>
+
+<h2>The corpus test found what hand written tests could not</h2>
+
+<p>
+Hand built expressions prove the rules. They do not prove the rules are enough. So I wrote a
+test that walks all 199 scripts, finds every condition, and evaluates it.
+</p>
+
+<p>
+On the first run it failed in exactly one place: character 53, array index <strong>65545</strong>.
+That is the bug I had documented long before without knowing its consequence: a carrying check
+indexes an array with a text variable where an integer variable was meant.
+</p>
+
+<p>
+I had written then that "the weight is read from the wrong place", without knowing how wrong.
+Now I know. The original keeps an array index in a <strong>single byte variable</strong>, so
+65545 is truncated to its low byte, which is 9. And 9 is exactly the variable number the author
+meant.
+</p>
+
+<p>
+So the read lands on the wrong entry but stays inside the array. That is why the shop has
+always seemed to work. I updated the bug report: a guess was replaced by a measurement.
+</p>
+
+<p>
+A second find from the same run: one condition indexes an array at <code>#9 + #0 - 1</code>,
+which is minus one before anything has been set. The original then reads leftovers from the
+previous conversation out of a ten kilobyte buffer, and does not crash. There is nothing to
+reproduce faithfully there, so I return zero and said why in the code.
+</p>
+
+<h2>The numbers</h2>
+
+<p>
+Once everything worked, I ran the corpus test to the end:
+</p>
+
+<pre><code>2347  condition expressions, all evaluable
+ 172  openings that wait for a question
+  26  openings that end the conversation outright
+   0  openings that run off the end of their script</code></pre>
+
+<p>
+The last line says the most. If the operand length of even one instruction were wrong, the walk
+would drift out of step and start reading text as instructions. Zero out of 199 means it stays
+with the byte stream the whole way.
+</p>
+
+<h2>What I left throwing</h2>
+
+<p>
+Four things are not implemented: keyword matching and input, printing a text variable, two
+search instructions, and writing into an array inside the script.
+</p>
+
+<p>
+They throw a clear exception rather than being quietly wrong, and the corpus test counts them:
+one opening out of 199 hits one. That seems to me the right way to leave something unfinished.
+A silent default would have made it look as though everything was done.
+</p>
+
+<pre><code>U6Engine.Tests   360 / 360   without Unity
+U6Formats.Tests  266 / 266
+U6Export.Tests    38 / 38</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Keyword matching and input, the part that makes a conversation a conversation. The rules
+     are already written down: a keyword matches over its whole length, there is a wildcard,
+     and only the first match answers.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

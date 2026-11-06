@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kone joka puhuu | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="15-kone-joka-puhuu.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/15-the-machine-that-talks.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 15</nav>
+
+<h1>Kone joka puhuu</h1>
+
+<p class="lede">
+Keskustelutulkki ajaa nyt kaikkien 199 hahmon skriptit. Kiinnostavinta eivät olleet säännöt
+jotka toimivat, vaan kolme jotka ovat väärin ja joita ei saa korjata.
+</p>
+
+<p>
+Opcodet ja tiedostomuoto olivat valmiit jo aiemmin. Jäljellä oli ajaja: lausekepino, ehtojen
+ohitus, hypyt, sijoitukset. Se tuntui mekaaniselta työltä, ja suurin osa olikin.
+</p>
+
+<h2>Kolme sääntöä joita ei saa siistiä</h2>
+
+<p>
+<strong>Nollalla jako jättää jaettavan.</strong> Alkuperäinen tulostaa virheilmoituksen eikä
+tallenna mitään, joten jaettava jää pinoon vastaukseksi. Nollan palauttaminen näyttäisi
+siistimmältä ja olisi eri peli.
+</p>
+
+<p>
+<strong>Neljä vertailuoperaattoria vertaa etumerkittömästi, yhtäsuuruus ei.</strong>
+Alkuperäinen kastaa vain edelliset. Miinus yksi on siis suurempi kuin yksi, mutta silti yhtä
+suuri kuin itsensä. Jos jäljittelee vain toisen puolen, lopputulos näyttää pyöristysvirheeltä
+ja käyttäytyy kuin eri sääntö.
+</p>
+
+<p>
+<strong>Ohitus ei sisäkkäisty.</strong> Kun ehto on epätosi, etsintä pysähtyy ensimmäiseen
+löytämäänsä loppumerkkiin, ei vastinpariinsa. Epätosi ulompi ehto pysähtyy siis sisemmän
+ehdon loppuun, ja ulomman loppuosa ajetaan silti.
+</p>
+
+<pre><code>IF (epätosi)
+    "ulompi runko"          &lt;- ohitetaan
+    IF (tosi)
+        "sisempi runko"     &lt;- ohitetaan
+    ENDIF                   &lt;- ohitus pysahtyy tahan
+    "ulomman loppu"         &lt;- ajetaan silti
+ENDIF</code></pre>
+
+<p>
+Tämä on se mekanismi joka tekee hahmon 164 puolueesta poistavasta haarasta saavuttamattoman,
+mistä kirjoitin aiemmin. Ohituksen "korjaaminen" herättäisi sen henkiin, eikä mikään testi
+huomaisi.
+</p>
+
+<p>
+Neljäs, pienempi: ohitus hyppää hypyn ja tavu- ja sanavakioiden operandien yli muttei
+osoitevakion neljän tavun yli. Kirjoitin siitä testin joka osoittaa vuodon tapahtuvan, koska
+piilevä vika jota ei ole testattu ei ole jäljitelty vaan unohdettu.
+</p>
+
+<h2>Korpustesti löysi sen mitä käsin kirjoitetut eivät</h2>
+
+<p>
+Käsin rakennetut lausekkeet todistavat säännöt. Ne eivät todista, että säännöt riittävät.
+Siksi tein testin joka kävelee kaikki 199 skriptiä, etsii jokaisen ehdon ja ajaa sen.
+</p>
+
+<p>
+Ensimmäisellä ajolla se kaatui yhteen kohtaan: hahmo 53, taulukkoindeksi <strong>65545</strong>.
+Se on juuri se bugi jonka olin dokumentoinut kuukausia aiemmin ilman että tiesin sen seurausta:
+kantokykytarkistus indeksoi taulukkoa merkkijonomuuttujalla kun pitäisi käyttää
+kokonaislukumuuttujaa.
+</p>
+
+<p>
+Olin kirjoittanut silloin, että "paino luetaan väärästä paikasta", enkä tiennyt kuinka
+väärästä. Nyt tiedän. Alkuperäinen pitää taulukkoindeksiä <strong>yhden tavun
+muuttujassa</strong>, joten 65545 typistyy alimpaan tavuunsa, joka on 9. Ja 9 on juuri se
+muuttujanumero jota kirjoittaja tarkoitti.
+</p>
+
+<p>
+Luku osuu siis väärään alkioon mutta pysyy taulukon sisällä. Siksi kauppa on aina näyttänyt
+toimivan. Päivitin bugiraportin: arvaus korvautui mittauksella.
+</p>
+
+<p>
+Toinen löytö samalta ajolta: yksi ehto indeksoi taulukkoa arvolla <code>#9 + #0 - 1</code>, eli
+miinus yhdellä ennen kuin muuttujiin on asetettu mitään. Alkuperäinen lukee silloin kymmenen
+kilotavun puskurista edellisen keskustelun jäänteitä eikä kaadu. Siinä ei ole mitään
+uskollisesti jäljiteltävää, joten palautan nollan ja perustelin sen koodissa.
+</p>
+
+<h2>Numerot</h2>
+
+<p>
+Kun kaikki toimi, ajoin korpustestin loppuun asti:
+</p>
+
+<pre><code>2347  ehtolauseketta, kaikki ajettavissa
+ 172  aloitusosaa jaa odottamaan kysymysta
+  26  aloitusosaa paattaa keskustelun heti
+   0  aloitusosaa ajautuu ulos skriptistaan</code></pre>
+
+<p>
+Viimeinen rivi on se joka kertoo eniten. Jos operandipituus olisi yhdessäkin käskyssä väärin,
+lausekävely ajautuisi pois tahdista ja lukisi tekstiä käskyinä. Nolla 199:stä tarkoittaa että
+se pysyy tavuvirran mukana koko matkan.
+</p>
+
+<h2>Mitä jätin heittämään poikkeuksen</h2>
+
+<p>
+Neljä asiaa on toteuttamatta: avainsanojen täsmäytys ja syöte, tekstimuuttujan tulostus, kaksi
+hakukäskyä, ja kirjoitus skriptin sisäiseen taulukkoon.
+</p>
+
+<p>
+Ne heittävät selkeän poikkeuksen sen sijaan että olisivat hiljaa väärässä, ja korpustesti
+laskee ne: yksi aloitusosa 199:stä osuu niihin. Se on minusta oikea tapa jättää jotain
+kesken. Hiljainen oletusarvo olisi näyttänyt siltä että kaikki on valmista.
+</p>
+
+<pre><code>U6Engine.Tests   360 / 360   ilman Unitya
+U6Formats.Tests  266 / 266
+U6Export.Tests    38 / 38</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Avainsanojen täsmäytys ja syöte, eli se osa joka tekee keskustelusta keskustelun.
+     Säännöt ovat jo dokumentoituna: täsmäys koko avainsanan pituudelta, jokerimerkki, ja
+     vain ensimmäinen osuma vastaa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

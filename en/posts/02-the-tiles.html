@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The tiles, and a number that made no sense | Rebuilding Ultima VI</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/02-tiilet.html" hreflang="fi">FI</a><span>/</span><a href="02-the-tiles.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Rebuilding Ultima VI</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 02</nav>
+
+<h1>The tiles, and a number that made no sense</h1>
+
+<p class="lede">
+Two thirds of the artwork is stored in a format whose offsets look wrong, until you
+work out what they are measured against.
+</p>
+
+<p>
+The game has 2048 tiles of 16&times;16 pixels, and they are spread across three files that
+have to be read together. <code>TILEINDX.VGA</code> holds 2048 offsets. Decompressed
+<code>MAPTILES.VGA</code> concatenated with <code>OBJTILES.VGA</code> holds the pixels.
+<code>MASKTYPE.VGA</code> holds one byte per tile saying how that tile is stored.
+</p>
+
+<p>
+Multiply an index entry by 16 and you get a byte offset into the combined pixel stream. The
+table is monotonic and its last entry lands exactly where the data ends, so that part is
+easy to confirm. The encoding byte is where it gets interesting. Across all 2048 tiles it
+only ever takes three values.
+</p>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Value</th><th class="num">Tiles</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td><code>0</code></td><td class="num">439</td><td>256 bytes, fully opaque</td></tr>
+    <tr><td><code>5</code></td><td class="num">177</td><td>256 bytes, index 255 means transparent</td></tr>
+    <tr><td><code>10</code></td><td class="num">1432</td><td>something else entirely</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+The first two are easy, and they can be told apart without reading a line of the original
+code: the 439 tiles marked <code>0</code> never contain index 255 anywhere, and all 177
+tiles marked <code>5</code> contain it at least once. That is not a coincidence, that is a
+definition.
+</p>
+
+<h2>The run-length tiles</h2>
+
+<p>
+The remaining 1432 tiles are compressed, and they are the majority. Their data begins with a
+single byte that simply repeats the record's length divided by sixteen, which the index
+table already told us. After that comes a sequence of records: a 16-bit displacement, a
+single-byte length, and that many pixel bytes.
+</p>
+
+<p>
+So the decoder moves a cursor forward by the displacement, writes some pixels, moves again.
+Straightforward, except that the displacements are far too big. A tile is sixteen
+pixels wide and 256 pixels in total, and the most common displacement values are 160 to 175.
+A single jump would run off the end of two tiles.
+</p>
+
+<p>
+I assumed the bit layout was wrong and tried every plausible reading of the record header.
+None worked. The displacement distribution is what eventually gave it away:
+</p>
+
+<pre><code>displacement   count
+     0         1624
+   165         1577
+   164         1555
+   166         1480
+   167         1422
+     1         1384
+   163         1294
+   168         1206</code></pre>
+
+<p>
+Two clusters. Small values near zero, and a tight band around 165. If you are drawing a
+sprite that is, say, eleven pixels wide inside a sixteen pixel tile, the small values are
+the gaps <em>within</em> a row, and the big ones are the jump from the end of one row to the
+start of the next. Which means the row width is around 176.
+</p>
+
+<p>
+176 is 11&times;16. It is the width of the game's map window, eleven tiles across.
+The displacements were never measured against the tile at all. They were written for a
+cursor walking the screen the tile would eventually be drawn into.
+</p>
+
+<figure>
+<svg viewBox="0 0 640 250" role="img" aria-label="Diagram comparing a 16-pixel-wide tile grid with the 176-pixel-wide window the cursor actually walks">
+  <defs>
+    <marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="#c98a4b"/>
+    </marker>
+  </defs>
+  <text x="0" y="14" font-family="monospace" font-size="12" fill="#8a8276">ASSUMED: cursor wraps every 16 px</text>
+  <rect x="0" y="24" width="96" height="60" fill="none" stroke="#ddd6c8"/>
+  <line x1="0" y1="44" x2="96" y2="44" stroke="#ddd6c8"/>
+  <line x1="0" y1="64" x2="96" y2="64" stroke="#ddd6c8"/>
+  <path d="M20,34 L70,34" stroke="#c98a4b" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M10,54 L80,54" stroke="#c98a4b" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="108" y="50" font-family="monospace" font-size="11" fill="#8a8276">a jump of 165 lands</text>
+  <text x="108" y="66" font-family="monospace" font-size="11" fill="#8a8276">far outside the tile</text>
+
+  <text x="0" y="124" font-family="monospace" font-size="12" fill="#8a8276">ACTUAL: cursor wraps every 176 px, the map window</text>
+  <rect x="0" y="134" width="560" height="84" fill="none" stroke="#ddd6c8"/>
+  <line x1="0" y1="162" x2="560" y2="162" stroke="#ddd6c8"/>
+  <line x1="0" y1="190" x2="560" y2="190" stroke="#ddd6c8"/>
+  <rect x="0" y="134" width="51" height="84" fill="#c98a4b" fill-opacity="0.16" stroke="#c98a4b"/>
+  <path d="M12,148 L40,148" stroke="#c98a4b" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M44,148 C 300,150 300,170 12,176" stroke="#c98a4b" stroke-width="1.5" fill="none" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+  <path d="M12,176 L36,176" stroke="#c98a4b" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="572" y="166" font-family="monospace" font-size="11" fill="#8a8276">176 px</text>
+  <text x="0" y="238" font-family="monospace" font-size="11" fill="#8a8276">the shaded column is the 16 px the tile actually occupies</text>
+</svg>
+<figcaption>
+The displacement is relative to a 176-pixel-wide surface, not to the 16-pixel tile. Pixels
+whose column lands past 16 are padding and get discarded. Reading the stride as 16 produces
+noise; reading it as 176 produces the artwork.
+</figcaption>
+</figure>
+
+<h2>Proving it</h2>
+
+<p>
+A decoder that produces something is not a decoder that is correct, and with graphics the
+cheapest oracle is your own eyes. I decoded all 2048 tiles, laid them out in a grid, and
+looked: grass, water, stone walls, wooden floors, barrels, furniture, weapons, and row after
+row of creatures and people. Unambiguously right.
+</p>
+
+<p>
+Then I locked it down so it stays right. The checksum is taken over the decoded palette
+indices rather than over the finished image file, because an image encoder's compression
+choices are its own business while the pixel data must not move:
+</p>
+
+<pre><code>2048 tiles &times; 256 indices = 524,288 bytes
+SHA-256  07ea4ffe89846acdb8de468474046a3d67f8fde118c81c0d1224f3c961ebcb05</code></pre>
+
+<p>
+That number is now a test. When the decoder was later rewritten from the prototype into the
+real C# library, it reproduced the hash byte for byte on the first run, which is
+exactly the kind of boring confirmation you want from a rewrite.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p><a href="03-the-world.html">Assembling Britannia</a>:
+     a million tiles stored in
+     32 KB, and an ordering mistake that looks completely plausible.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data or artwork is
+     included here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

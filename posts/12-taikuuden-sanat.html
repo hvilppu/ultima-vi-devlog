@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taikuuden sanat | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="12-taikuuden-sanat.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/12-the-words-of-magic.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 12</nav>
+
+<h1>Taikuuden sanat</h1>
+
+<p class="lede">
+Loitsudata ei ole missään tiedostossa. Se on käännetty ohjelmaan, ja löytyi siitä yhdestä
+ominaisuudesta, joka oli alun perin pelkkä varaus tuleville loitsuille.
+</p>
+
+<p>
+Hirviöstatit jouduin aikaisemmin louhimaan suoraan ohjelmatiedostosta, koska niitä ei ole
+missään datatiedostossa. Loitsut ovat samassa paikassa. Ero on siinä, että tällä kertaa haku
+osoittautui poikkeuksellisen varmaksi, ja syy on hauska.
+</p>
+
+<h2>Aukot paljastavat taulun</h2>
+
+<p>
+Ultima VI:ssä on kahdeksan loitsupiiriä ja kymmenen loitsua per piiri, eli 80 loitsua. Mutta
+numerointi varaa <strong>kuusitoista</strong> numeroa per piiri. Kuusi numeroa joka piirissä on
+tyhjää, luultavasti varausta joka jäi käyttämättä.
+</p>
+
+<p>
+Reagenssitaulu on 128 tavua, yksi per loitsunumero. Niistä 48 on siis aina nollaa, ja ne
+nollat ovat tarkoissa paikoissa: jokaisen 16 tavun ryhmän kuusi viimeistä.
+</p>
+
+<pre><code>piiri 1  61 82 82 60 24 12 50 00 84 80  00 00 00 00 00 00
+piiri 2  82 84 0E 1C 16 0D 12 88 88 2C  00 00 00 00 00 00
+piiri 3  A2 84 84 81 A8 60 52 03 E0 A0  00 00 00 00 00 00
+...                                     ^^^^^^^^^^^^^^^^^
+                                        kuusi nollaa, aina</code></pre>
+
+<p>
+Etsin koko 200 kilotavun ohjelmasta kohtia joissa tämä kuvio toistuu kahdeksan kertaa ja muut
+paikat ovat enimmäkseen nollasta poikkeavia. <strong>Osumia oli tasan yksi.</strong> Muotoa ei
+tarvinnut täydentää yhdelläkään lisäehdolla, mikä on vahvempi tulos kuin hirviötaulukolla, jossa
+tarvitsin neljä ehtoa yhdessä.
+</p>
+
+<h2>Nimet olivat osoittimien päässä</h2>
+
+<p>
+Loitsujen nimet eivät ole taulussa vaan osoittimina ohjelman datasegmenttiin. Ja segmentin
+alkukohtaa ei ole kirjattu minnekään, joten osoitin 0x135F ei sellaisenaan kerro mitään.
+</p>
+
+<p>
+Olisin voinut etsiä jonkin tunnetun merkkijonon ja laskea eron, mutta se olisi nojannut siihen
+mitä pelin teksteissä sattuu olemaan. Parempi tapa löytyi osoittimista itsestään: kun
+peräkkäiset osoittimet osoittavat peräkkäisiin merkkijonoihin, <strong>niiden välit ovat
+merkkijonojen pituudet</strong>.
+</p>
+
+<pre><code>osoittimet   135F 136D 1378 1384 138F 139B 13A2 13AA
+valit          14   11   12   11   12    7    8</code></pre>
+
+<p>
+Eli etsin kantaosoitteen, jonka kohdalla kaikki kahdeksan osoitinta osuvat tulostuvaan tekstiin
+ja kaikki seitsemän väliä täsmäävät merkkijonojen pituuksiin. Tällainen kantaosoite on koko
+tiedostossa yksi. Haku ei nojaa yhteenkään sanaan, vain pituussuhteisiin.
+</p>
+
+<p>
+Sen jälkeen kaikki muu avautui, koska taulukot ovat datasegmentissä peräkkäin: nimet, 26 tavua,
+loihtimiskirjaimet, reagenssien nimet ja piirien nimet löytyivät kiinteiltä etäisyyksiltä
+reagenssitaulusta.
+</p>
+
+<h2>Kirjaimet ovat tavuja</h2>
+
+<p>
+Loihtiminen oli minulle yllätys siinä, kuinka tiiviisti se on tallennettu. Jokaisella loitsulla
+on 2–4 kirjaimen jono, ja jokainen kirjain indeksoi 26 tavun taulukkoa, jossa A on ensimmäinen
+ja Z viimeinen.
+</p>
+
+<pre><code>IL    -> In Lor               Light
+IM    -> In Mani              Heal
+IMC   -> In Mani Corp         Resurrect
+VCBM  -> Vas Corp Bet Mani    Armageddon</code></pre>
+
+<p>
+Tavut luen ohjelmasta enkä kirjoita niitä koodiin. Ne ovat dataa, eikä uudelleentoteutuksen
+kuulu päättää mitkä ovat taikuuden sanat.
+</p>
+
+<p>
+Nämä neljä ovat myös testeissä, ja syystä: niiden loihtimissanat on julkaistu pelin omassa
+dokumentaatiossa, joten ne vahvistavat louhinnan <em>datan ulkopuolelta</em> eivätkä vain
+itseään vasten. Suurin osa testeistä vertaa dataa itseensä, ja siksi tällaiset harvat
+ulkopuoliset kiinnekohdat ovat arvokkaita.
+</p>
+
+<h2>Bittijärjestys ei ole se mitä luulisi</h2>
+
+<p>
+Reagenssitavu on bittimaski kahdeksalle aineelle. Aineet ovat objektityyppejä 65–72, peräkkäin.
+Mutta bittijärjestys <strong>ei</strong> seuraa objektityyppien järjestystä:
+</p>
+
+<pre><code>bitti 0  0x01  mandrake root   tyyppi 69
+bitti 1  0x02  nightshade      tyyppi 70
+bitti 2  0x04  black pearl     tyyppi 65
+bitti 3  0x08  blood moss      tyyppi 66
+bitti 4  0x10  spider silk     tyyppi 71
+bitti 5  0x20  garlic          tyyppi 67
+bitti 6  0x40  ginseng         tyyppi 68
+bitti 7  0x80  sulfurous ash   tyyppi 72</code></pre>
+
+<p>
+Tämä on juuri sellainen kohta joka menisi väärin hiljaa: väärä järjestys vaihtaisi reagensseja
+loitsujen välillä, eikä mikään kaatuisi. Siksi bittien objektityypit ristiintarkistetaan omaa
+<code>LOOK.LZD</code>:tä vasten, eli ohjelmasta luettu numero täsmäytetään datatiedoston
+nimeen.
+</p>
+
+<h2>Pari yksityiskohtaa datasta</h2>
+
+<p>
+Rikkain reagensseissa on Resurrect kuudella aineella kahdeksasta. Eniten käytetty aine on
+sulfurous ash 43 loitsussa, harvinaisin ginseng 13:ssa. Kaksi loitsua ei vaadi reagensseja
+lainkaan, ja toinen niistä on Armageddon: kahdeksannen piirin kallein loitsu manassa, joka ei
+kuluta mitään muuta kuin kastajan.
+</p>
+
+<h2>Mitä ei ollut olemassa</h2>
+
+<p>
+Suunnitelmassa M8:n kohta lupasi louhia myös loitsun vaikutuksen ja kohdistustyypin. Se oli
+väärä odotus: niitä ei ole taulukkona. Jokaisella loitsulla on oma koodihaaransa, joka päättää
+itse kysyykö se suunnan, ruudun, hahmon vai ei mitään.
+</p>
+
+<p>
+Kirjasin sen suunnitelmaan väärin menneenä odotuksena sen sijaan että olisin hiljaa jättänyt
+kohdan pois. Loitsut toteutetaan vaiheessa C yksi kerrallaan, ja silloin jokainen tarvitsee
+oman testinsä.
+</p>
+
+<h2>Testit</h2>
+
+<p>
+50 uutta. Mukana on nyt myös oma pre-commit-komento, joka tarkistaa ennen jokaista committia
+että testit menevät läpi, että jokainen julkinen tyyppi on testattu <em>kahteen suuntaan</em>
+(oikea data sisään ja virheellinen data torjuttuna), ettei joukossa ole testiä joka ei voi
+kaatua, ja että suunnitelma ja tämä blogi ovat ajan tasalla.
+</p>
+
+<pre><code>Unity EditMode   180 / 180
+Formaattikirjasto 266 / 266
+Exportteri        32 / 32
+                 -----------
+                 478 testia</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Hahmonkehitys ja kantokyky, eli M8:n viimeinen itsenäinen taulukko. Sen jälkeen
+     keskustelutulkki, ja kaupan hinnat sen kanssa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa tai grafiikkaa
+     ei ole mukana täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

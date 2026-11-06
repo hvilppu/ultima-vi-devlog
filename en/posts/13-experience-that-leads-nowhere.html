@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Experience that leads nowhere | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/13-kokemus-joka-ei-johda-mihinkaan.html" hreflang="fi">FI</a><span>/</span><a href="13-experience-that-leads-nowhere.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 13</nav>
+
+<h1>Experience that leads nowhere</h1>
+
+<p class="lede">
+Character development was supposed to be a table. It turned out to be formulas and one function
+that nothing calls. And halfway through I caught myself having written a claim in the
+documentation that was simply false.
+</p>
+
+<p>
+The M8 list said "character development: experience levels, stat growth, carrying capacity". I
+expected to dig out a table of experience thresholds per level. There is no such table.
+</p>
+
+<h2>A function nobody calls</h2>
+
+<p>
+The original contains a function that computes a level from experience. It is short, it is
+correct, and it is marked as uncalled:
+</p>
+
+<pre><code>level = 1
+while experience &gt; 99:
+    experience = experience / 2
+    level = level + 1</code></pre>
+
+<p>
+It would give level 2 at a hundred points and double the requirement each time, reaching level 8
+at six thousand four hundred. Experience caps at 9999, so level 9 would have been out of reach
+even if the function had been called.
+</p>
+
+<p>
+But it is not called. <strong>The only thing that raises a level in the entire game is a
+conversation instruction</strong>, used by the eight virtue altars and by Iolo's hidden debug
+menu. The same goes for strength, dexterity and intelligence: they come from altars, they stop
+at thirty, and no amount of fighting moves any of them.
+</p>
+
+<p>
+This is the most interesting single find of the project so far, not because it is complicated
+but because it is <em>invisible</em>. If I wired experience to levels, the project would compile,
+run, look right, and play like a different game from the first fight onwards. No test would
+notice, because tests describe what code does, not what it is supposed to refrain from doing.
+</p>
+
+<p>
+So I implemented the abandoned formula under the name <code>LevelForExperienceUnused</code> and
+wrote a test that enumerates the class's public methods and demands that this be the only route
+from experience to a level. If anyone ever adds a second one, the test fails and the question
+gets asked out loud.
+</p>
+
+<h2>A claim I checked, and it was wrong</h2>
+
+<p>
+I wrote in the code documentation that experience is never read anywhere: it accumulates to the
+cap and does nothing. It felt like a sound inference from the fact that levels are not computed
+from it.
+</p>
+
+<p>
+Then I checked. Experience is read in three places, and one of them was a mechanic I had no idea
+existed:
+</p>
+
+<pre><code>if karma &lt; 98:
+    experience = experience * karma / 100</code></pre>
+
+<p>
+<strong>Coming back from the dead costs experience in proportion to karma.</strong> It applies
+both to the Avatar revived at a body and to a companion raised by the resurrection spell. Karma
+starts at 75, so for a typical player dying costs a quarter of their experience.
+</p>
+
+<p>
+And because the condition is a threshold rather than a slope, dropping karma from 98 to 97 costs
+three percent, not one. Only the top two points of karma buy exemption.
+</p>
+
+<p>
+A good reminder that "nothing" is a claim like any other and needs as much proof. I inferred it
+from consistency instead of measuring it. I corrected the documentation and recorded the mistake
+in the plan rather than tidying it away.
+</p>
+
+<h2>Two limits, not one</h2>
+
+<p>
+Carrying capacity was more straightforward but held one thing that would be easy to simplify
+wrongly. There are two limits: worn equipment may weigh up to strength in stones, and everything
+carried together up to twice that.
+</p>
+
+<p>
+They are checked <strong>separately</strong>. A suit of armour a character cannot put on still
+fits in the pack. Merge the two checks into one and that possibility disappears quietly, and
+nobody notices until someone tries to carry found armour home.
+</p>
+
+<p>
+A small detail from the same place: carrying uses the <em>raw</em> strength. A curse takes three
+points off strength in a fight but does not lighten the pack. A test puts the two side by side
+so that nobody later "fixes" it into consistency.
+</p>
+
+<h2>Tests</h2>
+
+<p>
+Seventy nine new ones. But this time Unity's batch run refused to execute them: it compiles the
+project and exits without running anything, on three separate attempts. The licence connects,
+the test framework is installed, and the test assembly definition is correct.
+</p>
+
+<p>
+So I first ran them through a standalone NUnit run over the same source files, with the older
+combat tests included as a control. That verifies the code, but it is not the same thing as
+Unity's own run, so I kept the two apart rather than adding the numbers together.
+</p>
+
+<p>
+The editor's Test Runner then ran them all green, which narrows the problem down: the tests are
+found and they work, and the fault is in the batch run specifically. That is now recorded as a
+known tooling limitation, and the pre-commit command says to take the Unity count from the
+editor rather than from a batch attempt.
+</p>
+
+<pre><code>Unity EditMode     259 / 259
+Format library     266 / 266
+Exporter            32 / 32
+                   -----------
+                   557 tests</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>All that is left of phase B is shop prices, and those are best done alongside the
+     conversation interpreter because trading runs through the scripts. So the interpreter is
+     next.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

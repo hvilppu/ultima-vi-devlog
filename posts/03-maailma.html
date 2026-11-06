@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Britannian kokoaminen | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="03-maailma.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/03-the-world.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 03</nav>
+
+<h1>Britannian kokoaminen</h1>
+
+<p class="lede">
+Miljoona tiiltä 32 kilotavussa, ja järjestysvirhe joka näyttää täysin uskottavalta siihen
+asti kun sen renderöi.
+</p>
+
+<p>
+Pelimaailman pinta on miljoona tiiltä. Tiedosto joka kuvaa sen on 32 256 tavua. Temppu on
+se, ettei juuri mitään tallenneta suoraan.
+</p>
+
+<p>
+<code>CHUNKS</code> on kirjasto, jossa on 1024 uudelleenkäytettävää 8&times;8 tiilen palaa,
+kukin 64 tavua, yhteensä tasan 64 kilotavua. <code>MAP</code> kuvaa maailman pelkkinä
+viittauksina siihen kirjastoon. Metsä on yksi pala, johon osoitetaan muutama sata kertaa.
+</p>
+
+<p>
+Viittaukset on pakattu kahteentoista bittiin, kaksi kolmea tavua kohden. Se antaa tilaa
+4096 palalle, vaikka niitä on vain 1024, joten ylimmät kaksi bittiä ovat aina nollia.
+Laskutoimitus menee tasan:
+</p>
+
+<pre><code>pinta      128 x 128 viittausta x 1,5 tavua  = 24 576
+luolat       5 tasoa x 32 x 32 x 1,5         =  7 680
+                                               ------
+                                               32 256</code></pre>
+
+<p>
+Yksi asia selviää saman tien. Jokainen tavu <code>CHUNKS</code>-tiedostossa on tiilinumero,
+ja suurin arvo on 255. Maasto käyttää siis vain ensimmäisiä 256 tiiltä. Kaikki muu
+maailmassa, jokainen puu, ovi ja tynnyri, sijoitetaan erikseen objektina. Kartta on pelkkää
+maata, vettä ja seiniä.
+</p>
+
+<h2>Järjestysansa</h2>
+
+<p>
+Tässä on se kohta, joka olisi hiljaa pilannut kaiken. Ilmeinen tulkinta on, että 128&times;128
+viittausta kulkevat tavallisessa rivijärjestyksessä: vasemmalta oikealle, ylhäältä alas. Se
+tulkinta kuluttaa tasan oikean määrän tavuja eikä aiheuta virhettä missään.
+</p>
+
+<p>
+Se on myös väärä. Pinta on jaettu 8&times;8 ruudukkoon <em>superchunkkeja</em>, joista
+kukin on 16&times;16 palaa, ja viittaukset on tallennettu yksi kokonainen superchunk
+kerrallaan.
+</p>
+
+<figure>
+<svg viewBox="0 0 640 200" role="img" aria-label="Kaavio jossa verrataan rivijarjestysta ja superchunk kerrallaan etenevaa jarjestysta">
+  <g font-family="monospace" font-size="11" fill="#8a8276">
+    <text x="0" y="12">RIVIJARJESTYS koko kartan yli</text>
+    <text x="330" y="12">SUPERCHUNK kerrallaan, todellinen jarjestys</text>
+  </g>
+  <g stroke="#ddd6c8" fill="none">
+    <rect x="0" y="22" width="256" height="128"/>
+    <rect x="330" y="22" width="256" height="128"/>
+  </g>
+  <g stroke="#ddd6c8" stroke-width="0.5" fill="none">
+    <path d="M32,22 V150 M64,22 V150 M96,22 V150 M128,22 V150 M160,22 V150 M192,22 V150 M224,22 V150"/>
+    <path d="M0,54 H256 M0,86 H256 M0,118 H256"/>
+  </g>
+  <g stroke="#ddd6c8" stroke-width="0.5" fill="none">
+    <path d="M362,22 V150 M394,22 V150 M426,22 V150 M458,22 V150 M490,22 V150 M522,22 V150 M554,22 V150"/>
+    <path d="M330,54 H586 M330,86 H586 M330,118 H586"/>
+  </g>
+  <path d="M4,38 H252" stroke="#c98a4b" stroke-width="2"/>
+  <path d="M4,70 H252" stroke="#c98a4b" stroke-width="2"/>
+  <path d="M4,102 H252" stroke="#c98a4b" stroke-width="2"/>
+  <rect x="330" y="22" width="32" height="32" fill="#c98a4b" fill-opacity="0.3"/>
+  <rect x="362" y="22" width="32" height="32" fill="#c98a4b" fill-opacity="0.22"/>
+  <rect x="394" y="22" width="32" height="32" fill="#c98a4b" fill-opacity="0.14"/>
+  <g font-family="monospace" font-size="10" fill="#8a4b1e">
+    <text x="338" y="42">1</text><text x="370" y="42">2</text><text x="402" y="42">3</text>
+  </g>
+  <g font-family="monospace" font-size="11" fill="#8a8276">
+    <text x="0" y="172">kuluttaa tasan oikean maaran</text>
+    <text x="0" y="188">tavuja, ja on vaara</text>
+    <text x="330" y="172">jokainen 16x16 lohko tehdaan</text>
+    <text x="330" y="188">loppuun ennen seuraavaa</text>
+  </g>
+</svg>
+<figcaption>
+Molemmat tulkinnat kuluttavat samat 24 576 tavua, eikä kumpikaan laukaise rajavirhettä.
+Vain tuloksen renderöinti erottaa ne toisistaan.
+</figcaption>
+</figure>
+
+<p>
+Renderöin molemmat. Toinen tuotti yhtenäisen mantereen, toinen sekamelskan 128 tiilen
+neliöitä. Se ratkaisi asian noin neljässä sekunnissa katsomista.
+</p>
+
+<p>
+Superchunk-rakenne sai riippumattoman vahvistuksen aivan muualta. Objektidata on jaettu
+69 erilliseen tiedostoon nimiltä <code>OBJBLKAA</code> ja <code>OBJBLKHI</code> väliltä.
+Kahdeksan kertaa kahdeksan on 64 pintatiedostoa, ja lisäksi viisi luolatasoa. 64 + 5 = 69.
+Sama jako esiintyy kahdessa toisistaan riippumattomassa kohdassa dataa, mikä on suunnilleen
+niin hyvää rakenteellista näyttöä kuin voi saada.
+</p>
+
+<h2>Miltä se näyttää</h2>
+
+<figure>
+<img src="../Images/worldmap_preview.png" alt="Yleiskuva puretusta pintamaastosta, yksi pikseli tiiltä kohden" width="512" loading="lazy">
+<figcaption>
+Purettu pinta yhden pikselin tarkkuudella tiiltä kohden, väritettynä kunkin tiilen
+keskivärillä. Rantaviivat, joet, vuoristot, tiet ja kaupunkien jalanjäljet ovat kaikki
+maastoa. Yhtään objektia ei ole vielä piirretty. Tämä kuva syntyy paikallisesti omasta
+asennuksestasi: se ei ole lähderepossa, vaan kopioidaan tälle sivustolle julkaistaessa.
+</figcaption>
+</figure>
+
+<p>
+Yleiskuva ei ole koriste. Se on projektin halvin regressiotesti: tarkistussumma kertoo että
+tavut muuttuivat, mutta vain kuva kertoo että manner on yhä oikean muotoinen. Se syntyy
+joka exportilla, ja sen rinnalle yksi kuva kutakin luolatasoa kohden.
+</p>
+
+<p>
+Tarkistussumma on toki myös olemassa:
+</p>
+
+<pre><code>pintamaasto, 1024 x 1024 tavua
+SHA-256  f026f8223d1c00d513a7fefd47e1bbb557e88f953b80f7d5fe977baacafa31ef</code></pre>
+
+<h2>Yksi pieni päätös</h2>
+
+<p>
+Suunnitelmassa luki, että maailma viedään 16-bittisinä tiilinumeroina. Koska maasto
+todistetusti käyttää vain arvoja 0 ja 255 väliltä, kirjoitin tavuja. Kentän leventäminen
+olisi ollut spekulaatiota tulevasta tarpeesta ja kaksinkertaistanut koon tyhjästä. Koko
+maailma, kaikki kuusi tasoa, pakkautuu noin 200 kilotavuun.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p><a href="04-objektit.html">Kuusitoistatuhatta objektia ja yksi epäilyttävä bitti</a>:
+     maassa makaavien ja arkussa olevien esineiden erottaminen toisistaan poissulkemalla.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa tai grafiikkaa
+     ei ole mukana täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

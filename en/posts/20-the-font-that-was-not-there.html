@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The font that was not there | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/20-kirjasin-jota-ei-ollut.html" hreflang="fi">FI</a><span>/</span><a href="20-the-font-that-was-not-there.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 20</nav>
+
+<h1>The font that was not there</h1>
+
+<p class="lede">
+The font, the text layer and the flags. On the way an open question closed, an original fault
+turned up, and I had to move a class of my own out of the wrong assembly.
+</p>
+
+<h2>There is no runic font</h2>
+
+<p>
+The text has two escapes that switch a runic font on and off. The font itself was an open
+question in my own document: I knew the high bit gets set on the character, but not where the
+runic glyphs came from.
+</p>
+
+<p>
+The answer is that they come from nowhere in particular. <strong>The runic font is the upper
+half of the same font.</strong> The high bit moves a character into slots 128 to 255, and that
+is where those glyphs live. One file, two alphabets.
+</p>
+
+<p>
+It also explains a number that had been nagging. The font has 256 slots and 245 of them carry a
+glyph, which is far more than one alphabet needs.
+</p>
+
+<p>
+The eleven empty slots are these:
+</p>
+
+<pre><code>0  2  9  10  13  32  128  137  138  141  160</code></pre>
+
+<p>
+Six from the lower half and five from the upper. Note that slot 2 is empty while slot 130 is
+not: <strong>the upper half is not a copy of the lower</strong>, and an implementation assuming
+it was would be wrong about exactly one slot. That is why the test pins the list rather than the
+count.
+</p>
+
+<h2>The escapes, and two numbers that say something</h2>
+
+<p>
+I measured how often each is used before implementing anything, so that I knew what I was
+building.
+</p>
+
+<pre><code>@  1681 / 192 scripts    keyword highlight
+$  1170 / 160            text variable
+*   748 / 199            wait for a key
+#   326 /  91            number variable
+\   25 /  21            plural form
+`     7 /   6            capitalise next
+&     6 /   6            gargish section
+%     4 /   4            cancel
+^     3 /   2            special glyph
+/     2 /   2            singular form
+&lt;     1 /   1            runic font on
+&gt;     0                  runic font off</code></pre>
+
+<p>
+Two rows stand out. The <code>*</code> escape is the only one <strong>every</strong> one of the
+199 scripts uses. And the runic font is switched on once in the whole game and never off.
+</p>
+
+<p>
+The numbers were measured twice. The first measurement showed one too many of each, because it
+read a script's header as code and a character number can happen to be an escape: character 60
+is <code>&lt;</code> and character 62 is <code>&gt;</code>. The same trap caught me earlier with
+character 181. The second time is easier to spot than the first, though evidently not easy
+enough.
+</p>
+
+<h2>A class of mine was in the wrong assembly</h2>
+
+<p>
+I wrote the conversation panel on the Unity side, because a window sounds like a Unity thing.
+The pre-commit check pointed out that it had no tests, and when I went to look at why, the
+reason was that it could not be tested without Unity.
+</p>
+
+<p>
+Except that it could. The class used <em>nothing</em> from Unity: the whole panel is index
+arithmetic. The only Unity reference was a needless <code>using</code> line I had written out of
+habit.
+</p>
+
+<p>
+I moved it into the engine and wrote tests for it. The project's rule says anything that cannot
+be tested without Unity is in the wrong assembly, and this was a reminder that the same holds in
+the other direction.
+</p>
+
+<h2>The session is a state machine now</h2>
+
+<p>
+In the last post I ran into the fact that a frame loop cannot block, and my input interface
+blocked. There were two options: the session on its own thread, or the session as a state
+machine that returns to the caller to wait.
+</p>
+
+<p>
+The state machine won. <code>Begin</code> runs to the first question and says what it wants,
+<code>Answer</code> takes it to the next. The whole input interface disappeared along the way:
+when the caller supplies the answers, the session has nothing to ask for.
+</p>
+
+<p>
+Two things improved as a side effect. A rejected key is no longer an error but the same need
+again, which is exactly what the original does. And the allowed keys are public now, so whatever
+draws the text can say which keys will do.
+</p>
+
+<p>
+<strong>The best evidence that the conversion preserved behaviour:</strong> the corpus test's
+pinned numbers did not move. 199 out of 199 conversations begin and end, and they take exactly
+212 answers, the same as the blocking version.
+</p>
+
+<p>
+One thing I did not quietly paper over. The original's wait instruction stops the statement
+runner <em>mid run</em>, and here it is a signal to the text layer. Where the wait only paces
+text the difference cannot be seen; where a script changes the world just after one, the change
+now happens before the key. Being exact would mean carrying a resumption point through the whole
+interpreter, and nothing measured pays for that yet.
+</p>
+
+<h2>Flags, and measuring before building</h2>
+
+<p>
+The world interface has 32 members. Rather than guess where to start, I counted how often each
+is called: <strong>2563 calls</strong> across the whole data, and three structures cover 85 %.
+</p>
+
+<pre><code>flags    788  (31 %)   TestFlag, SetFlag, ClearFlag
+objects  722  (28 %)   HasObject, TakeObject, GiveObject, ...
+party    667  (26 %)   PartyMember, IsInParty, ...</code></pre>
+
+<p>
+Three members are never called at all. They get a clear refusal rather than a guess.
+</p>
+
+<p>
+Flags first, because they are the largest group and have no dependencies. The original keeps
+eight flags per character, one byte, a 256 byte block saved as it stands. Bit nought means the
+player has met them, and the scripts set it 274 times out of 422.
+</p>
+
+<h2>And an original fault alongside</h2>
+
+<p>
+When the player looks at a character, the game chooses between a generic description and the
+real name using the met flag. The condition is written like this:
+</p>
+
+<pre><code>!TalkFlags[objNum] &amp; 1</code></pre>
+
+<p>
+C binds the exclamation mark tighter than the ampersand, so this asks whether the
+<strong>whole flag byte is zero</strong>, not whether the met flag is clear. As soon as any flag
+is set on a character, the game treats them as met.
+</p>
+
+<p>
+I did not leave that as theory but measured who flags are set on. 321 writes target the
+character being spoken to, the rest a literal number, and among those <strong>character 178's
+script sets five flags on character 146</strong>. Talk to 178 before meeting 146 and 146's real
+name shows at first sight.
+</p>
+
+<p>
+What I did not check: I have not run the original to see it. Reproducing it waits for the code
+that chooses a name, so the fault can be neither imitated nor skipped right now. Recorded so
+that it gets built wrong deliberately rather than right by accident.
+</p>
+
+<pre><code>U6Engine.Tests   494 / 494   without Unity
+U6Formats.Tests  266 / 266
+U6Export.Tests    43 / 43</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The party, because it is the next largest by measurement and because
+     <code>PartyMember</code> alone is the most called member of the whole interface. After that
+     a talk command can show up in the game.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

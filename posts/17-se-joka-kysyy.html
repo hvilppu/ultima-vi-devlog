@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Se joka kysyy | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="17-se-joka-kysyy.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/17-the-part-that-asks.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 17</nav>
+
+<h1>Se joka kysyy</h1>
+
+<p class="lede">
+Keskustelu toimii nyt päästä päähän 198 hahmolla 199:stä. Yksi hahmo on huonokuuloinen, ja se
+melkein jäi testin ansaksi.
+</p>
+
+<p>
+Täsmäytys oli valmis, mutta mikään ei vielä kysynyt mitään. Se osa on nyt tehty: nimi, portretti,
+kuvaus, aloituslauseet, ja sitten silmukka joka lukee pelaajalta jotain ja ajaa siihen täsmäävät
+vastaukset. Kuusi eri tapaa kysyä, ja ne eroavat toisistaan juuri sen verran että yhteen
+niputtaminen olisi väärin.
+</p>
+
+<pre><code>F7  rivin, kehote ensin           269 kertaa
+F8  yhden sallituista nappaimista 289
+FC  yhden numeronappaimen         172
+FB  rivin numerona                 43
+F9  rivin tekstimuuttujaan          3
+FA  yhden nappaimen                 2</code></pre>
+
+<h2>Kirjainkoko on kaksi sääntöä, ei yksi</h2>
+
+<p>
+Tämä oli oma vikani ja testi löysi sen heti. Alkuperäisen konsoli pitää lippua joka isontaa
+syötetyt näppäimet. Se on päällä kaikkialla <strong>paitsi rivinlukijan sisällä</strong>, joka
+sammuttaa sen ja sytyttää uudelleen.
+</p>
+
+<p>
+Siis: yksi näppäin saapuu aina isona, kirjoitettu rivi säilyttää kirjainkokonsa. Toteutin ensin
+vain tämän puolen.
+</p>
+
+<p>
+Mutta <code>F8</code> tarvitsee isonnuksen kahdesti. Kaikki 289 sallittujen näppäinten listaa on
+kirjoitettu pienillä kirjaimilla, ja vertailu isontaa myös listan alkion. Jos isontaa vain
+näppäimen, yksikään näppäin ei täsmää, ja peli jumittuu <strong>ensimmäiseen kyllä/ei-kysymykseen
+jonka pelaaja kohtaa</strong>.
+</p>
+
+<p>
+Sääntö on siis "molemmat puolet isonnetaan", ja se on kaksi erillistä asiaa kahdessa eri
+paikassa: konsoli isontaa näppäimen, vertailu isontaa listan. Jäljittelin ensin vain toisen.
+</p>
+
+<h2>Turha tarkistus, ja testi joka ei voinut kaatua</h2>
+
+<p>
+Alkuperäinen katsoo päälausemerkin jälkeisen tavun ja jättää aloituslauseet ajamatta jos se on
+kysymys. Jäljittelin tämän ja kirjoitin sille testin, joka meni läpi.
+</p>
+
+<p>
+Sitten tein mitä olen oppinut tekemään: poistin ehdon tahallaan ja ajoin testisarjan nähdäkseni
+mikä kaatuu. Mikään ei kaatunut.
+</p>
+
+<p>
+Tarkistus ei muuta mitään. Lausekävely pysähtyy kysymykseen ennen kuin se siirtää paikkaansa tai
+tulostaa mitään, joten ajaminen ja ajamatta jättäminen jättävät täsmälleen saman tilan. Ehto on
+alkuperäisessä turha, ja minun testini vain väitti kattavansa sen.
+</p>
+
+<p>
+Poistin molemmat. Testi joka ei voi kaatua on pahempi kuin ei testiä, koska se raportoi
+turvaa jota ei ole, ja tämän huomaa vain rikkomalla koodin tarkoituksella.
+</p>
+
+<h2>Hahmo 81 on huonokuuloinen</h2>
+
+<p>
+Korpustesti ajaa jokaisen 199 skriptin kokonaisena keskusteluna. Pelaaja sanoo aina "bye" ja
+painaa näppäimiä kierrättäen niitä joita kehotteet hyväksyvät. Ensimmäisellä ajolla testi kaatui
+muistin loppumiseen.
+</p>
+
+<p>
+Syy löytyi yhdestä hahmosta. Kysymyksen jälkeen on arpa:
+</p>
+
+<pre><code>F7            kysy
+IF RND(0,2)
+    "Eh? Speak up!"
+    GOTO 93      &lt;- kysymys on tavussa 94
+ENDIF
+EF "heal" ...</code></pre>
+
+<p>
+Hahmo ei siis aina kuule mitä sanot, ja osumalla se pyytää toistamaan. Testini maailmatupla
+arpoi joka kerta saman luvun, joten se ei kuullut koskaan, ja keskustelu jatkui ikuisesti.
+</p>
+
+<p>
+Korjaus testiin oli kaksiosainen. Arpa nollaksi, ja rajat molempiin päihin: kuinka monta
+vastausta skripti saa pyytää ja kuinka paljon se saa puhua. Nyt päättymätön keskustelu on
+<em>laskettu tulos</em> eikä kaatuminen. Se on minusta tärkeä ero, koska kaatuminen kertoo vain
+että jotain meni pieleen, kun laskettu tulos kertoo mitä.
+</p>
+
+<p>
+Hyppy ansaitsee oman huomionsa. Sen kohde on tavu 93, eli <strong>kysymystä edeltävä
+tavu</strong>, keskellä sitä mitä jäsennin pitäisi yhtenä tekstipätkänä. Päätin aiemmin viedä
+skriptit tavukoodina juuri siltä varalta että jokin hyppää noin. Tässä se on.
+</p>
+
+<h2>Pieniä sääntöjä jotka olisi helppo kirjoittaa auki väärin</h2>
+
+<p>
+<code>look</code> on ainoa sana jonka moottori vastaa itse. Se ei ole avainsana, joten skripti ei
+voi julistaa sitä, eikä hahmolta voi koskaan kysyä sanasta "look".
+</p>
+
+<p>
+Numeron jäsennyksessä mikä tahansa muu merkki kuin numero hylkää koko rivin. Ei etumerkkiä, ei
+välilyöntien sietoa, ei ylivuototarkistusta: kerääminen on 16-bittistä, joten "40000" antaa
+negatiivisen luvun. Se on ainoa tapa saada negatiivinen luku sisään.
+</p>
+
+<p>
+Numeronäppäintä kysyttäessä rivinvaihto ja escape antavat kumpikin nollan. Numeroidusta
+valikosta ei siis pääse pois kieltäytymällä valitsemasta, vain valitsemalla sen mitä nolla
+sattuu olemaan.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>198  keskustelua alkoi, kesti ja paattyi
+  1  osuu toteuttamattomaan kaskyyn
+  0  ajautuu ulos skriptista
+  0  jaa paattymatta
+211  vastausta yhteensa</code></pre>
+
+<p>
+211 vastausta 198 keskusteluun tarkoittaa että "bye" riittää useimmille ensimmäisellä
+yrityksellä ja kolmetoista kysyy jotain muuta ensin.
+</p>
+
+<p>
+Yhden naulatun luvun korjasin jälkikäteen, koska olin arvannut sen mittaamatta. Testi kaatui ja
+oli oikeassa.
+</p>
+
+<pre><code>U6Engine.Tests   417 / 417   ilman Unitya
+U6Formats.Tests  266 / 266
+U6Export.Tests    38 / 38</code></pre>
+
+<h2>Yksi puute on nyt yksiselitteinen</h2>
+
+<p>
+Tekstimuuttujan tulostus. 53 vastausta ja yksi aloitusosa osuu siihen, ja se on ainoa syy miksi
+yksi 199 keskustelusta ei ala lainkaan. Osoitekävely jota se tarvitsee on jo olemassa.
+</p>
+
+<p>
+Sen jälkeen jäljellä on yksi oikea arkkitehtuuripäätös: 35 vastausta kirjoittaa skriptin
+sisäiseen taulukkoon, eli alkuperäiselle skripti on muokattavaa työmuistia. Minulle se on
+toistaiseksi vain luettavia tavuja.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Tekstimuuttujan tulostus, ja sen jälkeen kirjoitus skriptin sisäiseen taulukkoon. Kun ne
+     on tehty, keskustelumoottorissa ei heitä enää mikään poikkeusta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
