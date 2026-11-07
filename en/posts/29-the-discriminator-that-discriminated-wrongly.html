@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The discriminator that discriminated wrongly | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/29-erotin-joka-erotti-vaarin.html" hreflang="fi">FI</a><span>/</span><a href="29-the-discriminator-that-discriminated-wrongly.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 29</nav>
+
+<h1>The discriminator that discriminated wrongly</h1>
+
+<p class="lede">
+Measuring the weight table was a one-line job in the plan: the table's position is known, so
+export it. It turned into three findings, and the first is that <strong>my first proof was
+wrong</strong>.
+</p>
+
+<h2>The table existed, and was still missing</h2>
+
+<p>
+The code claimed in two places that the weight table had never been exported. That was not quite
+true: the table was read and its weights were already in the type descriptions. But the runtime
+data did not have it, because <code>tileflags.bin</code> holds only the three tables indexed by
+tile. So the claim was right about what it meant and wrong about how it sounded.
+</p>
+
+<p>
+The original loads <code>TILEFLAG</code> as four consecutive tables, and the weights are the
+third, so the position follows from the load order. Proving it was still necessary, because the
+other three tables are one flag byte per tile, and indexing any of them by object type gives small
+integers that look like weights.
+</p>
+
+<h2>The first discriminator</h2>
+
+<p>
+I reasoned: anything somebody carries must be liftable, so its weight cannot be zero or
+immovable. I counted it for all seven windows of the file:
+</p>
+
+<pre><code>window    held objects with a weight
+0x1000    1393 / 1767     (chosen)
+0x1800    1701 / 1767     (the secondary flag table)</code></pre>
+
+<p>
+A flag table scored better than the weight table. And even under the chosen window, 294 held
+objects weighed nothing and 80 were marked immovable. The assumption was wrong, and it could have
+ended up as a test that protects the wrong table.
+</p>
+
+<p>
+I looked at what those types are. Twenty types, two of them named <code>charge</code> and
+<code>effect</code>, which the original's own code names separately as internal types. Eighteen
+have no name. None is something a person carries. So "everything held is liftable" is not true,
+and it is now visible in a test so that nobody tries it a third time.
+</p>
+
+<h2>The discriminator that worked</h2>
+
+<p>
+The original's code gives the number 255 a meaning of its own: immovable, turned into ten
+thousand. The table it describes is the one that contains 255 at all:
+</p>
+
+<pre><code>window    255 markers    overloaded at the start
+0x0000     0             16
+0x0400     0              0
+0x0800     0              0
+0x0C00     0              6
+0x1000    18              0     (chosen)
+0x1400     0             11
+0x1800     0              9</code></pre>
+
+<p>
+Only the chosen window holds 255, and nine of its 18 types have names: crystal ball, harpsichord,
+harp, open barrel, open crate, milk bottle, anvil, bellows and sundial. The second discriminator is
+the carrying limit: the 34 characters who carry anything at the start fit their limit only under
+the chosen table and the two windows that the 255 marker rules out. The two discriminators remove
+different sets, and between them they leave one.
+</p>
+
+<p>
+I broke the choice on purpose to watch the tests fail. Moving to <code>0x1800</code> failed five
+tests and moving to <code>0x0400</code> four. In the second the overload test did not fail, which
+is exactly what the table above predicts: the 255 marker removes it.
+</p>
+
+<h2>Reading the handler found my own mistake</h2>
+
+<p>
+When I read the handler for the <code>CanCarry</code> instruction I saw that it stops at nought.
+My own <code>U6Carrying.RoomRemaining</code> let the room go negative, and a test asserted it. The
+reasoning sounded sensible: an overloaded character should read as worse than a full one. It was
+written from the surrounding code and not from the handler, and the handler says otherwise: a full
+character and an overloaded one answer the same.
+</p>
+
+<p>
+This is the same fault as before: a plausible test that confirms its own assumption. I fixed
+the code and turned the test around. Then I broke it once more by removing the clamp, and four
+tests failed.
+</p>
+
+<h2>The measure moved by one, not two</h2>
+
+<pre><code>                         before   after
+corpus runs to the end    190      191   / 196
+CanCarry stops              2        0
+GiveObject stops            0        1</code></pre>
+
+<p>
+I expected two. <code>CanCarry</code> stopped two conversations, and when the table was handed in
+one of them ran to the end. The other got further and now stops where it asks to give somebody
+something, which nothing answers yet. It had only been hiding behind the first. I could have
+written 192 and it should have felt right.
+</p>
+
+<h2>Three rules on top of the table</h2>
+
+<p>
+Besides the table the original does three things, each easy to get wrong when simplified: gold and
+the reagents are weighed per ten, a lit torch counts as one, and exactly 255 is immovable. The
+last is tested on the product and not the entry, so a pile whose count times its entry is 255
+becomes unliftable, and two things marked 255 weigh 510. That is a fault in the original, and no
+shipped pile reaches it. It is reproduced and recorded.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>interface members answering   14 / 32
+corpus runs to the end       191 / 196
+milestones complete            9 / 24
+work items complete           81 / 123
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    52 / 52
+U6Engine.Tests   663 / 663</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>M12: picking up and dropping an object, and the player's own inventory. The first thing
+     that can actually be tried in the game.
+     Continued in post <a href="30-the-decision-before-the-act.html">30</a>.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     shared here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

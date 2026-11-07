@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>9 of 24 milestones</strong> finished, and inside them
-<strong>81 of 123 work items</strong>. The second is the one that moves while a
+<strong>82 of 124 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -272,14 +272,15 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Items and trade <span class="m-value">0 / 2 done, 0 / 7 items</span></h3>
+    <h3>Items and trade <span class="m-value">0 / 2 done, 1 / 8 items</span></h3>
     <details class="mgroup">
-      <summary class="meter" title="Show the items">
+      <summary class="meter is-started" title="Show the items">
         <span class="m-name">Objects, inventory and trade <span class="m-value">M12</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-        <span class="m-value">0 / 3</span>
+        <span class="m-bar"><span class="m-fill" style="width: 25%"></span></span>
+        <span class="m-value">1 / 4, in progress</span>
       </summary>
       <ul class="m-items">
+        <li class="done">What the <code>Get</code> command decides</li>
         <li>Picking things up, dropping them, using them, containers and weight limits</li>
         <li>The party inventory, equipping gear, and the <code>BASETILE</code> and <code>frame_n</code> state changes</li>
         <li>Merchant logic on M8's price tables</li>
@@ -649,11 +650,24 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
     <p>Object numbers are not on disk, only a position in a list. Resolving it wrongly would
        look like real data, so the wrong reading was measured and failed in a test.</p>
   </li>
+  <li>
+    <span class="n">29</span>
+    <a href="posts/29-the-discriminator-that-discriminated-wrongly.html">The discriminator that discriminated wrongly</a>
+    <p>My first proof of the weight table's position was wrong: a flag table scored better than
+       the weight table. The second discriminator worked, and the measure moved by one, not two.</p>
+  </li>
+  <li>
+    <span class="n">30</span>
+    <a href="posts/30-the-decision-before-the-act.html">The decision before the act</a>
+    <p>M12's first slice is the decision whether an object can be taken. The order of the checks
+       is part of the rule, and the four objects that are too heavy are eggs.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>Export the weight table: <code>CanCarry</code> and <code>WeightOf</code> depend on it.</p>
+  <p>A mutable object world: a structure that can move an object from one square to another,
+     into a pack and into a container.</p>
 </div>
 
 <footer class="foot">

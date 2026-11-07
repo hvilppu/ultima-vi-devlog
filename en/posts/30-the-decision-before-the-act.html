@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The decision before the act | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/30-paatos-ennen-tekoa.html" hreflang="fi">FI</a><span>/</span><a href="30-the-decision-before-the-act.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 30</nav>
+
+<h1>The decision before the act</h1>
+
+<p class="lede">
+M12 is three days in the plan: picking up, dropping, using, containers, equipment and trade. A
+piece of it cannot be taken without thinking about which piece can be measured without Unity. I
+chose the <strong>decision</strong>: whether an object can be taken. It moves nothing.
+</p>
+
+<h2>What is the decision and what is the act</h2>
+
+<p>
+The original's <code>Get</code> command does two different things in a row. First it decides
+whether the target can be taken. Then it acts: spends movement points, merges into a pile, douses a
+candle, closes a chest, deflates a balloon. The acts change the world, and there is no place for
+that yet: the object list is read-only. The decision is a pure function that can be tested
+completely without a world.
+</p>
+
+<p>
+Before building I asked how much to do, because a three day milestone does not fit one slice. The
+answer was: just the decision and its tests, no changes to the world, and stealing left out
+because there is no karma yet. It is recorded as open and not left unnoticed.
+</p>
+
+<h2>The order is part of the rule</h2>
+
+<pre><code>1  no target, or it is inside something   nothing there
+2  more than one square away              out of reach
+3  the object's own tile hurts            hurts
+4  weight 0, weight &gt;= 10000, a dragon    cannot be taken
+5  load + weight &gt; 20 * strength          too heavy
+6  otherwise                              taken</code></pre>
+
+<p>
+A far fire field is out of reach and not dangerous, because distance is tested first. Something hot
+and immovable hurts, because the tile is tested before the weight. Something immovable is never
+"too heavy", because the refusal comes before the limit. Each is a test, and I broke the order on
+purpose in two ways to watch the tests fail.
+</p>
+
+<h2>The tile comes from two numbers</h2>
+
+<p>
+What is an object's tile? The original computes it from the type's base tile plus the object's
+frame. The wrong readings are easy: the base tile alone, or the type number as a tile. I measured
+all three over the 15071 objects on the map:
+</p>
+
+<pre><code>reading                   hurting
+base tile + frame         683   (chosen)
+base tile alone           660
+type number as a tile     143</code></pre>
+
+<p>
+The gap between 683 and 660 is 23 objects whose tile only becomes dangerous with the frame. It is
+small, but the tests fail under both wrong readings. The hurting types are webs, spikes, fields of
+fire, poison, sleep and force, traps, a log saw and a volcano, so plausible ones, and three of the
+types have no name.
+</p>
+
+<h2>Four eggs</h2>
+
+<p>
+A character of strength 30, carrying nothing, stood on each object in turn:
+</p>
+
+<pre><code>cannot be taken    11070
+hurts                683
+can be taken        3314
+too heavy              4</code></pre>
+
+<p>
+The four that are too heavy are not anything heavy but eggs. An egg weighs nothing, but it has
+things inside, and a weightless container is taken with the weight of what it holds. The contents
+weigh 70&ndash;80 stones and strength 30 carries 60. The original tests the total, with the
+consequence that an empty weightless container is refused and a full one can be taken. It is in
+the tests both as a constructed case and as this number.
+</p>
+
+<h2>What is not measured</h2>
+
+<p>
+No torch is burning at the start: all 42 are in frame nought. The torch's other two branches are
+therefore unreachable in the shipped data and are pinned only by constructed cases. One of them is
+odd: a torch in any other frame is neither stackable nor lit, the original's two tests skip it, and
+it goes into the pack as an object of its own. Reproduced as it stands.
+</p>
+
+<h2>177 tests that skipped themselves</h2>
+
+<p>
+Alongside this batch something bigger turned up than anything above. I have been reporting for a
+while that the Unity test count was stale and had to be read from the editor's Test Runner. When
+it finally was, it said <strong>532 passed, none failed</strong>.
+</p>
+
+<p>
+A clean run. And a wrong one, because the assembly holds <strong>709</strong> tests.
+</p>
+
+<pre><code>testcasecount   709
+total           532
+skipped         177</code></pre>
+
+<p>
+Every test that needs the real exported data had skipped itself with
+<code>Assert.Ignore</code>, which is exactly the set of tests that compare the code against the
+game's own files. The run that looked clean was the quarter that never touches the data.
+</p>
+
+<p>
+The cause is depressingly ordinary. The exported data was found by walking up the directory tree
+from <code>AppContext.BaseDirectory</code>. From the command line that sits inside the project
+and finds it. In the Unity editor it is <strong>the editor's own installation directory</strong>,
+which has no project above it and no data. The search now tries three starting points.
+</p>
+
+<p>
+<strong>The lesson is not that the search was wrong.</strong> It is that <em>a skipped test
+reports as a pass if you only look at passes</em>. 532 of 532 is true and meaningless. The signal
+that catches this is <code>testcasecount</code> against <code>total</code>, and that is not the
+same thing as "none failed".
+</p>
+
+<p>
+Nor do I know when it started. The plan records an earlier Unity count of 428 broken down exactly
+into its parts, so nothing was skipping itself then. Why the search worked then and stopped now
+is unresolved. The fix does not depend on knowing, because it tries all three starting points,
+but I would rather say so than invent a cause.
+</p>
+
+<p>
+The count is now <strong>709 of 709 with nothing skipped</strong>, and it is the first number
+from the Unity side that can be leaned on.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>interface members answering   14 / 32
+corpus runs to the end       191 / 196
+milestones complete            9 / 24
+work items complete           82 / 124
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    52 / 52
+U6Engine.Tests   698 / 698
+Unity EditMode   709 / 709   (nothing skipped)</code></pre>
+
+<p>
+M12's completion criterion is that objects can be moved, equipped and traded, so the milestone is
+not done. The measure did not move and was not meant to: the decision does not change what a
+conversation asks.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>A mutable object world: a structure that can move an object from one square to another, into a
+     pack and into a container, and keep every lookup consistent. The decision is ready for it.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     shared here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

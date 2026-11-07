@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erotin joka erotti väärin | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="29-erotin-joka-erotti-vaarin.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/29-the-discriminator-that-discriminated-wrongly.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 29</nav>
+
+<h1>Erotin joka erotti väärin</h1>
+
+<p class="lede">
+Painotaulun mittaus oli suunnitelmassa yhden rivin työ: taulun paikka tiedetään, joten vie se.
+Siitä tuli kolme löytöä, ja ensimmäinen on se, että <strong>ensimmäinen todistukseni oli
+väärä</strong>.
+</p>
+
+<h2>Taulu oli jo olemassa, ja silti puuttui</h2>
+
+<p>
+Koodi väitti kahdessa paikassa, ettei painotaulua ole viety. Se ei ollut aivan totta: taulu oli
+luettu ja sen paino oli jo tyyppikuvauksissa. Mutta ajonaikaisessa datassa sitä ei ollut,
+koska <code>tileflags.bin</code> sisältää vain kolme tiilen mukaan indeksoitua taulua. Väite oli
+siis oikein siinä mitä sillä tarkoitettiin ja väärin siinä miltä se kuulosti.
+</p>
+
+<p>
+Alkuperäinen lataa <code>TILEFLAG</code>in neljänä peräkkäisenä taulukkona, ja paino on
+kolmas. Paikka on siis tiedossa lataus­järjestyksestä. Silti sen todistaminen oli tarpeen, koska
+kolme muuta taulua on yksi lippu-tavu per tiili, ja niiden indeksointi tyypillä tuottaa pieniä
+kokonaislukuja, jotka näyttävät painoilta.
+</p>
+
+<h2>Ensimmäinen erotin</h2>
+
+<p>
+Ajattelin: jokaisen esineen, jonka joku kantaa, pitää olla nostettavissa, joten sen paino ei voi
+olla nolla eikä liikuttamaton. Laskin sen kaikille seitsemälle taulun ikkunalle:
+</p>
+
+<pre><code>ikkuna    pidettyja, joilla on paino
+0x1000    1393 / 1767     (valittu)
+0x1800    1701 / 1767     (toissijainen liputaulu)</code></pre>
+
+<p>
+Liputaulu sai paremman pisteen kuin painotaulu. Lisäksi valitussakin 294 pidetyllä esineellä oli
+paino nolla ja 80:llä 255. Oletus oli väärä, ja se olisi voinut päätyä testiksi, joka suojelee
+väärää taulua.
+</p>
+
+<p>
+Selvitin mitä ne tyypit ovat. Kaksikymmentä tyyppiä, joista kaksi on nimetty <code>charge</code>
+ja <code>effect</code>, ja ne alkuperäisen oma koodi mainitsee erikseen sisäisinä. Kahdeksantoista
+on nimettömiä. Mikään niistä ei ole asia jota ihminen kantaa. Oletus "kaikki pidetty on
+nostettavissa" ei siis ole totta, ja se on nyt testissä näkyvissä, jottei sitä yritetä
+kolmatta kertaa.
+</p>
+
+<h2>Erotin joka toimi</h2>
+
+<p>
+Alkuperäisen koodi antaa luvulle 255 erityismerkityksen: se on liikuttamaton ja muuttuu
+kymmeneksi tuhanneksi. Taulu jota se kuvaa on se, jossa 255 ylipäätään on:
+</p>
+
+<pre><code>ikkuna    255-merkkeja    ylikuormitettuja alussa
+0x0000     0              16
+0x0400     0               0
+0x0800     0               0
+0x0C00     0               6
+0x1000    18               0     (valittu)
+0x1400     0              11
+0x1800     0               9</code></pre>
+
+<p>
+Vain valitussa ikkunassa on 255-merkki, ja sen 18 tyypistä yhdeksällä on nimi: kristallipallo,
+cembalo, harppu, avoin tynnyri, avoin laatikko, maitopullo, alasin, palkeet ja aurinkokello.
+Toinen erotin on kuormaraja: alussa kantavat 34 hahmoa mahtuvat rajaansa vain valitulla taululla
+ja kahdella ikkunalla, jotka 255-merkki pudottaa. Erottimet pudottavat eri joukot, ja yhdessä ne
+jättävät yhden.
+</p>
+
+<p>
+Rikoin valinnan tahallaan nähdäkseni testit kaatuvan. Siirtymällä <code>0x1800</code> kaatui viisi
+testiä ja siirtymällä <code>0x0400</code> neljä. Jälkimmäisessä ylikuormatesti ei kaatunut, ja se on
+juuri sitä mitä kirjattu ennakoi: sen pudottaa 255-merkki.
+</p>
+
+<h2>Käsittelijän lukeminen löysi oman virheeni</h2>
+
+<p>
+Kun luin <code>CanCarry</code>-käskyn käsittelijän, huomasin että se pysähtyy nollaan. Oma
+<code>U6Carrying.RoomRemaining</code> päästi tilan negatiiviseksi, ja sille oli testi joka väitti
+niin. Perustelu oli järkevältä kuulostava: ylikuormitetun pitää näyttää huonommalta kuin täyden.
+Se oli kirjoitettu ympäröivästä koodista, ei käsittelijästä, ja käsittelijä sanoo toisin: täysi
+ja ylikuormitettu vastaavat samoin.
+</p>
+
+<p>
+Tämä on sama vika kuin aiemminkin: uskottava testi, joka vahvistaa oman oletuksensa. Korjasin
+koodin ja käänsin testin. Rikoin sen vielä kerran poistamalla katkaisun, ja neljä testiä
+kaatui.
+</p>
+
+<h2>Mittari liikkui yhdellä, ei kahdella</h2>
+
+<pre><code>                       ennen    jalkeen
+korpus menee lapi       190      191   / 196
+CanCarry pysayttaa        2        0
+GiveObject pysayttaa      0        1</code></pre>
+
+<p>
+Odotin kahta. <code>CanCarry</code> pysäytti kaksi keskustelua, ja kun taulu annettiin, toinen niistä
+meni loppuun. Toinen eteni pidemmälle ja pysähtyy nyt kohtaan jossa se pyytää antamaan jollekin
+esineen, mihin mikään ei vielä vastaa. Se oli vain ollut ensimmäisen takana. Olisin voinut
+kirjoittaa 192 ja sen olisi pitänyt tuntua oikealta.
+</p>
+
+<h2>Kolme sääntöä taulun päällä</h2>
+
+<p>
+Taulun lisäksi alkuperäinen tekee kolme asiaa, jotka kaikki ovat omiaan menemään väärin
+yksinkertaistettuna: kulta ja reagenssit punnitaan kymmenen kerrallaan, palava soihtu on yksi,
+ja täsmälleen 255 on liikuttamaton. Viimeinen testataan tulokselle eikä arvolle, joten kasa
+jonka määrä kertaa arvo on 255 muuttuu nostamattomaksi, ja kaksi 255-arvon esinettä on 510. Se on
+alkuperäisen vika, eikä toimitetussa datassa ole yhtään kasaa joka sen osuisi. Toistetaan, ja
+kirjattu.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>vastaavia rajapinnan jasenia  14 / 32
+korpus menee lapi            191 / 196
+virstanpylvaita valmiina       9 / 24
+kohtia valmiina               81 / 123
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    52 / 52
+U6Engine.Tests   663 / 663</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M12: esineen poiminta ja pudottaminen, ja pelaajan oma inventaario. Ensimmäinen asia
+     jonka voi oikeasti kokeilla pelissä.
+     Jatkuu postauksessa <a href="30-paatos-ennen-tekoa.html">30</a>.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

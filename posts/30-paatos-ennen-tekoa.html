@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Päätös ennen tekoa | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="30-paatos-ennen-tekoa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/30-the-decision-before-the-act.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 30</nav>
+
+<h1>Päätös ennen tekoa</h1>
+
+<p class="lede">
+M12 on suunnitelmassa kolme päivää: poiminta, pudotus, käyttö, säiliöt, varusteet ja kauppa. Siitä
+ei voi ottaa yhtä palaa ajattelematta, mikä pala on mitattavissa ilman Unityä. Valitsin
+<strong>päätöksen</strong>: sen, voiko esineen ottaa. Se ei siirrä mitään.
+</p>
+
+<h2>Mikä on päätös ja mikä teko</h2>
+
+<p>
+Alkuperäinen <code>Get</code>-komento tekee kaksi eri asiaa peräkkäin. Ensin se päättää, voiko
+kohteen ottaa. Sitten se tekee: maksaa liikepisteitä, liittää kasaan, sammuttaa kynttilän, sulkee
+arkun, tyhjentää ilmapallon. Jälkimmäiset muuttavat maailmaa, ja siihen ei ole vielä paikkaa:
+objektiluettelo on vain luettava. Päätös taas on puhdas funktio, jonka voi testata
+täydellisesti ilman maailmaa.
+</p>
+
+<p>
+Kysyin ennen rakentamista kuinka paljon tehdään, koska kolmen päivän osa ei sovi yhteen
+viipaleeseen. Vastaus oli: pelkkä päätös ja testit, ei muutoksia maailmaan, ja varastaminen pois
+koska karmaa ei ole. Se on kirjattu avoimeksi eikä jätetty huomaamatta.
+</p>
+
+<h2>Järjestys on säännön osa</h2>
+
+<pre><code>1  ei kohdetta tai kohde on sailiossa     ei mitaan siina
+2  yli yhden ruudun paassa               ulottumattomissa
+3  esineen oma tiili satuttaa            satuttaa
+4  paino 0, paino &gt;= 10000, lohikaarme    ei voi ottaa
+5  kuorma + paino &gt; 20 * voima           liian raskas
+6  muuten                                otettu</code></pre>
+
+<p>
+Kaukainen tulikenttä on ulottumattomissa eikä vaarallinen, koska etäisyys testataan ensin. Satuttava
+ja liikuttamaton satuttaa, koska tiili testataan ennen painoa. Liikuttamaton ei ole koskaan "liian
+raskas", koska kielto tulee ennen rajaa. Jokainen näistä on testi, ja rikoin järjestyksen
+tahallaan kahdella tavalla nähdäkseni testin kaatuvan.
+</p>
+
+<h2>Tiili tulee kahdesta luvusta</h2>
+
+<p>
+Mikä on esineen tiili? Alkuperäinen laskee sen tyypin perusiilestä plus esineen kehyksestä. Väärät
+lukutavat ovat helppoja: pelkkä perusiili tai tyyppinumero tiilenä. Mittasin kaikki kolme kaikille
+15071 kartalla olevalle objektille:
+</p>
+
+<pre><code>lukutapa                  satuttavia
+perusiili + kehys         683   (valittu)
+pelkka perusiili          660
+tyyppinumero tiilena      143</code></pre>
+
+<p>
+Erotus 683 ja 660 välillä on 23 objektia, joiden tiili vaihtuu vaaralliseksi vasta kehyksellä. Se
+on pieni, mutta testi kaatuu kummassakin väärässä lukutavassa. Satuttavat tyypit ovat verkko,
+piikit, tulikenttä, myrkkykenttä, unikenttä, voimakenttä, ansa, pyörösaha ja tulivuori, eli
+uskottavia, ja kolmella tyypillä ei ole nimeä.
+</p>
+
+<h2>Neljä munaa</h2>
+
+<p>
+Hahmo jonka voima on 30 ja joka ei kanna mitään seisoi jokaisen objektin päällä:
+</p>
+
+<pre><code>ei voi ottaa    11070
+satuttaa           683
+otettavissa       3314
+liian raskas          4</code></pre>
+
+<p>
+Neljä liian raskasta eivät ole mitään raskasta, vaan munia. Muna ei paina mitään, mutta sen sisällä
+on tavaraa, ja painoton säiliö otetaan sisältönsä painolla. Sisältö painaa 70&ndash;80 kiveä ja voima
+30 kantaa 60. Alkuperäinen laskee kokonaispainon, ja sen seuraus on että tyhjä painoton säiliö on
+kielletty ja täysi on otettavissa. Se on testissä sekä rakennettuna tapauksena että tässä lukuna.
+</p>
+
+<h2>Mikä ei ole mitattu</h2>
+
+<p>
+Palavia soihtuja ei ole alussa yhtään: kaikki 42 ovat kehyksessä nolla. Soihdun kaksi muuta haaraa
+ovat siis saavuttamattomia toimitetussa datassa, ja ne on kiinnitetty vain rakennetuilla
+tapauksilla. Yksi niistä on omituinen: soihtu muussa kehyksessä ei ole pinoutuva eikä palava, ja
+alkuperäisen kaksi testiä jättävät sen väliin, joten se menee reppuun omana esineenään. Toistetaan
+sellaisenaan.
+</p>
+
+<h2>177 testiä jotka ohittivat itsensä</h2>
+
+<p>
+Tämän erän ohessa löytyi jotain isompaa kuin mikään yllä. Olen pitkään raportoinut että Unityn
+testiluku on vanhentunut ja että se on kysyttävä editorin Test Runnerista. Kun se lopulta
+katsottiin, siellä luki <strong>532 läpi, nolla kaatunutta</strong>.
+</p>
+
+<p>
+Puhdas ajo. Ja väärä, koska kokoelmassa on <strong>709</strong> testiä.
+</p>
+
+<pre><code>testcasecount   709
+total           532
+ohitettu        177</code></pre>
+
+<p>
+Jokainen oikeaa vietyä dataa tarvitseva testi ohitti itsensä <code>Assert.Ignore</code>lla, eli
+tasan ne testit jotka vertaavat koodia pelin omiin tiedostoihin. Puhtaalta näyttävä ajo koostui
+siitä neljänneksestä joka ei koske dataan.
+</p>
+
+<p>
+Syy on ikävän tavallinen. Vietyä dataa etsittiin kulkemalla hakemistopuuta ylöspäin kansiosta
+<code>AppContext.BaseDirectory</code>. Komentoriviltä se on projektin sisällä ja löytää datan.
+Unityn editorissa se on <strong>editorin oma asennuskansio</strong>, jonka yläpuolella ei ole
+projektia eikä dataa. Haku kokeilee nyt kolmea lähtöpistettä.
+</p>
+
+<p>
+<strong>Opetus ei ole se että haku oli väärin.</strong> Se on se, että <em>ohitettu testi
+raportoituu läpimenneeksi jos katsoo vain läpimenneitä</em>. Luku 532 / 532 on totta ja
+merkityksetön. Merkki jonka perusteella tämä huomataan on <code>testcasecount</code> verrattuna
+<code>total</code>iin, eikä se ole sama asia kuin "nolla kaatunutta".
+</p>
+
+<p>
+Enkä tiedä milloin tämä alkoi. Suunnitelmaan on kirjattu aiempi Unity-luku 428, ja se on laskettu
+tarkasti osiinsa, joten silloin mikään ei ohittanut itseään. Miksi haku toimi silloin ja lakkasi
+nyt, on selvittämättä. Korjaus ei riipu siitä, koska se kokeilee kaikkia kolmea lähtöpistettä,
+mutta sanon sen ääneen ennemmin kuin keksin syyn.
+</p>
+
+<p>
+Luku on nyt <strong>709 / 709 ilman ohituksia</strong>, ja se on ensimmäinen kerta kun Unityn
+puolelta on nähty luku johon voi nojata.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>vastaavia rajapinnan jasenia  14 / 32
+korpus menee lapi            191 / 196
+virstanpylvaita valmiina       9 / 24
+kohtia valmiina               82 / 124
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    52 / 52
+U6Engine.Tests   698 / 698
+Unity EditMode   709 / 709   (ei yhtaan ohitettua)</code></pre>
+
+<p>
+M12:n valmiuskriteeri on että esineitä voi siirtää, varustaa ja ostaa, joten milestone ei ole
+valmis. Mittari ei liikkunut, ja sen ei pitänyt, koska päätös ei muuta sitä mitä keskustelu kysyy.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Muutettava objektimaailma: rakenne joka voi siirtää esineen ruudusta toiseen, reppuun ja
+     säiliöön ja pitää kaikki haut yhdenmukaisina. Päätös on valmiina sen päälle.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
