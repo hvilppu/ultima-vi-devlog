@@ -34,74 +34,176 @@ ainoa seuraamisen arvoinen asia on se, mikä oikeasti toimii.
 
 <h2>Tilanne</h2>
 
+<!-- progress:start -->
 <p>
-Palkit laskevat <strong>valmiita virstanpylväitä</strong> suunnitelmasta, eivät tuntumaa.
-Virstanpylväs lasketaan vasta kun suunnitelma sanoo sen valmiiksi, joten kesken oleva näkyy
-nollana ja huomautuksena. Yhteensä 9 / 24.
+Palkit on <strong>johdettu suunnitelmasta</strong> eikä kirjoitettu käsin, koska käsin pidetty
+taulu eroaa ennen pitkää siitä mitä se väittää lukevansa. Kaksi lukua, ja ne mittaavat eri
+asioita: <strong>9 / 24 virstanpylvästä</strong> valmiina, ja niiden sisällä
+<strong>76 / 121 työkohtaa</strong>. Jälkimmäinen on se joka liikkuu kesken
+virstanpylvään.
 </p>
 
 <div class="meters">
-  <div class="meter is-done">
-    <span class="m-name">Perusta ja työkalut <span class="m-value">M0</span></span>
-    <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-    <span class="m-value">1 / 1</span>
+  <div class="area">
+    <h3>Perusta ja työkalut <span class="m-value">1 / 1 valmista, 4 / 4 kohtaa</span></h3>
+    <div class="meter is-done">
+      <span class="m-name">Perusta <span class="m-value">M0</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+      <span class="m-value">4 / 4</span>
+    </div>
   </div>
-  <div class="meter">
-    <span class="m-name">Datan purku <span class="m-value">M1-M6</span></span>
-    <span class="m-bar"><span class="m-fill" style="width: 83%"></span></span>
-    <span class="m-value">5 / 6, M3 kesken: .SHP-framet</span>
+  <div class="area">
+    <h3>Datan purku <span class="m-value">5 / 6 valmista, 23 / 24 kohtaa</span></h3>
+    <div class="meter is-done">
+      <span class="m-name">Pakkaus ja paletit <span class="m-value">M1</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+      <span class="m-value">2 / 2</span>
+    </div>
+    <div class="meter is-done">
+      <span class="m-name">Tiiligrafiikka <span class="m-value">M2</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+      <span class="m-value">4 / 4</span>
+    </div>
+    <div class="meter is-started">
+      <span class="m-name">Shapet, portretit, fontti <span class="m-value">M3</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 75%"></span></span>
+      <span class="m-value">3 / 4, osittain</span>
+    </div>
+    <div class="meter is-done">
+      <span class="m-name">Maailma <span class="m-value">M4</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+      <span class="m-value">4 / 4</span>
+    </div>
+    <div class="meter is-done">
+      <span class="m-name">Objektit ja objektityypit <span class="m-value">M5</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+      <span class="m-value">7 / 7</span>
+    </div>
+    <div class="meter is-done">
+      <span class="m-name">Keskustelut, aikataulut ja tekstit <span class="m-value">M6</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+      <span class="m-value">3 / 3</span>
+    </div>
   </div>
-  <div class="meter">
-    <span class="m-name">Sääntöjen louhinta <span class="m-value">M7-M9</span></span>
-    <span class="m-bar"><span class="m-fill" style="width: 33%"></span></span>
-    <span class="m-value">1 / 3, M8 käynnissä</span>
+  <div class="area">
+    <h3>Sääntöjen louhinta <span class="m-value">1 / 3 valmista, 14 / 21 kohtaa</span></h3>
+    <div class="meter is-done">
+      <span class="m-name">Referenssilähteen pystytys <span class="m-value">M7</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+      <span class="m-value">4 / 4</span>
+    </div>
+    <div class="meter is-started">
+      <span class="m-name">Sääntöjen louhinta <span class="m-value">M8</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 67%"></span></span>
+      <span class="m-value">10 / 15, käynnissä</span>
+    </div>
+    <div class="meter">
+      <span class="m-name">Ääni <span class="m-value">M9</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+      <span class="m-value">0 / 2</span>
+    </div>
   </div>
-  <div class="meter is-done">
-    <span class="m-name">Maailma ja liikkuminen <span class="m-value">M10-M11</span></span>
-    <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-    <span class="m-value">2 / 2</span>
+  <div class="area">
+    <h3>Maailma ja liikkuminen <span class="m-value">2 / 2 valmista, 20 / 20 kohtaa</span></h3>
+    <div class="meter is-done">
+      <span class="m-name">Unity-integraatio ja renderöinti <span class="m-value">M10</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+      <span class="m-value">17 / 17</span>
+    </div>
+    <div class="meter is-done">
+      <span class="m-name">Maailmamalli ja liikkuminen <span class="m-value">M11</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+      <span class="m-value">3 / 3</span>
+    </div>
   </div>
-  <div class="meter">
-    <span class="m-name">Hahmot ja keskustelu <span class="m-value">M15</span></span>
-    <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-    <span class="m-value">0 / 1, aloitettu</span>
+  <div class="area">
+    <h3>Hahmot ja keskustelu <span class="m-value">0 / 1 valmista, 15 / 18 kohtaa</span></h3>
+    <div class="meter is-started">
+      <span class="m-name">NPC:t, aikataulut ja keskustelut <span class="m-value">M15</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 83%"></span></span>
+      <span class="m-value">15 / 18, käynnissä</span>
+    </div>
   </div>
-  <div class="meter">
-    <span class="m-name">Esineet ja kauppa <span class="m-value">M12-M13</span></span>
-    <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-    <span class="m-value">0 / 2</span>
+  <div class="area">
+    <h3>Esineet ja kauppa <span class="m-value">0 / 2 valmista, 0 / 7 kohtaa</span></h3>
+    <div class="meter">
+      <span class="m-name">Objektit, inventaario ja kaupankäynti <span class="m-value">M12</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+      <span class="m-value">0 / 3</span>
+    </div>
+    <div class="meter">
+      <span class="m-name">Objektikohtainen käyttölogiikka <span class="m-value">M13</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+      <span class="m-value">0 / 4</span>
+    </div>
   </div>
-  <div class="meter">
-    <span class="m-name">Taistelu ja taikuus <span class="m-value">M14</span></span>
-    <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-    <span class="m-value">0 / 1</span>
+  <div class="area">
+    <h3>Taistelu ja taikuus <span class="m-value">0 / 1 valmista, 0 / 3 kohtaa</span></h3>
+    <div class="meter">
+      <span class="m-name">Taistelu ja taikuus <span class="m-value">M14</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+      <span class="m-value">0 / 3</span>
+    </div>
   </div>
-  <div class="meter">
-    <span class="m-name">Kulkuvälineet ja juoni <span class="m-value">M16-M17</span></span>
-    <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-    <span class="m-value">0 / 2</span>
+  <div class="area">
+    <h3>Kulkuvälineet ja juoni <span class="m-value">0 / 2 valmista, 0 / 7 kohtaa</span></h3>
+    <div class="meter">
+      <span class="m-name">Kulkuvälineet ja kuuportit <span class="m-value">M16</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+      <span class="m-value">0 / 3</span>
+    </div>
+    <div class="meter">
+      <span class="m-name">Juonen ja hahmon tila <span class="m-value">M17</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+      <span class="m-value">0 / 4</span>
+    </div>
   </div>
-  <div class="meter">
-    <span class="m-name">Tallennus ja lataus <span class="m-value">M18</span></span>
-    <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-    <span class="m-value">0 / 1</span>
+  <div class="area">
+    <h3>Tallennus ja lataus <span class="m-value">0 / 1 valmista, 0 / 2 kohtaa</span></h3>
+    <div class="meter">
+      <span class="m-name">Tallennus ja lataus <span class="m-value">M18</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+      <span class="m-value">0 / 2</span>
+    </div>
   </div>
-  <div class="meter">
-    <span class="m-name">UI ja esityskerros <span class="m-value">M19-M22</span></span>
-    <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-    <span class="m-value">0 / 4</span>
+  <div class="area">
+    <h3>UI ja esityskerros <span class="m-value">0 / 4 valmista, 0 / 12 kohtaa</span></h3>
+    <div class="meter">
+      <span class="m-name">Introanimaatio <span class="m-value">M19</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+      <span class="m-value">0 / 4</span>
+    </div>
+    <div class="meter">
+      <span class="m-name">Lopetuskohtaus <span class="m-value">M20</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+      <span class="m-value">0 / 1</span>
+    </div>
+    <div class="meter">
+      <span class="m-name">UI ja viimeistely <span class="m-value">M21</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+      <span class="m-value">0 / 4</span>
+    </div>
+    <div class="meter">
+      <span class="m-name">Paketointi ja ensikäynnistys <span class="m-value">M22</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+      <span class="m-value">0 / 3</span>
+    </div>
   </div>
-  <div class="meter">
-    <span class="m-name">Läpipeluu <span class="m-value">M23</span></span>
-    <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-    <span class="m-value">0 / 1</span>
+  <div class="area">
+    <h3>Läpipeluu <span class="m-value">0 / 1 valmista, 0 / 3 kohtaa</span></h3>
+    <div class="meter">
+      <span class="m-name">Läpipeluutesti <span class="m-value">M23</span></span>
+      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+      <span class="m-value">0 / 3</span>
+    </div>
   </div>
 </div>
 
 <p class="meters-note">
-Mitä nämä eivät kerro: montako päivää mikin vie, tai miltä peli näyttää. Arviot ovat olleet
-väärässä ennenkin, ja vaihe C kasvoi 19 päivästä 30:een kesken matkan.
+Mitä nämä eivät kerro: kauanko mikin vie, tai miltä peli näyttää. Arviot ovat olleet väärässä
+ennenkin, ja vaihe C kasvoi 19 päivästä 30:een kesken matkan.
 </p>
+<!-- progress:end -->
 
 <div class="board">
   <div class="stat"><span class="v">935</span><span class="k">testiä läpi</span></div>

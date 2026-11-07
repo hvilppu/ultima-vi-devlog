@@ -319,6 +319,27 @@ ol.posts p { margin: 0.35rem 0 0; color: var(--ink-soft); font-size: 0.95rem; }
 
 .meter:last-child { border-bottom: 0; }
 
+.area { border-bottom: 2px solid var(--rule); }
+
+.area:last-child { border-bottom: 0; }
+
+.area h3 {
+    margin: 0;
+    padding: 0.7rem 1rem 0.35rem;
+    background: var(--bg-sunken);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* A milestone in flight: the bar is real progress, not a placeholder. */
+.meter.is-started .m-fill { background: var(--accent); }
+
 .meter .m-name { font-size: 0.92rem; }
 
 .meter .m-bar {
