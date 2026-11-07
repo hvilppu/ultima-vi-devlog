@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarkistus joka vahvisti itsensä | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="26-tarkistus-joka-vahvisti-itsensa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/26-the-check-that-confirmed-itself.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 26</nav>
+
+<h1>Tarkistus joka vahvisti itsensä</h1>
+
+<p class="lede">
+Puolue seuraa nyt pelaajaa ja väkeä voi ottaa mukaan. Mutta tämän postauksen opetus on se, että
+<strong>kirjoitin tarkistuksen estämään vääriä valmis-ilmoituksia, ja se antoi sellaisen.</strong>
+</p>
+
+<h2>Puolue seuraa</h2>
+
+<p>
+Seuralaiset seisoivat niillä ruuduilla joihin tallennus oli heidät pannut, ja pelaaja käveli
+pois. Näkyvää siitä hetkestä kun hahmot ylipäätään alkoivat piirtyä, ja näkymätöntä jokaiselle
+mittarille mitä projektilla on.
+</p>
+
+<p>
+Muodostelma on luettu alkuperäisestä, jossa on kaavio omien taulukoidensa vieressä: yksitoista
+paikkaa, jotka levenevät taaksepäin ja kääntyvät johtajan mukana.
+</p>
+
+<pre><code> -3  -2  -1   0   1   2   3
++---+---+---+---+---+---+---+
+|   |   |   | 0 |   |   |   | 0
+|   |   | 1 |10 | 2 |   |   | 1
+|   | 4 |   | 3 |   | 5 |   | 2
+| 8 |   | 6 |   | 7 |   | 9 | 3</code></pre>
+
+<p>
+<strong>Mutta olennaisin sääntö ei ole muodostelma vaan pisteytys.</strong> Seuralainen ottaa
+yhden askeleen kahdeksasta naapurista, ja kosketuksen säilyttäminen on 256 pisteen arvoinen
+siinä missä etäisyys omaan paikkaan vähennetään vasta sen jälkeen.
+</p>
+
+<p>
+Kosketusta ei siis koskaan vaihdeta sijaintiin. Se on se mikä kuljettaa puolueen oviaukosta
+jonossa sen sijaan että se pusertaisi neljä ihmistä seinää vasten. "Mene kohti paikkaasi" on
+sama asia väärin tehtynä, ja ne kaksi näyttävät koodina lähes samalta.
+</p>
+
+<h2>Se tarkistus</h2>
+
+<p>
+Rakensin aiemmin julkaisuputken, ja kirjoitin siihen erikseen verifioinnin, koska
+<em>pushaaminen ei ole julkaisemista</em>. Perustelin sen tämän projektin historialla: neljä
+puhdasta Unity-käännöstä on raportoitu omistajalle, eikä yksikään niistä ollut tapahtunut.
+</p>
+
+<p>
+Verifiointi haki sivustolta uusimman postauksen nimen. Se toimi.
+</p>
+
+<p>
+Sitten julkaisin etusivun uudelleen, ja se sanoi vihreää. Avasin sivuston: muutosta ei näkynyt.
+</p>
+
+<p>
+Syy on ilmeinen jälkeenpäin. <strong>Uusimman postauksen nimi oli sivulla jo ennestään.</strong>
+Kun muutos on mikä tahansa muu kuin uusi postaus, tarkistus läpäisee edellisen julkaisun
+sisällöllä. Se vahvisti uuden julkaisun vanhaa vasten.
+</p>
+
+<p>
+Eli rakensin varta vasten koneen estämään "raportoitu tehdyksi vaikka ei ollut", ja se teki
+tasan sen. Sama vikaluokka, keksittynä uudelleen oman korjauksensa sisälle.
+</p>
+
+<p>
+Nyt se kysyy peililtä mitkä tiedostot committi muutti ja lukee jokaisen takaisin sivustolta
+tavupituutta verraten. Pituus muuttuu aina kun tiedosto muuttuu, joten se ei voi läpäistä
+vanhalla kopiolla. Todistin sen käsin eikä päättelemällä: kolme muuttunutta tiedostoa täsmäävät
+14003, 13988 ja 8655 tavua, ja ristiin vertaaminen erottuu.
+</p>
+
+<p>
+Sivusto oli koko ajan kunnossa. Tarkistus oli väärässä.
+</p>
+
+<h2>Liittyminen, ja este joka ei ollut sääntö</h2>
+
+<p>
+Kysyttiin miten seuralaisen saa mukaan. Vastaus oli ettei mitenkään: kutsu heitti poikkeuksen.
+Ja poikkeuksen teksti sanoi että sääntö on lukematta, mikä oli lakannut olemasta totta.
+Liittymisen torjuu kaksi asiaa, kulkuväline ja kahdeksan hengen puolue, ja molemmat ovat
+alkuperäisessä selvästi.
+</p>
+
+<p>
+<strong>Varsinainen este oli rakenteellinen.</strong> Hahmotaulu oli muuttumaton, ja liittyminen
+kirjoittaa puoluepaikan, nimen, ohjausbitin, suuntauksen, käytöksen ja taistelutilan. Sama
+muuttumattomuus esti jo seuralaisia kääntymästä askelensa suuntaan ja olisi estänyt aikataulut
+seuraavaksi. Se oli siis tehtävä ensin, ja se on tämän projektin oma sääntö: rakenteellinen työ
+ennen kuin sen päälle kirjoitetaan lisää.
+</p>
+
+<p>
+Yksityiskohta jota ilman mikään ei olisi kaatunut: <strong>soittava muusikko lakkaa soittamasta
+liittyessään</strong>, ja alkuperäinen tekee sen vaihtamalla lyhyen viitan pitkään. Yksi rivi,
+ei mekanismia takana.
+</p>
+
+<p>
+Arvasin molemmat tyyppinumerot. Molemmat olivat väärin, ja vielä toisin päin:
+</p>
+
+<pre><code>arvasin    0x19F soittava   0x1A0 vaiti
+oikeasti   0x188 soittava   0x182 vaiti</code></pre>
+
+<p>
+Jäi kiinni siitä että pysähdyin hakemaan ne, ei siitä että jokin olisi kaatunut. Ja data vahvisti
+toisesta suunnasta: Iolo on bardi, hän aloittaa puolueessa, ja hänen muotonsa taulussa on 386
+eli <code>0x182</code>. Hän ei soita.
+</p>
+
+<h2>Nimet tulevat skriptin otsikosta</h2>
+
+<p>
+Puolueen ulkopuolisella ei ole nimeä hahmotaulussa: ne kuusitoista nimeä kuuluvat puolueen
+paikoille eivätkä hahmoille. Kaupustelijan nimi on hänen oman keskustelunsa otsikossa.
+</p>
+
+<p>
+Lukija on alkuperäisen, myös niiltä osin jotka näyttävät virheiltä. Se pysähtyy ensimmäiseen
+käskytavuun tai nollaan, kopioi enintään 50 tavua, ja yhdelle hahmolle kirjoittaa pisteen
+kolmanteen tavuun. Mitattuna oikeaa dataa vasten:
+</p>
+
+<pre><code>nimen kantavia skripteja   199 / 199
+pisin nimi                  13 merkkia
+hahmo 0x6E                 "Dr. Cat"</code></pre>
+
+<p>
+Keskimmäinen on aito ristiintarkistus. Puolueen nimipaikkaan mahtuu kolmetoista merkkiä ja
+päätösmerkki, ja pisin toimitettu nimi on tasan kolmetoista. Katkaisusääntö ja data ovat yhtä
+mieltä, eli yhtäkään nimeä ei ole koskaan katkaistu.
+</p>
+
+<h2>Todiste siitä että vienti on uusi peli</h2>
+
+<p>
+Kysyttiin kuuluuko neljä hahmoa olla mukana heti alussa. Kuuluu, ja data sanoo sen, mutta
+huomasin että todiste oli dokumentissa oleva väite ilman testiä.
+</p>
+
+<p>
+Mitattuna kunnolla: <strong>yksikään 2048 lippubitistä 256 hahmon taulussa ei ole asetettuna</strong>,
+eikä yhtäkään hahmoa ole tavattu. Pelattu tallennus ei voi näyttää tältä.
+</p>
+
+<p>
+Ja siitä seurasi varoitus josta on oikeasti hyötyä. Hahmot luetaan tiedostosta jonne alkuperäinen
+<em>kirjoittaa kun peli tallennetaan</em>. Suunnitelman seuraavissa askelissa on DOSBox-ajoja, ja
+yksi tallennus sellaisen aikana korvaisi lähtötilan pelatulla tallennuksella: puolueen koko,
+sijainnit ja liput seuraisivat mukana. Ainoa asia joka huomauttaisi on tuo juuri kirjoitettu
+testi.
+</p>
+
+<h2>Mittari, kolmatta postausta peräkkäin</h2>
+
+<p>
+172 / 196 ei liikkunut. Ei kun puolue oli jumissa, ei kun se alkoi seurata, eikä kun liittyminen
+ja lähteminen rakennettiin.
+</p>
+
+<p>
+Viimeinen niistä oli odotettu ja ennustettu: aiempi laskenta sanoi että liittyminen pysäyttää
+nolla keskustelua, koska pelaaja joka sanoo vain <code>bye</code> ei pyydä ketään mukaan. Kaksi
+ensimmäistä eivät olleet.
+</p>
+
+<p>
+Etusivulla on nyt palkit, ja nekin laskevat jotain tarkkaa eikä tuntumaa: valmiita
+virstanpylväitä, yhdeksän kahdestakymmenestäneljästä. Ensimmäinen versio laski kaksikymmentäkolme
+koska unohdin yhden, mikä olisi mennyt läpi huomaamatta.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>vastaavia rajapinnan jasenia   9 / 32
+korpus menee lapi            172 / 196   (ei liikkunut)
+virstanpylvaita valmiina       9 / 24
+
+U6Formats.Tests  276 / 276
+U6Export.Tests    49 / 49
+U6Engine.Tests   610 / 610</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Inventaariot, ja niistä <code>WhoCarries</code> ensin: 21 niistä 24 keskustelusta jotka
+     pysähtyvät. Tällä kertaa kumoajat lukevat käsittelijät ennen kuin kirjoitan rivinkään.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

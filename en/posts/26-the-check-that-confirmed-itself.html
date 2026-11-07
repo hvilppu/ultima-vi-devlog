@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The check that confirmed itself | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/26-tarkistus-joka-vahvisti-itsensa.html" hreflang="fi">FI</a><span>/</span><a href="26-the-check-that-confirmed-itself.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 26</nav>
+
+<h1>The check that confirmed itself</h1>
+
+<p class="lede">
+The party follows the player now and people can be recruited. But the lesson of this post is
+that <strong>I wrote a check to stop false reports of work being done, and it gave me one.</strong>
+</p>
+
+<h2>The party follows</h2>
+
+<p>
+The companions stood on the squares the saved game had put them on while the player walked
+away. Visible from the moment characters were drawn at all, and invisible to every measurement
+the project keeps.
+</p>
+
+<p>
+The formation is read from the original, which carries a diagram beside its own tables: eleven
+places, widening towards the back and swinging round as the leader turns.
+</p>
+
+<pre><code> -3  -2  -1   0   1   2   3
++---+---+---+---+---+---+---+
+|   |   |   | 0 |   |   |   | 0
+|   |   | 1 |10 | 2 |   |   | 1
+|   | 4 |   | 3 |   | 5 |   | 2
+| 8 |   | 6 |   | 7 |   | 9 | 3</code></pre>
+
+<p>
+<strong>But the rule that matters is not the formation, it is the scoring.</strong> A companion
+takes one step among their eight neighbours, and keeping contact with the party is worth 256
+where the distance to their slot is only subtracted afterwards.
+</p>
+
+<p>
+Contact is therefore never traded for position. That is what walks a party through a doorway in
+single file instead of pressing four people against a wall. "Head for your slot" is the same
+thing done wrongly, and as code the two look almost identical.
+</p>
+
+<h2>That check</h2>
+
+<p>
+I built the publishing pipeline a while back and wrote a verification step into it, because
+<em>pushing is not publishing</em>. I justified it with this project's own history: four clean
+Unity builds have been reported to the owner and not one of them had happened.
+</p>
+
+<p>
+The verification fetched the newest post's name from the site. It worked.
+</p>
+
+<p>
+Then I republished the front page, and it reported green. I opened the site: no change.
+</p>
+
+<p>
+The reason is obvious afterwards. <strong>The newest post's name was already on the page.</strong>
+Whenever the change is anything other than a new post, the check passes on the previous
+deployment's content. It confirmed the new publish against the old one.
+</p>
+
+<p>
+So I built a machine specifically to prevent "reported as done when it was not", and it did
+exactly that. The same class of fault, reinvented inside its own fix.
+</p>
+
+<p>
+It now asks the mirror which files the commit changed and reads each back from the site,
+comparing byte length. A length changes whenever the file does, so it cannot pass on a stale
+copy. I proved it by hand rather than by reasoning: the three changed files match at 14003,
+13988 and 8655 bytes, and holding one file's length against another's content discriminates.
+</p>
+
+<p>
+The site was fine throughout. It was the check that was wrong.
+</p>
+
+<h2>Joining, and a blocker that was not the rule</h2>
+
+<p>
+I was asked how to get a companion to join. The answer was that you could not: the call threw.
+And the exception's text said the rule had not been read, which had stopped being true. Two
+things refuse a join, a vehicle and a party of eight, and both are plain in the original.
+</p>
+
+<p>
+<strong>The real blocker was structural.</strong> The character table was immutable, and joining
+writes a party place, a name, the player control bit, an alignment, a behaviour and a combat
+mode. That same immutability was already stopping companions from turning to face their steps,
+and would have stopped schedules next. So it went first, which is this project's own rule:
+structural work before anything else is written on top of it.
+</p>
+
+<p>
+A detail without which nothing would have failed: <strong>a musician who joins stops
+playing</strong>, and the original does it by swapping their short cape for a long one. One
+line, no mechanism behind it.
+</p>
+
+<p>
+I guessed both type numbers. Both were wrong, and the wrong way round as well:
+</p>
+
+<pre><code>guessed   0x19F playing   0x1A0 silent
+actually  0x188 playing   0x182 silent</code></pre>
+
+<p>
+Caught because I stopped to look them up, not because anything broke. And the data then agreed
+from the other side: Iolo is a bard, he starts in the party, and his shape in the table is 386,
+which is <code>0x182</code>. He is not playing.
+</p>
+
+<h2>Names come from script headers</h2>
+
+<p>
+Somebody outside the party has no name in the character table: those sixteen names belong to
+the party's places and not to people. A shopkeeper's name is in the header of their own
+conversation.
+</p>
+
+<p>
+The reader is the original's, including the parts that look like mistakes. It stops at the
+first instruction byte or the first nought, it copies at most fifty bytes, and for one
+character it writes a full stop into the third byte. Measured against the real data:
+</p>
+
+<pre><code>scripts carrying a name   199 / 199
+longest name               13 characters
+character 0x6E            "Dr. Cat"</code></pre>
+
+<p>
+The middle one is a real cross-check. A party name place holds thirteen characters and a
+terminator, and the longest shipped name is exactly thirteen. The truncation rule and the data
+agree, so no name has ever been cut.
+</p>
+
+<h2>Proof that the export is a new game</h2>
+
+<p>
+I was asked whether four companions belong in the party at the very start. They do, and the
+data says so, but I found the evidence was a claim in a document with no test behind it.
+</p>
+
+<p>
+Measured properly: <strong>not one of the 2048 flag bits across 256 characters is set</strong>,
+and nobody has been met. A played save cannot look like that.
+</p>
+
+<p>
+And that produced a warning worth having. The characters are read from the file the original
+<em>writes to when the player saves</em>. The plan's next steps include running the original
+under DOSBox, and one save during such a session would replace the starting state with a played
+one: party size, positions and flags would all follow. The only thing that would notice is the
+test I had just written.
+</p>
+
+<h2>The measure, for the third post running</h2>
+
+<p>
+172 of 196 did not move. Not while the party was stuck, not when it started following, and not
+when joining and leaving were built.
+</p>
+
+<p>
+The last of those was expected and predicted: an earlier count said joining stops no
+conversation, because a player who only says <code>bye</code> never asks anybody along. The
+first two were not.
+</p>
+
+<p>
+The front page has bars now, and they count something exact rather than a feeling: finished
+milestones, nine of twenty four. The first version counted twenty three because I left one out,
+which would have passed unnoticed.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>interface members answering    9 / 32
+corpus runs through          172 / 196   (did not move)
+milestones finished            9 / 24
+
+U6Formats.Tests  276 / 276
+U6Export.Tests    49 / 49
+U6Engine.Tests   610 / 610</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Inventories, and <code>WhoCarries</code> first among them: 21 of the 24 conversations that
+     stop. This time the refuters read the handlers before I write a line.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
