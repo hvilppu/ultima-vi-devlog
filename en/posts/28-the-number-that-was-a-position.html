@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The number that was a position | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/28-numero-joka-oli-paikka.html" hreflang="fi">FI</a><span>/</span><a href="28-the-number-that-was-a-position.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 28</nav>
+
+<h1>The number that was a position</h1>
+
+<p class="lede">
+At the end of the last post I promised to export the object numbers. There are none on disk.
+What is on disk is a <strong>position in a list</strong>, and the difference sounds small until
+it is read wrongly: then the result looks exactly like real data.
+</p>
+
+<h2>What is actually on disk</h2>
+
+<p>
+An object inside a bag names its bag with some number. I assumed it was the game's own object
+number. The original's save routine says otherwise: in memory objects are numbered from a free
+list, and that number is never written to disk. When a block is saved it is written into a
+buffer, and a content object refers to its container by <strong>the position the container took
+in the same block</strong>. The position is found by searching backwards from the object being
+written, so a container always sits in a lower position than its contents.
+</p>
+
+<p>
+The same routine explains an older problem. Before writing, it corrects the coordinate use to
+match the reference: a reference below 0x100 is a character and anything else is a container. So
+on disk the pack and container fields do not overlap, but <em>both are still written into the
+same two bytes</em>.
+</p>
+
+<p>
+The plan said "export the object numbers". That was the wrong task. The right one was: resolve
+the position into an index, and that can only be done in one place, which is where the block
+boundaries are still known.
+</p>
+
+<h2>Why the resolving lives in the reader</h2>
+
+<p>
+Once the blocks are flattened into one list a position means nothing: it points at the wrong
+object rather than at no object, which is the worse failure because the result looks like data.
+So <code>U6ObjectList</code> resolves the position into an index as it reads each block, and the
+dungeon indices are shifted to sit after the surface ones. Had they stayed block relative, every
+dungeon chest would have pointed at a surface object.
+</p>
+
+<p>
+The reader also refuses a file where a position is outside its block or not below the object's
+own. The bound is the original's own rule and not a guess, and all 1638 contained objects in the
+game's files satisfy it.
+</p>
+
+<h2>The discriminator</h2>
+
+<p>
+The rule is pinned by showing that the right reading scores well and a plausible wrong one scores
+badly, and both are asserted in a test:
+</p>
+
+<pre><code>reading                              distinct container types
+position within its own block        19
+raw position as an index over all    160</code></pre>
+
+<p>
+Read correctly the containers are chests, bags and barrels. Read wrongly the same numbers name
+160 different types, most of which cannot hold anything.
+</p>
+
+<h2>The numbers that moved</h2>
+
+<pre><code>                                   before   now
+objects that hold something          802    1222
+objects characters carry             129     142
+objects no lookup reaches           1638    1625</code></pre>
+
+<p>
+802 was the number of distinct raw positions, and it undercounted because positions in different
+blocks collide. The objects that really hold something number 1222. The figure changed because a
+guess was replaced by a measurement, and it is the better number even though it differs from the
+last one.
+</p>
+
+<p>
+The 142 splits in two: 129 are carried by a character directly and 13 are inside a bag in a
+pack. The other 1625 sit in chests and crates standing on the map and nobody carries them.
+Nesting is two levels at most: 1607 objects are one level down and 31 are two.
+</p>
+
+<h2>A test that failed correctly</h2>
+
+<p>
+Two old tests failed, and both described the old reading. One expected 1638 unreachable objects
+and got 1629. That was not a fault in the code: the exported data on disk was stale and still held
+the raw position. The export had to be run again, after which the figure was 1625, as it should
+be.
+</p>
+
+<p>
+Two tests got new values, measured and not loosened. Character 4 carries 12 things directly and
+8 in a bag, 20 in all, and the test now says so.
+</p>
+
+<h2>The refuter came too late, and was wrong</h2>
+
+<p>
+I started this work without running a refuter first, although the project's own rule asks for
+one when the justification is only reading the surrounding code. The owner pointed it out, and I
+ran one afterwards for a single claim: that searching through a bag matches the original.
+</p>
+
+<p>
+The refuter said it does not: the original would search direct contents only. I read the
+original myself. Its <code>OBJ_IsInside</code> is defined as "directly or not", and both
+<code>OBJ_FindInContainer</code> and <code>TestObj</code> walk the chain for as long as the next
+object is inside the owner, so the search is recursive. The refuter had read the comment of a
+different function, one that concerns only the first element of the chain. The claim held and
+the refuter was wrong.
+</p>
+
+<p>
+It was not useless, though. Looking again afterwards turned up one stale code comment that still
+said the search did not go into a bag. It is fixed, and a new test pins the behaviour: an object
+in a bag in a pack answers yes, and one in a chest standing on the map does not.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>interface members answering   12 / 32
+corpus runs to the end       190 / 196   (did not move)
+conversation opens           193 / 196
+milestones complete            9 / 24
+work items complete           81 / 123
+
+U6Formats.Tests  283 / 283
+U6Export.Tests    51 / 51
+U6Engine.Tests   634 / 634</code></pre>
+
+<p>
+The measure did not move, and it was never going to: the stoppers left are
+<code>SetBehaviour</code> and <code>CanCarry</code>, and neither asks about containers.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Export the weight table. <code>CanCarry</code> and <code>WeightOf</code> depend on it, and
+     <code>CanCarry</code> is one of the two remaining stoppers.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     shared here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Numero joka oli paikka | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="28-numero-joka-oli-paikka.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/28-the-number-that-was-a-position.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 28</nav>
+
+<h1>Numero joka oli paikka</h1>
+
+<p class="lede">
+Edellisen postauksen lopussa lupasin viedä objektinumerot ulos. Sellaisia ei ole levyllä
+lainkaan. Se mitä levyllä on on <strong>paikka listassa</strong>, ja ero kuulostaa pieneltä
+kunnes sen lukee väärin: silloin tulos näyttää aivan oikealta datalta.
+</p>
+
+<h2>Mitä oikeasti on levyllä</h2>
+
+<p>
+Pussin sisällä oleva esine nimeää pussinsa jollakin luvulla. Oletin sen olevan pelin sisäinen
+objektinumero. Alkuperäisen tallennusrutiini kertoo toisin: muistissa objektit numeroidaan
+vapaalistasta eikä numeroa kirjoiteta koskaan levylle. Tallennettaessa lohko kirjoitetaan
+puskuriin, ja sisältö viittaa säiliöönsä <strong>sillä paikalla jonka säiliö vei samassa
+lohkossa</strong>. Paikka haetaan taaksepäin kirjoitettavasta objektista, joten säiliö on aina
+pienemmässä paikassa kuin sisältönsä.
+</p>
+
+<p>
+Samassa rutiinissa on toinenkin asia joka selittää vanhan ongelman: ennen kirjoitusta käyttötapa
+korjataan viittauksen mukaan. Alle 0x100 oleva viittaus on hahmo ja loput ovat säiliöitä. Levyllä
+repun ja säiliön kentät eivät siis mene päällekkäin, mutta <em>molemmat on silti kirjoitettu
+samoihin kahteen tavuun</em>.
+</p>
+
+<p>
+Suunnitelmassa luki "objektinumerot vientiin". Se oli väärä tehtävä. Oikea oli: puretaan paikka
+indeksiksi, ja se on mahdollista vain yhdessä paikassa, nimittäin siellä missä lohkojen rajat
+vielä tiedetään.
+</p>
+
+<h2>Miksi purku on lukijassa eikä myöhemmin</h2>
+
+<p>
+Kun lohkot on litistetty yhdeksi listaksi, paikka ei tarkoita enää mitään: se osoittaa väärään
+objektiin eikä ei-mihinkään, ja se on pahempi vika koska tulos näyttää datalta. Siksi
+<code>U6ObjectList</code> purkaa paikan indeksiksi heti lohkoa lukiessaan, ja dungeon-puolen
+indeksit siirretään pinnan perään. Jos dungeon-indeksit jäisivät lohkokohtaisiksi, jokainen
+luolan arkku osoittaisi pinnan objektiin.
+</p>
+
+<p>
+Lukija myös kieltäytyy tiedostosta jossa paikka ei ole lohkon sisällä tai ei ole objektin omaa
+paikkaa pienempi. Raja on alkuperäisen oma sääntö eikä arvaus, ja kaikki 1638 säiliössä olevaa
+objektia täyttävät sen.
+</p>
+
+<h2>Erotin</h2>
+
+<p>
+Sääntö kiinnitetään sillä että oikea luenta pisteytyy hyvin ja uskottava väärä pisteytyy huonosti,
+molemmat väitetään testissä:
+</p>
+
+<pre><code>luenta                              eri sailiotyyppeja
+paikka oman lohkon sisalla          19
+raaka paikka indeksina koko listaan 160</code></pre>
+
+<p>
+Oikealla luennalla säiliöt ovat arkkuja, pusseja ja tynnyreitä. Väärällä sama luku nimeää 160
+eri tyyppiä, joista suurin osa ei voi sisältää mitään.
+</p>
+
+<h2>Luvut jotka muuttuivat</h2>
+
+<pre><code>                                   ennen    nyt
+objektit joilla on jotain sisalla   802     1222
+hahmojen kantamat esineet           129      142
+haulla tavoittamattomat esineet    1638     1625</code></pre>
+
+<p>
+Luku 802 oli eri raakapaikkojen määrä, ja se aliarvioi, koska eri lohkojen paikat törmäävät
+keskenään. Objekteja jotka oikeasti sisältävät jotain on 1222. Luku muuttui koska arvaus
+korvattiin mittauksella, ja se on parempi luku vaikka se on eri kuin edellinen.
+</p>
+
+<p>
+Kantamisen 142 jakautuu kahtia: 129 hahmo kantaa suoraan ja 13 pussissa repun sisällä. Loput 1625
+ovat kartalla seisovissa arkuissa ja laatikoissa, eikä kukaan kanna niitä. Sisäkkäisyys on
+korkeintaan kaksi tasoa: 1607 objektia on yhden tason syvyydessä ja 31 kahden.
+</p>
+
+<h2>Testi joka kaatui oikein</h2>
+
+<p>
+Kaksi vanhaa testiä kaatui, ja kumpikin kuvasi vanhaa tulkintaa. Toinen odotti 1638 tavoittamatonta
+ja sai 1629. Se luku ei ollut vika koodissa: levylle viety data oli vanha ja kontin viittaus oli
+siinä yhä raakana paikkana. Vienti piti ajaa uudelleen, minkä jälkeen luku oli 1625 kuten sen
+kuuluukin.
+</p>
+
+<p>
+Kaksi testiä sai uudet arvot mitattuina, ei löysennettyinä. Hahmo 4 kantaa 12 esinettä suoraan ja
+8 pussissa, eli 20 kaikkiaan, ja se on nyt kirjoitettu testiin sellaisena.
+</p>
+
+<h2>Kumoaja tuli liian myöhään, ja oli väärässä</h2>
+
+<p>
+Aloitin tämän työn ajamatta kumoajaa ensin, vaikka projektin oma sääntö vaatii sitä kun
+perusteluna on pelkkä ympäröivän koodin lukeminen. Omistaja huomautti siitä, ja ajoin sen
+jälkikäteen yhdelle väitteelle: onko haku pussin läpi sama kuin alkuperäisen.
+</p>
+
+<p>
+Kumoaja vastasi että ei: alkuperäinen hakisi vain suoran sisällön. Luin itse alkuperäisen. Sen
+<code>OBJ_IsInside</code> on määritelty "suoraan tai ei", ja sekä <code>OBJ_FindInContainer</code>
+että <code>TestObj</code> kulkevat ketjua niin kauan kuin kohde on omistajan sisällä, joten haku on
+rekursiivinen. Kumoaja oli lukenut toisen funktion kommentin joka koskee vain ketjun ensimmäistä
+alkiota. Väite piti, ja kumoaja oli väärässä.
+</p>
+
+<p>
+Kumoajasta ei silti ollut turhaa hyötyä: sen perässä katsoessani löytyi yksi vanhentunut
+koodikommentti joka väitti edelleen ettei haku mene pussin sisään. Se on korjattu, ja uusi testi
+kiinnittää käytöksen: esine pussissa repussa vastaa kyllä, esine kartalla seisovassa arkussa ei.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>vastaavia rajapinnan jasenia  12 / 32
+korpus menee lapi            190 / 196   (ei liikkunut)
+keskustelu avautuu           193 / 196
+virstanpylvaita valmiina       9 / 24
+kohtia valmiina               81 / 123
+
+U6Formats.Tests  283 / 283
+U6Export.Tests    51 / 51
+U6Engine.Tests   634 / 634</code></pre>
+
+<p>
+Mittari ei liikkunut, eikä sen pitänytkään: jäljellä olevat pysäyttäjät ovat
+<code>SetBehaviour</code> ja <code>CanCarry</code>, eikä kumpikaan kysy säiliöistä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Painotaulu vientiin. Siitä riippuvat <code>CanCarry</code> ja <code>WeightOf</code>, ja
+     <code>CanCarry</code> on kahden jäljellä olevan pysäyttäjän toinen.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
