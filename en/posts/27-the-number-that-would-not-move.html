@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The number that would not move | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/27-luku-joka-ei-liikkunut.html" hreflang="fi">FI</a><span>/</span><a href="27-the-number-that-would-not-move.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 27</nav>
+
+<h1>The number that would not move</h1>
+
+<p class="lede">
+Three posts in a row I have written here that <strong>172 / 196 did not move</strong>. Five real
+bugs were found and fixed and the measure never twitched. It is 190 now, and why it moved is more
+interesting than the new number.
+</p>
+
+<h2>What the measure is</h2>
+
+<p>
+The conversation interpreter runs all 196 of the game's scripted characters with a player who
+only ever says <code>bye</code>. The world those scripts ask about only partly exists, and
+anything unbuilt <em>throws an exception that names itself</em> rather than returning a plausible
+empty answer. That is what lets the test count which member stops how many conversations.
+</p>
+
+<p>
+The number sat at 172 for a long time. In between, I fixed five separate real bugs:
+</p>
+
+<pre><code>the composer measured light on the wrong square   897 squares wrong
+the king drew under his own throne                136 / 158 pixels covered
+NameOf gated on the wrong bit                     16 slots, should be 8 bits
+IsInParty was a slot search                       should be five conditions
+IsContained read one of two bits                  62 objects wrongly on the map</code></pre>
+
+<p>
+Not one of them moved the measure. Each time I wrote that this was a result and not a
+disappointment, because the number is a floor on what is broken: a wrong answer takes the other
+branch without stopping the conversation.
+</p>
+
+<p>
+That explanation was correct. It is also exactly the kind of explanation worth distrusting,
+because it makes a stationary number good news either way. The narrower reading was the right
+one: <strong>none of the five was the thing that stopped conversations.</strong> That thing was
+carrying, and the stopper count had been saying so out loud the whole time.
+</p>
+
+<h2>Three questions about things</h2>
+
+<p>
+Scripts ask three things about what people carry: how many of something, whether they have one,
+and which party member has one. The last of those alone stopped 15 conversations, more than every
+other unbuilt member put together.
+</p>
+
+<p>
+An object record has a position, but a held object has no position. The original reuses the same
+bytes: they are its owner's number. That much was known.
+</p>
+
+<p>
+What was not known is which table the number belongs to.
+</p>
+
+<h2>One field, two different tables</h2>
+
+<p>
+Two bits decide how the coordinate field is read, and they have four values: on the map, in a
+container, in a pack, worn. The last three all mean "somebody has this", which is why treating
+them alike is the natural thing to do.
+</p>
+
+<p>
+They are not alike. A pack and a worn slot name a <strong>character</strong>. A container names
+<strong>another object</strong>, because the original numbers characters and world objects in one
+space with the characters first. A container's owner of 46 is object 46, not the forty sixth
+character.
+</p>
+
+<p>
+The discriminator is in the game's own files, and it is stark:
+</p>
+
+<pre><code>                     owners   of which above 255
+pack and worn            34                    0
+container               802                  616</code></pre>
+
+<p>
+The two fields are not drawn from the same range. Had I treated them alike, a chest's contents
+would have been filed under whichever character happened to share its number, and the game would
+have looked fine: somebody would be carrying something, the conversation would proceed, nobody
+would notice.
+</p>
+
+<p>
+The measurement was taken twice from different ends, from the game's own <code>OBJLIST</code> and
+from the exported runtime file. Two independent readings of the same numbers are what make this a
+measurement rather than an observation.
+</p>
+
+<h2>A quality of nought means any quality</h2>
+
+<p>
+The search takes a type and a quality, and a quality of nought means "any quality". One layer
+down the original writes the same idea as <code>-1</code>, and that is the spelling an
+implementation reaches for first.
+</p>
+
+<p>
+The wrong reading would answer no to every question that does not care about quality, and most of
+them do not. But it would not crash anything.
+</p>
+
+<p>
+The discriminator was in the data: character 28 carries four things of one type with qualities 7,
+8, 134 and 135. None is nought, so asking with nought separates the two readings for certain. The
+test asserts both directions.
+</p>
+
+<h2>Three counting rules, not two</h2>
+
+<p>
+I got this wrong out loud first. I read how the original counts a stack, saw that it asks the
+type how it is counted, and concluded that the answer lives in a type table that has never been
+exported. I told the owner that this member would stay unbuilt for that reason.
+</p>
+
+<p>
+It was not in a type table. It was a fixed list in the original's code, measurable immediately
+rather than after an export. One call deeper and the claim collapsed.
+</p>
+
+<p>
+There are three rules, not two:
+</p>
+
+<pre><code>gold          both quantity bytes as one number
+21 types      the lower byte
+everything else   one, whatever the bytes hold</code></pre>
+
+<p>
+Both discriminators are in the data. <strong>Gold:</strong> three of the 55 gold piles have the
+upper byte set, and the pair reading gives 300, 300 and 600 where the byte reading gives 44, 44
+and 88. A byte cannot hold three hundred, so the single byte reading does not merely differ, it
+cannot be right.
+</p>
+
+<p>
+<strong>The third rule:</strong> 2017 objects of 68 types carry a non-zero quantity byte without
+being stackable. Reading the byte wherever it is set would inflate those counts, and where the
+byte is nought it would lose the object entirely. This is the rule an implementation written with
+two branches instead of three never notices it needs.
+</p>
+
+<h2>What this slice does not do</h2>
+
+<p>
+The search is direct, and the original goes deeper: it walks on into a bag inside the pack,
+because everything there is one chain and a container knows its contents. Here a bag's contents
+name the bag by an object number the export never wrote down.
+</p>
+
+<p>
+In practice the search reaches <strong>129 of the 1767 held objects</strong>. The other 1638 are
+inside containers. That is a difference and not a simplification, and it is written down as one in
+the code, the documentation and a test.
+</p>
+
+<p>
+The object index keeps those 1638 that no lookup can reach. Throwing them away would have made
+the gap invisible and would have had to be undone the moment containers are built.
+</p>
+
+<h2>A writer with no tests at all</h2>
+
+<p>
+The owner field needed a place of its own in the runtime file, so the object record grew from
+twelve bytes to fourteen. That revealed that <strong>the writer had no tests at all</strong>, and
+it was the change that revealed it rather than a failure.
+</p>
+
+<p>
+A length check would have passed on a file where every field after the ninth byte had shifted.
+It now has a round trip comparing every field against its source, plus a separate assertion that
+an object on the map has an owner of nought even though those same bytes hold its position.
+Without that second one the test would prove something about an empty field rather than about the
+writer's decision.
+</p>
+
+<h2>Three checks, broken on purpose</h2>
+
+<p>
+This project's own rule is that a new check is proved by making it fail. I wrote three wrong
+readings into the code and watched which tests fell over:
+</p>
+
+<pre><code>quality 0 is a quality, not a wildcard    2 tests failed
+a container counts as a character         5 tests failed
+gold read from one byte                   2 tests failed</code></pre>
+
+<p>
+Without this, reading the tests would have been the only evidence that they work, and in this
+project two checks have been wrong on the first attempt while looking perfectly reasonable.
+</p>
+
+<h2>The measure moved, and emptied</h2>
+
+<pre><code>                       before   after
+corpus runs to the end    172     190   / 196
+conversation opens        178     193   / 196
+stoppers                    5       2
+</code></pre>
+
+<p>
+Six conversations and two stoppers are left: <code>SetBehaviour</code> four and
+<code>CanCarry</code> two. That is a result in itself, and it has a consequence:
+<strong>the stopper count no longer tells me what to build next.</strong> It has been this
+project's single best argument for what to do next, and it is now spent. The next step's
+justification has to come from what is visible in the game instead.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>interface members answering   12 / 32
+corpus runs to the end       190 / 196
+conversation opens           193 / 196
+milestones complete            9 / 24
+work items complete           78 / 123
+
+U6Formats.Tests  278 / 278
+U6Export.Tests    51 / 51
+U6Engine.Tests   629 / 629</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Export the object numbers. It is the only part of the remaining inventory members that
+     needs finding out rather than building, and it opens three things at once: container
+     contents, searching into a bag, and <code>OwnerOf</code>.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. The game's data files are not
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

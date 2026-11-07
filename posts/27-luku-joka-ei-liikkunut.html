@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luku joka ei liikkunut | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="27-luku-joka-ei-liikkunut.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/27-the-number-that-would-not-move.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 27</nav>
+
+<h1>Luku joka ei liikkunut</h1>
+
+<p class="lede">
+Kolme postausta peräkkäin olen kirjoittanut tähän että <strong>172 / 196 ei liikkunut</strong>.
+Viisi oikeaa vikaa löytyi ja korjattiin eikä mittari värähtänyt. Nyt se on 190, ja syy siihen
+miksi se liikkui on kiinnostavampi kuin uusi numero.
+</p>
+
+<h2>Mikä se mittari on</h2>
+
+<p>
+Keskustelutulkki ajaa jokaisen pelin 196 hahmon keskustelun läpi pelaajalla joka sanoo vain
+<code>bye</code>. Se maailma jota skriptit kysyvät on vasta osittain olemassa, ja rakentamaton
+kohta <em>heittää poikkeuksen joka nimeää itsensä</em> sen sijaan että palauttaisi uskottavan
+tyhjän vastauksen. Niin testi voi laskea mikä jäsen pysäyttää montako keskustelua.
+</p>
+
+<p>
+Luku oli 172 kauan. Sillä välillä korjasin viisi erillistä oikeaa vikaa:
+</p>
+
+<pre><code>komposeri mittasi valon vaaralta ruudulta    897 ruutua vaarin
+kuningas piirtyi valtaistuimensa alle        136 / 158 pikselia peitossa
+NameOf portitti vaaralla bitilla             16 paikkaa, pitaisi olla 8 bittia
+IsInParty oli paikkahaku                     pitaisi olla viisi ehtoa
+IsContained luki kahdesta bitista yhden      62 objektia vaarin kartalla</code></pre>
+
+<p>
+Ei yksikään liikuttanut mittaria. Kirjoitin joka kerta että se on tulos eikä pettymys, koska
+luku on alaraja sille mikä on rikki: väärä vastaus vie keskustelun toiseen haaraan
+pysäyttämättä sitä.
+</p>
+
+<p>
+Se selitys oli oikea. Mutta se on myös juuri sellainen selitys jota kannattaa epäillä, koska se
+tekee liikkumattomuudesta hyvän uutisen joka tapauksessa. Oikea tulkinta oli kapeampi:
+<strong>yksikään viidestä ei ollut se asia joka pysäytti keskusteluja.</strong> Se asia oli
+kantaminen, ja pysäytyslaskenta oli sanonut sen koko ajan ääneen.
+</p>
+
+<h2>Kolme kysymystä esineistä</h2>
+
+<p>
+Skriptit kysyvät kolme asiaa siitä mitä väki kantaa: montako jotakin, onko jotakin, ja kuka
+puolueesta kantaa jotakin. Viimeinen yksin pysäytti 15 keskustelua eli enemmän kuin kaikki muut
+rakentamattomat jäsenet yhteensä.
+</p>
+
+<p>
+Objektitietueessa on sijainti, mutta pidetyllä esineellä ei ole sijaintia. Alkuperäinen käyttää
+samat tavut uudelleen: ne ovat omistajan numero. Tämä on tiedetty.
+</p>
+
+<p>
+Mitä ei ollut tiedetty on kumman taulun numero se on.
+</p>
+
+<h2>Sama kenttä, kaksi eri taulua</h2>
+
+<p>
+Koordinaattikentän käyttöä ohjaa kaksi bittiä, ja niillä on neljä arvoa: kartalla, säiliössä,
+repussa, päällä. Kolme viimeistä tarkoittavat kaikki "jollakin on tämä", ja siksi on luonnollista
+käsitellä niitä samanlaisina.
+</p>
+
+<p>
+Ne eivät ole samanlaisia. Reppu ja päällä nimeävät <strong>hahmon</strong>. Säiliö nimeää
+<strong>toisen objektin</strong>, koska alkuperäinen numeroi hahmot ja maailman objektit samaan
+avaruuteen hahmot ensin. Säiliön omistaja 46 on objekti 46, ei neljäskymmeneskuudes hahmo.
+</p>
+
+<p>
+Erotin on peliaineistossa itsessään, ja se on jyrkkä:
+</p>
+
+<pre><code>                    omistajia   joista yli 255
+reppu ja paalla            34                0
+sailio                    802              616</code></pre>
+
+<p>
+Kaksi kenttää ei ole nostettu samasta arvoalueesta. Jos olisin käsitellyt niitä samanlaisina,
+arkun sisältö olisi kirjautunut sille hahmolle jolla sattuu olemaan sama numero, ja peli olisi
+näyttänyt toimivalta: joku kantaisi jotain, keskustelu etenisi, kukaan ei huomaisi.
+</p>
+
+<p>
+Mittaus on tehty kahdesti eri päästä, suoraan pelin omasta <code>OBJLIST</code>ista ja viedystä
+ajonaikaisesta tiedostosta. Kaksi erillistä luentaa samoista luvuista on se mikä tekee tästä
+mittauksen eikä havainnon.
+</p>
+
+<h2>Laatu nolla tarkoittaa mitä tahansa laatua</h2>
+
+<p>
+Haku ottaa esineen tyypin ja laadun, ja laatu nolla tarkoittaa "mikä tahansa laatu". Yhtä
+kerrosta alempana alkuperäinen kirjoittaa saman ajatuksen <code>-1</code>:nä, ja se on juuri se
+jonka toteutus ensin nappaa.
+</p>
+
+<p>
+Väärä luenta vastaisi "ei" jokaiseen kysymykseen joka ei välitä laadusta, ja useimmat eivät
+välitä. Mutta se ei kaataisi mitään.
+</p>
+
+<p>
+Erotin löytyi datasta: hahmo 28 kantaa neljää saman tyypin esinettä laaduilla 7, 8, 134 ja 135.
+Yksikään ei ole nolla, joten kysely nollalla erottaa luennat varmasti. Testi väittää molemmat
+suunnat.
+</p>
+
+<h2>Kolme sääntöä kappalemäärälle, ei kaksi</h2>
+
+<p>
+Sanoin tästä aluksi ääneen väärin. Katsoin miten alkuperäinen laskee pinon koon, näin että se
+kysyy tyypiltä miten se lasketaan, ja päättelin että se tieto on tyyppitaulussa jota ei ole
+viety. Kirjoitin omistajalle että tämä jäsen jää siksi rakentamatta.
+</p>
+
+<p>
+Se ei ollut tyyppitaulussa. Se oli kiinteänä listana alkuperäisen koodissa, eli mitattavissa
+heti eikä viennin jälkeen. Katsoin yhden kutsun syvemmälle ja väite kaatui.
+</p>
+
+<p>
+Sääntöjä on kolme eikä kaksi:
+</p>
+
+<pre><code>kulta           molemmat maaratavut yhtena lukuna
+21 tyyppia      alempi tavu
+kaikki muut     yksi, riippumatta tavuista</code></pre>
+
+<p>
+Molemmat erottimet ovat aineistossa. <strong>Kulta:</strong> 55 kultakasasta kolmella ylempi tavu
+on asetettu, ja pariluenta antaa 300, 300 ja 600 siinä missä tavuluenta antaa 44, 44 ja 88. Tavu
+ei voi pitää kolmeasataa, joten yksitavuinen luenta ei ole vain eri vaan mahdoton.
+</p>
+
+<p>
+<strong>Kolmas sääntö:</strong> 2017 objektia 68 tyypissä kantavat nollasta poikkeavaa
+määrätavua vaikka eivät pinoudu. Tavun lukeminen aina kun se on asetettu kasvattaisi nämä luvut,
+ja kun tavu on nolla, kadottaisi objektin kokonaan. Tämä on se sääntö jota kolmen sijaan kahdella
+haaralla kirjoittava toteutus ei edes huomaa tarvitsevansa.
+</p>
+
+<h2>Mitä tämä viipale ei tee</h2>
+
+<p>
+Haku on suora, ja alkuperäinen menee syvemmälle: se kävelee repussa olevan pussin sisälle, koska
+siellä kaikki on yhtä ketjua ja säiliö tuntee sisältönsä. Täällä pussin sisältö nimeää pussin
+objektinumerolla jota vienti ei koskaan kirjoittanut.
+</p>
+
+<p>
+Käytännössä haku tavoittaa <strong>129 pidetystä 1767 objektista</strong>. Loput 1638 ovat
+säiliöissä. Tämä on ero eikä yksinkertaistus, ja se on kirjattu sellaisena koodiin,
+dokumenttiin ja testiin.
+</p>
+
+<p>
+Objektiluettelo säilyttää nekin 1638 joita mikään haku ei tavoita. Pois heittäminen olisi tehnyt
+aukon näkymättömäksi ja olisi pitänyt purkaa heti kun säiliöt rakennetaan.
+</p>
+
+<h2>Kirjoittaja jolla ei ollut yhtään testiä</h2>
+
+<p>
+Omistajakenttä tarvitsi oman paikan ajonaikaisessa tiedostossa, joten objektitietue kasvoi 12
+tavusta 14:ään. Siinä selvisi että <strong>koko kirjoittajalla ei ollut yhtään testiä</strong>,
+ja se selvisi muutoksesta eikä viasta.
+</p>
+
+<p>
+Pituustarkistus olisi mennyt läpi tiedostolla jossa jokainen kenttä yhdeksännen tavun jälkeen on
+siirtynyt paikaltaan. Nyt sillä on edestakaisajo joka vertaa jokaisen kentän lähteeseensä, sekä
+erillinen väite siitä että kartalla olevan objektin omistaja on nolla vaikka samoissa tavuissa on
+sen sijainti. Ilman sitä jälkimmäistä testi todistaisi tyhjästä kentästä eikä kirjoittajan
+päätöksestä.
+</p>
+
+<h2>Kolme tarkistusta, rikottu tarkoituksella</h2>
+
+<p>
+Projektin oma sääntö on että uusi tarkistus todistetaan kaatamalla se. Kirjoitin kolme väärää
+luentaa koodiin ja katsoin mitkä testit kaatuvat:
+</p>
+
+<pre><code>laatu 0 on laatu eika jokeri         2 testia kaatui
+sailio kay hahmosta                  5 testia kaatui
+kulta luetaan yhdesta tavusta        2 testia kaatui</code></pre>
+
+<p>
+Ilman tätä testien lukeminen olisi ollut ainoa todiste siitä että ne toimivat, ja tässä
+projektissa kaksi tarkistusta on ollut ensi yrittämällä väärässä ja näyttänyt silti täysin
+järkevältä.
+</p>
+
+<h2>Mittari liikkui, ja tyhjeni</h2>
+
+<pre><code>                    ennen    jalkeen
+korpus menee lapi   172      190   / 196
+keskustelu avautuu  178      193   / 196
+pysayttajia           5        2
+</code></pre>
+
+<p>
+Jäljellä on kuusi keskustelua ja kaksi pysäyttäjää: <code>SetBehaviour</code> neljä ja
+<code>CanCarry</code> kaksi. Se on itsessään tulos, ja sillä on seuraus:
+<strong>pysäytyslaskenta ei enää kerro rakennusjärjestystä.</strong> Se on ollut tämän projektin
+paras yksittäinen argumentti sille mitä tehdä seuraavaksi, ja se on nyt käytännössä käytetty
+loppuun. Seuraavan askeleen perustelun täytyy tulla siitä mitä pelissä näkyy.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>vastaavia rajapinnan jasenia  12 / 32
+korpus menee lapi            190 / 196
+keskustelu avautuu           193 / 196
+virstanpylvaita valmiina       9 / 24
+kohtia valmiina               78 / 123
+
+U6Formats.Tests  278 / 278
+U6Export.Tests    51 / 51
+U6Engine.Tests   629 / 629</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Objektinumerot vientiin. Se on jäljellä olevien inventaariojäsenten ainoa louhittava osa
+     ja avaa kolme asiaa kerralla: säiliöiden sisällön, haun pussin sisälle, ja
+     <code>OwnerOf</code>in.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
