@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The king under his throne | Ultima VI rebuilt</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/25-kuningas-valtaistuimen-alla.html" hreflang="fi">FI</a><span>/</span><a href="25-the-king-under-his-throne.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI rebuilt</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 25</nav>
+
+<h1>The king under his throne</h1>
+
+<p class="lede">
+The conversation engine finally reached the game, and four faults fell out at once.
+<strong>Not one of the 590 tests saw any of them.</strong> All four were found by a person
+looking at the screen.
+</p>
+
+<h2>Talking, in the game</h2>
+
+<p>
+The interpreter had been finished for a long time and nothing in the game used it. Now
+<code>T</code> talks to whoever is standing next to you, the words appear in a panel under the
+map window, and typing a keyword works.
+</p>
+
+<p>
+The rules went into the engine and only the keyboard and the drawing stayed in Unity. That is
+not a matter of taste: this project once did the opposite and paid for it with rules that could
+not be run without an editor.
+</p>
+
+<h2>The hazard the class was written to find</h2>
+
+<p>
+This is the only fault in this post that a test caught, and it caught it because the test was
+written <em>before</em> I got round to running the game.
+</p>
+
+<p>
+Three members of the world refuse to answer until something has said what the window is
+showing. Until now the only thing that ever set the view was <strong>test code</strong>. A
+conversation reached from the game would have refused its first question, and the scripts ask
+about the screen at 542 sites just to fetch a party member.
+</p>
+
+<p>
+The test asserts it in both directions: without a view the question throws, and after starting
+a conversation it does not.
+</p>
+
+<h2>One place where the shape cannot follow the original</h2>
+
+<p>
+The original stops <em>inside the write</em>: the console fills, it waits for a key right there,
+and the script resumes when the key comes. Nothing here can stop inside a write, because the
+conversation is driven a keypress at a time.
+</p>
+
+<p>
+And the text layer <strong>throws</strong> if you write to it while it is waiting. So the
+surplus is held in a queue and let through as the player presses on. The words arrive in the
+same order and at the same pauses; only the waiting happens somewhere else.
+</p>
+
+<p>
+A test walks a speech through a ten by two panel and checks that every word comes out, in
+order, with nothing lost. That is the promise the buffering has to keep.
+</p>
+
+<h2>Fault 1: the characters were invisible</h2>
+
+<p>
+I pressed <code>T</code> beside an empty-looking square and got a conversation. The townspeople
+were in the world and in reach, and nothing drew them.
+</p>
+
+<p>
+The cause was not in the drawing but in the export. The original keeps <strong>every object and
+every character in one chain per square</strong>, which is why its drawing routine handles both
+without knowing the difference. This project took the world's objects out of the map blocks and
+the characters out of the saved game, and my own notes record that the two sets do not overlap
+at all.
+</p>
+
+<p>
+So the merge has to happen when drawing, and that half was missing entirely. I wrote it, and
+people appeared on the map.
+</p>
+
+<h2>Fault 2: the king under his throne</h2>
+
+<p>
+The next report was one sentence long and landed on something subtle.
+</p>
+
+<p>
+A throne is four parts, and the original's own furniture code says which part is which:
+</p>
+
+<pre><code>/*sitting on a chair or a throne (throne part 2 = seat)?*/
+/*humanoids: 4 frames per facing (1 standing, 0/2 steps, 3 sitting)*/</code></pre>
+
+<p>
+<strong>Part two is the seat.</strong> And the part that lands on the seat square is the western
+half of an object anchored one square east, so it is drawn while the loop is visiting
+<em>that other</em> square. I drew characters inside the object loop, so the king went down
+first and the seat was painted over him a moment later.
+</p>
+
+<p>
+Characters are their own pass now, between the background objects and the foreground ones. I
+measured both directions by writing the faulty ordering back in:
+</p>
+
+<pre><code>the king's pixels         158
+covered by the seat       136  ->  0</code></pre>
+
+<p>
+One thing I did not settle. In the original a character's place in a square's list follows the
+order the world's links were built, and the export does not carry that. So the layering of a
+character against a <em>background</em> object is unresolved. I draw characters afterwards
+because that is what the one observable fact demands, and I wrote it down as a reading rather
+than a fact.
+</p>
+
+<h2>Fault 3: the text fell off the screen</h2>
+
+<p>
+A screenshot with the bottom of the conversation hanging out of the game view. This one was
+arithmetic and embarrassingly small.
+</p>
+
+<pre><code>view 1990 x 1290
+
+old:  min(1990/320, 1290/200) = 6   ->  176*6 + 72*6 = 1488
+new:  min(1990/176, 1290/248) = 5   ->  176*5 + 72*5 = 1240</code></pre>
+
+<p>
+The scale was worked out from the original's 320 by 200, while the thing being drawn was the map
+window with a panel stacked under it. Six times 248 does not fit in 1290.
+</p>
+
+<p>
+The sum is in the engine with tests now, and <strong>that is the whole lesson</strong>: it was
+two lines long, it was wrong, and nothing in the project could run it, because it lived in a
+MonoBehaviour. The test that matters is neither of those numbers but the property neither had:
+whatever is stacked under the window, the result still fits.
+</p>
+
+<h2>Fault 4: "you say:" with nothing after it</h2>
+
+<p>
+The typed line was kept in memory and never drawn, so there was no way to see what you were
+about to say.
+</p>
+
+<p>
+The original echoes a character straight at the cursor <em>with no line buffer</em>, and
+backspace steps back one, across a line break as well. The point is that this is a different
+path from a character's speech, and for two reasons: a typed <code>$</code> would vanish as an
+escape, and a line that wrapped while being typed would stop to ask for a key in the middle of
+a word.
+</p>
+
+<p>
+I proved the test by taking the echo back out, and the failure message turned up something
+pleasing:
+</p>
+
+<pre><code>"...the thief calls insolently.you say:job"   with the echo
+"...the thief calls insolently.you say:"      without</code></pre>
+
+<p>
+The script prints <strong>its own prompt</strong>. The original was designed for this, so it was
+not an addition but a missing half.
+</p>
+
+<h2>What this says about measuring</h2>
+
+<p>
+The last post made much of 172 out of 196, and of an unbuilt world that refuses to answer
+rather than guessing. That still holds. But this week's four faults say something I had not
+said out loud.
+</p>
+
+<p>
+<strong>The number never moved.</strong> Not while the characters were invisible, not while the
+king was under his throne, not while the text fell off the screen, not while you could not see
+what you were typing. The game was visibly broken four times over and the measure was content
+throughout.
+</p>
+
+<p>
+This is not an argument against measuring. It is an argument for knowing what a measure covers.
+172 says how many conversations run from the first word to the last, and it never promised to
+say anything about what the screen looks like. The problem was that I had been quietly treating
+it as broader than it is.
+</p>
+
+<p>
+Each of the four got a test afterwards that fails without the fix, and three were proved by
+writing the fault back in. Those tests would not have found the faults. They stop them coming
+back, which is a different job and still worth doing.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>conversations that open  178 / 196
+corpus runs through      172 / 196   (did not move)
+
+faults found on screen     4
+of those, found by tests   0
+tests written afterwards   4
+
+U6Formats.Tests  276 / 276
+U6Export.Tests    49 / 49
+U6Engine.Tests   590 / 590</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The party following the player. The companions are still standing on their starting
+     squares, which breaks 542 script sites in actual play. The measure cannot see that one
+     either.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. None of the game's data files
+     are distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

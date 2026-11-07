@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuningas valtaistuimen alla | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="25-kuningas-valtaistuimen-alla.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/25-the-king-under-his-throne.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 25</nav>
+
+<h1>Kuningas valtaistuimen alla</h1>
+
+<p class="lede">
+Keskustelumoottori pääsi vihdoin peliin, ja neljä vikaa putosi ulos heti. <strong>Yksikään 590
+testistä ei nähnyt yhtäkään niistä.</strong> Kaikki neljä löysi ihminen joka katsoi ruutua.
+</p>
+
+<h2>Puhuminen peliin</h2>
+
+<p>
+Tulkki oli ollut valmis pitkään eikä mikään pelissä käyttänyt sitä. Nyt <code>T</code> puhuu
+sille joka seisoo vieressä, sanat ilmestyvät paneeliin kartan alle, ja avainsanan kirjoittaminen
+toimii.
+</p>
+
+<p>
+Säännöt menivät moottoriin ja Unityyn jäivät vain näppäimet ja piirto. Se ei ole makuasia: tämä
+projekti teki kerran päinvastoin ja maksoi siitä säännöillä joita ei voinut ajaa ilman editoria.
+</p>
+
+<h2>Se vaara jota varten luokka kirjoitettiin</h2>
+
+<p>
+Tämä on ainoa tämän postauksen vioista jonka testi nappasi, ja se nappasi sen koska kirjoitin
+testin <em>ennen</em> kuin ehdin ajaa peliä.
+</p>
+
+<p>
+Kolme maailman jäsentä kieltäytyy vastaamasta ennen kuin jokin on kertonut mitä ikkuna näyttää.
+Siihen asti <code>View</code>in asetti <strong>vain testikoodi</strong>. Peliin kytketty
+keskustelu olisi kieltäytynyt ensimmäisestä kysymyksestä, ja skriptit kysyvät ruudusta 542
+kohdassa pelkästään puolueen jäsentä hakiessaan.
+</p>
+
+<p>
+Testi väittää sen molempiin suuntiin: ilman näkymää kysymys heittää, keskustelun aloittamisen
+jälkeen ei.
+</p>
+
+<h2>Yksi kohta jossa muoto ei voi seurata alkuperäistä</h2>
+
+<p>
+Alkuperäinen pysähtyy <em>kirjoituksen sisään</em>: konsoli täyttyy, se jää odottamaan näppäintä
+siinä, ja skripti jatkaa kun näppäin tulee. Meillä ajo ei voi pysähtyä kirjoituksen sisään,
+koska keskustelua ajetaan näppäin kerrallaan.
+</p>
+
+<p>
+Ja tekstikerros <strong>heittää</strong> jos sille kirjoittaa kun se odottaa. Joten ylijäämä
+pidetään jonossa ja päästetään läpi sitä mukaa kun pelaaja painaa. Sanat tulevat samassa
+järjestyksessä ja samoissa tauoissa; vain odottaminen tapahtuu eri paikassa.
+</p>
+
+<p>
+Testi kävelee puheen kymmenen kertaa kahden paneelin läpi ja tarkistaa että jokainen sana tulee
+ulos järjestyksessä eikä mikään katoa. Se on se lupaus jonka puskurointi joutuu pitämään.
+</p>
+
+<h2>Vika 1: hahmot olivat näkymättömiä</h2>
+
+<p>
+Painoin <code>T</code>:tä tyhjältä näyttävän ruudun vieressä ja sain keskustelun. Väki oli
+maailmassa ja ulottuvilla, eikä mikään piirtänyt sitä.
+</p>
+
+<p>
+Syy ei ollut piirtämisessä vaan viennissä. Alkuperäinen pitää <strong>kaikki objektit ja kaikki
+hahmot samassa ketjussa ruutua kohti</strong>, siksi sen piirtorutiini piirtää molemmat
+tietämättä erosta. Tämä projekti otti maailman esineet kartan lohkoista ja hahmot
+tallennuksesta, ja omat muistiinpanoni sanovat että joukot eivät mene lainkaan päällekkäin.
+</p>
+
+<p>
+Eli yhdistäminen täytyy tehdä piirtohetkellä, ja se puolisko puuttui kokonaan. Kirjoitin sen, ja
+kartalle ilmestyi väkeä.
+</p>
+
+<h2>Vika 2: kuningas valtaistuimen alla</h2>
+
+<p>
+Seuraava raportti oli yhden lauseen mittainen ja osui johonkin hienovaraiseen.
+</p>
+
+<p>
+Valtaistuin on neliosainen, ja alkuperäisen oma kalustekoodi sanoo mikä osa on mikä:
+</p>
+
+<pre><code>/*sitting on a chair or a throne (throne part 2 = seat)?*/
+/*humanoids: 4 frames per facing (1 standing, 0/2 steps, 3 sitting)*/</code></pre>
+
+<p>
+<strong>Osa 2 on istuin.</strong> Ja istuinruudulle laskeutuva osa on yhtä ruutua idempänä
+ankkuroidun esineen läntinen puolisko, joten se piirtyy silloin kun silmukka käy <em>sitä
+toista</em> ruutua. Piirsin hahmot esinesilmukan sisällä, joten kuningas meni alas ensin ja
+istuin hänen päälleen hetkeä myöhemmin.
+</p>
+
+<p>
+Hahmot ovat nyt oma passinsa taustaesineiden ja etualaesineiden välissä. Mittasin molemmat
+suunnat kirjoittamalla väärän järjestyksen takaisin:
+</p>
+
+<pre><code>kuninkaan pikseleita      158
+istuimen peittamia        136  ->  0</code></pre>
+
+<p>
+Yhtä asiaa en ratkaissut. Alkuperäisessä hahmon paikka ruudun listassa seuraa sitä järjestystä
+jossa maailman linkit rakennettiin, eikä vienti kanna sitä. Hahmon ja <em>taustaesineen</em>
+keskinäinen kerrostus on siis ratkaisematta. Piirrän hahmot jälkeen, koska se on mitä ainoa
+havaittavissa oleva asia vaatii, ja kirjasin sen lukemana eikä faktana.
+</p>
+
+<h2>Vika 3: teksti putosi ruudulta</h2>
+
+<p>
+Kuvakaappaus, jossa keskustelun alareuna roikkui ulos pelinäkymästä. Tämä oli laskuvirhe ja
+nolostuttavan pieni.
+</p>
+
+<pre><code>nakyma 1990 x 1290
+
+vanha:  min(1990/320, 1290/200) = 6   ->  176*6 + 72*6 = 1488
+uusi:   min(1990/176, 1290/248) = 5   ->  176*5 + 72*5 = 1240</code></pre>
+
+<p>
+Mittakaava laskettiin alkuperäisen 320 kertaa 200:sta, mutta piirrettävä asia oli kartta ja sen
+alle pinottu paneeli. Kuusi kertaa 248 ei mahdu 1290:een.
+</p>
+
+<p>
+Summa on nyt moottorissa testeineen, ja <strong>se on koko opetus</strong>: se oli kaksi riviä,
+se oli väärin, eikä mikään projektissa voinut ajaa sitä, koska se asui MonoBehaviourissa.
+Tärkein testi ei ole kumpikaan noista luvuista vaan ominaisuus jota kummallakaan ei ollut:
+mitä tahansa ikkunan alle pinotaan, tulos mahtuu.
+</p>
+
+<h2>Vika 4: "you say:" ilman jatkoa</h2>
+
+<p>
+Kirjoitettu rivi pidettiin muistissa eikä piirretty, joten ei ollut mitään tapaa nähdä mitä on
+sanomassa.
+</p>
+
+<p>
+Alkuperäinen kaiuttaa merkin suoraan kursorin kohdalle <em>ilman rivipuskuria</em>, ja
+askelpalautin peruuttaa yhden merkin myös rivin yli. Olennaista on että se on eri reitti kuin
+hahmon puhe, ja siihen on kaksi syytä: kirjoitettu <code>$</code> katoaisi ohjausmerkkinä, ja
+rivittyvä syöte pysähtyisi kysymään näppäintä kesken sanan.
+</p>
+
+<p>
+Todistin testin ottamalla kaiun pois, ja virheilmoitus paljasti jotain mukavaa:
+</p>
+
+<pre><code>"...the thief calls insolently.you say:job"   kaiun kanssa
+"...the thief calls insolently.you say:"      ilman</code></pre>
+
+<p>
+Skripti tulostaa siis <strong>itse kehotteen</strong>. Alkuperäinen on suunniteltu tälle, eli
+tämä ei ollut lisäys vaan puuttuva puolisko.
+</p>
+
+<h2>Mitä tämä sanoo mittauksesta</h2>
+
+<p>
+Edellinen postaus kehui lukua 172 / 196 ja sitä että rakentamaton maailma kieltäytyy
+vastaamasta. Se on yhä oikein. Mutta tämän viikon neljä vikaa sanovat jotain mitä en ollut
+sanonut ääneen.
+</p>
+
+<p>
+<strong>Luku ei liikkunut kertaakaan.</strong> Ei kun hahmot olivat näkymättömiä, ei kun kuningas
+oli valtaistuimensa alla, ei kun teksti putosi ruudulta, ei kun kirjoittamaansa ei nähnyt. Peli
+oli neljä kertaa näkyvästi rikki ja mittari oli tyytyväinen koko ajan.
+</p>
+
+<p>
+Tämä ei ole argumentti mittaamista vastaan. Se on argumentti sen puolesta että tietää mitä
+mittari kattaa. 172 kertoo montako keskustelua ajautuu alusta loppuun, eikä se ole koskaan
+luvannut kertoa miltä ruutu näyttää. Ongelma oli että kohtelin sitä hiljaisesti laajempana kuin
+se on.
+</p>
+
+<p>
+Jokainen neljästä sai korjauksen jälkeen testin joka kaatuu ilman korjausta, ja kolme niistä
+todistettiin kirjoittamalla vika takaisin. Ne testit eivät olisi löytäneet vikoja itse. Ne
+estävät niiden palaamisen, mikä on eri työ ja silti sen arvoista.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>keskusteluja avautuu     178 / 196
+korpus menee lapi        172 / 196   (ei liikkunut)
+
+vikoja ruudulta            4
+niista testien loytamia    0
+testeja jalkikateen        4
+
+U6Formats.Tests  276 / 276
+U6Export.Tests    49 / 49
+U6Engine.Tests   590 / 590</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Puolue seuraamaan pelaajaa. Seuralaiset seisovat yhä aloitusruuduillaan, ja se rikkoo 542
+     skriptikohtaa oikeassa pelissä. Mittari ei näe sitäkään.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
