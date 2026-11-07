@@ -39,163 +39,388 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>9 of 24 milestones</strong> finished, and inside them
-<strong>78 of 123 work items</strong>. The second is the one that moves while a
+<strong>81 of 123 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
+</p>
+
+<p>
+<strong>Every bar opens</strong> to show the plan entries it counted. A bar on its own is a
+claim with nothing behind it, and listing the entries is what makes the count checkable. Opening
+them up found two faults in the plan straight away that the total alone had hidden.
 </p>
 
 <div class="meters">
   <div class="area">
     <h3>Foundation and tooling <span class="m-value">1 / 1 done, 4 / 4 items</span></h3>
-    <div class="meter is-done">
-      <span class="m-name">Perusta <span class="m-value">M0</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">4 / 4</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Show the items">
+        <span class="m-name">Foundation <span class="m-value">M0</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">4 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done">Create <code>Tools/U6Formats</code> (netstandard2.1), <code>Tools/U6Export</code> (net10.0) and <code>Tools/U6Formats.Tests</code></li>
+        <li class="done"><code>.gitignore</code>: <code>/Original Ultima 6/</code> and <code>/Assets/GeneratedU6/</code></li>
+        <li class="done">The quality gate up front: <code>.editorconfig</code> and <code>Directory.Build.props</code> with nullable on and warnings as errors</li>
+        <li class="done"><code>BinaryReaderExt</code>: <code>ReadU16LE</code>, <code>ReadU24</code>, <code>Read12BitArray</code> and the bit field helpers</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Data extraction <span class="m-value">5 / 6 done, 23 / 24 items</span></h3>
-    <div class="meter is-done">
-      <span class="m-name">Pakkaus ja paletit <span class="m-value">M1</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">2 / 2</span>
-    </div>
-    <div class="meter is-done">
-      <span class="m-name">Tiiligrafiikka <span class="m-value">M2</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">4 / 4</span>
-    </div>
-    <div class="meter is-started">
-      <span class="m-name">Shapet, portretit, fontti <span class="m-value">M3</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 75%"></span></span>
-      <span class="m-value">3 / 4, partial</span>
-    </div>
-    <div class="meter is-done">
-      <span class="m-name">Maailma <span class="m-value">M4</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">4 / 4</span>
-    </div>
-    <div class="meter is-done">
-      <span class="m-name">Objektit ja objektityypit <span class="m-value">M5</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">7 / 7</span>
-    </div>
-    <div class="meter is-done">
-      <span class="m-name">Keskustelut, aikataulut ja tekstit <span class="m-value">M6</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">3 / 3</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Show the items">
+        <span class="m-name">Compression and palettes <span class="m-value">M1</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">2 / 2</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done"><code>U6Lzw.Decompress(ReadOnlySpan&lt;byte&gt;)</code> to <code>byte[]</code></li>
+        <li class="done"><code>U6Palette</code>: <code>U6PAL</code>, <code>PALETTES.INT</code> (six lighting palettes), <code>CONVERT.PAL</code>, <code>ENDPAL.LBM</code></li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Show the items">
+        <span class="m-name">Tile graphics <span class="m-value">M2</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">4 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done"><code>U6TileSet.Load()</code>: join the decompressed <code>MAPTILES.VGA</code> to <code>OBJTILES.VGA</code>, index with <code>TILEINDX.VGA</code> and decode</li>
+        <li class="done">The pixel block decoder, on the 176 byte row model</li>
+        <li class="done">Export: <code>tiles.png</code> (32 by 64 tiles, 512x1024, RGBA) and <code>tiles.json</code>, one entry per tile</li>
+        <li class="done"><code>ANIMMASK.VGA</code> and <code>DITHER</code> belong here: the animation masks and the dither table</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-started" title="Show the items">
+        <span class="m-name">Shapes, portraits, font <span class="m-value">M3</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 75%"></span></span>
+        <span class="m-value">3 / 4, partial</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done">Portraits: <code>PORTRAIT.A</code> (98), <code>.B</code> (96) and <code>.Z</code> (12), so 206 portraits</li>
+        <li class="done">The font <code>U6.CH</code>: 256 characters of 8 rows, a bit at a time with the top bit on the left</li>
+        <li class="done">The <code>.SHP</code> container: a u32 total size, then a u32 offset table, so the frame count is <code>(offsets[0] - 4) / 4</code></li>
+        <li>The pixel encoding inside a <code>.SHP</code> frame</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Show the items">
+        <span class="m-name">The world <span class="m-value">M4</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">4 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done">The surface: 128 by 128 chunks as 12 bit references, so 1024 by 1024 tiles</li>
+        <li class="done">The dungeons: five levels of 32 by 32 chunks, so 256 by 256 tiles each</li>
+        <li class="done">Export <code>world.bin</code>: a header and one byte per tile per level, gzipped</li>
+        <li class="done">Alongside it <code>worldmap_preview.png</code> and five <code>dungeonN_preview.png</code> for checking by eye</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Show the items">
+        <span class="m-name">Objects and object types <span class="m-value">M5</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">7 / 7</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done"><code>OBJBLK??</code>: the two letters of the name are a superchunk coordinate, A to H by A to I</li>
+        <li class="done"><code>LZOBJBLK</code> and <code>LZDNGBLK</code> are the starting state compressed; compare them against <code>SAVEGAME/OBJBLK*</code> and decide which to read</li>
+        <li class="done"><code>OBJLIST</code> (7539 bytes): the party state, the inventories and the flags</li>
+        <li class="done"><code>TILEFLAG</code> (passability, transparency, whether a thing can be picked up), <code>BASETILE</code> and <code>LOOK.LZD</code></li>
+        <li class="done"><code>ANIMDATA</code>, 194 bytes: a u16 header of 29 and three int16 tables of 32 entries</li>
+        <li class="done">The <code>TILEFLAG</code> structure read out, with the meaning of the bits deliberately left for M8</li>
+        <li class="done">Export: <code>objects.json</code> and <code>objecttypes.json</code></li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Show the items">
+        <span class="m-name">Conversations, schedules and texts <span class="m-value">M6</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">3 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done"><code>CONVERSE.A/B</code>: an offset table to one script per character, and the opcodes decoded</li>
+        <li class="done"><code>SCHEDULE</code>: the per-character schedule entries</li>
+        <li class="done"><code>BOOK.DAT</code> for the books and signs, <code>ULTIMA6.TXT</code> for the manual texts</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
-    <h3>Rule extraction <span class="m-value">1 / 3 done, 15 / 22 items</span></h3>
-    <div class="meter is-done">
-      <span class="m-name">Referenssilähteen pystytys <span class="m-value">M7</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">4 / 4</span>
-    </div>
-    <div class="meter is-started">
-      <span class="m-name">Sääntöjen louhinta <span class="m-value">M8</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 69%"></span></span>
-      <span class="m-value">11 / 16, in progress</span>
-    </div>
-    <div class="meter">
-      <span class="m-name">Ääni <span class="m-value">M9</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 2</span>
-    </div>
+    <h3>Rule extraction <span class="m-value">1 / 3 done, 18 / 22 items</span></h3>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Show the items">
+        <span class="m-name">Setting up the reference source <span class="m-value">M7</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">4 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done">Clone both repositories into <code>reference/</code>, which is ignored by git</li>
+        <li class="done">Confirm the versions match: the repository targets 4.5 and <code>U6.1</code> confirms this copy is 4.5</li>
+        <li class="done">An optional check: build <code>GAME.EXE</code> by the repository instructions and compare the result</li>
+        <li class="done">Read how <code>SRC/</code> is split into modules and write <code>docs/u6-module-map.md</code>: which file answers for which part of the game</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-started" title="Show the items">
+        <span class="m-name">Rule extraction <span class="m-value">M8</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 88%"></span></span>
+        <span class="m-value">14 / 16, in progress</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done"><code>TILEFLAG</code> read out completely</li>
+        <li class="done">The <code>TILEFLAG</code> bits named</li>
+        <li class="done">The <code>TILEFLAG</code> bits confirmed against the data rather than only read</li>
+        <li class="done">What the <code>TILEFLAG</code> bits mean</li>
+        <li class="done">Bytes six and seven of an object record</li>
+        <li>The pixel encoding inside a <code>.SHP</code> frame, moved here from M3; it blocks phase D and nothing before it</li>
+        <li class="done">The second table in <code>ANIMDATA</code></li>
+        <li class="done">What the status bit <code>0x10</code> means</li>
+        <li class="done">What the coordinate field of a held object names</li>
+        <li class="done">The monster and character statistics</li>
+        <li class="done">The spell table</li>
+        <li class="done">Character progression: experience levels, how statistics grow, carrying capacity</li>
+        <li>Trade: the base price per object type and the per merchant multipliers</li>
+        <li class="done">The hit calculation and the damage formulas</li>
+        <li class="done">The random number generator</li>
+        <li class="done">The <code>CONVERSE</code> interpreter opcodes</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter" title="Show the items">
+        <span class="m-name">Sound <span class="m-value">M9</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 2</span>
+      </summary>
+      <ul class="m-items">
+        <li>Twelve <code>.M</code> files: <code>BOOTUP</code>, <code>BRIT</code>, <code>CREATE</code>, <code>DUNGEON</code>, <code>END</code>, <code>ENGAGE</code> and the rest</li>
+        <li><code>MIDI.DAT</code> with <code>U6ADLIB.DRV</code> and <code>U6ROLAND.DRV</code> give the instrument mappings</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>World and movement <span class="m-value">2 / 2 done, 20 / 20 items</span></h3>
-    <div class="meter is-done">
-      <span class="m-name">Unity-integraatio ja renderöinti <span class="m-value">M10</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">17 / 17</span>
-    </div>
-    <div class="meter is-done">
-      <span class="m-name">Maailmamalli ja liikkuminen <span class="m-value">M11</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">3 / 3</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Show the items">
+        <span class="m-name">Unity integration and rendering <span class="m-value">M10</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">17 / 17</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done">Truer to 1:1: Unity's Tilemap would put its own pixel alignment and sprite slicing in the way</li>
+        <li class="done">The time of day palettes work</li>
+        <li class="done">Testability: <code>U6MapComposer</code> does not reference UnityEngine at all</li>
+        <li class="done">Performance is not a problem: 176 by 176 is 30,976 pixels a frame</li>
+        <li class="done">The <code>U6Engine</code> and <code>U6Unity</code> assemblies: <code>U6TileBank</code>, <code>U6WorldFile</code>, <code>U6ObjectIndex</code>, <code>U6PaletteSet</code>, <code>U6MapComposer</code> and the rest</li>
+        <li class="done">The <code>U6Editor</code> assembly: an *Ultima VI, Import Original Data* menu that runs the exporter as a subprocess</li>
+        <li class="done">Runtime binaries added to the export: <code>objects.bin</code> and <code>basetiles.bin</code></li>
+        <li class="done">Fixed 320x200 geometry, integer scaling, point filtering</li>
+        <li class="done">Thirty four EditMode tests against the real exported data</li>
+        <li class="done">Animated tiles: tiles 8 to 15 are entirely blank and they are the sea, so a third of the world went undrawn</li>
+        <li class="done">Double sized objects: bits <code>0x40</code> and <code>0x80</code> of the <code>TILEFLAG</code> draw byte mean an object two squares across</li>
+        <li class="done"><code>U6TileSetAsset</code>, <code>U6WorldAsset</code>, <code>U6ObjectTypeDatabase</code> and <code>U6NpcDatabase</code> as ScriptableObjects</li>
+        <li class="done">The atlases into sprite sheets: point filter, no compression, a 16 by 16 grid</li>
+        <li class="done">The world into <code>Tilemap</code> chunks, loaded a superchunk at a time rather than all 1024 by 1024 at once</li>
+        <li class="done">Animated tiles by <code>ANIMDATA</code>, and the time of day palette from <code>PALETTES.INT</code></li>
+        <li class="done">A fixed 320x200 render target scaled into the window by a whole number</li>
+        <li class="done"><code>Assets/Editor/U6ImportWindow.cs</code>: the *Ultima VI, Import Original Data* menu item</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Show the items">
+        <span class="m-name">World model and movement <span class="m-value">M11</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">3 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done">A runtime <code>World</code>: levels, tiles, object lists and collision through <code>TILEFLAG</code></li>
+        <li class="done">Turn based movement, and visibility and lighting from torches and the time of day</li>
+        <li class="done">The camera follows, with the original's 11 by 11 square view</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Characters and conversation <span class="m-value">0 / 1 done, 16 / 19 items</span></h3>
-    <div class="meter is-started">
-      <span class="m-name">NPC:t, aikataulut ja keskustelut <span class="m-value">M15</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 84%"></span></span>
-      <span class="m-value">16 / 19, in progress</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter is-started" title="Show the items">
+        <span class="m-name">NPCs, schedules and conversations <span class="m-value">M15</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 84%"></span></span>
+        <span class="m-value">16 / 19, in progress</span>
+      </summary>
+      <ul class="m-items">
+        <li>Characters moving by <code>SCHEDULE</code>: work, home, sleep, meals</li>
+        <li>Pathfinding inside the towns</li>
+        <li class="done">The <code>CONVERSE</code> interpreter: conditions and game variables</li>
+        <li class="done">Matching the keywords</li>
+        <li class="done">The input opcodes and the question round</li>
+        <li class="done">Printing a string (<code>B5</code>)</li>
+        <li class="done">Writing into the script's own table, and the string search</li>
+        <li class="done">The font and drawing text</li>
+        <li class="done">The conversation session as a state machine</li>
+        <li class="done">The flag store</li>
+        <li class="done"><code>OBJLIST</code>, which is where an object gets its identity</li>
+        <li class="done">Characters onto the map: the index and the rule for being on screen</li>
+        <li class="done">The world adapter, and the visibility half of being on screen</li>
+        <li class="done">A round of refuters against the seven members that answer</li>
+        <li class="done">The talk command and the conversation window, in the game</li>
+        <li class="done">The party follows the player</li>
+        <li class="done">Companions joining and leaving</li>
+        <li class="done">What people carry: <code>CountItems</code>, <code>Owns</code> and <code>WhoCarries</code></li>
+        <li>The portrait and conversation window UI</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Items and trade <span class="m-value">0 / 2 done, 0 / 7 items</span></h3>
-    <div class="meter">
-      <span class="m-name">Objektit, inventaario ja kaupankäynti <span class="m-value">M12</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 3</span>
-    </div>
-    <div class="meter">
-      <span class="m-name">Objektikohtainen käyttölogiikka <span class="m-value">M13</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 4</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter" title="Show the items">
+        <span class="m-name">Objects, inventory and trade <span class="m-value">M12</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li>Picking things up, dropping them, using them, containers and weight limits</li>
+        <li>The party inventory, equipping gear, and the <code>BASETILE</code> and <code>frame_n</code> state changes</li>
+        <li>Merchant logic on M8's price tables</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter" title="Show the items">
+        <span class="m-name">Per-object use logic <span class="m-value">M13</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li>Table driven dispatch from <code>obj_n</code> to a handler, not one enormous <code>switch</code></li>
+        <li>The handlers read out of the decompilation a group at a time</li>
+        <li>Locks, keys, lockpicking and traps</li>
+        <li>Combining and transforming things: grinding, baking, casting</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Combat and magic <span class="m-value">0 / 1 done, 0 / 3 items</span></h3>
-    <div class="meter">
-      <span class="m-name">Taistelu ja taikuus <span class="m-value">M14</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 3</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter" title="Show the items">
+        <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
+        <li>Sixty four spells, the reagents and mixing them, mana cost and the targeting types</li>
+        <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Vehicles and plot <span class="m-value">0 / 2 done, 0 / 7 items</span></h3>
-    <div class="meter">
-      <span class="m-name">Kulkuvälineet ja kuuportit <span class="m-value">M16</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 3</span>
-    </div>
-    <div class="meter">
-      <span class="m-name">Juonen ja hahmon tila <span class="m-value">M17</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 4</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter" title="Show the items">
+        <span class="m-name">Vehicles and moongates <span class="m-value">M16</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li>The raft, the ship, the horse and the balloon, each with its own movement, terrain limits and controls</li>
+        <li>The moongates: the cycles of Trammel and Felucca, and where a gate leads by the phase</li>
+        <li><code>STARPOS.DAT</code> for the night sky and where the moons are</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter" title="Show the items">
+        <span class="m-name">Plot and character state <span class="m-value">M17</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li>The plot flags and the main quest state machine: the shrines, the Codex, the vortex cube, the gargoyle prophecy and what the ending requires</li>
+        <li>Translating the gargoyle language, and how it opens up as the plot moves</li>
+        <li>Karma and the virtues, and how they change the way characters react</li>
+        <li>Hunger, rest and camping, and the passing of time</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Saving and loading <span class="m-value">0 / 1 done, 0 / 2 items</span></h3>
-    <div class="meter">
-      <span class="m-name">Tallennus ja lataus <span class="m-value">M18</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 2</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter" title="Show the items">
+        <span class="m-name">Saving and loading <span class="m-value">M18</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 2</span>
+      </summary>
+      <ul class="m-items">
+        <li>A save format compatible with the original: <code>OBJLIST</code> and <code>OBJBLK??</code></li>
+        <li>Starting a new game from the <code>LZOBJBLK</code> and <code>LZDNGBLK</code> starting state</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>UI and presentation <span class="m-value">0 / 4 done, 0 / 12 items</span></h3>
-    <div class="meter">
-      <span class="m-name">Introanimaatio <span class="m-value">M19</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 4</span>
-    </div>
-    <div class="meter">
-      <span class="m-name">Lopetuskohtaus <span class="m-value">M20</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 1</span>
-    </div>
-    <div class="meter">
-      <span class="m-name">UI ja viimeistely <span class="m-value">M21</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 4</span>
-    </div>
-    <div class="meter">
-      <span class="m-name">Paketointi ja ensikäynnistys <span class="m-value">M22</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 3</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter" title="Show the items">
+        <span class="m-name">The intro animation <span class="m-value">M19</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li>The logic of <code>U.EXE</code> is in the decompilation under <code>SRC_U/</code></li>
+        <li><code>ALL.CON</code> gives the scene order, the frame numbers and the timings</li>
+        <li><code>INTRO_[1-3].SHP</code>, <code>INTRO.SHP</code>, <code>GYPSY.SHP</code> for character creation, <code>TITLES.SHP</code> and <code>MAINMENU.SHP</code></li>
+        <li>The gypsy character creation, where the tarot cards become the starting statistics</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter" title="Show the items">
+        <span class="m-name">The ending scene <span class="m-value">M20</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 1</span>
+      </summary>
+      <ul class="m-items">
+        <li><code>END.EXE</code> decompiled under <code>SRC_END/</code>, and the binary itself is plain enough with its 95 strings</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter" title="Show the items">
+        <span class="m-name">UI and polish <span class="m-value">M21</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li>The command bar, the character panels, the map, the journal and the <code>U6.CH</code> font</li>
+        <li><code>PAPER.BMP</code>, the parchment behind books and signs, and <code>NEWMAGIC.BMP</code> for the magic view</li>
+        <li>Input through the Input System: the key commands and the mouse, as the original has them</li>
+        <li>Sound effects, and the music changing with the region</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter" title="Show the items">
+        <span class="m-name">Packaging and first run <span class="m-value">M22</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li>On first run the player points at their own Ultima VI installation and the game runs the export itself</li>
+        <li>Validate the installation: every required file present and the version 4.5 by <code>U6.1</code>, with a clear message when it is not</li>
+        <li>The Unity build in batch mode, versioning, and a build script for CI</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Playthrough <span class="m-value">0 / 1 done, 0 / 3 items</span></h3>
-    <div class="meter">
-      <span class="m-name">Läpipeluutesti <span class="m-value">M23</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 3</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter" title="Show the items">
+        <span class="m-name">Playthrough test <span class="m-value">M23</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li>A full playthrough start to finish, every shrine and every stage of the plot</li>
+        <li>Every difference from the original recorded in <code>parity-gaps.md</code></li>
+        <li>A second pass after the fixes</li>
+      </ul>
+    </details>
   </div>
 </div>
 

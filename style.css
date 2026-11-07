@@ -366,6 +366,63 @@ ol.posts p { margin: 0.35rem 0 0; color: var(--ink-soft); font-size: 0.95rem; }
     white-space: nowrap;
 }
 
+/* A milestone opens to show the plan entries behind its bar. A bar alone is a claim with
+   nothing under it, and the list is what lets a reader check the count instead of taking it. */
+.mgroup { border-bottom: 1px solid var(--rule); }
+
+.mgroup:last-child { border-bottom: 0; }
+
+.mgroup > summary.meter {
+    border-bottom: 0;
+    cursor: pointer;
+    list-style: none;
+}
+
+/* Safari still wants the vendor pseudo-element, and without it the native triangle sits on top
+   of the plus sign below. */
+.mgroup > summary.meter::-webkit-details-marker { display: none; }
+
+.mgroup > summary.meter .m-name::before {
+    content: "+ ";
+    font-family: var(--mono);
+    color: var(--ink-faint);
+}
+
+.mgroup[open] > summary.meter .m-name::before { content: "- "; }
+
+.m-items {
+    margin: 0;
+    padding: 0.15rem 1rem 0.75rem;
+    list-style: none;
+    background: var(--bg-sunken);
+    font-size: 0.86rem;
+}
+
+.m-items li {
+    position: relative;
+    padding: 0.2rem 0 0.2rem 1.5rem;
+    color: var(--ink-soft);
+}
+
+.m-items li::before {
+    content: "·";
+    position: absolute;
+    left: 0.4rem;
+    font-family: var(--mono);
+    color: var(--ink-faint);
+}
+
+.m-items li.done {
+    color: var(--ink);
+}
+
+.m-items li.done::before {
+    content: "✓";
+    color: var(--good);
+}
+
+.m-items code { font-size: 0.92em; }
+
 /* What the bars are counting, said once, under them. */
 .meters-note {
     font-size: 0.86rem;

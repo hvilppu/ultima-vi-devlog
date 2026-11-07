@@ -39,163 +39,389 @@ ainoa seuraamisen arvoinen asia on se, mikä oikeasti toimii.
 Palkit on <strong>johdettu suunnitelmasta</strong> eikä kirjoitettu käsin, koska käsin pidetty
 taulu eroaa ennen pitkää siitä mitä se väittää lukevansa. Kaksi lukua, ja ne mittaavat eri
 asioita: <strong>9 / 24 virstanpylvästä</strong> valmiina, ja niiden sisällä
-<strong>78 / 123 työkohtaa</strong>. Jälkimmäinen on se joka liikkuu kesken
+<strong>81 / 123 työkohtaa</strong>. Jälkimmäinen on se joka liikkuu kesken
 virstanpylvään.
+</p>
+
+<p>
+<strong>Jokainen palkki avautuu</strong> ja näyttää ne suunnitelman kohdat jotka se laski.
+Palkki yksinään on väite jonka takana ei ole mitään, ja kohtien luetteleminen on se mikä tekee
+luvusta tarkistettavan. Avaaminen löysi suunnitelmasta heti kaksi virhettä joita pelkkä summa
+oli peittänyt.
 </p>
 
 <div class="meters">
   <div class="area">
     <h3>Perusta ja työkalut <span class="m-value">1 / 1 valmista, 4 / 4 kohtaa</span></h3>
-    <div class="meter is-done">
-      <span class="m-name">Perusta <span class="m-value">M0</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">4 / 4</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Näytä kohdat">
+        <span class="m-name">Perusta <span class="m-value">M0</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">4 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done">Luo <code>Tools/U6Formats</code> (netstandard2.1), <code>Tools/U6Export</code> (net10.0), <code>Tools/U6Formats.Tests</code></li>
+        <li class="done"><code>.gitignore</code>: <code>/Original Ultima 6/</code> ja <code>/Assets/GeneratedU6/</code></li>
+        <li class="done">Laatuportti pystyyn heti (§3.1): <code>.editorconfig</code>, <code>Directory.Build.props</code>...</li>
+        <li class="done"><code>BinaryReaderExt</code>: <code>ReadU16LE</code>, <code>ReadU24</code>, <code>Read12BitArray</code>, bittikenttäapurit</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Datan purku <span class="m-value">5 / 6 valmista, 23 / 24 kohtaa</span></h3>
-    <div class="meter is-done">
-      <span class="m-name">Pakkaus ja paletit <span class="m-value">M1</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">2 / 2</span>
-    </div>
-    <div class="meter is-done">
-      <span class="m-name">Tiiligrafiikka <span class="m-value">M2</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">4 / 4</span>
-    </div>
-    <div class="meter is-started">
-      <span class="m-name">Shapet, portretit, fontti <span class="m-value">M3</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 75%"></span></span>
-      <span class="m-value">3 / 4, osittain</span>
-    </div>
-    <div class="meter is-done">
-      <span class="m-name">Maailma <span class="m-value">M4</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">4 / 4</span>
-    </div>
-    <div class="meter is-done">
-      <span class="m-name">Objektit ja objektityypit <span class="m-value">M5</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">7 / 7</span>
-    </div>
-    <div class="meter is-done">
-      <span class="m-name">Keskustelut, aikataulut ja tekstit <span class="m-value">M6</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">3 / 3</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Näytä kohdat">
+        <span class="m-name">Pakkaus ja paletit <span class="m-value">M1</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">2 / 2</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done"><code>U6Lzw.Decompress(ReadOnlySpan&lt;byte&gt;)</code> → <code>byte[]</code></li>
+        <li class="done"><code>U6Palette</code>: <code>U6PAL</code>, <code>PALETTES.INT</code> (6 valaistuspalettia), <code>CONVERT.PAL</code>, <code>ENDPAL.LBM</code></li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Näytä kohdat">
+        <span class="m-name">Tiiligrafiikka <span class="m-value">M2</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">4 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done"><code>U6TileSet.Load()</code>: yhdistä <code>purettu(MAPTILES.VGA)</code> + <code>OBJTILES.VGA</code>, indeksoi <code>TILEINDX.VGA</code>:lla, dekoodaa...</li>
+        <li class="done">Pikselilohkodekooderi 176-rivileveyden mallilla</li>
+        <li class="done">Export: <code>tiles.png</code> (32 × 64 tiiltä, 512×1024 px, RGBA) + <code>tiles.json</code>...</li>
+        <li class="done"><code>ANIMMASK.VGA</code> ja <code>DITHER</code> kuuluvat tähän: animaatiomaskit ja ditherointitaulu</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-started" title="Näytä kohdat">
+        <span class="m-name">Shapet, portretit, fontti <span class="m-value">M3</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 75%"></span></span>
+        <span class="m-value">3 / 4, osittain</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done">Portretit: <code>PORTRAIT.A</code> (98), <code>.B</code> (96), <code>.Z</code> (12) = 206 portrettia</li>
+        <li class="done">Fontti <code>U6.CH</code>: 256 merkkiä × 8 riviä, bitti kerrallaan ylin bitti vasemmalla</li>
+        <li class="done"><code>.SHP</code>-säiliörakenne: u32 kokonaiskoko (= purettu pituus) + u32-offsettitaulu, framemäärä = <code>(offsets[0] - 4) / 4</code></li>
+        <li><code>.SHP</code>-framejen pikselikoodaus</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Näytä kohdat">
+        <span class="m-name">Maailma <span class="m-value">M4</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">4 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done">Pinta: 128×128 chunkkia 12-bittisinä viitteinä → 1024×1024 tiiltä</li>
+        <li class="done">Dungeonit: 5 tasoa × 32×32 chunkkia → 256×256 tiiltä per taso</li>
+        <li class="done">Export <code>world.bin</code>: otsake + tavu per tiili per taso (gzip)</li>
+        <li class="done">Rinnalle <code>worldmap_preview.png</code> ja viisi <code>dungeonN_preview.png</code>:ää visuaaliseen tarkistukseen</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Näytä kohdat">
+        <span class="m-name">Objektit ja objektityypit <span class="m-value">M5</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">7 / 7</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done"><code>OBJBLK??</code>: tiedostonimen 2 kirjainta = superchunk-koordinaatti (A–H × A–I)</li>
+        <li class="done"><code>LZOBJBLK</code> / <code>LZDNGBLK</code> = pelin aloitustila pakattuna; vertaa <code>SAVEGAME/OBJBLK*</code>-tiedostoihin ja valitse kumpaa...</li>
+        <li class="done"><code>OBJLIST</code> (7539 t): puolueen tila, inventaariot, lipukkeet</li>
+        <li class="done"><code>TILEFLAG</code> (kulkukelpoisuus, läpinäkyvyys, nostettavuus), <code>BASETILE</code>, <code>LOOK.LZD</code></li>
+        <li class="done"><code>ANIMDATA</code> → 194 tavua: u16-otsake (29) + kolme 32-paikkaista int16-taulukkoa</li>
+        <li class="done"><code>TILEFLAG</code> rakenne purettu (3 × 2048 tasoa + 1024 tavun häntä), mutta bittien merkitykset jätetty tulkitsematta –...</li>
+        <li class="done">Export: <code>objects.json</code> + <code>objecttypes.json</code></li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Näytä kohdat">
+        <span class="m-name">Keskustelut, aikataulut ja tekstit <span class="m-value">M6</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">3 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done"><code>CONVERSE.A/B</code>: offsettitaulu → per-NPC-skripti, opcodejen dekoodaus</li>
+        <li class="done"><code>SCHEDULE</code>: NPC-kohtaiset aikataulumerkinnät</li>
+        <li class="done"><code>BOOK.DAT</code> → kirjat ja kyltit; <code>ULTIMA6.TXT</code> → manuaalin tekstit</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
-    <h3>Sääntöjen louhinta <span class="m-value">1 / 3 valmista, 15 / 22 kohtaa</span></h3>
-    <div class="meter is-done">
-      <span class="m-name">Referenssilähteen pystytys <span class="m-value">M7</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">4 / 4</span>
-    </div>
-    <div class="meter is-started">
-      <span class="m-name">Sääntöjen louhinta <span class="m-value">M8</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 69%"></span></span>
-      <span class="m-value">11 / 16, käynnissä</span>
-    </div>
-    <div class="meter">
-      <span class="m-name">Ääni <span class="m-value">M9</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 2</span>
-    </div>
+    <h3>Sääntöjen louhinta <span class="m-value">1 / 3 valmista, 18 / 22 kohtaa</span></h3>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Näytä kohdat">
+        <span class="m-name">Referenssilähteen pystytys <span class="m-value">M7</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">4 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done">Kloonaa molemmat repot <code>reference/</code>-hakemistoon, joka on <code>.gitignore</code>ssa</li>
+        <li class="done">Varmista versiovastaavuus: repo kohdistuu versioon 4.5, <code>U6.1</code> vahvistaa että kopiosi on 4.5</li>
+        <li class="done">Valinnainen varmistus: käännä <code>GAME.EXE</code> repon ohjeilla (Turbo C 2.0 + TASM/MASM DOSBoxissa) ja vertaa tulosta...</li>
+        <li class="done">Lue <code>SRC/</code>-hakemiston moduulijako ja kirjoita <code>docs/u6-module-map.md</code>: mikä tiedosto vastaa mitäkin pelialuetta...</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-started" title="Näytä kohdat">
+        <span class="m-name">Sääntöjen louhinta <span class="m-value">M8</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 88%"></span></span>
+        <span class="m-value">14 / 16, käynnissä</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done"><code>TILEFLAG</code> ratkaistu kokonaan</li>
+        <li class="done"><code>TILEFLAG</code>-bitit nimetty</li>
+        <li class="done"><code>TILEFLAG</code>-bitit todennettu datalla eikä vain luettu</li>
+        <li class="done"><code>TILEFLAG</code>-bittien merkitykset</li>
+        <li class="done">Objektitietueen tavut 6–7</li>
+        <li><code>.SHP</code>-framejen pikselikoodaus (<code>gfx.c</code>, siirretty M3:sta) – estää vaiheen D, muttei mitään sitä ennen</li>
+        <li class="done"><code>ANIMDATA</code>:n toinen taulukko</li>
+        <li class="done">Statusbitin <code>0x10</code> merkitys</li>
+        <li class="done">Mitä pidetyn esineen koordinaattikenttä nimeää</li>
+        <li class="done">Hirviö- ja NPC-statit</li>
+        <li class="done">Loitsutaulukko</li>
+        <li class="done">Hahmonkehitys: kokemustasot, statien kasvu, kantokyky</li>
+        <li>Kaupankäynti: perushinnat objektityypeittäin, kauppiaskohtaiset kertoimet</li>
+        <li class="done">Osumalaskenta ja vahinkokaavat</li>
+        <li class="done">Satunnaislukugeneraattori</li>
+        <li class="done"><code>CONVERSE</code>-tulkin opcodet</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter" title="Näytä kohdat">
+        <span class="m-name">Ääni <span class="m-value">M9</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 2</span>
+      </summary>
+      <ul class="m-items">
+        <li>12 <code>.M</code>-tiedostoa: <code>BOOTUP</code>, <code>BRIT</code>, <code>CREATE</code>, <code>DUNGEON</code>, <code>END</code>, <code>ENGAGE</code>, <code>FOREST</code>, <code>GARGOYLE</code>, <code>HORNPIPE</code>...</li>
+        <li><code>MIDI.DAT</code>, <code>U6ADLIB.DRV</code> / <code>U6ROLAND.DRV</code> kertovat instrumenttimappaukset</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Maailma ja liikkuminen <span class="m-value">2 / 2 valmista, 20 / 20 kohtaa</span></h3>
-    <div class="meter is-done">
-      <span class="m-name">Unity-integraatio ja renderöinti <span class="m-value">M10</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">17 / 17</span>
-    </div>
-    <div class="meter is-done">
-      <span class="m-name">Maailmamalli ja liikkuminen <span class="m-value">M11</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
-      <span class="m-value">3 / 3</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Näytä kohdat">
+        <span class="m-name">Unity-integraatio ja renderöinti <span class="m-value">M10</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">17 / 17</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done">Aidommin 1:1. Unityn Tilemap toisi oman pikselikohdistuksensa ja sprite-pilkontansa väliin; suora kirjoitus...</li>
+        <li class="done">Vuorokaudenajan paletit toimivat</li>
+        <li class="done">Testattavuus. <code>U6MapComposer</code> ei viittaa UnityEngineen lainkaan</li>
+        <li class="done">Suorituskyky ei ole ongelma: 176×176 = 30 976 pikseliä ruutua kohden</li>
+        <li class="done"><code>U6Engine</code>- ja <code>U6Unity</code>-kokoonpanot: <code>U6TileBank</code>, <code>U6WorldFile</code>, <code>U6ObjectIndex</code>, <code>U6PaletteSet</code>, <code>U6MapComposer</code>...</li>
+        <li class="done"><code>U6Editor</code>-kokoonpano: valikko *Ultima VI → Import Original Data*...</li>
+        <li class="done">Exportiin lisätty ajonaikaiset binäärit: <code>objects.bin</code> (202 kt) ja <code>basetiles.bin</code></li>
+        <li class="done">Kiinteä 320×200 geometria, kokonaislukuskaalaus, Point-suodatus</li>
+        <li class="done">34 EditMode-testiä oikeaa exportattua dataa vasten (§3.2)</li>
+        <li class="done">*Animoidut tiilet.* Tiilet 8–15 ovat täysin tyhjiä ja ne ovat meri, eli kolmannes maailmasta jäi piirtämättä</li>
+        <li class="done">*Kaksoiskokoiset objektit.* <code>TILEFLAG</code>:n piirtotavun bitit <code>0x40</code> ja <code>0x80</code> merkitsevät kahden ruudun kokoista objektia</li>
+        <li class="done"><code>U6TileSetAsset</code>, <code>U6WorldAsset</code>, <code>U6ObjectTypeDatabase</code>, <code>U6NpcDatabase</code> ScriptableObjecteina</li>
+        <li class="done">Atlakset → Sprite-sheetit (Point filter, ei kompressiota, 16×16 ruudukko)</li>
+        <li class="done">Maailma → <code>Tilemap</code>-chunkit, lataus superchunk kerrallaan (älä rakenna 1024×1024 kerralla)</li>
+        <li class="done">Animoidut tiilet <code>ANIMDATA</code>:n mukaan, vuorokaudenajan paletti <code>PALETTES.INT</code>:stä</li>
+        <li class="done">Kiinteä 320×200 renderöintikohde, joka skaalataan kokonaislukukertoimella ikkunaan</li>
+        <li class="done"><code>Assets/Editor/U6ImportWindow.cs</code>: valikkokohta *Ultima VI → Import Original Data*</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter is-done" title="Näytä kohdat">
+        <span class="m-name">Maailmamalli ja liikkuminen <span class="m-value">M11</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">3 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li class="done">Ajonaikainen <code>World</code>: tasot, tiilet, objektilistat, törmäystarkistus <code>TILEFLAG</code>:n kautta</li>
+        <li class="done">Vuoropohjainen liikkuminen, näkyvyys/valaistus (soihdut, vuorokaudenaika)</li>
+        <li class="done">Kameran seuranta, 11×11 ruudun näkymä kuten alkuperäisessä</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Hahmot ja keskustelu <span class="m-value">0 / 1 valmista, 16 / 19 kohtaa</span></h3>
-    <div class="meter is-started">
-      <span class="m-name">NPC:t, aikataulut ja keskustelut <span class="m-value">M15</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 84%"></span></span>
-      <span class="m-value">16 / 19, käynnissä</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter is-started" title="Näytä kohdat">
+        <span class="m-name">NPC:t, aikataulut ja keskustelut <span class="m-value">M15</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 84%"></span></span>
+        <span class="m-value">16 / 19, käynnissä</span>
+      </summary>
+      <ul class="m-items">
+        <li><code>SCHEDULE</code>-pohjainen NPC-liikkuminen: työ, koti, nukkuminen, ateriat</li>
+        <li>Reitinhaku (A*) kaupunkien sisällä</li>
+        <li class="done"><code>CONVERSE</code>-tulkki: ehdot, pelimuuttujat</li>
+        <li class="done">Avainsanojen täsmäytys</li>
+        <li class="done">Syöteopcodet ja kysymyskierros</li>
+        <li class="done">Merkkijonon tulostus (<code>B5</code>)</li>
+        <li class="done">Kirjoitus skriptin sisäiseen taulukkoon ja merkkijonohaku</li>
+        <li class="done">Fontti ja tekstin piirto</li>
+        <li class="done">Keskustelusessio tilakoneeksi</li>
+        <li class="done">Lippuvarasto</li>
+        <li class="done"><code>OBJLIST</code> eli objektien identiteetti</li>
+        <li class="done">Hahmot kartalle: indeksi ja ruudulla olon sääntö</li>
+        <li class="done">Maailma-adapteri ja ruudulla olon näkyvyyspuolisko</li>
+        <li class="done">Kumoajakierros niille seitsemälle jäsenelle jotka vastaavat</li>
+        <li class="done">Talk-komento ja keskusteluikkuna peliin</li>
+        <li class="done">Puolue seuraa pelaajaa</li>
+        <li class="done">Seuralaisten liittyminen ja lähteminen</li>
+        <li class="done">Kannetut esineet: <code>CountItems</code>, <code>Owns</code> ja <code>WhoCarries</code></li>
+        <li>Portrettien ja keskusteluikkunan UI</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Esineet ja kauppa <span class="m-value">0 / 2 valmista, 0 / 7 kohtaa</span></h3>
-    <div class="meter">
-      <span class="m-name">Objektit, inventaario ja kaupankäynti <span class="m-value">M12</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 3</span>
-    </div>
-    <div class="meter">
-      <span class="m-name">Objektikohtainen käyttölogiikka <span class="m-value">M13</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 4</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter" title="Näytä kohdat">
+        <span class="m-name">Objektit, inventaario ja kaupankäynti <span class="m-value">M12</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li>Objektien poimiminen, pudottaminen, käyttäminen, konttiobjektit, painorajat</li>
+        <li>Puolueen inventaario, varusteiden pukeminen, <code>BASETILE</code>/<code>frame_n</code>-tilavaihdot</li>
+        <li>Kauppiaslogiikka M8:n hintataulukoilla</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter" title="Näytä kohdat">
+        <span class="m-name">Objektikohtainen käyttölogiikka <span class="m-value">M13</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li>Taulukkopohjainen dispatch <code>obj_n</code> → käsittelijä, ei jättimäistä <code>switch</code>-lausetta (§3.1)</li>
+        <li>Käsittelijät louhitaan dekompiloidusta koodista ryhmä kerrallaan</li>
+        <li>Lukot, avaimet, tiirikointi, ansat</li>
+        <li>Objektien yhdistäminen ja muuntaminen (jauhaminen, leipominen, valaminen)</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Taistelu ja taikuus <span class="m-value">0 / 1 valmista, 0 / 3 kohtaa</span></h3>
-    <div class="meter">
-      <span class="m-name">Taistelu ja taikuus <span class="m-value">M14</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 3</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter" title="Näytä kohdat">
+        <span class="m-name">Taistelu ja taikuus <span class="m-value">M14</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li>Vuoropohjainen taistelu, aloitejärjestys, osuma- ja vahinkolaskenta M8:n kaavoilla</li>
+        <li>64 loitsua, reagenssit ja niiden sekoitus, manankulutus, kohdistustyypit</li>
+        <li>Vihollisten perus-AI (lähesty, pakene, ammu, loitsi)</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Kulkuvälineet ja juoni <span class="m-value">0 / 2 valmista, 0 / 7 kohtaa</span></h3>
-    <div class="meter">
-      <span class="m-name">Kulkuvälineet ja kuuportit <span class="m-value">M16</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 3</span>
-    </div>
-    <div class="meter">
-      <span class="m-name">Juonen ja hahmon tila <span class="m-value">M17</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 4</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter" title="Näytä kohdat">
+        <span class="m-name">Kulkuvälineet ja kuuportit <span class="m-value">M16</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li>Lautta, laiva, hevonen ja ilmapallo – kullakin oma liikkumismallinsa, maastorajoitteensa ja ohjauksensa</li>
+        <li>Kuuportit: Trammelin ja Feluccan kierto, portin kohde kuunvaiheen mukaan</li>
+        <li><code>STARPOS.DAT</code> → tähtitaivas ja kuiden sijainnit</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter" title="Näytä kohdat">
+        <span class="m-name">Juonen ja hahmon tila <span class="m-value">M17</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li>Juonilipukkeet ja päätehtävän tilakone: pyhäköt, Codex, vortex cube, gargoylien ennustus, loppuratkaisun ehdot</li>
+        <li>Gargoyle-kielen kääntäminen ja sen avautuminen juonen edetessä</li>
+        <li>Karma ja hyveet, niiden vaikutus NPC-reaktioihin</li>
+        <li>Nälkä, lepo ja leiriytyminen, ajan kuluminen</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Tallennus ja lataus <span class="m-value">0 / 1 valmista, 0 / 2 kohtaa</span></h3>
-    <div class="meter">
-      <span class="m-name">Tallennus ja lataus <span class="m-value">M18</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 2</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter" title="Näytä kohdat">
+        <span class="m-name">Tallennus ja lataus <span class="m-value">M18</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 2</span>
+      </summary>
+      <ul class="m-items">
+        <li>Alkuperäisen kanssa yhteensopiva tallennusformaatti: <code>OBJLIST</code> + <code>OBJBLK??</code></li>
+        <li>Uuden pelin alustus <code>LZOBJBLK</code>/<code>LZDNGBLK</code>-lähtötilasta</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>UI ja esityskerros <span class="m-value">0 / 4 valmista, 0 / 12 kohtaa</span></h3>
-    <div class="meter">
-      <span class="m-name">Introanimaatio <span class="m-value">M19</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 4</span>
-    </div>
-    <div class="meter">
-      <span class="m-name">Lopetuskohtaus <span class="m-value">M20</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 1</span>
-    </div>
-    <div class="meter">
-      <span class="m-name">UI ja viimeistely <span class="m-value">M21</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 4</span>
-    </div>
-    <div class="meter">
-      <span class="m-name">Paketointi ja ensikäynnistys <span class="m-value">M22</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 3</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter" title="Näytä kohdat">
+        <span class="m-name">Introanimaatio <span class="m-value">M19</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li><code>U.EXE</code>:n logiikka löytyy dekompiloituna repon <code>SRC_U/</code>-hakemistosta (§2.1)</li>
+        <li><code>ALL.CON</code> antaa kohtausjärjestyksen, framenumerot ja ajastukset</li>
+        <li><code>INTRO_[1-3].SHP</code>, <code>INTRO.SHP</code>, <code>GYPSY.SHP</code> (hahmonluonti), <code>TITLES.SHP</code>, <code>MAINMENU.SHP</code></li>
+        <li>Gypsy-hahmonluonti (tarot-kortit → lähtöstatit)</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter" title="Näytä kohdat">
+        <span class="m-name">Lopetuskohtaus <span class="m-value">M20</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 1</span>
+      </summary>
+      <ul class="m-items">
+        <li><code>END.EXE</code> dekompiloituna repon <code>SRC_END/</code>-hakemistossa; binääri itse on selkokielinen (95 merkkijonoa)</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter" title="Näytä kohdat">
+        <span class="m-name">UI ja viimeistely <span class="m-value">M21</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 4</span>
+      </summary>
+      <ul class="m-items">
+        <li>Komentopalkki, hahmopaneelit, kartta, lokikirja, <code>U6.CH</code>-fontti</li>
+        <li><code>PAPER.BMP</code> (pergamenttitausta kirjoille ja kylteille), <code>NEWMAGIC.BMP</code> (taikuusnäkymä)</li>
+        <li>Syöte Input Systemillä: näppäinkomennot ja hiiri alkuperäisen mukaan</li>
+        <li>Ääniefektit, musiikin vaihtuminen alueen mukaan</li>
+      </ul>
+    </details>
+    <details class="mgroup">
+      <summary class="meter" title="Näytä kohdat">
+        <span class="m-name">Paketointi ja ensikäynnistys <span class="m-value">M22</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li>Ensikäynnistyksessä käyttäjä osoittaa oman Ultima VI -asennuksensa; peli ajaa exportin sisäisesti ja tallentaa...</li>
+        <li>Asennuksen validointi: tarkista että kaikki vaaditut tiedostot löytyvät ja että versio on 4.5 (<code>U6.1</code>) – anna selkeä...</li>
+        <li>Unity-build batch-tilassa, versiointi, build-skripti CI:tä varten</li>
+      </ul>
+    </details>
   </div>
   <div class="area">
     <h3>Läpipeluu <span class="m-value">0 / 1 valmista, 0 / 3 kohtaa</span></h3>
-    <div class="meter">
-      <span class="m-name">Läpipeluutesti <span class="m-value">M23</span></span>
-      <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-      <span class="m-value">0 / 3</span>
-    </div>
+    <details class="mgroup">
+      <summary class="meter" title="Näytä kohdat">
+        <span class="m-name">Läpipeluutesti <span class="m-value">M23</span></span>
+        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
+        <span class="m-value">0 / 3</span>
+      </summary>
+      <ul class="m-items">
+        <li>Täysi läpipeluu alusta loppuun, jokainen pyhäkkö ja juonivaihe</li>
+        <li>Jokainen poikkeama alkuperäisestä kirjataan <code>parity-gaps.md</code>:hen</li>
+        <li>Toinen kierros korjausten jälkeen</li>
+      </ul>
+    </details>
   </div>
 </div>
 

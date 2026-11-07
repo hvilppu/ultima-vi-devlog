@@ -219,6 +219,51 @@ Without this, reading the tests would have been the only evidence that they work
 project two checks have been wrong on the first attempt while looking perfectly reasonable.
 </p>
 
+<h2>A bar with nothing behind it</h2>
+
+<p>
+I was asked what the entries under the front page bars actually are, which is to say what they
+are counting. A fair question, because a bar on its own is a claim with nothing behind it: 78 of
+123 says nothing about what those 123 entries are or whether any of them is counted wrong.
+</p>
+
+<p>
+Every bar now opens and lists the plan entries it counted. That found <strong>three faults
+immediately</strong>, and not one of them would ever have shown in the total:
+</p>
+
+<pre><code>three finished M8 entries were never marked finished   counted as open
+"Viela tekematta" was not a heading the script knew    right by accident
+a section heading also matched ordinary prose          cut an entry short</code></pre>
+
+<p>
+The first is a straight correction: <code>TILEFLAG</code> has been read out completely, its bits
+are named and confirmed against the data, and all three entries sat in the plan written as
+finished but never marked as such. The number went from 78 to 81.
+</p>
+
+<p>
+The other two do not change today's number at all, and that is exactly what makes them
+interesting. They were <em>right by accident</em>: the wrong answer was waiting for the moment
+M8 is marked finished, at which point the open questions under it would have flipped to done. I
+proved it by marking M8 finished on purpose and comparing: the old script said 15 of 16, the new
+one says 14 of 16.
+</p>
+
+<p>
+And the third: the section detection was written so that it matched the word anywhere on a line,
+and the plan uses the Finnish word for "remaining" twice in ordinary prose. Both were read as a
+heading, which cut the entry above them off mid sentence. That did not show anywhere either,
+because every entry it touched was struck through and a strike outranks a section.
+</p>
+
+<p>
+The English page was also showing Finnish milestone titles, because no translations existed. They
+are in the script now, and it <strong>refuses to write anything</strong> when a string has no
+English. Falling back to the Finnish was the obvious shortcut and it is wrong twice over: a page
+that is half Finnish without saying so, and a reworded entry that silently loses its translation.
+</p>
+
 <h2>The measure moved, and emptied</h2>
 
 <pre><code>                       before   after
@@ -241,7 +286,7 @@ justification has to come from what is visible in the game instead.
 corpus runs to the end       190 / 196
 conversation opens           193 / 196
 milestones complete            9 / 24
-work items complete           78 / 123
+work items complete           81 / 123   (was 78; three were done but unmarked)
 
 U6Formats.Tests  278 / 278
 U6Export.Tests    51 / 51

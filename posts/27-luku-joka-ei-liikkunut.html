@@ -217,6 +217,52 @@ projektissa kaksi tarkistusta on ollut ensi yrittämällä väärässä ja näyt
 järkevältä.
 </p>
 
+<h2>Palkki jonka takana ei ollut mitään</h2>
+
+<p>
+Kysyttiin mitä etusivun palkkien alla olevat kohdat ovat, eli mitä ne oikeastaan laskevat. Hyvä
+kysymys, koska palkki yksinään on väite jonka takana ei ole mitään: luku 78 / 123 ei kerro
+mitään siitä mitä ne 123 kohtaa ovat tai onko jokin niistä laskettu väärin.
+</p>
+
+<p>
+Nyt jokainen palkki avautuu ja luettelee ne suunnitelman kohdat jotka se laski. Se löysi
+<strong>kolme virhettä heti</strong>, eikä yksikään niistä olisi näkynyt summassa:
+</p>
+
+<pre><code>kolme valmista M8-kohtaa ei ollut merkitty valmiiksi   laskettiin kesken
+"Viela tekematta" ei ollut otsikko jonka skripti tunsi  oikein vahingossa
+osiotunniste osui myos leipatekstiin                    katkaisi kohdan kesken</code></pre>
+
+<p>
+Ensimmäinen on suora korjaus: <code>TILEFLAG</code> on luettu kokonaan, sen bitit on nimetty ja
+todennettu datalla, ja kaikki kolme kohtaa olivat suunnitelmassa valmiina kirjoitettuna muttei
+merkittynä. Luku nousi 78:sta 81:een.
+</p>
+
+<p>
+Kaksi muuta eivät muuta tämänhetkistä lukua lainkaan, ja juuri siksi ne ovat kiinnostavia. Ne
+olivat <em>oikeassa vahingossa</em>: väärä vastaus odotti sitä hetkeä kun M8 merkitään
+valmiiksi, jolloin sen alla olevat avoimet kysymykset olisivat kääntyneet tehdyiksi. Todistin
+sen merkitsemällä M8:n valmiiksi tarkoituksella ja vertaamalla: vanha skripti sanoi 15 / 16,
+uusi sanoo 14 / 16.
+</p>
+
+<p>
+Ja kolmas: osion tunnistus oli kirjoitettu niin että se osui sanaan missä tahansa rivillä, ja
+suunnitelman leipätekstissä sana "jäljellä" esiintyy kahdesti. Molemmat luettiin otsikkona, mikä
+katkaisi yllä olevan kohdan kesken lausetta. Sekään ei näkynyt missään, koska jokainen kohta
+jota se kosketti oli yliviivattu ja yliviivaus voittaa osion.
+</p>
+
+<p>
+Englanninkielinen sivu näytti lisäksi suomenkieliset virstanpylväiden nimet, koska käännöksiä ei
+ollut olemassa. Ne ovat nyt skriptissä, ja se <strong>kieltäytyy kirjoittamasta mitään</strong>
+jos jokin teksti on vailla käännöstä. Takaisinputoaminen suomeen oli se ilmeinen oikotie ja se
+on väärä kahdesti: puolisuomalainen sivu sanomatta siitä mitään, ja uudelleenmuotoiltu kohta
+joka hiljaa menettää käännöksensä.
+</p>
+
 <h2>Mittari liikkui, ja tyhjeni</h2>
 
 <pre><code>                    ennen    jalkeen
@@ -239,7 +285,7 @@ loppuun. Seuraavan askeleen perustelun täytyy tulla siitä mitä pelissä näky
 korpus menee lapi            190 / 196
 keskustelu avautuu           193 / 196
 virstanpylvaita valmiina       9 / 24
-kohtia valmiina               78 / 123
+kohtia valmiina               81 / 123   (oli 78, kolme oli valmiina mutta merkitsematta)
 
 U6Formats.Tests  278 / 278
 U6Export.Tests    51 / 51
