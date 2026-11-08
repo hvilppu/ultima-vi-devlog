@@ -153,6 +153,38 @@ shuts. A moonstone forgetting its moongate and a balloon deflating were left, be
 to the plot and to vehicles.
 </p>
 
+<h2>Postscript: the same fault, in my own code</h2>
+
+<p>
+The owner tried this in the game and reported it: <code>P</code> does not put anything back. They
+had picked up type 335, an egg, which is the game's commonest container.
+</p>
+
+<p>
+The fault was mine and it is <strong>exactly the class this post is about</strong>. I stored, for
+the key to use, the id of the object that had been pointed at. But a pile is picked up by giving
+and deleting, so that very object stops existing:
+</p>
+
+<pre><code>_lastTaken = target.Index;     // the deleted object
+IsLive(_lastTaken) == false     // "Nothing to put down."</code></pre>
+
+<p>
+It worked on a sword, because a single object moves and keeps its id. Not on an egg, a torch,
+bolts or gold. <strong>Right often enough to look like the command works.</strong>
+</p>
+
+<p>
+I wrote a whole class to separate identity from position, wrote it a test called "an id survives a
+move", wrote this post about how a position is not an identity, and then used an id the operation
+itself invalidates in the Unity wiring. The command now reports what the character actually holds
+through an out parameter, so a caller cannot assume it any more.
+</p>
+
+<p>
+Two new tests, proved by putting the old behaviour back for a moment: both fail.
+</p>
+
 <h2>The numbers</h2>
 
 <pre><code>interface members answering   17 / 32
@@ -162,7 +194,7 @@ work items complete           84 / 126
 
 U6Formats.Tests  290 / 290
 U6Export.Tests    52 / 52
-U6Engine.Tests   742 / 742</code></pre>
+U6Engine.Tests   745 / 745</code></pre>
 
 <p>
 The Unity EditMode count has not been looked at. The last one seen was 709 of 709 when the

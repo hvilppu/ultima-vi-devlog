@@ -151,6 +151,39 @@ sammuu ja avoin arkku sulkeutuu. Kuukiven unohtaminen ja ilmapallon tyhjentymine
 ne kuuluvat juoneen ja kulkuvälineisiin.
 </p>
 
+<h2>Jälkikirjoitus: sama vika, oma koodissani</h2>
+
+<p>
+Omistaja kokeili tätä pelissä ja raportoi: <code>P</code> ei pudota takaisin. Hän oli poiminut
+tyypin 335, eli munan, joka on pelin yleisin säiliö.
+</p>
+
+<p>
+Vika oli minun ja se on <strong>tasan se vikaluokka jota tämä postaus käsittelee</strong>.
+Tallensin näppäimelle sen objektin tunnuksen johon osoitettiin. Mutta pinoutuva poimitaan
+antamalla ja poistamalla, eli juuri se objekti lakkaa olemasta:
+</p>
+
+<pre><code>_lastTaken = target.Index;     // poistettu objekti
+IsLive(_lastTaken) == false     // "Nothing to put down."</code></pre>
+
+<p>
+Miekalla se toimi, koska yksittäinen objekti siirtyy ja tunnus pysyy. Munalla, soihdulla,
+nuolilla ja kullalla ei. <strong>Oikein tarpeeksi usein näyttääkseen toimivalta.</strong>
+</p>
+
+<p>
+Kirjoitin kokonaisen luokan erottamaan identiteetin paikasta, kirjoitin sille testin nimeltä
+"tunnus ei muutu siirrossa", kirjoitin tämän postauksen siitä miten paikka ei ole identiteetti,
+ja käytin sitten Unity-kytkennässä tunnusta jonka operaatio itse mitätöi. Komento palauttaa nyt
+<code>out</code>-parametrina sen mitä hahmo oikeasti pitää, eikä kutsuja voi enää olettaa sitä.
+</p>
+
+<p>
+Kaksi uutta testiä, ja ne todistettiin palauttamalla vanha käyttäytyminen hetkeksi: molemmat
+kaatuvat.
+</p>
+
 <h2>Numerot</h2>
 
 <pre><code>vastaavia rajapinnan jasenia  17 / 32
@@ -160,7 +193,7 @@ kohtia valmiina               84 / 126
 
 U6Formats.Tests  290 / 290
 U6Export.Tests    52 / 52
-U6Engine.Tests   742 / 742</code></pre>
+U6Engine.Tests   745 / 745</code></pre>
 
 <p>
 Unityn EditMode-lukua ei ole katsottu. Viimeksi nähty oli 709 / 709 silloin kun headless oli
