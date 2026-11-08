@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neljä naapuria | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="34-nelja-naapuria.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/34-four-neighbours.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 34</nav>
+
+<h1>Neljä naapuria</h1>
+
+<p class="lede">
+Hahmot kulkevat nyt alkuperäisen reittejä. Edellisessä postauksessa tilalla oli ahne askel, ja
+kirjoitin että se on poikkeama. Nyt se on poistettu.
+</p>
+
+<h2>Neljä naapuria eikä kahdeksan</h2>
+
+<p>
+Haku <strong>ei koskaan harkitse vinottaista askelta</strong>. Kolme ruutua oikealle ja kolme alas
+on kuusi askelta, ei kolme.
+</p>
+
+<p>
+Tämä yksi asia tekee reiteistä alkuperäisen näköisiä, ja se on ensimmäinen asia joka menee
+väärin: poistettu tilapäisratkaisu käytti kahdeksaa naapuria, koska se on se mitä kukin tekee kun
+kirjoittaa reitinhaun itse.
+</p>
+
+<h2>Kaksi rintamaa, ja reitti joka ei ole halvin</h2>
+
+<p>
+Haku kasvattaa kahta rintamaa, toista hahmosta ja toista maalista, erotettuna kustannustavun
+ylimmällä bitillä. Siksi kustannus on seitsemän bittiä ja katkeaa 127:ään. Ja koska kumpikin
+rintama pitää omaa kustannustaan, <strong>raja on rintamakohtainen eikä reittikohtainen</strong>:
+127:n seinä on ylittämätön, 60:n ei.
+</p>
+
+<p>
+Sitten se osa joka yllätti. <strong>Rintamat kohtaavat heti kun toinen katsoo ruutua jonka toinen
+on jonottanut</strong>, ja kohtaaminen julistetaan ennen kuin sen ruudun kustannus merkitsee
+mitään.
+</p>
+
+<p>
+Kirjoitin testin joka väitti että sarake joka kustantaa 30 kierretään, koska ympäri pääsee
+yhdeksällä. Testi kaatui. Reitti menee suoraan läpi: toinen rintama jonotti kalliin ruudun
+arvolla 34 kauhojen ollessa vielä neljässä, ja toinen kosketti sitä heti.
+</p>
+
+<p>
+Haku joka vertaisi kustannuksia ennen kohtaamisen julistamista löytäisi halvemman tien <em>eikä
+olisi tämä peli</em>. Käänsin testin ympäri ja kiinnitin käyttäytymisen sellaisenaan.
+</p>
+
+<h2>Raaka tavu, ei maskattu</h2>
+
+<p>
+Polku luetaan takaisin kohtaamisruudusta: kävellään alamäkeen kustannuksia pitkin hahmoon asti.
+Valinta on naapuri jonka <strong>raaka tavu</strong> on pienin.
+</p>
+
+<p>
+Minä kirjoitin sen huolellisemmin: maskasin kustannuksen seitsemään bittiin ja suodatin
+rintaman mukaan. Sen on tarkoitus olla sama asia selkeämmin.
+</p>
+
+<p>
+Se ei ole. Rintamabitti on <em>saman tavun ylin bitti</em>, joten hahmon rintaman ruutu
+vertautuu aina pienemmäksi kuin maalin rintaman. Raaka vertailu pitää kävelyn oikealla
+rintamalla ilman että sitä tarvitsee erikseen sanoa.
+</p>
+
+<p>
+Maskattu versio kävelee väärään suuntaan. Ja kun kokeilin sitä tarkoituksella myöhemmin,
+<strong>se jumitti silmukan ikuisesti</strong> ja lukitsi testiprosessin. Lisäsin molempiin
+kävelysilmukoihin rajan, jota alkuperäisellä ei ole, koska jumittunut peli on pahempi kuin väärä
+reitti.
+</p>
+
+<h2>Vastuskartta, ja sillat</h2>
+
+<p>
+Kustannus on tavu per ruutu: maaston liikkumiskustannus plus yksi, tai tukossa. Sen päälle
+objektit, ja objektisäännöissä on yksi joka tekee tukossa olevasta ruudusta kulkukelpoisen:
+</p>
+
+<pre><code>ruutu on tukossa
+maasto on MARKA
+objektin tiili ei ole kulkukelvoton
+  -> ruutu aukeaa objektin omalla kustannuksella</code></pre>
+
+<p>
+Se on lankku veden yli. Neljästä pinnan ikkunasta löytyi <strong>21 siltaruutua</strong>.
+</p>
+
+<p>
+Ja koska siltasääntö kysyy onko ruutu <em>juuri nyt</em> tukossa, säännöt eivät ole
+vaihdannaisia: <strong>objektit on käytävä ketjujärjestyksessä</strong>. Ruuduittain käyminen
+antaisi eri kartan siellä missä kaksi objektia kohtaa, ja se näyttäisi täysin järkevältä.
+</p>
+
+<p>
+Yksi asia jota en odottanut: <strong>hahmot eivät lisää vastusta.</strong> Alkuperäinen erottaa
+hahmot objekteista numerolla, ja vain objektihaara lisää kustannuksen. Reitti suunnitellaan siis
+suoraan tielle seisovan läpi.
+</p>
+
+<h2>Kolme hakua vuorossa</h2>
+
+<p>
+Kello 12 lähtee liikkeelle 36 hahmoa. Kolme niistä saa reitin sillä vuorolla, koska haku on
+rajattu kolmeen ja polkupaikkoja on kahdeksan.
+</p>
+
+<p>
+Se on <strong>näkyvää käyttäytymistä eikä kuristusta</strong>: kaupunki lähtee liikkeelle tihkuna
+eikä kerralla. Mitattuna Avatarin ikkunassa budjetti kuluu sarjana 3, 1, 0, 0, 0, koska 36
+lähetetystä vain neljä seisoo ikkunan sisällä.
+</p>
+
+<h2>Paras tarkistus koko hausta</h2>
+
+<p>
+Kysyin jokaista kulkukelpoista ruutua Avatarin ikkunassa vuorollaan ja kävelin jokaisen
+löytyneen reitin ulos askel askeleelta:
+</p>
+
+<pre><code>kulkukelpoisia maaleja   1121
+reitti loytyi             514
+ei reittia                607
+paattyi vaaraan paikkaan    0
+pisin reitti               38 askelta</code></pre>
+
+<p>
+<strong>Nolla väärään paikkaan päättynyttä 514:stä.</strong> Ja 607 ilman reittiä ei ole budjetin
+syy: sama läpikäynti 4096 solmulla 256:n sijaan löytää tarkalleen samat 514, joten
+tavoittamattomuus on seiniä.
+</p>
+
+<h2>Mitä jäi</h2>
+
+<p>
+Viisi asiaa, kaikki kirjattuina. <strong>Teleporttaus</strong>, eli se mitä alkuperäinen tekee
+ikkunan ulkopuoliselle hahmolle, paitsi jos se on viiden ruudun sisällä pelaajasta. Ikkunan
+reunaan suuntaaminen. Polun seuraamisen tukkeumatoipuminen. Huonekalun etsintä, eli se miten
+nukkuva löytää sängyn. Ja liikepisteet.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>korpus menee lapi            192 / 196
+virstanpylvaita valmiina       9 / 24
+kohtia valmiina               86 / 126
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    54 / 54
+U6Engine.Tests   788 / 788</code></pre>
+
+<p>
+Testiluku laski 796:sta, koska poistin ahneen tilapäisratkaisun ja sen kahdeksan testiä. Kuollut
+koodi jonka kutsujat ovat poissa on velkaa, ei turvaa.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Teleporttaus ja polun tukkeumatoipuminen, eli ne kaksi joita ilman ikkunan ulkopuolinen
+     hahmo ei liiku lainkaan.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

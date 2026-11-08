@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Four neighbours | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/34-nelja-naapuria.html" hreflang="fi">FI</a><span>/</span><a href="34-four-neighbours.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 34</nav>
+
+<h1>Four neighbours</h1>
+
+<p class="lede">
+Characters now walk the original's routes. The previous post had a greedy step standing in for
+this, and I wrote at the time that it was a divergence. It is gone now.
+</p>
+
+<h2>Four neighbours, not eight</h2>
+
+<p>
+The search <strong>never considers a diagonal step</strong>. Three squares right and three down
+is six steps, not three.
+</p>
+
+<p>
+This one thing is what makes the routes look like the original's, and it is the first thing that
+goes wrong: the stand-in I deleted used eight neighbours, because eight is what anybody writes
+when they write a path search themselves.
+</p>
+
+<h2>Two fronts, and a route that is not the cheapest</h2>
+
+<p>
+The search grows two fronts, one from the character and one from the goal, told apart by the top
+bit of the cost byte. That is why the cost is seven bits and breaks at 127. And because each
+front keeps its own cost, <strong>the limit is per front and not per route</strong>: a wall
+costing 127 cannot be crossed, a wall costing 60 can.
+</p>
+
+<p>
+Then the part that surprised me. <strong>The fronts meet the moment one of them looks at a square
+the other has queued</strong>, and the meeting is declared before that square's cost means
+anything at all.
+</p>
+
+<p>
+I wrote a test claiming that a column costing 30 would be walked around, because round is nine
+steps. The test failed. The route goes straight through: one front had queued the expensive
+square at 34 while the buckets were still at four, and the other touched it immediately.
+</p>
+
+<p>
+A search that compared costs before declaring the meeting would find the cheaper way and
+<em>would not be this game</em>. I turned the test round and pinned the behaviour as it is.
+</p>
+
+<h2>The raw byte, not a masked one</h2>
+
+<p>
+The path is read back from the meeting square: walk downhill along the costs to the character.
+The pick is the neighbour whose <strong>raw byte</strong> is smallest.
+</p>
+
+<p>
+I wrote it more carefully than that: I masked the cost to seven bits and filtered by front. That
+is meant to be the same thing, stated more clearly.
+</p>
+
+<p>
+It is not. The front bit is <em>the top bit of the same byte</em>, so a square on the character's
+front always compares smaller than one on the goal's. The raw comparison keeps the walk on the
+right front without anyone having to say so.
+</p>
+
+<p>
+The masked version walks the wrong way. And when I tried it deliberately later,
+<strong>it hung the loop forever</strong> and locked up the test process. I added a bound to both
+walk loops that the original does not have, because a hung game is worse than a wrong route.
+</p>
+
+<h2>The resistance map, and bridges</h2>
+
+<p>
+The cost is one byte per square: the terrain's movement cost plus one, or blocked. Objects go on
+top of that, and one of the object rules turns a blocked square into a walkable one:
+</p>
+
+<pre><code>the square is blocked
+the terrain is WET
+the object's tile is not impassable
+  -> the square opens at the object's own cost</code></pre>
+
+<p>
+That is a plank over water. Four surface windows hold <strong>21 bridge squares</strong>.
+</p>
+
+<p>
+And because the bridge rule asks whether the square is blocked <em>right now</em>, the rules are
+not commutative: <strong>objects have to be walked in chain order</strong>. Walking square by
+square would give a different map wherever two objects meet, and it would look perfectly
+sensible.
+</p>
+
+<p>
+One thing I did not expect: <strong>characters add no resistance.</strong> The original tells
+characters from objects by number, and only the object branch adds a cost. So a route is planned
+straight through somebody standing in the way.
+</p>
+
+<h2>Three searches a turn</h2>
+
+<p>
+At noon 36 characters set off. Three of them get a route that turn, because the search is capped
+at three and there are eight path slots.
+</p>
+
+<p>
+That is <strong>visible behaviour, not throttling</strong>: a town sets off in a trickle rather
+than all at once. Measured in the Avatar's window, the budget is spent as the series 3, 1, 0, 0,
+0, because of the 36 sent somewhere only four stand inside that window.
+</p>
+
+<h2>The best check on the whole search</h2>
+
+<p>
+I asked for every walkable square in the Avatar's window in turn, and walked each route found out
+step by step:
+</p>
+
+<pre><code>walkable goals           1121
+route found               514
+no route                  607
+ended in the wrong place    0
+longest route              38 steps</code></pre>
+
+<p>
+<strong>Nought ending in the wrong place out of 514.</strong> And the 607 without a route are not
+the budget's fault: the same sweep with 4096 nodes instead of 256 finds exactly the same 514, so
+unreachability is walls.
+</p>
+
+<h2>What is left</h2>
+
+<p>
+Five things, all of them recorded. <strong>Teleporting</strong>, which is what the original does
+with a character outside the window, unless it is within five squares of the player. Heading for
+the window's edge. Recovering when a route being followed gets blocked. Seeking furniture, which
+is how a sleeper finds a bed. And movement points.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>corpus passing             192 / 196
+milestones done              9 / 24
+work items done             86 / 126
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    54 / 54
+U6Engine.Tests   788 / 788</code></pre>
+
+<p>
+The test count fell from 796 because I deleted the greedy stand-in and its eight tests. Dead code
+whose callers are gone is debt, not safety.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Teleporting and blocked-route recovery, the two without which a character outside the window
+     does not move at all.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

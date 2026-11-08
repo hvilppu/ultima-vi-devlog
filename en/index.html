@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>9 of 24 milestones</strong> finished, and inside them
-<strong>85 of 126 work items</strong>. The second is the one that moves while a
+<strong>86 of 126 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -241,16 +241,16 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Characters and conversation <span class="m-value">0 / 1 done, 17 / 19 items</span></h3>
+    <h3>Characters and conversation <span class="m-value">0 / 1 done, 18 / 19 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">NPCs, schedules and conversations <span class="m-value">M15</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 89%"></span></span>
-        <span class="m-value">17 / 19, in progress</span>
+        <span class="m-bar"><span class="m-fill" style="width: 95%"></span></span>
+        <span class="m-value">18 / 19, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done">Characters moving by <code>SCHEDULE</code>: work, home, sleep, meals</li>
-        <li>Pathfinding inside the towns</li>
+        <li class="done">Pathfinding inside the towns</li>
         <li class="done">The <code>CONVERSE</code> interpreter: conditions and game variables</li>
         <li class="done">Matching the keywords</li>
         <li class="done">The input opcodes and the question round</li>
@@ -682,12 +682,18 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
     <p>At twelve o'clock 36 characters set off. The rule had been read months ago, and the
        handler still corrected my implementation in four places.</p>
   </li>
+  <li>
+    <span class="n">34</span>
+    <a href="posts/34-four-neighbours.html">Four neighbours</a>
+    <p>Characters walk the original's routes. Four neighbours and not eight, and a route that
+       is not the cheapest, because the fronts meet too early.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>Pathfinding, the one thing that would make the schedules 1:1. About a thousand lines of
-     resistance map.</p>
+  <p>Teleporting and blocked-route recovery, the two without which a character outside the
+     window does not move at all.</p>
 </div>
 
 <footer class="foot">
