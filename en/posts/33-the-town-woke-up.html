@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The town woke up | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/33-kaupunki-herasi.html" hreflang="fi">FI</a><span>/</span><a href="33-the-town-woke-up.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 33</nav>
+
+<h1>The town woke up</h1>
+
+<p class="lede">
+At twelve o'clock <strong>36 characters set off somewhere</strong>. The schedules are in the game
+now, so people no longer stand where the save file left them.
+</p>
+
+<h2>The rule was already read. It was not enough</h2>
+
+<p>
+This slice was unusual in that the format and the hour rule had been written out months ago: an
+entry is five bytes, the hour is in the low five bits, and the match is searched for
+<em>backwards so that the last one wins</em>. I expected to be doing implementation.
+</p>
+
+<p>
+I read the handler anyway before writing a line, and it <strong>corrected my first
+implementation in four places</strong>:
+</p>
+
+<pre><code>the range is 2 to 223, not 0 to 255
+a vigilante calms down BEFORE anything else
+a slot with no shape is skipped
+only somebody in a schedule state or retreating is governed</code></pre>
+
+<p>
+Not one of the four would have failed anything. Three of them would have looked like a character
+walking.
+</p>
+
+<p>
+The last was the worst. Without it a character in the middle of a fight goes off to work when the
+clock strikes. Picture it in the game: the guard you are fighting turns round and walks away.
+Odd, but not <em>broken</em>, and above all not something a test would notice.
+</p>
+
+<h2>The action does not start on the hour</h2>
+
+<p>
+An entry names both a place and an action: sleep, sit, eat, play. The natural mistake is to apply
+the action the moment the hour turns.
+</p>
+
+<p>
+The original does not. It sets the character to <strong>find a path</strong> and nothing else. The
+action waits for the arrival.
+</p>
+
+<p>
+Had I applied it at once, at ten at night the whole town would have fallen asleep wherever it
+happened to be standing. In the street, in a doorway, in the middle of the market.
+</p>
+
+<h2>A number I had been repeating wrongly</h2>
+
+<p>
+I have said in this devlog and in the plan several times that <strong>61 characters keep a daily
+routine</strong>. I measured it properly, and the number is <strong>178</strong>.
+</p>
+
+<p>
+Both are real numbers about different things. 61 is how many characters have a non-zero
+<code>ScheduleIndex</code> byte in the character table. 178 is how many have entries in the
+<code>SCHEDULE</code> file. The pointer table is indexed by character number and not by that
+byte, so 178 is the one that answers "who moves".
+</p>
+
+<p>
+The number was wrong in a place where nobody questioned it, because it was right somewhere else.
+</p>
+
+<h2>What the measurement said</h2>
+
+<pre><code>entries                                 563
+characters with a routine               178   (numbered 5 to 190)
+applies every day                       540
+names one day                            23
+hours in use                             23 / 24
+busiest hour                             12, with 54 entries
+
+slots in the range 2 to 223             222
+of those, with no shape                  36
+through the gate                        176
+and with an entry at noon                36</code></pre>
+
+<p>
+23 hours of 24, and I asserted all of them first. The test said otherwise: <strong>nobody has
+anything to do at four in the morning.</strong> That was another guess written as an assertion
+without being measured, the third this week.
+</p>
+
+<p>
+The ratio between 540 and 23 is why searching backwards is a rule rather than a detail: those 23
+sit in the file <em>after</em> the entry they are meant to override.
+</p>
+
+<h2>The route is a stand-in, and it says so</h2>
+
+<p>
+A character is now in the right place at the right time. It gets there by a route the original
+would not have taken.
+</p>
+
+<p>
+The original's pathfinder is <code>PTH_BuildPath</code>, <code>PTH_Visit</code>,
+<code>PTH_FindPath</code>, <code>PTH_AddObjResist</code> and <code>PTH_SearchPaths</code>, about a
+thousand lines of resistance map and stored paths. <strong>It has not been read.</strong> What
+stands in its place walks greedily one square at a time and gives up when it is boxed in.
+</p>
+
+<p>
+That is a <strong>parity gap rather than a bug</strong>, and the difference is that the gap is
+written down: in the code, in the format document and in the plan. The real pathfinder is a known
+piece of work and not a surprise.
+</p>
+
+<p>
+One small thing about the step is still a rule: <strong>a diagonal is one step</strong>, because
+the original's reach test treats a diagonal neighbour as adjacent. The distance is therefore the
+larger difference and not the sum of the two.
+</p>
+
+<p>
+And one is a choice, which I say is a choice: among equally close steps the straighter one wins.
+Without it the order of the direction table decided, and a character drifted sideways down a
+straight corridor. There is nothing to compare it against, so it is not a measurement.
+</p>
+
+<h2>Three checks, broken on purpose</h2>
+
+<pre><code>no gate on the combat states     1 test failed
+the action applied at once       2 tests failed
+the search run forwards          1 test failed</code></pre>
+
+<h2>The numbers</h2>
+
+<pre><code>corpus runs to the end       192 / 196
+milestones complete            9 / 24
+work items complete           85 / 126
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    54 / 54
+U6Engine.Tests   774 / 774</code></pre>
+
+<p>
+The Unity EditMode count has not been looked at. The corpus did not move and was not meant to: a
+conversation does not ask the time.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Pathfinding, the one thing that would make the schedules 1:1. About a thousand lines of
+     resistance map, and a slice of its own.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     shared here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

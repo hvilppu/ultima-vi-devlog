@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaupunki heräsi | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="33-kaupunki-herasi.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/33-the-town-woke-up.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 33</nav>
+
+<h1>Kaupunki heräsi</h1>
+
+<p class="lede">
+Kello kaksitoista <strong>36 hahmoa lähtee liikkeelle</strong>. Aikataulut ovat nyt pelissä, eli
+väki ei enää seiso siellä mihin tallennus ne jätti.
+</p>
+
+<h2>Sääntö oli jo luettu. Se ei riittänyt</h2>
+
+<p>
+Tämä oli poikkeuksellinen viipale siinä, että muoto ja tuntisääntö oli kirjoitettu auki jo
+kuukausia sitten: merkintä on viisi tavua, tunti alemmissa viidessä bitissä, ja osuma etsitään
+<em>takaperin niin että viimeinen voittaa</em>. Oletin tekeväni toteutusta.
+</p>
+
+<p>
+Luin käsittelijän silti ennen kuin kirjoitin rivinkään, ja se <strong>korjasi ensimmäisen
+toteutukseni neljällä kohdalla</strong>:
+</p>
+
+<pre><code>hahmovali on 2-223, ei 0-255
+vartija rauhoittuu ENNEN kaikkea muuta
+muodoton paikka ohitetaan
+vain aikataulutilassa tai peraantyva on ohjattu</code></pre>
+
+<p>
+Yksikään neljästä ei olisi kaatanut mitään. Kolme niistä olisi näyttänyt hahmolta joka kävelee.
+</p>
+
+<p>
+Viimeinen oli pahin. Ilman sitä keskellä taistelua oleva hahmo lähtee töihin kun kello lyö.
+Ajattele mitä se näyttäisi pelissä: vartija jonka kanssa tappelet kääntyy ympäri ja kävelee pois.
+Omituista, mutta ei <em>rikkinäistä</em>, ja ennen kaikkea ei mitään mitä testi huomaisi.
+</p>
+
+<h2>Toiminta ei ala tunnilla</h2>
+
+<p>
+Merkintä sanoo sekä paikan että toiminnan: nuku, istu, syö, soita. Luonnollinen virhe on asettaa
+toiminta heti kun tunti vaihtuu.
+</p>
+
+<p>
+Alkuperäinen ei tee niin. Se asettaa hahmon <strong>etsimään polkua</strong> ja ei muuta.
+Toiminta odottaa perille pääsyä.
+</p>
+
+<p>
+Jos olisin asettanut sen heti, kello 22 koko kaupunki olisi nukahtanut siihen mihin se sattui
+seisomaan. Kadulle, oviaukkoon, keskelle toria.
+</p>
+
+<h2>Luku jota olin toistanut väärin</h2>
+
+<p>
+Olen sanonut tässä blogissa ja suunnitelmassa useaan kertaan että <strong>61 hahmoa noudattaa
+vuorokausirytmiä</strong>. Mittasin asian nyt kunnolla, ja luku on <strong>178</strong>.
+</p>
+
+<p>
+Molemmat ovat oikeita lukuja eri asioista. 61 on niiden hahmojen määrä joiden
+<code>ScheduleIndex</code>-tavu hahmotaulussa on nollasta poikkeava. 178 on niiden joilla on
+merkintöjä <code>SCHEDULE</code>-tiedostossa. Pointteritaulu on hahmonumeron mukainen, ei
+indeksin, joten 178 on se joka vastaa kysymykseen "kuka liikkuu".
+</p>
+
+<p>
+Luku oli väärä paikassa jossa sitä ei kyseenalaistettu, koska se oli oikea jossain muualla.
+</p>
+
+<h2>Mitä mittaus kertoi</h2>
+
+<pre><code>merkintoja                              563
+hahmoja joilla on rutiini               178   (numerot 5-190)
+patee joka paiva                        540
+nimeaa yhden paivan                      23
+tunteja kaytossa                         23 / 24
+vilkkain tunti                           12, 54 merkintaa
+
+paikkoja valilla 2-223                  222
+niista muodottomia                       36
+portista lapi                           176
+ja joilla on merkinta kello 12           36</code></pre>
+
+<p>
+23 tuntia 24:stä, ja väitin ensin kaikkia. Testi sanoi toisin: <strong>kello neljä aamuyöllä
+kenelläkään ei ole mitään tekemistä.</strong> Sekin oli arvaus jonka kirjoitin väitteeksi
+mittaamatta, kolmatta kertaa tällä viikolla.
+</p>
+
+<p>
+Suhde 540 ja 23 välillä on syy siihen miksi takaperin etsiminen on sääntö eikä yksityiskohta: ne
+23 ovat tiedostossa <em>sen</em> merkinnän jälkeen jonka ne syrjäyttävät.
+</p>
+
+<h2>Reitti on tilapäisratkaisu, ja se sanotaan</h2>
+
+<p>
+Hahmo on nyt oikeassa paikassa oikeaan aikaan. Se kulkee sinne reittiä jota alkuperäinen ei
+kulkisi.
+</p>
+
+<p>
+Alkuperäisen polunetsintä on <code>PTH_BuildPath</code>, <code>PTH_Visit</code>,
+<code>PTH_FindPath</code>, <code>PTH_AddObjResist</code> ja <code>PTH_SearchPaths</code>, noin
+tuhat riviä vastuskarttaa ja talletettuja polkuja. <strong>Sitä ei ole luettu.</strong> Mitä
+tilalla on, kulkee ahneesti yhden ruudun kerrallaan ja luovuttaa jos se jää nurkkaan.
+</p>
+
+<p>
+Se on <strong>poikkeama eikä vika</strong>, ja ero on siinä että poikkeama on kirjattu: koodiin,
+muotodokumenttiin ja suunnitelmaan. Oikea polunetsintä on tiedossa oleva työ eikä yllätys.
+</p>
+
+<p>
+Yksi pieni asia askeleesta on silti sääntö: <strong>vinottain kulkeminen on yksi askel</strong>,
+koska alkuperäisen ulottuvuustesti pitää vinoa naapuria viereisenä. Etäisyys on siis suurempi
+erotus eikä niiden summa.
+</p>
+
+<p>
+Ja yksi on valinta, jonka sanon valinnaksi: tasapelissä suoristava askel voittaa. Ilman sitä
+suuntataulukon järjestys päätti, ja hahmo kulki vinoon vaikka suoraan pääsi. Vertailukohtaa ei
+ole, joten tämä ei ole mittaus.
+</p>
+
+<h2>Kolme tarkistusta, rikottu tarkoituksella</h2>
+
+<pre><code>ei porttia taistelutilaan      1 testi kaatui
+toiminta asetetaan heti        2 testia kaatui
+haku etuperin                  1 testi kaatui</code></pre>
+
+<h2>Numerot</h2>
+
+<pre><code>korpus menee lapi            192 / 196
+virstanpylvaita valmiina       9 / 24
+kohtia valmiina               85 / 126
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    54 / 54
+U6Engine.Tests   774 / 774</code></pre>
+
+<p>
+Unityn EditMode-lukua ei ole katsottu. Korpus ei liikkunut, eikä sen pitänyt: keskustelu ei kysy
+kelloa.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Polunetsintä, eli ainoa asia joka tekee aikatauluista 1:1:n. Noin tuhat riviä
+     vastuskarttaa, ja oma viipaleensa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
