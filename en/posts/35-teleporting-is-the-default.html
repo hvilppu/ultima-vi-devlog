@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teleporting Is the Default | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/35-teleportti-on-oletus.html" hreflang="fi">FI</a><span>/</span><a href="35-teleporting-is-the-default.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 35</nav>
+
+<h1>Teleporting Is the Default</h1>
+
+<p class="lede">
+The previous post listed five missing things, and the first of them was described backwards in
+the docs. Teleporting is not a fallback for a character stranded outside the window. It is the
+first thing tried, and a search is what happens once teleporting refuses.
+</p>
+
+<h2>The direction was reversed</h2>
+
+<p>
+<code>docs/u6-pathfinding.md</code> claimed: a character outside the window, or whose goal is,
+gets teleported, unless it is within five squares of the player. That reads sensibly. The shape
+is still backwards: the original offers teleporting <strong>first, to every character</strong>
+looking for a path, before it knows anything about the window, and only the one teleporting
+refuses falls through to a search.
+</p>
+
+<p>
+The difference is not cosmetic. At the Avatar's starting spot at noon, three characters stand
+within five squares of the player and one more has a goal within five, so <strong>four
+refuse</strong> and need a search. The other 32 teleport, three a turn. The old rule would have
+routed nine and teleported the rest: a different set, four characters different, and the
+difference runs one way. Everyone "near" is also inside the old window test, but four inside the
+window are not near.
+</p>
+
+<h2>The character's own level, never the goal's</h2>
+
+<p>
+Two guards, not one. First it asks whether the character itself is within five of the player.
+Teleporting continues, reads the character's schedule entry, and asks again whether
+<strong>that</strong> is within five. Both times on the level that belongs to the character, not
+to the goal.
+</p>
+
+<p>
+The decompilation remarks on this itself, in its own comment. It is not an oversight, and I
+deliberately did not fold it into one "either side is near" test over both fields: a character
+standing on the player's level whose goal sits on another one behaves differently from what a
+combined test would suggest, and the difference only shows in the rare case that makes combining
+them tempting in the first place.
+</p>
+
+<h2>A route is now a state, not a queue</h2>
+
+<p>
+The old implementation unpacked the whole route into a queue of squares right after the search.
+That worked as long as nothing blocked the way: a blocked route was simply thrown away and a new
+one asked for.
+</p>
+
+<p>
+The original does not throw anything away on the first try. It retries <strong>the same
+step</strong> for three turns (<code>AI_ONPATH</code> &rarr; <code>AI_PATH_BLOCKED1</code> &rarr;
+<code>AI_PATH_BLOCKED2</code> &rarr; <code>AI_PATH_FAILED</code>), and one successful step puts it
+straight back. A queue cannot be asked to retry an entry it has already handed out, so following
+a route is now its own per-slot state, a counter for the run it is on and the steps already taken
+in it, rather than a precomputed list.
+</p>
+
+<h2>A table that reads past its own end</h2>
+
+<p>
+On the third blocked turn the character gives up, and asks whether it ended up exactly next to
+its goal. The test indexes a direction table with the <strong>raw run byte</strong>, the direction
+combined with the steps left, rather than the direction alone.
+</p>
+
+<p>
+The direction table is eight bytes. A run with one step left (run byte 4 through 7) fits inside it
+and gives the right direction. A run with two or three steps left (8 through 15) does not: it
+reads the next table, then bytes of the pointer table after that, as if they were a direction.
+I measured both independently, two different ways, and they agreed on the same garbage:
+</p>
+
+<pre><code>run byte     8    9   10   11   12   13   14   15
+dx          -1   -1    0    1    1    1    0   -1
+dy          38    2   44    2   54    2   59    2</code></pre>
+
+<p>
+The visible consequence: a character that gets blocked exactly beside its goal in the middle of a
+longer run <strong>usually does not settle</strong> into its action but searches for a new route
+instead, because the table reads something other than a direction. A one-step run works correctly
+because it happens to land inside the real table. I did not read run bytes sixteen and above: that
+would reach ever deeper into pointers and then into name strings, and the code refuses rather than
+guesses from there.
+</p>
+
+<h2>Drifting outside the window is its own mechanism</h2>
+
+<p>
+A separate thing from following a route: a character whose square falls outside the view's window
+mid-route is frozen. It is teleported <strong>with no three-a-turn limit</strong>, because
+scrolling the view away from under it must not simply strand it, and if that refuses too, the
+route slot is freed and it goes back to searching.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>corpus passing             192 / 196
+milestones done              9 / 24
+work items done             86 / 126
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    54 / 54
+U6Engine.Tests   804 / 804</code></pre>
+
+<p>
+Sixteen new tests: the budget and its ordering against the real game data, walking one square at
+a time and settling on arrival, three turns of blocking in both directions (settles, does not
+settle, and throws), the outside-window freeze, and the new position writer's own probe.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Seeking furniture and heading for the window's edge, both read for where they sit but not
+     yet for their rule.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

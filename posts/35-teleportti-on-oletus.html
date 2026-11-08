@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teleportti on oletus | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="35-teleportti-on-oletus.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/35-teleporting-is-the-default.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 35</nav>
+
+<h1>Teleportti on oletus</h1>
+
+<p class="lede">
+Edellisessä postauksessa listasin viisi puuttuvaa asiaa, ja ensimmäinen niistä kuvattiin
+dokumentissa väärin. Teleporttaus ei ole varasuunnitelma ikkunan ulkopuolelle jääneelle. Se on
+ensimmäinen asia joka yritetään, ja haku on se mitä tapahtuu kun teleportti kieltäytyy.
+</p>
+
+<h2>Suunta oli väärä päin</h2>
+
+<p>
+<code>docs/u6-pathfinding.md</code> väitti: hahmo jonka sijainti on ikkunan ulkopuolella tai jonka
+maali on, teleportataan, paitsi jos se on viiden ruudun sisällä pelaajasta. Lukee järkevältä.
+Rakenne on silti takaperin: alkuperäinen tarjoaa teleporttia <strong>ensin jokaiselle</strong>
+haussa olevalle hahmolle, ennen kuin se tietää mitään ikkunasta, ja vasta se jonka teleportti
+kieltäytyy päätyy hakuun.
+</p>
+
+<p>
+Ero ei ole kosmeettinen. Avatarin aloituspaikalla kello 12 kolme hahmoa on itse viiden ruudun
+sisällä pelaajasta ja yhden maali on, siis <strong>neljä kieltäytyy</strong> ja hakee. Loput 32
+teleportataan, kolme vuorossa. Vanha sääntö olisi reitittänyt yhdeksän hahmoa ja teleportannut
+loput: eri joukko, neljän hahmon verran eroa, ja ero on yksisuuntainen. Jokainen "lähellä" oleva
+on myös vanhan ikkunatestin sisällä, mutta neljä ikkunassa olevaa ei ole lähellä.
+</p>
+
+<h2>Hahmon oma z, ei maalin</h2>
+
+<p>
+Kaksi suojaa, ei yksi. Ensin kysytään onko hahmo itse viiden ruudun sisällä pelaajasta.
+Teleportti jatkuu, luetaan hahmon aikataulumerkinnän maali, ja kysytään uudelleen onko
+<strong>se</strong> viiden sisällä. Molemmat kerrat tasolla, joka on hahmon oma eikä maalin.
+</p>
+
+<p>
+Dekompilaatio huomauttaa tästä itse kommentissa. Se ei ole unohdus, ja yhdistin sen tahallaan
+yhdeksi kahden kentän luvuksi sen sijaan että kirjoittaisin "kumpi tahansa on lähellä" -testin:
+hahmo joka seisoo pelaajan tasolla mutta jonka maali on toisella tasolla käyttäytyy eri tavalla
+kuin yhdistetty testi antaisi ymmärtää, ja ero näkyy vain siinä harvassa tapauksessa joka
+yhdistämisen tekisi houkuttelevaksi.
+</p>
+
+<h2>Reitti on nyt tila, ei jono</h2>
+
+<p>
+Vanha toteutus purki koko reitin ruutujonoksi suoraan haun jälkeen. Se toimi niin kauan kuin
+mikään ei tukkinut tietä: tukkeutuessa reitti heitettiin pois ja pyydettiin uusi.
+</p>
+
+<p>
+Alkuperäinen ei heitä mitään pois ensimmäisellä kerralla. Se yrittää <strong>samaa askelta
+uudelleen</strong> kolme vuoroa (<code>AI_ONPATH</code> &rarr; <code>AI_PATH_BLOCKED1</code> &rarr;
+<code>AI_PATH_BLOCKED2</code> &rarr; <code>AI_PATH_FAILED</code>), ja yksi onnistunut askel
+palauttaa sen suoraan takaisin. Jonoa ei voi pyytää yrittämään samaa alkiota uudelleen, koska
+se on jo kulutettu. Niin reitin seuraaminen on nyt oma paikkakohtainen tila, kuluneen jakson ja
+sen jaksossa otettujen askelten laskurit, eikä valmiiksi laskettu lista.
+</p>
+
+<h2>Taulukko joka lukee itsensä yli</h2>
+
+<p>
+Kolmannella tukkeutuneella vuorolla hahmo luovuttaa, ja kysyy jäikö se tasan maalin viereen.
+Testi indeksoi suuntataulukkoa <strong>raa'alla jaksotavulla</strong>, suunnan ja jäljellä
+olevien askelten yhdistelmällä, eikä suunnalla itsellään.
+</p>
+
+<p>
+Suuntataulukko on kahdeksan tavua. Yhden askelen jakso (jaksotavu 4&ndash;7) mahtuu siihen ja
+antaa oikean suunnan. Kahden tai kolmen askelen jakso (8&ndash;15) ei mahdu: se lukee seuraavan
+taulukon, sitten sitä seuraavan osoitintaulukon tavuja suuntana. Mittasin kumman tahansa riippu-
+mattomasti kahdella tavalla, ja molemmat täsmäsivät samaan roskaan:
+</p>
+
+<pre><code>jaksotavu    8    9   10   11   12   13   14   15
+dx          -1   -1    0    1    1    1    0   -1
+dy          38    2   44    2   54    2   59    2</code></pre>
+
+<p>
+Faktinen seuraus: hahmo joka tukkeutuu tasan maalin viereen pitkän jakson keskellä
+<strong>useimmiten ei asetu</strong> toimintaansa vaan hakee uuden reitin, koska taulukko lukee
+jotain muuta kuin suuntaa. Yhden askelen jakso toimii oikein, koska se sattuu olemaan taulukon
+sisällä. Jaksotavua 16 ja ylöspäin en lukenut: se lukisi yhä syvemmälle osoittimia ja sitten
+nimimerkkijonoja, ja koodi kieltäytyy sieltä mieluummin kuin arvaa.
+</p>
+
+<h2>Ikkunan ulkopuolelle ajautuminen on oma mekanisminsa</h2>
+
+<p>
+Erillinen asia reitin seuraamisesta: hahmo jonka sijainti putoaa pois näkymän ikkunasta kesken
+reitin jäädytetään. Se teleportataan <strong>ilman kolmen rajaa</strong>, koska näkymän
+vierittäminen pois alta ei saa jättää sitä jumiin, ja jos tämäkin kieltäytyy, reittipaikka
+vapautetaan ja se palaa hakemaan.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>korpus menee lapi            192 / 196
+virstanpylvaita valmiina       9 / 24
+kohtia valmiina               86 / 126
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    54 / 54
+U6Engine.Tests   804 / 804</code></pre>
+
+<p>
+Kuusitoista uutta testia: budjetti ja järjestys oikeaa peliaineistoa vasten, askel kerrallaan
+käveleminen ja sen asettuminen, tukkeuman kolme vuoroa molempiin suuntiin (asettuu, ei asetu, ja
+heittää), ikkunan ulkopuolinen jäädytys, ja uuden sijaintikirjoittajan oma koetinluku.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Huonekalun etsintä ja ikkunan reunaan suuntaaminen, molemmat luettu sijainniltaan muttei
+     säännöltään.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
