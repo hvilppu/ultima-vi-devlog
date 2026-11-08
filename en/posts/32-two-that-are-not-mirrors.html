@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two that are not mirrors | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/32-kaksi-jotka-eivat-ole-peilikuvia.html" hreflang="fi">FI</a><span>/</span><a href="32-two-that-are-not-mirrors.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 32</nav>
+
+<h1>Two that are not mirrors</h1>
+
+<p class="lede">
+Things can be picked up in the game now. <code>G</code> lifts whatever you are standing on,
+<code>P</code> puts it back. The first time the world can be done anything to beyond walking
+across it and talking to it.
+</p>
+
+<h2>Giving and taking</h2>
+
+<p>
+I thought these were one machine pointed two ways. I said so myself in the last post. They are
+not.
+</p>
+
+<pre><code>GiveObj   looks only at DIRECT contents
+TakeObj   walks the WHOLE subtree</code></pre>
+
+<p>
+So a pile inside a bag inside the pack is <strong>never merged into</strong>, and that same pile
+<strong>can be taken from</strong>. The symmetrical implementation is tidier, shorter and wrong.
+</p>
+
+<p>
+And wrong in a way nothing reports. The game does not crash, nothing looks broken: things simply
+stop piling up. You pick up twelve bolts and get a new pile. You pick up more and get a third.
+There are five piles of bolts in the pack and you wonder why.
+</p>
+
+<h2>A pile fills to 144</h2>
+
+<p>
+A stackable type fills to <code>0x90</code>, 144, and the rest spills into a new object. The code
+is unambiguous about it.
+</p>
+
+<p>
+I was about to write a check asserting that no pile exceeds 144. I measured first, and just as
+well:
+</p>
+
+<pre><code>stackable objects at the start   1433
+exactly 144                        1
+above 144                          2
+largest                          240</code></pre>
+
+<p>
+<strong>The limit is not a property of the data.</strong> It governs what the game hands you, not
+what the designers placed. Had I enforced it at load I would have corrupted two objects out of
+the world in the name of a rule that was never about them.
+</p>
+
+<p>
+Gold is its own case: one pile, unbounded, and quality <em>does not take part in the match</em>,
+because for gold it is the upper half of the count. The 21 stackable types match on type
+<strong>and</strong> quality, so two qualities stay two piles.
+</p>
+
+<h2>A shared fixture stopped being safe</h2>
+
+<p>
+The most instructive part of this batch was not a rule. It was what happened when I switched on
+three conversation members.
+</p>
+
+<p>
+<strong>Seven tests failed at once</strong>, and only two of them were about the change I was
+making.
+</p>
+
+<p>
+The cause: the tests share one cached world. That was free for as long as objects were read only.
+A conversation can give and take things now, so every test that ran one was quietly editing what
+every later test then measured.
+</p>
+
+<p>
+<strong>A shared fixture stops being safe the moment what it holds can change</strong>, and
+nothing announces that moment. The symptom is a cluster of failures with no visible connection to
+each other or to what you did.
+</p>
+
+<h2>The order is newest first</h2>
+
+<p>
+I wrote three tests that assumed a character's things come in the order they arrived. They
+failed. The order is the other way round, and that is correct: <code>InsertObj</code> links a
+carried thing <em>immediately behind its owner</em>, so the last thing in is the first thing
+found.
+</p>
+
+<p>
+That is not cosmetic. It is which pile a search hits, so which one is taken from first. I fixed
+the tests rather than the code, and pinned the order as a test of its own because two others
+depend on it.
+</p>
+
+<h2>The measure moved, and one stopper is left</h2>
+
+<pre><code>                   before   after
+corpus               191      192   / 196
+stoppers               1        1
+members answering     14       17   / 32</code></pre>
+
+<p>
+<code>GiveObject</code>, <code>TakeObject</code> and <code>TransferObject</code> answer now.
+<code>MoveObject</code> still refuses, for one narrow reason: a script's object numbers come from
+the one numbering space that was never exported. The same gap holds <code>OwnerOf</code> and
+<code>ObjectTypeOf</code> shut.
+</p>
+
+<p>
+One stopper is left, <code>SetBehaviour</code>, on four conversations.
+</p>
+
+<h2>What was not built of dropping</h2>
+
+<p>
+The original's <code>CmdDrop</code> is a great deal more than moving an object, and five of its
+rules need things that do not exist: throwing it further than one square and the breakables that
+follow from that, the clear line of throw, the three movement points, and the prompt that asks
+how many. The breakables have a rule of their own: a dragon egg stays on the ground in frame 1
+and a mirror in frame 2, everything else disappears.
+</p>
+
+<p>
+Picking up is missing the free hand check, the original's "No free hand", because equipment slots
+do not exist. Two of the four type side effects are in: a candle is put out and an open chest
+shuts. A moonstone forgetting its moongate and a balloon deflating were left, because they belong
+to the plot and to vehicles.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>interface members answering   17 / 32
+corpus runs to the end       192 / 196
+milestones complete            9 / 24
+work items complete           84 / 126
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    52 / 52
+U6Engine.Tests   742 / 742</code></pre>
+
+<p>
+The Unity EditMode count has not been looked at. The last one seen was 709 of 709 when the
+headless count was 698, so it would now be 753, but working it out is not looking.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Schedules. Sixty one characters stand still, and nothing is left on the object side that
+     would show in the game without an inventory panel. It needs a round of finding out first: a
+     schedule entry has been read as a format but not as a rule.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     shared here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

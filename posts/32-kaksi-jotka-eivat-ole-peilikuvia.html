@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaksi jotka eivät ole peilikuvia | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="32-kaksi-jotka-eivat-ole-peilikuvia.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/32-two-that-are-not-mirrors.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 32</nav>
+
+<h1>Kaksi jotka eivät ole peilikuvia</h1>
+
+<p class="lede">
+Pelissä voi nyt poimia tavaraa. <code>G</code> nostaa sen minkä päällä seisot, <code>P</code>
+panee sen takaisin. Ensimmäinen kerta kun maailmalle voi tehdä jotain muuta kuin kävellä ja
+puhua.
+</p>
+
+<h2>Antaminen ja ottaminen</h2>
+
+<p>
+Luulin näiden olevan sama koneisto kahteen suuntaan. Niin sanoin itse edellisessä postauksessa.
+Ne eivät ole.
+</p>
+
+<pre><code>GiveObj   katsoo vain SUORAA sisaltoa
+TakeObj   kavelee KOKO alipuun</code></pre>
+
+<p>
+Eli repussa olevan pussin sisällä olevaan pinoon <strong>ei koskaan yhdistetä</strong>, mutta
+samasta pinosta <strong>voi ottaa</strong>. Symmetrinen toteutus on siistimpi, lyhyempi ja
+väärä.
+</p>
+
+<p>
+Ja se on väärä tavalla jota mikään ei raportoi. Peli ei kaadu, mikään ei näytä rikkinäiseltä:
+tavara vain lakkaa kasautumasta. Nostat kaksitoista nuolta, saat uuden pinon. Nostat lisää,
+saat kolmannen. Repussa on viisi pinoa nuolia ja sinä ihmettelet miksi.
+</p>
+
+<h2>Pino täyttyy 144:ään</h2>
+
+<p>
+Pinoutuva tyyppi täyttyy <code>0x90</code>:een eli 144:ään, ja loput valuvat uuteen objektiin.
+Tämä on koodissa yksiselitteinen.
+</p>
+
+<p>
+Olin kirjoittamassa tarkistuksen joka väittäisi ettei yksikään pino ylitä 144:ää. Mittasin ensin,
+ja hyvä niin:
+</p>
+
+<pre><code>pinoutuvia objekteja alkutilassa   1433
+tasan 144                             1
+yli 144                               2
+suurin                              240</code></pre>
+
+<p>
+<strong>Raja ei ole datan ominaisuus.</strong> Se koskee sitä mitä peli antaa, ei sitä mitä
+suunnittelijat asettivat. Jos olisin pakottanut sen latauksessa, olisin rikkonut kaksi objektia
+maailmasta säännön nimissä joka ei koskaan koskenut niitä.
+</p>
+
+<p>
+Kulta on oma tapauksensa: yksi pino, rajaton, ja laatu <em>ei vaikuta kohdistamiseen</em>, koska
+kullalle se on laskun ylempi puolikas. 21 pinoutuvaa tyyppiä sen sijaan kohdistuvat tyypin
+<strong>ja</strong> laadun mukaan, eli kaksi laatua pysyy kahtena pinona.
+</p>
+
+<h2>Jaettu fikstuuri lakkasi olemasta turvallinen</h2>
+
+<p>
+Tämän erän opettavaisin osa ei ollut sääntö vaan se mitä tapahtui kun kytkin kolme
+keskustelujäsentä päälle.
+</p>
+
+<p>
+<strong>Seitsemän testiä kaatui kerralla</strong>, ja vain kaksi niistä koski muutosta jota olin
+tekemässä.
+</p>
+
+<p>
+Syy: testit jakavat yhden välimuistissa olevan maailman. Se oli ilmaista niin kauan kuin
+objektit olivat vain luettavia. Nyt keskustelu voi antaa ja ottaa tavaraa, joten jokainen
+keskustelun ajanut testi muokkasi hiljaa sitä mitä jokainen myöhempi testi mittasi.
+</p>
+
+<p>
+<strong>Jaettu fikstuuri lakkaa olemasta turvallinen sillä hetkellä kun se mitä se pitää voi
+muuttua</strong>, eikä mikään ilmoita siitä hetkestä. Oireena on joukko kaatumisia joilla ei ole
+näkyvää yhteyttä toisiinsa eikä siihen mitä teit.
+</p>
+
+<h2>Järjestys on uusin ensin</h2>
+
+<p>
+Kirjoitin kolme testiä jotka olettivat että hahmon tavarat ovat siinä järjestyksessä kuin ne
+tulivat. Ne kaatuivat. Järjestys on päinvastainen, ja se on oikein: <code>InsertObj</code>
+linkittää kannetun <em>heti omistajan perään</em>, joten viimeksi tullut löytyy ensin.
+</p>
+
+<p>
+Se ei ole kosmeettista. Se on se pino johon haku osuu, eli se josta otetaan ensin. Korjasin
+testit, en koodia, ja naulasin järjestyksen omaksi testikseen koska kaksi muuta nojaa siihen.
+</p>
+
+<h2>Mittari liikkui, ja pysäyttäjiä on yksi</h2>
+
+<pre><code>                ennen   jalkeen
+korpus            191     192   / 196
+pysayttajia         1       1
+vastaavia jasenia  14      17   / 32</code></pre>
+
+<p>
+<code>GiveObject</code>, <code>TakeObject</code> ja <code>TransferObject</code> vastaavat nyt.
+<code>MoveObject</code> kieltäytyy yhä, ja syy on kapea: skriptin objektinumerot tulevat siitä
+samasta numeroavaruudesta jota ei ole viety. Sama aukko pitää <code>OwnerOf</code>in ja
+<code>ObjectTypeOf</code>in kiinni.
+</p>
+
+<p>
+Jäljellä on <strong>yksi pysäyttäjä</strong>, <code>SetBehaviour</code>, neljällä keskustelulla.
+</p>
+
+<h2>Mitä pudotuksesta ei rakennettu</h2>
+
+<p>
+Alkuperäisen <code>CmdDrop</code> on paljon enemmän kuin esineen siirtäminen, ja viisi sen
+säännöistä tarvitsee rakentamatonta: heittäminen yhtä ruutua kauemmas ja sen myötä särkyvät,
+vapaa heittolinja, kolme liikepistettä, ja kysymys montako. Särkyvistä on oma pikku sääntö:
+lohikäärmeen muna jää maahan kehyksellä 1 ja peili kehyksellä 2, muut katoavat.
+</p>
+
+<p>
+Poiminnasta puuttuu vapaan käden tarkistus, eli alkuperäisen "No free hand", koska
+varustepaikkoja ei ole. Kaksi tyyppikohtaista sivuvaikutusta neljästä on toteutettu: kynttilä
+sammuu ja avoin arkku sulkeutuu. Kuukiven unohtaminen ja ilmapallon tyhjentyminen jäivät, koska
+ne kuuluvat juoneen ja kulkuvälineisiin.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>vastaavia rajapinnan jasenia  17 / 32
+korpus menee lapi            192 / 196
+virstanpylvaita valmiina       9 / 24
+kohtia valmiina               84 / 126
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    52 / 52
+U6Engine.Tests   742 / 742</code></pre>
+
+<p>
+Unityn EditMode-lukua ei ole katsottu. Viimeksi nähty oli 709 / 709 silloin kun headless oli
+698, joten se olisi nyt 753, mutta päättely ei ole katsomista.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Aikataulut. 61 hahmoa seisoo paikallaan, eikä objektipuolelta ole enää jäljellä mitään joka
+     näkyisi pelissä ilman inventaariopaneelia. Vaatii oman louhintakierroksen: aikataulumerkintä
+     on luettu muodoksi muttei säännöksi.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
