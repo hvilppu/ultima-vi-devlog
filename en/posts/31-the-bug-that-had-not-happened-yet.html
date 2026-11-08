@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The bug that had not happened yet | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/31-vika-joka-ei-ollut-viela-tapahtunut.html" hreflang="fi">FI</a><span>/</span><a href="31-the-bug-that-had-not-happened-yet.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 31</nav>
+
+<h1>The bug that had not happened yet</h1>
+
+<p class="lede">
+The object world can change now, so a thing can move from one square to another, into a pack and
+into a container. But the whole reason for this slice was <strong>a bug nothing had committed
+yet</strong>, because nothing had moved yet.
+</p>
+
+<h2>A position is not an identity</h2>
+
+<p>
+Post 28 settled how a container's contents name their container: as a slot within one block,
+translated into an index over the whole list. It worked, it was measured, and tests held it in
+place.
+</p>
+
+<p>
+It was also right only for as long as <em>nothing moves</em>.
+</p>
+
+<p>
+An index is a position in a list. When an object moves and the order changes, every stored
+container reference names a different object. Not an empty slot either: it names a
+<strong>real object</strong>, on some square, of some type. The contents of one chest would be
+inside somebody else's chest.
+</p>
+
+<p>
+So no exception, no crash, nothing a test would catch unless written for it on purpose. Just a
+wrong answer that looks like data.
+</p>
+
+<h2>The original never meets this</h2>
+
+<p>
+Because it has the two separately. An object number is a slot in a fixed pool, so it is stable,
+and the order is its own singly linked list, <code>Link[]</code>. A move changes the order and
+not the identity.
+</p>
+
+<p>
+That is an architectural split which 1990 got for free out of its memory limits. We got it for
+nothing, and what we got was wrong.
+</p>
+
+<p>
+The fix is the same split. An id is a position in load order, fixed once and never again. The
+order is its own list. The export did not change by a single byte, because the file is already
+in load order.
+</p>
+
+<h2>The chain is a rule, not an implementation detail</h2>
+
+<p>
+I read <code>OBJ_CompareOrder</code> and the two move primitives, and the chain carries three
+invariants:
+</p>
+
+<pre><code>1  map objects in order of y and then x
+2  a container is followed immediately by its contents, as a subtree
+3  anything new or moved goes in FRONT of what already stands there</code></pre>
+
+<p>
+The first two I measured from the file. The third is the one that nearly went in backwards.
+</p>
+
+<h2>In front, not behind</h2>
+
+<p>
+I was writing an implementation that re-sorts the chain after every move. A stable sort, which
+keeps the relative order of objects on one square. Sensible, and simple.
+</p>
+
+<p>
+And wrong, because a stable sort puts the arrival <em>behind</em> the residents. I stopped to
+read what the original does, and <code>OBJ_FindListPos</code>'s own comment says it outright: new
+objects go in front of the objects already on that tile. Its loop confirms it by stopping at the
+first object whose row is past the target, or whose row matches and whose column is not before
+it.
+</p>
+
+<p>
+The difference is drawing order. A dropped object would have been drawn on the wrong side of
+whatever is already there, and that would have looked like nothing at all: it would have looked
+like an object on a square. One comment told the two readings apart.
+</p>
+
+<h2>The file was not in order after all</h2>
+
+<p>
+I wrote the invariant check and it failed on the real data immediately. For a good reason:
+<strong>the file is sorted within each block and not across them</strong>. A block is one super
+chunk, so the row number starts over at every boundary, 69 times.
+</p>
+
+<p>
+The original never meets this either, because it holds only the 2x2 areas around the party or one
+dungeon level, at most 2815 object slots. Its chain covers exactly what is loaded, and so it is
+in order. We hold all 16838, so the chain has to be sorted across the whole world.
+</p>
+
+<p>
+The sort is over roots with their contents, so a subtree stays together, and it is stable, so
+objects on one square keep the order the file gave them. That is why the renderer sees exactly
+the same sequence as before, and why 698 tests passed after the change without one of them being
+touched.
+</p>
+
+<h2>Two things the tests caught me doing</h2>
+
+<p>
+<strong>Building the chain dropped loops silently.</strong> I build it from the roots down, and
+two objects inside each other are neither of them a root. They never reached the chain and
+nothing said so. An existing test asserting that a loop is rejected failed, and it was right.
+The check is now exact rather than a depth limit: the chain is as long as the number of objects,
+or something is unreachable.
+</p>
+
+<p>
+<strong>I wrote the number 13386 by guessing.</strong> It is how many of the 15070 pairs are also
+in order under the wrong reading, column before row. I guessed it by adding the per-block figures
+in my head, put it in an assertion, and the assertion failed: the real number is 13386 and not
+what I had written. The same mistake as the weight table's commit message last time, and this
+time it was caught before it reached anything permanent.
+</p>
+
+<p>
+So the wrong reading is right <strong>88.8 per cent</strong> of the time. Exactly often enough to
+look correct and never be questioned.
+</p>
+
+<h2>One inconsistency went away on the way past</h2>
+
+<p>
+Changing a frame, which is what a door opening is, used to write the new frame into <em>the
+square's own list</em>. The full object list and every other lookup went on saying the old one.
+The plan had recorded that as an inconsistency and nobody had fixed it.
+</p>
+
+<p>
+It is structurally impossible now, not because the method is careful but because there is one
+copy to change. The lookup buckets are rebuilt on every change, which is one pass over 16838
+objects per move. That is a trivial price and it removes the place a stale entry could hide.
+</p>
+
+<h2>Three checks, broken on purpose</h2>
+
+<pre><code>the arrival goes behind the residents   1 test failed
+the subtree is left behind on a move    2 tests failed
+a loop is dropped silently              1 test failed (it found this one itself)</code></pre>
+
+<h2>The numbers</h2>
+
+<pre><code>interface members answering   14 / 32
+corpus runs to the end       191 / 196
+milestones complete            9 / 24
+work items complete           83 / 125
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    52 / 52
+U6Engine.Tests   714 / 714</code></pre>
+
+<p>
+The Unity EditMode count has not been looked at since. The last one actually seen was 709 of 709
+when the headless count was 698, so it would now be 725, but <strong>working it out is not the
+same as looking</strong> and this project's record on that is bad.
+</p>
+
+<p>
+The corpus did not move, and was not meant to: a conversation does not move objects.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The acting half of the <code>Get</code> rule, which is the first time anything in the game
+     can be picked up. The decision is made and the world can be written to, so the only part
+     that needs finding out is how piles merge.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     shared here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

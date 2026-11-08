@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vika joka ei ollut vielä tapahtunut | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="31-vika-joka-ei-ollut-viela-tapahtunut.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/31-the-bug-that-had-not-happened-yet.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 31</nav>
+
+<h1>Vika joka ei ollut vielä tapahtunut</h1>
+
+<p class="lede">
+Objektimaailma on nyt muutettava, eli esine voi siirtyä ruudusta toiseen, reppuun ja säiliöön.
+Mutta tämän viipaleen koko syy oli <strong>vika jota mikään ei ollut vielä tehnyt</strong>, koska
+mikään ei ollut vielä liikkunut.
+</p>
+
+<h2>Paikka ei ole identiteetti</h2>
+
+<p>
+Postauksessa 28 ratkesi miten säiliön sisältö nimeää säiliönsä: lohkon sisäisenä indeksinä, joka
+käännetään indeksiksi koko listaan. Se toimi, se mitattiin, ja testit pitivät siitä kiinni.
+</p>
+
+<p>
+Se oli myös oikein vain niin kauan kuin <em>mikään ei liiku</em>.
+</p>
+
+<p>
+Indeksi on paikka listassa. Kun objekti siirtyy ja järjestys muuttuu, jokainen tallennettu
+säiliöviittaus osoittaa eri objektiin. Eikä mihinkään tyhjään: se osoittaa <strong>oikeaan
+objektiin</strong>, jollain ruudulla, jollain tyypillä. Arkun sisältö olisi jonkun toisen arkussa.
+</p>
+
+<p>
+Siis ei poikkeusta, ei kaatumista, ei mitään mitä testi huomaisi ilman että sitä varta vasten
+kirjoitetaan. Pelkkä väärä vastaus joka näyttää datalta.
+</p>
+
+<h2>Alkuperäinen ei kohtaa tätä</h2>
+
+<p>
+Koska sillä on molemmat erikseen. Objektinumero on paikka kiinteässä altaassa, eli pysyvä, ja
+järjestys on oma yksisuuntainen lista <code>Link[]</code>. Siirto muuttaa järjestystä eikä
+identiteettiä.
+</p>
+
+<p>
+Se on arkkitehtuurinen jako, jonka 1990 sai ilmaiseksi muistirajoistaan. Me saimme sen
+tekemättä, ja se oli väärä.
+</p>
+
+<p>
+Korjaus on sama jako. Tunnus on paikka latausjärjestyksessä, kiinnitetty kerran eikä koskaan
+enää. Järjestys on oma lista. Vienti ei muuttunut tavuakaan, koska tiedosto on jo
+latausjärjestyksessä.
+</p>
+
+<h2>Ketju on sääntö, ei toteutustapa</h2>
+
+<p>
+Luin <code>OBJ_CompareOrder</code>:n ja kaksi siirtoprimitiiviä, ja ketjussa on kolme
+invarianttia:
+</p>
+
+<pre><code>1  kartalla olevat jarjestyksessa y ja sitten x
+2  sailion sisalto seuraa sailiota valittomasti, alipuuna
+3  uusi tai siirretty menee ruudun olemassaolevien ETEEN</code></pre>
+
+<p>
+Kaksi ensimmäistä mittasin tiedostosta. Kolmas on se joka melkein meni väärinpäin.
+</p>
+
+<h2>Eteen, ei taakse</h2>
+
+<p>
+Olin kirjoittamassa toteutusta jossa ketju lajitellaan uudelleen jokaisen siirron jälkeen.
+Vakaa lajittelu, joka säilyttää saman ruudun objektien keskinäisen järjestyksen. Järkevää, ja
+yksinkertaista.
+</p>
+
+<p>
+Ja väärin, koska vakaa lajittelu panee tulokkaan <em>asukkaiden taakse</em>. Pysähdyin lukemaan
+mitä alkuperäinen tekee, ja <code>OBJ_FindListPos</code>in oma kommentti sanoo sen suoraan: uudet
+objektit menevät sen tiilen olemassaolevien eteen. Sen silmukka vahvistaa pysähtymällä
+ensimmäiseen objektiin jonka rivi on kohteen jälkeen tai rivi sama ja sarake ei ole ennen.
+</p>
+
+<p>
+Ero on piirtojärjestys. Pudotettu esine olisi piirtynyt väärällä puolella sitä mikä ruudulla jo
+on, ja se ei näyttäisi miltään: se näyttäisi esineeltä ruudulla. Yksi kommentti erotti luennat.
+</p>
+
+<h2>Tiedosto ei ollutkaan järjestyksessä</h2>
+
+<p>
+Kirjoitin invarianttitarkistuksen ja se kaatui heti oikeaan dataan. Syy on hyvä: <strong>tiedosto
+on järjestetty lohkoittain eikä lohkojen yli</strong>. Lohko on yksi superchunk, joten rivinumero
+alkaa alusta joka rajalla, 69 kertaa.
+</p>
+
+<p>
+Alkuperäinen ei kohtaa tätäkään, koska se pitää muistissa vain 2x2 aluetta puolueen ympärillä tai
+yhden dungeon-tason, enintään 2815 objektipaikkaa. Sen ketju kattaa tasan sen mitä on ladattu, ja
+on siksi järjestyksessä. Me pidämme kaikki 16838, joten ketju on lajiteltava koko maailman yli.
+</p>
+
+<p>
+Lajittelu tehdään juurille sisältöineen, jotta alipuu pysyy koossa, ja vakaana, jotta saman ruudun
+objektit pitävät sen järjestyksen jonka tiedosto antoi. Siksi renderöijä näkee tarkalleen saman
+jonon kuin ennen, ja 698 testiä meni läpi muutoksen jälkeen koskematta yhteenkään niistä.
+</p>
+
+<h2>Kaksi asiaa jotka testit nappasivat minusta</h2>
+
+<p>
+<strong>Ketjun rakennus pudotti silmukat hiljaa.</strong> Rakennan ketjun juurista alaspäin, ja
+kaksi objektia jotka ovat toistensa sisällä eivät ole kumpikaan juuri. Ne eivät päätyneet
+ketjuun, eikä mikään huomauttanut. Olemassaoleva testi joka väitti että silmukka hylätään kaatui,
+ja se oli oikeassa. Tarkistus on nyt täsmällinen eikä syvyysraja: ketjun pituus on sama kuin
+objektien määrä, tai jotain on saavuttamattomissa.
+</p>
+
+<p>
+<strong>Kirjoitin luvun 13386 arvaamalla.</strong> Se on montako paria 15070:stä on
+järjestyksessä myös väärällä luennalla, eli x ennen y:tä. Arvasin sen summaamalla lohkoittaiset
+luvut päässäni, laitoin sen väitteeseen, ja väite kaatui: oikea luku on 13386 eikä se mitä
+kirjoitin. Sama virhe kuin viime kerran painotaulun commit-viestissä, ja tällä kertaa se jäi
+kiinni ennen kuin pääsi mihinkään pysyvään.
+</p>
+
+<p>
+Väärä luenta on siis oikeassa <strong>88,8 %</strong> ajasta. Juuri niin usein että se
+näyttäisi oikealta eikä sitä kyseenalaistaisi koskaan.
+</p>
+
+<h2>Yksi epäjohdonmukaisuus poistui matkan varrella</h2>
+
+<p>
+Kehyksen vaihto, eli oven avautuminen, kirjoitti uuden kehyksen <em>ruudun omaan listaan</em>.
+Koko objektilista ja muut haut sanoivat yhä vanhaa. Suunnitelma oli kirjannut sen
+epäjohdonmukaisuudeksi eikä kukaan ollut korjannut sitä.
+</p>
+
+<p>
+Nyt se on rakenteellisesti mahdoton, ei siksi että metodi olisi huolellinen vaan siksi että
+kopioita on yksi. Hakukaupat rakennetaan uudelleen joka muutoksessa, mikä on 16838 objektin
+läpikäynti kerran siirtoa kohden. Se on mitätön hinta ja poistaa paikan jossa vanhentunut
+merkintä voisi piileksiä.
+</p>
+
+<h2>Kolme tarkistusta, rikottu tarkoituksella</h2>
+
+<pre><code>tulokas menee asukkaiden taakse     1 testi kaatui
+alipuu jaa jalkeen siirrossa        2 testia kaatui
+silmukka pudotetaan hiljaa          1 testi kaatui (loysi taman itse)</code></pre>
+
+<h2>Numerot</h2>
+
+<pre><code>vastaavia rajapinnan jasenia  14 / 32
+korpus menee lapi            191 / 196
+virstanpylvaita valmiina       9 / 24
+kohtia valmiina               83 / 125
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    52 / 52
+U6Engine.Tests   714 / 714</code></pre>
+
+<p>
+Unityn EditMode-lukua ei ole katsottu tämän jälkeen. Viimeksi nähty oli 709 / 709 silloin kun
+headless oli 698, joten se olisi nyt 725, mutta <strong>päättely ei ole katsomista</strong> ja
+tämän projektin historia sillä saralla on huono.
+</p>
+
+<p>
+Korpus ei liikkunut, eikä sen pitänytkään: keskustelu ei siirrä esineitä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p><code>Get</code>-säännön tekopuoli, eli ensimmäinen kerta kun pelissä voi poimia jotain.
+     Päätös on tehty ja maailma on kirjoitettavissa, joten ainoa louhittava osa on pinojen
+     yhdistäminen.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

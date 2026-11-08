@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>9 of 24 milestones</strong> finished, and inside them
-<strong>82 of 124 work items</strong>. The second is the one that moves while a
+<strong>83 of 125 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -272,15 +272,16 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Items and trade <span class="m-value">0 / 2 done, 1 / 8 items</span></h3>
+    <h3>Items and trade <span class="m-value">0 / 2 done, 2 / 9 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Objects, inventory and trade <span class="m-value">M12</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 25%"></span></span>
-        <span class="m-value">1 / 4, in progress</span>
+        <span class="m-bar"><span class="m-fill" style="width: 40%"></span></span>
+        <span class="m-value">2 / 5, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done">What the <code>Get</code> command decides</li>
+        <li class="done">An object world that can change</li>
         <li>Picking things up, dropping them, using them, containers and weight limits</li>
         <li>The party inventory, equipping gear, and the <code>BASETILE</code> and <code>frame_n</code> state changes</li>
         <li>Merchant logic on M8's price tables</li>
@@ -662,12 +663,18 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
     <p>M12's first slice is the decision whether an object can be taken. The order of the checks
        is part of the rule, and the four objects that are too heavy are eggs.</p>
   </li>
+  <li>
+    <span class="n">31</span>
+    <a href="posts/31-the-bug-that-had-not-happened-yet.html">The bug that had not happened yet</a>
+    <p>The object world can change now. But the whole reason was a bug nothing had committed
+       yet, because nothing had moved yet.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>A mutable object world: a structure that can move an object from one square to another,
-     into a pack and into a container.</p>
+  <p>The acting half of the <code>Get</code> rule, the first time anything in the game can be
+     picked up. The only part that needs finding out is how piles merge.</p>
 </div>
 
 <footer class="foot">
