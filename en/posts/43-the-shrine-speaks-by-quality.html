@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Shrine Speaks by Quality | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/43-pyhakko-puhuu-laadulla.html" hreflang="fi">FI</a><span>/</span><a href="43-the-shrine-speaks-by-quality.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 43</nav>
+
+<h1>The Shrine Speaks by Quality</h1>
+
+<p class="lede">
+M17's first piece, the main quest, is fully measured now. The biggest finding shrank it: it is
+objects and conversation script flags, not an engine state machine. Most of its mechanics need
+the same missing piece, a generic use command aimed at an object, and stay open for that
+reason. Two small pieces do not need it, and they are in the engine now.
+</p>
+
+<h2>A past conclusion was wrong</h2>
+
+<p>
+The moongate round left burying a moonstone unbuilt on the grounds that it "would need a
+generic use command that targets a tile." That reason was wrong. In the original, a use
+command always points at an object, never at terrain: burying a moonstone targets the
+moonstone itself and reads the terrain under the active character as a side effect. The real
+reason is a different missing piece, a generic use command aimed at an object, but that same
+reason now covers three things instead of one: using a rune, burying a moonstone, and using the
+vortex cube.
+</p>
+
+<h2>One primitive, not three</h2>
+
+<p>
+All three ask the same question, "what object is here," three different ways: a rune checks
+eight neighbouring squares, the vortex cube checks three fixed coordinates, a moonstone does not
+ask at all and just reads the terrain. In the original, all three call the same four line
+function. There are genuinely four separate capabilities, and this engine already has two of
+them: a type lookup on a square and a container's own contents. A rectangle query and a terrain
+tile read are still missing.
+</p>
+
+<h2>The shrine speaks by quality, not by number</h2>
+
+<p>
+The original's talk dispatch has one special case: a shrine and three statues carry no script
+of their own, and their quality is the script number to run instead. This was entirely missing
+from the engine, because nothing ever searched nearby for anything but a numbered character.
+One new search function fixes it: it finds the nearest shrine or statue and answers with its
+quality, and starting a conversation never knew or needed to know the difference to begin with.
+</p>
+
+<h2>A shrine's own square is a wall regardless of the force field</h2>
+
+<p>
+This settled a question that was not even obvious to ask beforehand: does raising a virtue
+need the force field cleared first? No. A shrine's own tile is impassable and a wall in every
+direction, force field or not, so approaching and talking to it never depended on using the
+rune at all. Raising a virtue is entirely inside the shrine's own script, whose ADDKARMA and
+ADDLVL were already built in the previous round. One search function was all it took to open
+the whole mechanism.
+</p>
+
+<h2>A variable that neither forgets nor remembers wrongly</h2>
+
+<p>
+The Sacred Quest flag behaves differently from karma and the Gargish flag: it is never seeded
+at a conversation's start and never written back at its end. It is a live variable for the
+whole game, and in this engine that means leaving it alone entirely: once the conversation
+variables are one instance for the game's whole lifetime, doing nothing is the correct answer.
+</p>
+
+<h2>What stayed unbuilt</h2>
+
+<p>
+Clearing a rune's force field, burying and digging up a moonstone, and the vortex cube's actual
+ending trigger all stay open, because none of them need a new rule, only that same missing use
+command. The trigger's exact point is measured anyway: one far call, occurring exactly once in
+the whole file, that hands the process off to the ending. Once the use command exists one day,
+the trigger is one check and one call away.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              10 / 24
+work items done               90 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    54 / 54
+U6Engine.Tests   920 / 920</code></pre>
+
+<p>
+8 new tests: the Sacred Quest barrier on the real square from the real data, finding a shrine
+or statue by quality, running a shrine's script through its number, and the quest flag's
+lifetime across a conversation. Two old tests changed: a full map sweep found the barrier for
+real and counted one square fewer for a walker and for a balloon.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The last part of M17: hunger, rest and camping.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

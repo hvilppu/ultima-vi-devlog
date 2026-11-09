@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pyhäkkö puhuu laadulla | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="43-pyhakko-puhuu-laadulla.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/43-the-shrine-speaks-by-quality.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 43</nav>
+
+<h1>Pyhäkkö puhuu laadulla</h1>
+
+<p class="lede">
+M17:n ensimmäinen osa, päätehtävä, mitattiin kokonaan. Suurin löydös kutisti sen: se on
+objekteja ja keskusteluskriptien lippuja, ei moottorin tilakone. Suurin osa sen toiminnoista
+vaatii saman puuttuvan palikan, yleisen esineeseen kohdistuvan käyttökomennon, ja jää siksi
+auki. Kaksi pientä osaa ei vaadi sitä, ja ne ovat moottorissa nyt.
+</p>
+
+<h2>Oma päätelmä oli väärä</h2>
+
+<p>
+Kuuporttikierroksella kuukiven hautaaminen jätettiin rakentamatta perusteella "vaatisi
+maastoon kohdistuvan yleisen käyttökomennon jota ei ole". Peruste oli väärä. Alkuperäisessä
+käyttökäsky osoittaa aina objektia, ei koskaan maastoa: kuukiven hautaaminen kohdistuu
+kuukiveen itseensä ja lukee aktiivisen hahmon alla olevan maaston sivuvaikutuksena. Oikea syy
+on toinen puuttuva palikka, yleinen esineeseen kohdistuva käyttökomento, mutta sama syy koskee
+nyt kolmea asiaa eikä yhtä: riimun käyttöä, kuukiven hautaamista ja pyörrekuution käyttöä.
+</p>
+
+<h2>Yksi primitiivi, ei kolme</h2>
+
+<p>
+Kaikki kolme kysyvät samaa kysymystä, "mikä objekti on tässä", kolmella eri tavalla: riimu
+kysyy kahdeksalta naapuriruudulta, pyörrekuutio kolmelta kiinteältä koordinaatilta, kuukivi ei
+kysy ollenkaan vaan lukee maaston. Alkuperäisessä kaikki kolme kutsuvat samaa neljän rivin
+funktiota. Aidosti erillisiä kykyjä on neljä, ja tästä moottorista on jo kaksi: objektihaku
+ruudulta ja säiliön sisältö. Suorakulmiohaku ja maaston tiilen luku puuttuvat edelleen.
+</p>
+
+<h2>Pyhäkkö puhuu laadulla, ei numerolla</h2>
+
+<p>
+Alkuperäisen keskustelumoottorilla on yksi erikoistapaus: pyhäkkö ja kolme patsasta eivät
+kanna omaa skriptiä, vaan niiden laatu on sen skriptin numero joka ajetaan. Tämä puuttui
+moottorista kokonaan, koska kukaan ei koskaan etsinyt lähistöltä muuta kuin numeroituja
+hahmoja. Yksi uusi hakufunktio korjaa sen: se löytää lähimmän pyhäkön tai patsaan ja vastaa
+sen laadulla, ja keskustelun käynnistys ei tiennyt eikä tarvinnut tietää eroa alusta asti.
+</p>
+
+<h2>Pyhäkön oma ruutu on seinä riippumatta voimakentästä</h2>
+
+<p>
+Tämä ratkaisi kysymyksen jota ei osannut kysyä etukäteen: vaatiiko hyveen korotus
+voimakentän poistamista ensin? Ei. Pyhäkön oma tiili on kulkukelvoton ja seinä jokaiseen
+suuntaan, voimakentästä riippumatta, niin lähestyminen ja keskustelu eivät ole koskaan
+riippuneet riimun käytöstä. Hyveen korotus on kokonaan pyhäkön omassa skriptissä, jonka
+ADDKARMA ja ADDLVL olivat jo rakennettuina edellisellä kierroksella. Tämän kierroksen yksi
+hakufunktio riitti siis avaamaan koko mekanismin.
+</p>
+
+<h2>Muuttuja joka ei unohda eikä muista väärin</h2>
+
+<p>
+Pyhän tehtävän lippu käyttäytyy eri tavalla kuin karma ja Gargyyli-kieli: sitä ei siemennetä
+keskustelun alussa eikä kirjoiteta takaisin lopussa. Se on elävä muuttuja koko pelin ajan, ja
+tässä moottorissa se tarkoittaa, että sitä ei kosketa ollenkaan: kun keskustelumuuttujat ovat
+yksi olio koko pelin eliniäksi, poissaolo on oikea vastaus.
+</p>
+
+<h2>Mitä jäi rakentamatta</h2>
+
+<p>
+Riimun voimakentän poisto, kuukiven hautaaminen ja nostaminen, ja pyörrekuution varsinainen
+loppulaukaisin jäävät kaikki auki, koska mikään niistä ei vaadi uutta sääntöä vaan sen samaan
+puuttuvan käyttökomennon. Loppulaukaisimen tarkka kohta on silti mitattu valmiiksi: yksi
+kaukokutsu, tasan kerran koko tiedostossa, joka vaihtaa prosessin lopetukseen. Kun käyttökomento
+joskus rakennetaan, laukaisin on vain yksi tarkistus ja yksi kutsu pois.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      10 / 24
+kohtia valmiina               90 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    54 / 54
+U6Engine.Tests   920 / 920</code></pre>
+
+<p>
+8 uutta testiä: pyhän tehtävän este oikealla ruudulla oikeasta datasta, pyhäkön ja patsaan
+haku laadulla, pyhäkköskriptin ajaminen numeron kautta, ja tehtävälivun elinikä läpi
+keskustelun. Kaksi vanhaa testiä muuttui: koko kartan läpikäynti löysi esteen oikeasti ja
+laski yhden ruudun verran vähemmän kävelijälle ja ilmapallolle.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M17:n viimeinen osa: nälkä, lepo ja leiriytyminen.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
