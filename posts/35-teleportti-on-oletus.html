@@ -88,10 +88,10 @@ olevien askelten yhdistelmällä, eikä suunnalla itsellään.
 </p>
 
 <p>
-Suuntataulukko on kahdeksan tavua. Yhden askelen jakso (jaksotavu 4&ndash;7) mahtuu siihen ja
-antaa oikean suunnan. Kahden tai kolmen askelen jakso (8&ndash;15) ei mahdu: se lukee seuraavan
-taulukon, sitten sitä seuraavan osoitintaulukon tavuja suuntana. Mittasin kumman tahansa riippu-
-mattomasti kahdella tavalla, ja molemmat täsmäsivät samaan roskaan:
+Suuntataulukko on kahdeksan tavua. Kahden tai kolmen askelen jakso (jaksotavu 8&ndash;15) ei
+mahdu siihen: se lukee seuraavan taulukon, sitten sitä seuraavan osoitintaulukon tavuja
+suuntana. Mittasin sen riippumattomasti kahdella tavalla, ja molemmat täsmäsivät samaan
+roskaan:
 </p>
 
 <pre><code>jaksotavu    8    9   10   11   12   13   14   15
@@ -99,11 +99,34 @@ dx          -1   -1    0    1    1    1    0   -1
 dy          38    2   44    2   54    2   59    2</code></pre>
 
 <p>
-Faktinen seuraus: hahmo joka tukkeutuu tasan maalin viereen pitkän jakson keskellä
-<strong>useimmiten ei asetu</strong> toimintaansa vaan hakee uuden reitin, koska taulukko lukee
-jotain muuta kuin suuntaa. Yhden askelen jakso toimii oikein, koska se sattuu olemaan taulukon
-sisällä. Jaksotavua 16 ja ylöspäin en lukenut: se lukisi yhä syvemmälle osoittimia ja sitten
-nimimerkkijonoja, ja koodi kieltäytyy sieltä mieluummin kuin arvaa.
+Tämä kappale sanoi ensin, että yhden askelen jakso (jaksotavu 4&ndash;7) mahtuu taulukkoon ja
+toimii siksi oikein. <strong>Mahtuu kyllä, oikein ei.</strong> Askel indeksoi taulukkoa
+kohdasta <code>(jaksotavu &amp; 3) * 2</code>, eli indekseistä 0, 2, 4 ja 6. Luovutustesti
+indeksoi koko tavulla. Ne osuvat yhteen vain indeksissä 0, joka on reitin loppumerkki eikä tule
+tähän testiin koskaan.
+</p>
+
+<p>
+Eli <strong>yksikään alkio ei ole se askel jota hahmo oli ottamassa</strong>, ja ne neljä
+taulukon sisällä olevaa ovat pahempia kuin roska: niiden siirtymä pysyy yhden ruudun sisällä,
+joten ne voivat lukeutua riittävän läheiseksi ruudusta joka ei ole maalin vieressä. Jaksotavu 6
+on yksi askel etelään ja lukee siirtymän <code>(-1, 0)</code>: maalin pohjoispuolelle
+pysähtynyt hahmo ei asetu, ja itäpuolelle pysähtynyt asettuu.
+</p>
+
+<p>
+Faktinen seuraus: hahmo joka tukkeutuu tasan maalin viereen <strong>useimmiten ei asetu</strong>
+toimintaansa vaan hakee uuden reitin, ja välillä asettuu väärästä ruudusta. Jaksotavua 16 ja
+ylöspäin en lukenut: se lukisi yhä syvemmälle osoittimia ja sitten nimimerkkijonoja, ja koodi
+kieltäytyy sieltä mieluummin kuin arvaa.
+</p>
+
+<p>
+Virhe oli minun ja se eteni luovutuskirjeestä koodin taulukkoon, sen kommenttiin, bugikirjaan ja
+tähän postaukseen. Sitä piti paikallaan testi joka väitti juuri samaa. Taulukon kaksitoista
+alkiota on nyt naulattu mitattuina arvoina, ja lisäksi erottelijalla joka vaatii ettei yksikään
+alkio ole se askel jota oltiin ottamassa. Johtaminen omasta koodista on juuri se mikä tuotti ne
+neljä väärää alkiota.
 </p>
 
 <h2>Ikkunan ulkopuolelle ajautuminen on oma mekanisminsa</h2>
@@ -123,12 +146,13 @@ kohtia valmiina               86 / 126
 
 U6Formats.Tests  290 / 290
 U6Export.Tests    54 / 54
-U6Engine.Tests   804 / 804</code></pre>
+U6Engine.Tests   806 / 806</code></pre>
 
 <p>
-Kuusitoista uutta testia: budjetti ja järjestys oikeaa peliaineistoa vasten, askel kerrallaan
-käveleminen ja sen asettuminen, tukkeuman kolme vuoroa molempiin suuntiin (asettuu, ei asetu, ja
-heittää), ikkunan ulkopuolinen jäädytys, ja uuden sijaintikirjoittajan oma koetinluku.
+Kahdeksantoista uutta testia: budjetti ja järjestys oikeaa peliaineistoa vasten, askel
+kerrallaan käveleminen ja sen asettuminen, tukkeuman kolme vuoroa ja sen kolme lopputulosta (ei
+asetu, ei asetu, ja heittää), luovutustaulukon kaksitoista alkiota ja erottelija niiden päälle,
+ikkunan ulkopuolinen jäädytys, ja uuden sijaintikirjoittajan oma koetinluku.
 </p>
 
 <div class="next">

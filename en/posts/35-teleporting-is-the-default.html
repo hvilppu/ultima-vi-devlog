@@ -91,10 +91,10 @@ combined with the steps left, rather than the direction alone.
 </p>
 
 <p>
-The direction table is eight bytes. A run with one step left (run byte 4 through 7) fits inside it
-and gives the right direction. A run with two or three steps left (8 through 15) does not: it
-reads the next table, then bytes of the pointer table after that, as if they were a direction.
-I measured both independently, two different ways, and they agreed on the same garbage:
+The direction table is eight bytes. A run with two or three steps left (run byte 8 through 15)
+does not fit inside it: it reads the next table, then bytes of the pointer table after that, as
+if they were a direction. I measured that independently, two different ways, and they agreed on
+the same garbage:
 </p>
 
 <pre><code>run byte     8    9   10   11   12   13   14   15
@@ -102,12 +102,35 @@ dx          -1   -1    0    1    1    1    0   -1
 dy          38    2   44    2   54    2   59    2</code></pre>
 
 <p>
-The visible consequence: a character that gets blocked exactly beside its goal in the middle of a
-longer run <strong>usually does not settle</strong> into its action but searches for a new route
-instead, because the table reads something other than a direction. A one-step run works correctly
-because it happens to land inside the real table. I did not read run bytes sixteen and above: that
-would reach ever deeper into pointers and then into name strings, and the code refuses rather than
-guesses from there.
+This paragraph first said that a run with one step left (run byte 4 through 7) fits inside the
+table and therefore works correctly. <strong>It fits. It is not correct.</strong> The step
+indexes the table at <code>(run byte &amp; 3) * 2</code>, so indices 0, 2, 4 and 6. The give-up
+test indexes with the whole byte. Those agree only at index 0, which marks the end of a route
+and never reaches this test.
+</p>
+
+<p>
+So <strong>not one entry is the step the character was taking</strong>, and the four inside the
+table are worse than garbage: their offset stays within a square, so they can read as close
+enough from a square that is not beside the goal at all. Run byte 6 is one step south and reads
+the offset <code>(-1, 0)</code>: a character stopped north of its goal does not settle, and one
+stopped east of it does.
+</p>
+
+<p>
+The visible consequence: a character that gets blocked exactly beside its goal <strong>usually
+does not settle</strong> into its action but searches for a new route instead, and occasionally
+settles from the wrong square. I did not read run bytes sixteen and above: that would reach ever
+deeper into pointers and then into name strings, and the code refuses rather than guesses from
+there.
+</p>
+
+<p>
+The error was mine and it travelled from the handover brief into the code's table, its comment,
+the bug log and this post. A test that claimed the same thing held it in place. All twelve
+entries are now pinned as measured values, with a discriminator on top that requires no entry to
+be the step being taken. Deriving them from our own code is exactly what produced the four wrong
+ones.
 </p>
 
 <h2>Drifting outside the window is its own mechanism</h2>
@@ -127,12 +150,13 @@ work items done             86 / 126
 
 U6Formats.Tests  290 / 290
 U6Export.Tests    54 / 54
-U6Engine.Tests   804 / 804</code></pre>
+U6Engine.Tests   806 / 806</code></pre>
 
 <p>
-Sixteen new tests: the budget and its ordering against the real game data, walking one square at
-a time and settling on arrival, three turns of blocking in both directions (settles, does not
-settle, and throws), the outside-window freeze, and the new position writer's own probe.
+Eighteen new tests: the budget and its ordering against the real game data, walking one square
+at a time and settling on arrival, three turns of blocking and its three outcomes (does not
+settle, does not settle, and throws), the give-up table's twelve entries and a discriminator on
+top of them, the outside-window freeze, and the new position writer's own probe.
 </p>
 
 <div class="next">
