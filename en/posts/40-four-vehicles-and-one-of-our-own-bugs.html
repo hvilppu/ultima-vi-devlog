@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Four Vehicles and One of Our Own Bugs | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/40-nelja-ajoneuvoa-ja-yksi-oma-virhe.html" hreflang="fi">FI</a><span>/</span><a href="40-four-vehicles-and-one-of-our-own-bugs.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 40</nav>
+
+<h1>Four Vehicles and One of Our Own Bugs</h1>
+
+<p class="lede">
+A ship, a skiff, a raft and an inflated balloon all sail in the engine now. Measuring and
+building fit in the same round this time, because the measurement was unusually thorough:
+boarding, unboarding, four terrain rules and the restrictions of being aboard were all
+written down before a single line of C# existed.
+</p>
+
+<h2>Boarding is a command, not a step</h2>
+
+<p>
+You cannot board by walking onto a vehicle; it is a "use" command, shared in the original by
+the ship, the skiff, the raft and the inflated balloon. That same command is also what
+refuses: in solo mode nobody can board, a ship or a skiff needs the right deed, and the
+distance has to be within one square in either direction. Leaving is its own chapter, because
+a ship tests only two directions when leaving, perpendicular to its own hull, while everything
+else tests all eight, and because <code>CanLeaveVehicleAt</code>'s result is never the landing
+square: the party always lands on the vehicle's own square, because the ship's hull, the
+skiff and the raft are marked "bridge" for a walker, a tile that admits a walker regardless of
+what the base tile underneath says.
+</p>
+
+<h2>Four terrain classes, not one</h2>
+
+<p>
+<code>CanMoveTo</code> splits movers into four classes. A walker asks "not impassable". A ship
+asks "impassable and wet", deep water, and cannot reach the shallow even though it is water. A
+skiff or a raft asks the same or just "wet", so they can. A balloon asks "not a wall", which is
+a big difference from "not impassable": the wrong reading would give exactly the walker's own
+number, and the whole vehicle would be pointless. Measured: 1012237 admissible surface squares
+for the balloon, the wrong reading: 295751, exactly the walker's own.
+</p>
+
+<h2>Our own bug, found on the way</h2>
+
+<p>
+While counting the four classes, the walker's own number did not match the measurement's own
+number, and the cause turned out to be this engine's own mistake: <code>U6Collision</code>
+rejected wet terrain for a walker outright, not just impassable terrain. The original's rule is
+"not impassable", full stop, and the shallow (30403 surface squares) is wet but passable. A
+walker could have waded in shallow water the whole time in the original and could not here, and
+nobody noticed because no earlier test had asked exactly this question. Fixed in the same
+change, with its own test pinning the number: 30397 admissible shallow squares, six fewer than
+30403, because six of them carry an impassable object of their own.
+</p>
+
+<h2>The representation aboard is our own, the behaviour is not</h2>
+
+<p>
+The original clones the leader onto object 0 and writes the vehicle's own shape onto it,
+keeping the real vehicle object alive inside object 0's own inventory. This engine's object
+world does not allow changing an object's type in place, and does not allow putting a
+character inside one, so <code>U6Vehicles</code> does it differently: boarding
+<b>destroys</b> the real map object and remembers its type, quality, hull strength and frame;
+unboarding <b>recreates</b> a fresh object with the same numbers. Everything observable, what
+is on the map, where, and who can do what, comes out the same either way.
+</p>
+
+<h2>The mounted horse stayed unbuilt</h2>
+
+<p>
+The owner chose to build everything except the mounted horse, and the reason is measured:
+neither of the game's two shipped horses can be taken through the normal "use" command,
+because both are actors below the number the command requires. The only route is a rare
+conversation opcode in three NPC scripts. The same shape as the furniture search found
+earlier: the code exists, the way to reach it does not.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              10 / 24
+work items done               87 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    54 / 54
+U6Engine.Tests   877 / 877</code></pre>
+
+<p>
+41 new tests: a vehicle's terrain rules, boarding and unboarding for every type, the
+restrictions of being aboard, wind direction, the ship's and the skiff's own cost tables, the
+<code>Br</code>/<code>Ig</code> flags, and the walker's shallow-water fix.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Moongates and <code>STARPOS.DAT</code>, the rest of M16, or M17's plot state.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

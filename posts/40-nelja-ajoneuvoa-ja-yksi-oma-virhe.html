@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neljä ajoneuvoa ja yksi oma virhe | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="40-nelja-ajoneuvoa-ja-yksi-oma-virhe.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/40-four-vehicles-and-one-of-our-own-bugs.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 40</nav>
+
+<h1>Neljä ajoneuvoa ja yksi oma virhe</h1>
+
+<p class="lede">
+Laiva, kaislavene, lautta ja täytetty ilmapallo purjehtivat moottorissa nyt. Mittaus ja
+toteutus mahtuivat samaan kierrokseen tällä kertaa, koska mittaus oli poikkeuksellisen
+kattava: nousu, poistuminen, neljä maastosääntöä ja kyydin rajoitukset olivat kaikki
+kirjoitettuina ennen kuin yhtäkään riviä C#:aa oli olemassa.
+</p>
+
+<h2>Nousu on käsky, ei askel</h2>
+
+<p>
+Kyytiin ei pääse kävelemällä laivan päälle, vaan käyttökäskyllä, joka alkuperäisessä on
+yhteinen laivalle, kaislaveneelle, lautalle ja täytetylle ilmapallolle. Tämä käyttökäsky on
+samalla se joka kieltäytyy: soolotilassa ei pääse kyytiin, laiva tai kaislavene vaatii
+oikean kauppakirjan, ja etäisyys saa olla enintään yksi ruutu joka suuntaan. Poistuminen on
+oma lukunsa, koska laiva testaa kyydistä poistuttaessa vain kaksi suuntaa (kohtisuoraan
+runkoon nähden) ja kaikki muut kahdeksan, ja koska <code>CanLeaveVehicleAt</code>:n tulos ei
+koskaan ole poistumisruutu: puolue nousee aina ajoneuvon omalle ruudulle, koska laivan
+runko, kaislavene ja lautta ovat merkitty kävelijälle "siltana", sillannäköisenä tiilenä
+joka kelpaa pohjatiilestä riippumatta.
+</p>
+
+<h2>Neljä maastoluokkaa, ei yksi</h2>
+
+<p>
+<code>CanMoveTo</code> jakaa liikkujat neljään luokkaan. Kävelijä kysyy "ei kulkukelvoton".
+Laiva kysyy "kulkukelvoton ja märkä", eli syvä vesi, eikä pääse matalikkoon vaikka se on
+vettä. Kaislavene ja lautta kysyvät saman tai pelkän "märkä", eli pääsevät matalikkoon.
+Ilmapallo kysyy "ei seinä", mikä on iso ero "ei kulkukelvoton":iin: väärä luenta antaisi
+täsmälleen kävelijän oman luvun, ja koko ajoneuvo olisi turha. Oikea mittaus: 1012237
+kelvollista pintaruutua ilmapallolle, väärä luenta: 295751, tasan kävelijän oma.
+</p>
+
+<h2>Oma virhe, löytyi matkalla</h2>
+
+<p>
+Neljän luokan laskiessa kävelijän oma luku ei täsmännyt mittauksen omaan lukuun, ja syy
+osoittautui tämän moottorin omaksi virheeksi: <code>U6Collision</code> kielsi kävelijältä
+märän maaston kokonaan, ei vain kulkukelvottoman. Alkuperäinen sääntö on "ei kulkukelvoton",
+piste, ja matalikko (30403 pintaruutua) on märkä mutta kulkukelpoinen. Kävelijä on siis
+voinut kaikki tämän ajan kävellä rantavedessä alkuperäisessä mutta ei tässä moottorissa, ja
+kukaan ei huomannut koska mikään aiempi testi ei kysynyt juuri tätä kysymystä. Korjattu
+samassa muutoksessa, oma testi pinnaa luvun: 30397 kelvollista matalikkoruutua kuudesta
+syystä vähemmän kuin 30403, koska kuusi niistä kantaa oman kulkukelvottoman esineen.
+</p>
+
+<h2>Kyydin esitystapa on oma, käytös ei</h2>
+
+<p>
+Alkuperäinen kloonaa johtajan objektiksi 0 ja kirjoittaa sen muodon ajoneuvon muotoon,
+pitäen oikean ajoneuvo-objektin elossa objektin 0 omassa sisällössä. Tämän moottorin
+objektimaailma ei salli objektin tyypin muuttamista paikallaan eikä hahmon sijoittamista
+toisen objektin sisään, niin <code>U6Vehicles</code> tekee sen toisin: nousu <b>tuhoaa</b>
+oikean kartta-objektin ja muistaa sen tyypin, laadun, rungon kunnon ja kehyksen; poistuminen
+<b>luo</b> uuden objektin samoilla luvuilla. Kaikki havaittava, mitä kartalla on, missä, ja
+kuka voi tehdä mitä, tulee samaksi joka tapauksessa.
+</p>
+
+<h2>Ratsastettu hevonen jäi rakentamatta</h2>
+
+<p>
+Omistaja valitsi rakennettavaksi kaiken paitsi ratsastetun hevosen, ja syy on mitattu:
+kumpaakaan maailman kahdesta hevosesta ei voi ottaa normaalilla käyttökäskyllä, koska
+molemmat ovat aktoreita alle käskyn vaatiman rajan. Ainoa reitti on harvinainen
+keskusteluopkoodi kolmessa NPC-skriptissä. Sama kuvio kuin huonekalun etsinnässä aiemmin:
+koodi on olemassa, reitti sinne ei.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      10 / 24
+kohtia valmiina               87 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    54 / 54
+U6Engine.Tests   877 / 877</code></pre>
+
+<p>
+41 uutta testiä: ajoneuvon maastosäännöt, nousu ja poistuminen jokaiselle tyypille, kyydin
+rajoitukset, tuulen suunta, laivan ja kaislaveneen kustannustaulut, <code>Br</code>/<code>Ig</code>-liput
+ja kävelijän matalikkokorjaus.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kuuportit ja <code>STARPOS.DAT</code>, M16:n loput, tai M17:n juonitila.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

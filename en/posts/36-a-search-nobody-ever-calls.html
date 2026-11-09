@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Search Nobody Ever Calls | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/36-haku-jota-ei-kukaan-kutsu.html" hreflang="fi">FI</a><span>/</span><a href="36-a-search-nobody-ever-calls.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 36</nav>
+
+<h1>A Search Nobody Ever Calls</h1>
+
+<p class="lede">
+The previous post's list had two items: heading for the window's edge, and seeking furniture.
+The first is now measured and built in C#. The second is measured and deliberately left unbuilt,
+because measuring what starts it found that no shipped script, schedule or object ever does.
+</p>
+
+<h2>Heading for the window's edge</h2>
+
+<p>
+<code>PTH_direct</code> is not an alternative to the ordinary search. It is what the search does
+when one end, the character or the goal, is outside the window and teleporting has just refused.
+The trigger is four conditions: the goal is a square and not furniture, one end is outside the
+window, the turn's teleport budget is not spent, and teleporting refused.
+</p>
+
+<p>
+<strong>The third condition was described backwards at first.</strong> The handover brief
+claimed heading also fires once the teleport budget is spent, "because computing a direction
+would leave the character in place anyway". A spent budget does not lead to a direction at all,
+it leads to an empty return: the character gets neither a route nor a teleport that turn, and
+waits for the next one. The mistake was caught before it reached a test, and its opposite is now
+one.
+</p>
+
+<p>
+Direction is read from <strong>the window's own centre, (20, 20), never the player's
+square</strong>, and the comparison is strictly greater, so a tie goes to the vertical axis. The
+discriminator: a far square at window coordinate (30, 10) is equally off centre on both axes, so
+it ties, so it reads north. Centring on the player's own window square (16, 23) instead would
+make the horizontal difference the larger one and read east, and so would a
+<code>&gt;=</code> comparison.
+</p>
+
+<p>
+The search itself is <strong>one front, not two</strong>: no goal is seeded, so the whole
+two-front meeting logic is skipped and the stop is the first visited edge square, cheapest
+rather than nearest. When the character is the outside end, the search grows from the goal
+instead, the character is placed straight onto the found edge square with no terrain check at
+all, and the route is flipped <strong>byte by byte with <code>xor 2</code></strong>: a run
+byte's bottom two bits are its direction, so the flip swaps north with south and east with west
+without touching the step count.
+</p>
+
+<h2>The furniture nobody seeks</h2>
+
+<p>
+<code>AI_SEEKOBJ</code> is the same search aimed at a different kind of target: not a square but
+an object type, a bed for sleeping, a chair for sitting, and for a table a chair with a plate
+next to it. All of that reads straight out of the decompilation. But measuring what actually
+starts it returned zero across four separate channels:
+</p>
+
+<pre><code>schedule action byte      0 / 563 entries
+OBJLIST mode byte         0 / 256 slots
+egg embryo quality        0 / 1035 entries
+conversation CD command   0 / 20 literals</code></pre>
+
+<p>
+The only known way in is <strong>a debug branch in one script</strong>: Iolo asks the player for
+a character number and a mode straight off the keyboard, inside a jump chain no keyword list
+ever reaches. Sleeping, sitting, eating and playing all work anyway, because each one settles
+straight onto the square the character is already standing on: 81 of 81 sits, 143 of 167 sleeps,
+33 of 33 eats, 8 of 8 plays.
+</p>
+
+<p>
+So the search was not built. Four of its own quirks went into <code>originalBugs.md</code> as
+unreachable: a throne is good enough to sit on but the search demands the exact chair type, the
+pull chain lookup is dead code, the furniture kind index is never checked, and a match on the
+character's own square would build a route from a map cell that has not been written yet. Every
+one of them needs the debug route to fire, so none of them shows up in the real game.
+</p>
+
+<h2>A second pair of eyes</h2>
+
+<p>
+Added <strong>Nuvie</strong> to the reference sources, an independent open engine for the same
+game. GPL, so the same discipline as the decompilation: read it, never copy it, write the rule
+out in this project's own words. Not for every rule, only where the decompilation is silent or
+unclear, on the same cost basis as the refuters' not-every-rule rule.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>corpus passing             192 / 196
+milestones done              9 / 24
+work items done             86 / 126
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    54 / 54
+U6Engine.Tests   813 / 813</code></pre>
+
+<p>
+Seven new tests: the direction discriminator, stopping at the cheapest edge square rather than
+the nearest, a dead end, both directions of heading for the edge (character outside and goal
+outside), and the teleport budget's own test, which runs three other characters dry before the
+fourth.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Movement points: how many steps a character gets in a turn, read for where it sits but not
+     yet for its rule.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

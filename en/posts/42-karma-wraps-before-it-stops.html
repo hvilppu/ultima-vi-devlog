@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Karma Wraps Before It Stops | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/42-karma-kiertyy-ennen-kuin-se-pysahtyy.html" hreflang="fi">FI</a><span>/</span><a href="42-karma-wraps-before-it-stops.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 42</nav>
+
+<h1>Karma Wraps Before It Stops</h1>
+
+<p class="lede">
+M17 opened with its two smallest pieces: the Gargoyle language flag and karma. Both were
+simple to build as they stand, but karma's own machine code turned up the same hole twice. That
+is not an accident: the original ships a correctly written version of the same calculation,
+and it is never called.
+</p>
+
+<h2>One variable remembers the game, the other does not</h2>
+
+<p>
+The conversation language has two lettered variables that come from game state, and they
+behave differently for no reason visible in any script. <code>#K</code> (karma) is seeded from
+game state at the start of a conversation but never written back, even if a script changes it
+mid conversation: it is a snapshot. <code>#L</code> (speaks Gargish) is seeded the same way but
+always written back when the conversation ends, even though no script ever changes it: it is a
+live connection that happens to do nothing right now. The split comes straight from the
+original's own <code>TALK_initTalk</code>, and this project was missing both sides of it: the
+temporary variables <code>#0</code>-<code>#9</code> and <code>$0</code>-<code>$9</code> leaked
+from one conversation into the next because nothing cleared them, and the seeding of the
+lettered variables did not exist at all. Both are fixed now.
+</p>
+
+<h2>Adding wraps, subtracting does not</h2>
+
+<p>
+Karma is an unsigned byte, and the opcode that raises it handles overflow differently from the
+one that lowers it. Raising computes the sum as a byte, so it can wrap around, and only clamps
+to 99 afterward. Lowering compares with a signed comparison and clamps to 0. The same game also
+ships a correctly written, uncalled function that would compute the sum as sixteen bits before
+storing it, where wrapping could never happen at all: it is just code nothing reaches. The path
+that is actually used is the one that wraps.
+</p>
+
+<h2>Pickpocketing forgets the clamp entirely</h2>
+
+<p>
+One spell lowers karma with a plain byte subtraction, with none of the comparison every other
+lowering path has around it. Karma 0 through 4 after a successful pickpocket becomes 251
+through 255, not 0. Three statues in Britannia pick their closing line with <code>#K / 30</code>
+and never check the bound, so wrapped karma reads straight past their script buffer. Neither is
+reachable in this engine yet, since there is no spell system, but both are on record: whenever
+spells arrive, this chain is already measured.
+</p>
+
+<h2>One of our own bugs found twice before it got fixed</h2>
+
+<p>
+The save's game state block was being exported as 386 bytes. The real measured length is 130,
+and the remaining 256 bytes are not game state at all but the next table in the save. This
+turned up independently in two separate measurements back to back, the moongate round and the
+karma round, and survived the first round uncorrected. The fix was a one line change in the
+export tool: read the measured length, not to the end of the file.
+</p>
+
+<h2>What stayed unbuilt</h2>
+
+<p>
+Virtues are not here, since they would be used by shrines and a plot state machine that do not
+exist yet. The Gargoyle language's own translation table is out of scope entirely: that is
+text data, not an engine rule, and text data does not belong in the repository.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              10 / 24
+work items done               90 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    54 / 54
+U6Engine.Tests   912 / 912</code></pre>
+
+<p>
+21 new tests: karma's wrap and clamp, the Gargish flag's seeding and write-back, resetting the
+temporary variables, and the game state block's correct length.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The rest of M17: plot flags and the main quest state machine, then hunger, rest and
+     camping.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

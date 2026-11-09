@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Karma kiertyy ennen kuin se pysähtyy | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="42-karma-kiertyy-ennen-kuin-se-pysahtyy.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/42-karma-wraps-before-it-stops.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 42</nav>
+
+<h1>Karma kiertyy ennen kuin se pysähtyy</h1>
+
+<p class="lede">
+M17 alkoi kahdesta pienimmästä osasta: Gargoyle-kielen lippu ja karma. Molemmat olivat
+yksinkertaisia rakentaa sellaisenaan, mutta karman koneopcodi paljasti saman reiän kahdesti.
+Se ei ole vahinko: alkuperäisessä on olemassa oikein tehty versio samasta laskusta, ja se ei
+ole käytössä.
+</p>
+
+<h2>Yksi muuttuja muistaa pelin, toinen ei</h2>
+
+<p>
+Keskustelukielessä on kaksi kirjainmuuttujaa jotka tulevat pelin tilasta, ja ne käyttäytyvät
+eri tavalla ilman mitään näkyvää syytä skriptissä. <code>#K</code> (karma) siemennetään
+keskustelun alussa pelin tilasta, mutta sitä ei koskaan kirjoiteta takaisin, vaikka skripti
+muuttaisi sen arvoa kesken keskustelun: se on tilannekuva. <code>#L</code> (puhuuko Gargishia)
+siemennetään samoin, mutta kirjoitetaan aina takaisin kun keskustelu loppuu, vaikka mikään
+skripti ei koskaan muuta sitä: se on elävä kytkentä, vaikka se ei tee tällä hetkellä mitään.
+Ero on alkuperäisen omassa <code>TALK_initTalk</code>:ssa, ja tämä projekti puuttui molemmilta
+puolilta: tilapäiset muuttujat <code>#0</code>-<code>#9</code> ja <code>$0</code>-<code>$9</code>
+vuotivat edellisestä keskustelusta seuraavaan, koska mikään ei nollannut niitä, ja kirjainmuuttujien
+siemennys puuttui kokonaan. Molemmat korjattu tässä kierroksessa.
+</p>
+
+<h2>Lisäys kiertyy, vähennys ei</h2>
+
+<p>
+Karma on etumerkitön tavu, ja sitä nostava ja laskeva opcodi käsittelevät ylivuotoa eri tavalla.
+Nosto laskee summan tavuna, jolloin se voi kiertyä ympäri, ja katkaisee 99:ään vasta sen jälkeen.
+Lasku vertaa etumerkillisesti ja katkaisee 0:aan. Samassa pelissä on myös oikein tehty,
+kutsumaton funktio joka laskisi summan kahdeksantoistabittisenä ennen talletusta ja josta
+kierto ei voisi tapahtua ollenkaan: se on vain koodia jota mikään ei kutsu. Käytössä oleva reitti
+on se joka kiertää.
+</p>
+
+<h2>Taskuvarkaus unohtaa katkaisun kokonaan</h2>
+
+<p>
+Yksi loitsu vähentää karmaa suoralla tavuvähennyksellä, ilman sen ympärillä olevaa vertailua
+jota jokaisella muulla vähentäjällä on. Karma 0-4 onnistuneen taskuvarkauden jälkeen on
+251-255, ei 0. Kolme patsasta Britanniassa valitsee loppurepliikkinsä <code>#K / 30</code>:llä
+eikä tarkista rajaa, niin kierretty karma lukee niiden skriptipuskurin ohi. Kumpikaan ei ole
+vielä saavutettavissa tässä moottorissa, koska loitsuja ei ole rakennettu, mutta molemmat ovat
+kirjattuja: kun loitsut joskus tulevat, tämä ketju on jo mitattu valmiiksi.
+</p>
+
+<h2>Oma virhe löytyi kahdesti ennen kuin se korjattiin</h2>
+
+<p>
+Pelitilalohko vietiin 386 tavuna. Oikea mitattu pituus on 130, ja loput 256 tavua ei ole
+pelitilaa ollenkaan vaan seuraava taulukko tallennuksessa. Tämä löytyi riippumattomasti kahdessa
+peräkkäisessä mittauksessa, kuuportit-kierroksella ja karma-kierroksella, ja jäi molemmilla
+kerroilla korjaamatta ensimmäisellä kierroksella. Korjaus oli yhden rivin vaihto
+vientityökalussa: lue mitattu pituus, älä lue loppuun asti.
+</p>
+
+<h2>Mitä jäi rakentamatta</h2>
+
+<p>
+Hyveet eivät ole mukana, koska niitä käyttäisivät pyhäköt ja juonen tilakone, joita ei ole
+vielä. Itse Gargoyle-kielen käännöstaulu ei kuulu tähän ollenkaan: se on tekstidataa, ei
+moottorin sääntö, ja tekstidata ei kuulu repoon.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      10 / 24
+kohtia valmiina               90 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    54 / 54
+U6Engine.Tests   912 / 912</code></pre>
+
+<p>
+21 uutta testiä: karman kierto ja katkaisu, Gargish-lipun siemennys ja takaisinkirjoitus,
+tilapäisten muuttujien nollaus, ja pelitilalohkon oikea pituus.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M17:n loput: juonilipukkeet ja päätehtävän tilakone, sitten nälkä, lepo ja leiriytyminen.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

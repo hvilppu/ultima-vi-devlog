@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pisteet eivät pysäytä pelaajaa | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="39-pisteet-eivat-pysayta-pelaajaa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/39-points-never-pause-the-player.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 39</nav>
+
+<h1>Pisteet eivät pysäytä pelaajaa</h1>
+
+<p class="lede">
+Johtajan ja puolueen oma liikepisteveloitus on nyt moottorissa. Se oli viimeinen pala siitä
+mitä edellinen mittauskierros löysi, ja matkalla tuli vielä yksi kysymys jota ei voinut
+vastata mittaamalla: mitä tekee kun oikea peli oikeasti pysäyttäisi pelaajan.
+</p>
+
+<h2>Alkuperäinen ei kysy lupaa liikkua, se kysyy luvan antaa ohjaus takaisin</h2>
+
+<p>
+<code>RunNPCTurns</code> pyörii joka pelaajan käskyn jälkeen kunnes valittu toimija on
+<code>AI_COMMAND</code>, eli pelaajan oma vuoro. Jos johtajan pisteet nollataan koska seuraaja
+loppui (edellisen postauksen §2.21), silmukka ei löydä pelaajaa kelpaavaksi, ja se jatkaa
+ajamalla muita toimijoita ja jakamalla pisteitä kunnes johtaja kelpaa taas. Pelaaja ei siis
+"jumi" näppäimen painalluksessa, vaan peli käsittelee hetken muuta ennen kuin ohjaus palaa.
+</p>
+
+<p>
+Tässä moottorissa yksi näppäinpainallus on yksi askel ja kiinteä kellon edistys, ei
+minuuttikelloa jota aiempi arkkitehtuurivalinta jätti tarkoituksella rakentamatta. Kysymys oli
+siis aito: pitääkö pelaajan oma liike pysähtyä kun puolueen pisteet loppuvat, vai veloitetaanko
+pisteet vain kirjanpitona? Kysyin, ja vastaus oli jälkimmäinen: pisteet ovat oikeita ja
+mitattavissa, mutta nappipainallus toimii aina samalla tavalla kuin nyt.
+</p>
+
+<h2>Missä pisteet oikeasti kuluvat</h2>
+
+<p>
+Johtaja maksaa <code>SubTerrainMov</code>:n lähtöruudusta ennen siirtoa, täsmälleen kuten
+polkua kävelevä hahmo tai kuten edellisen postauksen mittaus sanoi. Joka seuraaja, jonka tila
+on <code>Follow</code>, maksaa kiinteän kymmenen pistettä riippumatta siitä liikkuiko se
+oikeasti vai pysyikö jo muodostelmassa. Avatar itse on objektinumero 1, hallitun alueen 2-223
+ulkopuolella, niin se tarvitsee oman tunnin jaon erikseen; muut puolueen jäsenet (2, 3, 4) ovat
+jo sisällä siinä alueessa ja saavat <code>DEXTE</code>:nsä samasta jaosta kuin kaikki muutkin
+hallitut hahmot.
+</p>
+
+<p>
+Diagonaalia ei veloiteta erikseen (<code>PartyAdvance</code>:n omaa +5), koska tässä näkymässä
+ei ole diagonaalisyötettä ollenkaan: näppäimistö valitsee yhden suunnan neljästä, ei kahta
+yhtä aikaa. Kulkuvälineet (laiva, kaislavene, lautta, ilmapallo) ja ratsastetun hevosen
+puolitus odottavat omaa vuoroaan, koska niitä ei ole rakennettu.
+</p>
+
+<h2>Seuraajafunktio siirtyi omaan paikkaansa, jotta sen voi testata</h2>
+
+<p>
+Veloituslogiikka ei jäänyt näkymän sisälle, vaikka siellä se ensin kirjoitettiin: se on nyt
+<code>U6PartyFollow.SpendFollowerPoints</code>, kutsuttuna muodostelma-askeleen jälkeen eikä
+sen sisällä. Sama jako kuin kaikkialla tässä projektissa: sääntö kuuluu moottoriin, näkymä vain
+kutsuu sitä. Kolme uutta testiä pinnaa säännön: kymmenen joka seuraajalle, ei koskaan
+johtajalle, ja ei lainkaan kenelle tahansa joka ei ole <code>Follow</code>-tilassa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      10 / 24
+kohtia valmiina               87 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    54 / 54
+U6Engine.Tests   836 / 836</code></pre>
+
+<p>
+Kolme uutta testiä, kaikki <code>U6PartyFollow</code>:n uudesta funktiosta: seuraajan kymmenen
+pisteen veloitus, johtajan vapautus siitä, ja ettei mitään veloiteta hahmolta joka ei seuraa.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M16:n kulkuvälineet, tai liikepisteiden viimeiset palat (laivat, kaislavene, lautta,
+     ilmapallo, ratsastetun hevosen puolitus) niiden mukana.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

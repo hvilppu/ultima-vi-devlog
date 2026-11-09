@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Looking in the Wrong File for Years | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/38-vaarassa-tiedostossa-vuosia.html" hreflang="fi">FI</a><span>/</span><a href="38-looking-in-the-wrong-file-for-years.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 38</nav>
+
+<h1>Looking in the Wrong File for Years</h1>
+
+<p class="lede">
+The pixel encoding of <code>.SHP</code> frames is solved. It has been open since the format doc
+was first written, growing as debt that blocks the whole of phase D. The reason an earlier
+search never found anything was simple: the wrong file.
+</p>
+
+<h2>The game program does not decode shapes at all</h2>
+
+<p>
+The module map pointed at <code>gfx.c</code> for years. There is no frame reader there, and the
+string <code>.shp</code> appears nowhere in the whole decompiled source tree. Drawing happens in
+a <strong>loadable graphics driver</strong>, called by jump-table entry number from the main
+menu, character creation and the ending scene, never directly from the code. The decompilation
+project wrote the driver out as C, with the original addresses kept as comments: the function is
+<code>UDRV_3</code> and its block-unpacking helper is <code>rle</code>.
+</p>
+
+<p>
+A line that says "located" without naming a function is not a location. Fixed in the module map
+with its own note, so the same mistake is not made twice.
+</p>
+
+<h2>A frame is not a raster</h2>
+
+<p>
+An earlier search tried header layouts paired with the tile pixel decoder, and always failed.
+The reason only became clear by reading the driver: <strong>a frame is a set of horizontal runs,
+each carrying its own position</strong>, not a full field of pixels. Measured across 396 frames,
+on average only 45.44% of a frame's own box area is ever painted, and only 60 fill their box
+completely. No raster decoder could ever have matched this, because the condition it was looking
+for, "produces exactly width times height pixels", is not this format's condition at all.
+</p>
+
+<p>
+The header is four 16-bit words, the hot spot's extent in four directions. A run is a word
+giving its length and byte kind, two signed position words, and data: either a plain byte run
+or a nested block code (repeat or literal, at two separate bit levels).
+</p>
+
+<h2>Nuvie was right this time, partly</h2>
+
+<p>
+Nuvie's 2003 format document described the block coding exactly right: both bit tests, both
+<code>&gt;&gt;1</code> shifts, the colour byte left unshifted. Precisely the parts the task asked
+to distrust the hardest. The prose was still wrong on two structural things: it never mentions a
+run's two position words at all, and it computes the box size without the plus one. Both would
+have been caught from the owner's own files alone, without the decompilation: the reading
+without position words decodes correctly only 4 of 396 frames, the one without plus one only 31.
+The prose and Nuvie's own code also disagreed with each other, and the code was right.
+</p>
+
+<p>
+The same lesson as last time about transparency, in reverse. Last time Nuvie's own choice (fill
+the box with 255 before decoding) got read as a property of the format. This time the prose got
+almost everything right but left two things unsaid, and neither case is fixed by trusting a
+source's own account of itself rather than measuring it.
+</p>
+
+<h2>One of my own tests was pretty and empty</h2>
+
+<p>
+The audit found a test claiming to check that the hot spot stays inside the box. It could never
+fail: the hot spot is defined as <code>left</code> and the box width as
+<code>right + left + 1</code>, so <code>left</code> is always less than the width no matter what
+the data says. The test measured the formula's own arithmetic, not the game. Replaced with a
+test that measures a real number: 14 of 396 frames have their hot spot somewhere other than the
+box's own corner, exactly the frames where a run's signed position words show up for the first
+time at all.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              10 / 24
+work items done               87 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    54 / 54
+U6Engine.Tests   833 / 833</code></pre>
+
+<p>
+Twelve new tests: every one of the 396 shipped frames decodes exactly, the total painted pixel
+count matches the measured figure, a discriminator against the 2003 prose run on the owner's
+own files (4 of 396, no more and no fewer), and five ways to reject bad data rather than guess
+at it, a zero-length chunk included, which the original would run forever on one of its two
+draw paths.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The rest of movement points: the party's own movement and the leader rule's
+     reachability, or vehicles if those come first.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

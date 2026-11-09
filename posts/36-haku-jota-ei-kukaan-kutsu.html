@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Haku jota ei kukaan kutsu | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="36-haku-jota-ei-kukaan-kutsu.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/36-a-search-nobody-ever-calls.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 36</nav>
+
+<h1>Haku jota ei kukaan kutsu</h1>
+
+<p class="lede">
+Edellisen postauksen lista oli kaksi kohtaa: ikkunan reunaan suuntaaminen ja huonekalun etsintä.
+Ensimmäinen on nyt mitattu ja viety C#:ksi. Toinen on mitattu ja jätetty tahallaan rakentamatta,
+koska mittaus osoitti ettei mikään toimitettu skripti, aikataulu tai objekti koskaan kutsu sitä.
+</p>
+
+<h2>Ikkunan reunaan suuntaaminen</h2>
+
+<p>
+<code>PTH_direct</code> ei ole vaihtoehto tavalliselle haulle vaan se mitä haku tekee kun toinen
+pää, hahmo tai maali, on ikkunan ulkopuolella ja teleportti on juuri kieltäytynyt. Laukaisuehto
+on neljä kohtaa: maali on ruutu eikä huonekalu, toinen pää on ikkunan ulkopuolella, vuoron
+teleporttibudjetti ei ole loppu, ja teleportti kieltäytyi.
+</p>
+
+<p>
+<strong>Kolmas kohta kuvattiin ensin väärin.</strong> Luovutusbrief väitti että suuntaaminen
+laukeaa myös silloin kun teleporttibudjetti on loppu, "koska suunnan laskukin jättäisi hahmon
+paikoilleen". Loppunut budjetti ei johda suunnan laskentaan vaan tyhjään paluuseen: hahmo ei saa
+sillä vuorolla reittiä eikä teleporttia, ja jää odottamaan seuraavaa vuoroa. Virhe korjattiin
+ennen kuin se ehti mihinkään testiin, ja korjauksen vastakohta on nyt oma testinsä.
+</p>
+
+<p>
+Suunta lasketaan <strong>ikkunan keskipisteestä (20, 20), ei pelaajan paikasta</strong>, ja
+vertailu on aito suurempi, joten tasapeli menee pystysuoralle. Erottelija: ulkopuolinen pää
+ikkunakoordinaatissa (30, 10) on yhtä kaukana molemmilla akseleilla keskipisteestä, siis
+tasapeli, siis pohjoinen. Keskipisteenä pelaajan oma paikka (16, 23) tekisi erosta vaakasuuremman
+ja antaisi idän, ja niin tekisi <code>&gt;=</code>-vertailukin.
+</p>
+
+<p>
+Haku itse on <strong>yksi rintama, ei kaksi</strong>: maalia ei siemennetä, joten koko kaksirintamainen
+kohtaamislogiikka jää väliin ja pysähdys on ensimmäinen vierailtu reunaruutu, halvin eikä lähin.
+Kun hahmo on se ulkopuolinen pää, haku kasvaa maalista käsin sen sijaan, hahmo siirretään
+löydetylle reunaruudulle suoraan ilman maastotarkistusta, ja polku käännetään <strong>tavu
+kerrallaan <code>xor 2</code></strong>: suunta on tavun kaksi alinta bittiä, joten kääntö vaihtaa
+pohjoisen ja etelän sekä idän ja lännen eikä koske askelmäärään.
+</p>
+
+<h2>Huonekalu jota kukaan ei etsi</h2>
+
+<p>
+<code>AI_SEEKOBJ</code> on sama haku toisella kohteella: ei ruutu vaan objektityyppi, nukkumiselle
+sänky ja istumiselle tuoli, pöydän kohdalla tuoli jonka vieressä on lautanen. Kaikki luettavissa
+dekompilaatiosta. Mutta kun mittasi mikä sen käynnistää, vastaus oli nolla neljällä eri kanavalla:
+</p>
+
+<pre><code>aikataulun toimintatavu   0 / 563 merkintaa
+OBJLIST:n tilatavu        0 / 256 paikkaa
+munan alkion laatu        0 / 1035 alkiota
+keskustelun CD-kasky      0 / 20 vakiollista</code></pre>
+
+<p>
+Ainoa tunnettu tie sisään on <strong>yhden skriptin debug-haara</strong>: Iolo kysyy pelaajalta
+hahmonumeron ja tilan näppäimistöltä hyppyketjun sisällä, eikä mikään avainsanalista tavoita sitä.
+Nukkuminen, istuminen, syöminen ja soittaminen toimivat tästä huolimatta täysin, koska ne
+asettuvat suoraan sille ruudulle missä hahmo jo seisoo: 81/81 istumista, 143/167 nukkumista, 33/33
+syömistä, 8/8 soittamista.
+</p>
+
+<p>
+Etsintää ei siis rakennettu. Neljä sen omaa piirrettä kirjattiin <code>originalBugs.md</code>:ään
+saavuttamattomina: valtaistuin kelpaa istuttavaksi muttei etsittäväksi, vetonarun haku on kuollutta
+koodia, lajin indeksiä ei tarkisteta, ja osuma hahmon omassa ruudussa rakentaisi polun kartasta
+jota ei ole vielä kirjoitettu. Jokainen vaatisi debug-reittiä toimiakseen, joten yksikään ei näy
+oikeassa pelissä.
+</p>
+
+<h2>Toinen silmäpari</h2>
+
+<p>
+Lisäsin viitelähteisiin <strong>Nuvien</strong>, itsenäisen avoimen moottorin samalle pelille.
+GPL, sama työtapa kuin dekompilaatiolla: luetaan, ei kopioida, sääntö kirjoitetaan auki omin
+sanoin. Ei joka säännölle, vaan silloin kun dekompilaatio on hiljaa tai epäselvä, samalla
+periaatteella kuin refuttaajien ei-joka-säännölle-rajaus.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>korpus menee lapi            192 / 196
+virstanpylvaita valmiina       9 / 24
+kohtia valmiina               86 / 126
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    54 / 54
+U6Engine.Tests   813 / 813</code></pre>
+
+<p>
+Seitsemän uutta testiä: suunnan erottelija, pysähdys halvimmassa eikä lähimmässä reunaruudussa,
+umpikuja, molemmat suunnat ikkunan reunaan (hahmo ulkona ja maali ulkona), ja teleporttibudjetin
+loppumisen oma testi, joka ajaa kolme muuta hahmoa tyhjäksi ennen neljättä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Liikepisteet: montako askelta hahmo ehtii vuorossa, luettu sijainniltaan muttei
+     säännöltään.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Blocked Step Is Now a Three Hour Thing | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/37-tukkeuma-on-kolmen-tunnin-asia.html" hreflang="fi">FI</a><span>/</span><a href="37-a-blocked-step-is-now-a-three-hour-thing.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 37</nav>
+
+<h1>A Blocked Step Is Now a Three Hour Thing</h1>
+
+<p class="lede">
+Movement points are in the engine now: how many steps a character gets, depending on its own
+speed and the terrain. The original ticks by the minute, this project by the hour, and that
+difference just showed up in one place no amount of measuring could have predicted ahead of
+time.
+</p>
+
+<h2>The formula is not the resistance map's formula</h2>
+
+<p>
+<code>SubTerrainMov</code> computes what leaving one square costs: <strong>5 plus the terrain's
+own nibble plus every object standing on the square's own nibble</strong>, impassable tiles
+skipped rather than blocking anything. The pathfinding resistance map reads a different number
+from the same data, <code>1 + nibble</code>, with its own special cases for doors and bridges.
+They are not the same number, and reusing one for the other would have been an easy shortcut to
+take.
+</p>
+
+<p>
+Measured in the Avatar's own window: of 1122 walkable squares, 1107 match
+<code>resistance + 4</code>, and 15 do not: 13 doors and 2 wall objects. A door costs 15 where
+<code>resistance + 4</code> would say 6, because the resistance map gives every door a flat +1
+and <code>SubTerrainMov</code> knows nothing about doors at all, it just sums the door tile's
+own nibble.
+</p>
+
+<h2>A test found a phantom square</h2>
+
+<p>
+The first reading claimed 16 exceptions, 13 doors and <strong>three</strong> wall objects in
+three neighbouring squares. A test that walks the whole window one square at a time instead of
+reading a named list of three found that the middle square has no object on it at all. The two
+neighbours invited assuming a third between them, and that assumption was wrong: 15 exceptions,
+two wall objects. The same mistake this project has made before in other shapes: a named
+example is easier to believe than measuring it again.
+</p>
+
+<h2>Blocking moved from the minute to the hour, and that changed what three tries means</h2>
+
+<p>
+In the original a blocked step <strong>zeroes the whole point balance</strong>, not merely
+subtracts from it. The three-try blocking escalation (wait, wait again, give up) plays out over
+three minutes in the original, because the grant happens every minute whenever nobody has
+points left. This project keeps the hourly round instead: the grant happens once an hour, not
+once a minute.
+</p>
+
+<p>
+Consequence: once the zeroing rule was implemented exactly as measured, three existing tests
+failed. Their expectation was that no points were needed for a second or third consecutive
+try, which held only because movement points did not exist yet. The first instinct was to ask
+whether the rule should be softened for the tests' sake. The answer was no: a measured rule is
+implemented exactly, and the tests get fixed to match it. Three tests now run the hourly round
+between two tries, the same way a minute would pass in the original. The escalation now plays
+out hour by hour rather than player step by player step, and that is the correct consequence of
+this architectural choice, not a fault to paper over.
+</p>
+
+<h2>What stayed unbuilt on purpose</h2>
+
+<p>
+Characters standing on a square do not add to its cost, even though the original would count
+them too: the measured effect is nought across all 200 placed characters in the owner's own
+save, because every one of them stands on either an impassable tile or one with nibble nought.
+A square-indexed character lookup for an effect proven to be zero was left out as a decision.
+The party leader's and followers' own movement (<code>PartyAdvance</code>,
+<code>MoveFollowers</code>) and vehicles are still waiting their turn.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              9 / 24
+work items done              86 / 126
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    54 / 54
+U6Engine.Tests   833 / 833</code></pre>
+
+<p>
+Twenty new tests: the movement-cost discriminators against a door and a wall object, a blocked
+square's still-finite cost, the points balance read as the signed value it is, a grant that
+carries a debt rather than a surplus, three blocking tests now running the hourly round between
+tries, and the teleport's own flat ten point charge.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The rest of movement points: the party's own movement and the leader rule's reachability,
+     or vehicles if those come first.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portti vie aina sinne missä kuu on | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="41-portti-vie-aina-sinne-missa-kuu-on.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/41-the-gate-always-goes-where-the-moon-is.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 41</nav>
+
+<h1>Portti vie aina sinne missä kuu on</h1>
+
+<p class="lede">
+Kuuportit toimivat moottorissa nyt, ja sen mukana ratkesi vuosia roikkunut kysymys:
+<code>STARPOS.DAT</code> ei liity peliin lainkaan. Se on introfilmin oma tähtitaivas.
+</p>
+
+<h2>Kahdeksan paikkaa, ei kahdeksaa porttia</h2>
+
+<p>
+Kuuporttien koko paikkatieto on yksi taulukko tallennuksessa, <code>MoonstonePos[8][3]</code>,
+kahdeksan sijaintia jotka vastaavat kuunvaiheita. Portti itse ei ole mikään pysyvä rakenne:
+se ilmestyy ja katoaa tunnin vaihtuessa sen mukaan onko jompikumpi kuu riittävän ylhäällä, ja
+kaikki kahdeksan ilmestyvät ja katoavat yhdessä. Se mihin astuttu portti vie ei riipu siitä
+kumman kahdeksasta astuit: se on aina sen kuun vaihe joka sillä hetkellä on lähimpänä
+taivaan lakipistettä. Kahdeksan identtistä ovea, yksi yhteinen kohde kerrallaan.
+</p>
+
+<h2>Etumerkitön tavu on sääntö, ei vahinko</h2>
+
+<p>
+Kuun taivaspaikka lasketaan int-aritmetiikalla joka voi mennä negatiiviseksi, mutta
+tallennetaan etumerkittömään tavuun. Tämä ei ole ylivuoto jota piti varoa: se on osa
+sääntöä, ja alkuperäisen koodi nojaa siihen suoraan. Mittasin eron: kuukauden 672 tunnista
+571 on portti auki etumerkittömällä tavulla, 582 olisi etumerkillisellä. Yksitoista tuntia
+kuukaudessa menisi väärin jos tätä yksityiskohtaa oikaisisi.
+</p>
+
+<h2>Portti on oikea objekti, ei erikoistapaus</h2>
+
+<p>
+Sen sijaan että kuuportille rakentaisi oman tilakoneen, se on tavallinen kartta-objekti:
+luodaan kun sen pitäisi näkyä, tuhotaan kun ei. Moottorin olemassa oleva piirto osaa jo
+kaksileveät objektit, niin portti näkyy kahden ruudun levyisenä ilmaiseksi, aivan kuten
+ovet ja laivan runko. Länsipuolisko ei tee mitään, koska siinä ei ole objektia ollenkaan,
+täsmälleen kuten alkuperäisessä.
+</p>
+
+<h2><code>STARPOS.DAT</code> on introvideon oma</h2>
+
+<p>
+Tiedoston ainoa lukija koko dekompilaatiossa on introfilmin yökohtaus, ei pelin
+puoli lainkaan. Kuiden sijainnit lasketaan taulukosta ja kellonajasta, eivät tiedostosta.
+Tämä oli projektin omassa suunnitelmassa väärin kirjattuna kahdessa paikassa, ja molemmat
+on korjattu. Tiedostoa ei siis tarvitse viedä ollenkaan tähän mennessä rakennettuun peliin.
+</p>
+
+<h2>Mitä jäi rakentamatta</h2>
+
+<p>
+Kuukiven hautaaminen ja nostaminen vaatisi maastoon kohdistuvan yleisen käyttökomennon jota
+ei ole. Gate Travel -loitsu vaatisi loitsujärjestelmän jota ei ole. Soolotilan kielto,
+taistelun katkaisu ja punaisen portin poisto vaatisivat järjestelmiä joita ei ole. Neljä
+syytä, yksi muoto: ei puuttuvia sääntöjä, puuttuvia järjestelmiä niiden alla.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      10 / 24
+kohtia valmiina               88 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    54 / 54
+U6Engine.Tests   891 / 891</code></pre>
+
+<p>
+14 uutta testiä: porttien paikat, kuunvaiheet, etumerkitön kääre, portin ilmestyminen ja
+katoaminen, kohteen valinta, keskiyön erikoistapaus ja nollattu paikka.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M17: juonen ja hahmon tila.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

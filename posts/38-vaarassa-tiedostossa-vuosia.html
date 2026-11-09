@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Väärässä tiedostossa vuosia | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="38-vaarassa-tiedostossa-vuosia.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/38-looking-in-the-wrong-file-for-years.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 38</nav>
+
+<h1>Väärässä tiedostossa vuosia</h1>
+
+<p class="lede">
+<code>.SHP</code>-framejen pikselikoodaus on ratkaistu. Se on ollut auki siitä asti kun
+muotodokumentti ensin kirjattiin, kasvamassa velaksi joka estää koko vaihe D:n. Syy siihen
+miksi haku ei ennen löytänyt mitään oli yksinkertainen: väärä tiedosto.
+</p>
+
+<h2>Peliohjelma ei pura muotoja ollenkaan</h2>
+
+<p>
+Moduulikartta ohjasi vuosia kohtaan <code>gfx.c</code>. Siellä ei ole yhtään framen lukijaa, eikä
+koko dekompiloidussa lähdepuussa esiinny sanaa <code>.shp</code> missään muodossa. Piirto on
+<strong>ladattavassa grafiikka-ajurissa</strong>, jota alkuvalikko, hahmonluonti ja lopetuskohtaus
+kutsuvat hyppytaulun kohdan numerolla, ei suoraan koodista. Dekompilaatioprojekti on kirjoittanut
+ajurin auki C:ksi, alkuperäiset osoitteet kommentteina: funktio on <code>UDRV_3</code> ja sen
+lohkonpurkuapuri <code>rle</code>.
+</p>
+
+<p>
+Rivi joka sanoo "paikannettu" nimeämättä funktiota ei ole paikannus. Korjattu
+moduulikarttaan omana huomautuksenaan, jotta samaa virhettä ei tehdä toiseen kertaan.
+</p>
+
+<h2>Frame ei ole rasteri</h2>
+
+<p>
+Aiempi haku yritti otsakelayouteja yhdistettynä laattojen pikselipurkajaan, ja epäonnistui aina.
+Syy selvisi vasta ajuria lukemalla: <strong>frame on joukko vaakasuoria ajoja, joista jokainen
+kantaa oman sijaintinsa</strong>, ei täyttä pikselikenttää. Mitattuna 396 framesta piirtyy
+keskimäärin 45,44 % laatikon pinta-alasta, ja vain 60 täyttää laatikkonsa kokonaan. Mikään
+rasterinpurkaja ei voinut osua tähän, koska ehto jota se etsi ("tuotti tasan width × height
+pikseliä") ei ole tämän muodon ehto.
+</p>
+
+<p>
+Otsake on neljä 16-bittistä sanaa, hot spotin ulottuma neljään suuntaan. Ajo on sana joka kertoo
+pituuden ja tavalaadun, kaksi etumerkillistä sijaintisanaa, ja data: suora tavujono tai
+sisäkkäinen lohkokoodaus (toisto tai literaali, kahdella eri bitillä kahdella tasolla).
+</p>
+
+<h2>Nuvie osui tällä kertaa oikeaan, osittain</h2>
+
+<p>
+Nuvien vuoden 2003 muotodokumentti kuvasi lohkokoodauksen täsmälleen oikein: molemmat bittitestit,
+molemmat <code>&gt;&gt;1</code>-siirrot, väritavu siirtämättä. Juuri niistä kohdista jotka
+tehtävänanto pyysi epäilemään erityisesti. Proosa oli silti väärässä kahdesta rakenteellisesta
+asiasta: se ei mainitse ajon kahta sijaintisanaa lainkaan, ja se laskee laatikon koon ilman
+ykköstä. Molemmat olisi huomattu pelkällä omalla aineistolla, ilman dekompilaatiota:
+sijaintisanoitta luenta purkaa oikein 4 frameä 396:sta, ykkösettä 31. Proosa ja Nuvien oma koodi
+olivat myös eri mieltä keskenään, ja koodi oli oikeassa.
+</p>
+
+<p>
+Sama oppi kuin viime kerralla läpinäkyvyydestä, käänteisesti. Viimeksi Nuvien oma valinta (täytä
+laatikko arvolla 255 ennen purkua) sekoittui luettuna muodon ominaisuudeksi. Tällä kertaa proosa
+osui lähes kaikkeen oikein mutta jätti kaksi asiaa mainitsematta, ja kumpikaan tapaus ei korjaannu
+luottamalla lähteeseen sen itsensä sanomana vaan mittaamalla.
+</p>
+
+<h2>Yksi oma testi oli kaunis mutta tyhjä</h2>
+
+<p>
+Auditissa löytyi testi joka väitti tarkistavansa, että hot spot pysyy laatikon sisällä. Se ei
+voinut koskaan epäonnistua: hot spot on määritelmän mukaan <code>left</code> ja laatikon leveys
+<code>right + left + 1</code>, joten <code>left</code> on aina alle leveyden riippumatta siitä
+mitä data sanoo. Testi mittasi kaavan omaa aritmetiikkaa, ei peliä. Korvattu testillä joka mittaa
+oikean luvun: 14 framea 396:sta, joilla hot spot on muualla kuin laatikon nurkassa, täsmälleen
+niissä ajon sijaintisanojen etumerkillisyys näkyy ensimmäistäkään kertaa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      10 / 24
+kohtia valmiina               87 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    54 / 54
+U6Engine.Tests   833 / 833</code></pre>
+
+<p>
+Kaksitoista uutta testia: kaikki 396 omaa frameä purkautuvat tasan, piirtyvien pikselien
+kokonaismäärä täsmää mitattuun, erottelija vuoden 2003 proosaa vastaan ajettuna omalla
+aineistolla (4 / 396, ei enempää eikä vähempää), ja viisi tapaa hylätä viallinen data eikä
+arvata sitä, nollan pituinen lohko mukaan lukien, jota alkuperäinen ajaisi loputtomiin yhdellä
+kahdesta piirtoreitistään.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Liikepisteiden loput: puolueen oma liike ja johtajasäännön saavutettavuus, tai
+     kulkuvälineet jos ne tulevat ensin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

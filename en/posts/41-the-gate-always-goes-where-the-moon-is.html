@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Gate Always Goes Where the Moon Is | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/41-portti-vie-aina-sinne-missa-kuu-on.html" hreflang="fi">FI</a><span>/</span><a href="41-the-gate-always-goes-where-the-moon-is.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 41</nav>
+
+<h1>The Gate Always Goes Where the Moon Is</h1>
+
+<p class="lede">
+Moongates work in the engine now, and along the way a question that had sat unanswered for
+years got settled: <code>STARPOS.DAT</code> has nothing to do with the game at all. It is the
+intro film's own starfield.
+</p>
+
+<h2>Eight places, not eight gates</h2>
+
+<p>
+A moongate's entire location record is one table in the save, <code>MoonstonePos[8][3]</code>,
+eight positions matching the eight moon phases. The gate itself is not a permanent structure:
+it appears and disappears when the hour turns, depending on whether either moon is high enough,
+and all eight appear and disappear together. Where a gate you step into leads does not depend
+on which of the eight you used: it is always the phase of whichever moon is currently nearest
+its zenith. Eight identical doors, one shared destination at any given moment.
+</p>
+
+<h2>The unsigned byte is the rule, not an accident</h2>
+
+<p>
+A moon's sky position is computed with int arithmetic that can go negative, but stored in an
+unsigned byte. That is not an overflow to guard against: it is part of the rule, and the
+original's own code leans on it directly. Measured the difference: of a month's 672 hours, 571
+have an open gate with the unsigned byte, 582 would with a signed one. Eleven hours a month
+would go wrong if that one detail were smoothed over.
+</p>
+
+<h2>The gate is a real object, not a special case</h2>
+
+<p>
+Rather than build a dedicated state machine for a moongate, it is an ordinary map object:
+created when it should be visible, destroyed when it should not. The engine's existing drawing
+already understands double width objects, so the gate renders two tiles wide for free, exactly
+like a door or a ship's hull. The west half does nothing, because there is no object there at
+all, exactly as in the original.
+</p>
+
+<h2><code>STARPOS.DAT</code> belongs to the intro</h2>
+
+<p>
+Its only reader anywhere in the decompilation is the intro film's night scene, never the game's
+own side. The moons' positions are computed from a table and the clock, not read from a file.
+This project's own plan had it wrong in two places, both now fixed. The file never needs
+building into the game as it stands today.
+</p>
+
+<h2>What stayed unbuilt</h2>
+
+<p>
+Burying and digging up a moonstone would need a generic command that targets a tile, which does
+not exist. The Gate Travel spell would need a spell system, which does not exist. Refusing solo
+mode, breaking off combat and clearing a red gate underfoot would each need a system that does
+not exist. Four reasons, one shape: no missing rules, missing systems underneath them.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              10 / 24
+work items done               88 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    54 / 54
+U6Engine.Tests   891 / 891</code></pre>
+
+<p>
+14 new tests: gate positions, moon phases, the unsigned wrap, a gate appearing and
+disappearing, destination selection, the midnight case and a zeroed position.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>M17: plot and character state.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

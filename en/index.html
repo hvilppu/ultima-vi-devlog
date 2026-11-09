@@ -38,8 +38,8 @@ because the only thing worth tracking is what actually runs.
 <p>
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
-<strong>9 of 24 milestones</strong> finished, and inside them
-<strong>86 of 126 work items</strong>. The second is the one that moves while a
+<strong>10 of 24 milestones</strong> finished, and inside them
+<strong>90 of 125 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -67,7 +67,7 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Data extraction <span class="m-value">5 / 6 done, 23 / 24 items</span></h3>
+    <h3>Data extraction <span class="m-value">6 / 6 done, 23 / 23 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-done" title="Show the items">
         <span class="m-name">Compression and palettes <span class="m-value">M1</span></span>
@@ -93,16 +93,15 @@ them up found two faults in the plan straight away that the total alone had hidd
       </ul>
     </details>
     <details class="mgroup">
-      <summary class="meter is-started" title="Show the items">
+      <summary class="meter is-done" title="Show the items">
         <span class="m-name">Shapes, portraits, font <span class="m-value">M3</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 75%"></span></span>
-        <span class="m-value">3 / 4, partial</span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">3 / 3</span>
       </summary>
       <ul class="m-items">
         <li class="done">Portraits: <code>PORTRAIT.A</code> (98), <code>.B</code> (96) and <code>.Z</code> (12), so 206 portraits</li>
         <li class="done">The font <code>U6.CH</code>: 256 characters of 8 rows, a bit at a time with the top bit on the left</li>
         <li class="done">The <code>.SHP</code> container: a u32 total size, then a u32 offset table, so the frame count is <code>(offsets[0] - 4) / 4</code></li>
-        <li>The pixel encoding inside a <code>.SHP</code> frame</li>
       </ul>
     </details>
     <details class="mgroup">
@@ -148,7 +147,7 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Rule extraction <span class="m-value">1 / 3 done, 18 / 22 items</span></h3>
+    <h3>Rule extraction <span class="m-value">1 / 3 done, 19 / 22 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-done" title="Show the items">
         <span class="m-name">Setting up the reference source <span class="m-value">M7</span></span>
@@ -165,8 +164,8 @@ them up found two faults in the plan straight away that the total alone had hidd
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Rule extraction <span class="m-value">M8</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 88%"></span></span>
-        <span class="m-value">14 / 16, in progress</span>
+        <span class="m-bar"><span class="m-fill" style="width: 94%"></span></span>
+        <span class="m-value">15 / 16, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done"><code>TILEFLAG</code> read out completely</li>
@@ -174,7 +173,7 @@ them up found two faults in the plan straight away that the total alone had hidd
         <li class="done">The <code>TILEFLAG</code> bits confirmed against the data rather than only read</li>
         <li class="done">What the <code>TILEFLAG</code> bits mean</li>
         <li class="done">Bytes six and seven of an object record</li>
-        <li>The pixel encoding inside a <code>.SHP</code> frame, moved here from M3; it blocks phase D and nothing before it</li>
+        <li class="done">The pixel encoding inside a <code>.SHP</code> frame</li>
         <li class="done">The second table in <code>ANIMDATA</code></li>
         <li class="done">What the status bit <code>0x10</code> means</li>
         <li class="done">What the coordinate field of a held object names</li>
@@ -318,29 +317,29 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Vehicles and plot <span class="m-value">0 / 2 done, 0 / 7 items</span></h3>
+    <h3>Vehicles and plot <span class="m-value">0 / 2 done, 3 / 7 items</span></h3>
     <details class="mgroup">
       <summary class="meter" title="Show the items">
         <span class="m-name">Vehicles and moongates <span class="m-value">M16</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-        <span class="m-value">0 / 3</span>
+        <span class="m-bar"><span class="m-fill" style="width: 33%"></span></span>
+        <span class="m-value">1 / 3</span>
       </summary>
       <ul class="m-items">
         <li>The raft, the ship, the horse and the balloon, each with its own movement, terrain limits and controls</li>
         <li>The moongates: the cycles of Trammel and Felucca, and where a gate leads by the phase</li>
-        <li><code>STARPOS.DAT</code> for the night sky and where the moons are</li>
+        <li class="done"><code>STARPOS.DAT</code> for the night sky and where the moons are</li>
       </ul>
     </details>
     <details class="mgroup">
       <summary class="meter" title="Show the items">
         <span class="m-name">Plot and character state <span class="m-value">M17</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-        <span class="m-value">0 / 4</span>
+        <span class="m-bar"><span class="m-fill" style="width: 50%"></span></span>
+        <span class="m-value">2 / 4</span>
       </summary>
       <ul class="m-items">
         <li>The plot flags and the main quest state machine: the shrines, the Codex, the vortex cube, the gargoyle prophecy and what the ending requires</li>
-        <li>Translating the gargoyle language, and how it opens up as the plot moves</li>
-        <li>Karma and the virtues, and how they change the way characters react</li>
+        <li class="done">Translating the gargoyle language, and how it opens up as the plot moves</li>
+        <li class="done">Karma and the virtues, and how they change the way characters react</li>
         <li>Hunger, rest and camping, and the passing of time</li>
       </ul>
     </details>
@@ -694,12 +693,55 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
     <p>The docs claimed the search came first and teleporting was the fallback. That was
        backwards, and the difference is measured at four characters.</p>
   </li>
+  <li>
+    <span class="n">36</span>
+    <a href="posts/36-a-search-nobody-ever-calls.html">A Search Nobody Ever Calls</a>
+    <p>Heading for the window's edge is now built. Seeking furniture is measured and left
+       unbuilt, because no shipped data ever starts it.</p>
+  </li>
+  <li>
+    <span class="n">37</span>
+    <a href="posts/37-a-blocked-step-is-now-a-three-hour-thing.html">A Blocked Step Is Now a Three Hour Thing</a>
+    <p>Movement points are in the engine now. Keeping the hourly round meant the three-try
+       blocking escalation now plays out hour by hour rather than step by step.</p>
+  </li>
+  <li>
+    <span class="n">38</span>
+    <a href="posts/38-looking-in-the-wrong-file-for-years.html">Looking in the Wrong File for Years</a>
+    <p>The pixel encoding of <code>.SHP</code> frames is solved. The module map pointed at the
+       wrong file for years: drawing happens in a loadable graphics driver, not the game program.</p>
+  </li>
+  <li>
+    <span class="n">39</span>
+    <a href="posts/39-points-never-pause-the-player.html">Points Never Pause the Player</a>
+    <p>The leader's and the party's own movement-point charge is in the engine. The points are
+       real, but a key press always works the same way, the owner's own choice.</p>
+  </li>
+  <li>
+    <span class="n">40</span>
+    <a href="posts/40-four-vehicles-and-one-of-our-own-bugs.html">Four Vehicles and One of Our Own Bugs</a>
+    <p>A ship, a skiff, a raft and an inflated balloon now sail in the engine. Found along the
+       way: our own bug, a walker who could not wade into the shallow when it should.</p>
+  </li>
+  <li>
+    <span class="n">41</span>
+    <a href="posts/41-the-gate-always-goes-where-the-moon-is.html">The Gate Always Goes Where the Moon Is</a>
+    <p>Moongates work in the engine. Found along the way: <code>STARPOS.DAT</code> is the intro
+       film's own starfield and has nothing to do with the game at all.</p>
+  </li>
+  <li>
+    <span class="n">42</span>
+    <a href="posts/42-karma-wraps-before-it-stops.html">Karma Wraps Before It Stops</a>
+    <p>The Gargoyle language flag and karma are in the engine. Karma's raising opcode wraps as
+       a byte before it clamps, exactly like the original, and the game state block that the
+       same bug turned up twice is finally the right length.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>Seeking furniture and heading for the window's edge, both read for where they sit but not
-     yet for their rule.</p>
+  <p>The rest of M17: plot flags and the main quest state machine, then hunger, rest and
+     camping.</p>
 </div>
 
 <footer class="foot">

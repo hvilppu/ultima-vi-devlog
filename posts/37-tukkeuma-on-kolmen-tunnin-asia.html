@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tukkeuma on kolmen tunnin asia | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="37-tukkeuma-on-kolmen-tunnin-asia.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/37-a-blocked-step-is-now-a-three-hour-thing.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 37</nav>
+
+<h1>Tukkeuma on kolmen tunnin asia</h1>
+
+<p class="lede">
+Liikepisteet ovat nyt moottorissa: kuinka monta askelta hahmo ehtii, riippuen hahmon omasta
+nopeudesta ja maastosta. Alkuperäinen tikittää minuutin kerrallaan, tämä projekti tunnin
+kerrallaan, ja se ero näkyy nyt yhdessä paikassa jota ei voinut ennakoida mittaamalla.
+</p>
+
+<h2>Kaava ei ole vastuskartan kaava</h2>
+
+<p>
+<code>SubTerrainMov</code> laskee mitä yhden ruudun jättäminen maksaa: <strong>5 plus maaston
+nibble plus jokaisen ruudulla seisovan objektin nibble</strong>, kulkukelvottomat tiilet pois
+luettuina ohittamalla ne, ei estämällä. Polunhaun vastuskartta laskee samasta datasta eri luvun,
+<code>1 + nibble</code>, erikoissäännöillä oville ja silloille. Ne eivät ole sama luku, ja
+sekoittaminen olisi ollut helppo oikotie.
+</p>
+
+<p>
+Mitattu Avatarin ikkunassa: 1122 kulkukelpoisesta ruudusta 1107 täsmää kaavaan
+<code>vastus + 4</code>, ja 15 ei: 13 ovea ja 2 seinäobjektia. Ovi maksaa 15 kun
+<code>vastus + 4</code> antaisi 6, koska vastuskartta antaa ovelle kiinteän +1:n ja
+<code>SubTerrainMov</code> ei tiedä ovista mitään, se vain laskee tiilen oman nibblen.
+</p>
+
+<h2>Oma mittaus löysi haamuruudun</h2>
+
+<p>
+Ensimmäinen luku oli 16 poikkeamaa, 13 ovea ja <strong>kolme</strong> seinäobjektia kolmessa
+vierekkäisessä ruudussa. Oma testi, joka käy koko ikkunan läpi rivi kerrallaan sen sijaan että
+lukisi nimettyä kolmen ruudun listaa, löysi ettei keskimmäisessä ruudussa ole yhtään objektia.
+Vierekkäiset ruudut houkuttelivat olettamaan kolmannen väliin, ja se olettamus oli väärä: 15
+poikkeamaa, kaksi seinäobjektia. Sama virhe kuin monta kertaa ennenkin tässä projektissa, eri
+muodossa: nimetty esimerkki on helpompi uskoa kuin mitata uudelleen.
+</p>
+
+<h2>Tukkeuma siirtyi minuutista tuntiin, ja se muutti mitä kolme yritystä tarkoittaa</h2>
+
+<p>
+Alkuperäisessä tukkiutunut askel <strong>nollaa koko pistesaldon</strong>, ei vain vähennä sitä.
+Kolmen tukkiutumisyrityksen eskalaatio (odottaa, odottaa toisen kerran, luovuttaa) etenee
+alkuperäisessä kolmen minuutin aikana, koska jako tapahtuu joka minuutti kun kenelläkään ei ole
+pisteitä. Tämä projekti pitää tuntikierroksen: jako tapahtuu kerran tunnissa, ei minuutissa.
+</p>
+
+<p>
+Seuraus: kun nollaussääntö toteutettiin sellaisenaan, kolme olemassa olevaa testiä kaatui. Niiden
+odotus oli ettei pisteitä tarvita toisella eikä kolmannella peräkkäisellä yrityksellä, mikä piti
+kun liikepisteitä ei ollut ollenkaan. Kysyin ensin pitäisikö sääntöä höllentää testien takia.
+Vastaus oli ei: mitattu sääntö toteutetaan sellaisenaan, ja testit korjataan vastaamaan sitä.
+Kolme testiä ajavat nyt tuntikierroksen kahden yrityksen välissä, aivan kuten alkuperäisessä
+minuutti vierähtää. Eskalaatio etenee siis tunneittain eikä peliaskeleittain, ja se on tämän
+arkkitehtuurivalinnan oikea seuraus, ei virhe jota pitäisi peitellä.
+</p>
+
+<h2>Mitä jäi rakentamatta tarkoituksella</h2>
+
+<p>
+Hahmot ruudulla eivät lisää kustannusta, vaikka alkuperäinen laskisi nekin mukaan: mitattu
+vaikutus on nolla kaikilla 200 sijoitetulla hahmolla omassa pelitallennuksessa, koska jokainen
+seisoo joko kulkukelvottomalla tiilellä tai nibbellä nolla. Sijaintihaku hahmoille olisi
+lisäkytkentä ilman mitattavaa hyötyä, niin se jätettiin pois päätöksenä. Samoin puolueen
+johtajan ja seuraajien oma liike (<code>PartyAdvance</code>, <code>MoveFollowers</code>) ja
+kulkuvälineet odottavat omaa vuoroaan.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina       9 / 24
+kohtia valmiina               86 / 126
+
+U6Formats.Tests  290 / 290
+U6Export.Tests    54 / 54
+U6Engine.Tests   833 / 833</code></pre>
+
+<p>
+Kaksikymmentä uutta testia: maastokustannuksen erottelijat ovea ja seinäobjektia vastaan,
+tukossa olevan ruudun äärellinen hinta, pisteiden etumerkillinen luku, jako joka kantaa velan
+eikä ylijäämää, kolme uutta tukkeumatestiä jotka ajavat tuntikierroksen väliin, ja
+teleportin kiinteä kymmenen pisteen veloitus.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Liikepisteiden loput: puolueen oma liike ja johtajasäännön saavutettavuus, tai
+     kulkuvälineet jos ne tulevat ensin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

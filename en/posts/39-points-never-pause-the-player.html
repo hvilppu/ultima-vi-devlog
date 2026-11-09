@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Points Never Pause the Player | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/39-pisteet-eivat-pysayta-pelaajaa.html" hreflang="fi">FI</a><span>/</span><a href="39-points-never-pause-the-player.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 39</nav>
+
+<h1>Points Never Pause the Player</h1>
+
+<p class="lede">
+The leader's and the party's own movement-point charge is in the engine now. It was the last
+piece the previous measuring pass found, and on the way there was one more question measuring
+could not answer: what to do about the one place the real game would actually stop the
+player.
+</p>
+
+<h2>The original does not ask permission to move, it asks permission to give control back</h2>
+
+<p>
+<code>RunNPCTurns</code> runs after every player command until the actor it picks is
+<code>AI_COMMAND</code>, the player's own turn. If the leader's points get zeroed because a
+follower ran dry (last post's §2.21), the loop never finds the player eligible, and it keeps
+running other actors and granting points until the leader qualifies again. The player is not
+stuck on a key press; the game just processes something else for a moment before handing
+control back.
+</p>
+
+<p>
+In this engine one key press is one step and a fixed clock advance, not the minute clock an
+earlier architecture choice deliberately left unbuilt. So the question was real: should the
+player's own movement stop when the party's points run out, or are the points just
+bookkeeping? Asked, and the answer was the latter: the points are real and measurable, but a
+key press always works exactly as it does now.
+</p>
+
+<h2>Where the points actually go</h2>
+
+<p>
+The leader pays <code>SubTerrainMov</code> from the square it is leaving before moving, exactly
+as a character walking an errand does, and exactly as the previous post measured. Every member
+whose behaviour is <code>Follow</code> pays a flat ten points, whether or not it actually moved
+or was already in formation. The Avatar is object number 1, outside the governed range of 2 to
+223, so it needs its own hourly grant; the rest of the party (2, 3, 4) already sit inside that
+range and get their <code>DEXTE</code> from the same grant as every other governed character.
+</p>
+
+<p>
+Diagonal movement is not costed separately (<code>PartyAdvance</code>'s own +5), because this
+view has no diagonal input at all: the keyboard picks one of four directions, never two at
+once. Vehicles (ship, skiff, raft, balloon) and the mounted horse halving are still waiting
+their turn, since none of them are built.
+</p>
+
+<h2>The follower charge moved out so it could be tested</h2>
+
+<p>
+The charge was not left inside the view, even though that is where it was first written: it
+is now <code>U6PartyFollow.SpendFollowerPoints</code>, called after the formation step rather
+than inside it. Same split as everywhere else in this project: the rule belongs to the engine,
+the view just calls it. Three new tests pin the rule down: ten for every follower, never for
+the leader, and nothing at all for anyone not in <code>Follow</code>.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              10 / 24
+work items done               87 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    54 / 54
+U6Engine.Tests   836 / 836</code></pre>
+
+<p>
+Three new tests, all for <code>U6PartyFollow</code>'s new function: the follower's ten point
+charge, the leader's exemption from it, and that nothing is charged to a character that is not
+following.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>M16's vehicles, or the last pieces of movement points (ship, skiff, raft, balloon, the
+     mounted horse halving) alongside them.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
