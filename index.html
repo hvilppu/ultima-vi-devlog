@@ -38,8 +38,8 @@ ainoa seuraamisen arvoinen asia on se, mikä oikeasti toimii.
 <p>
 Palkit on <strong>johdettu suunnitelmasta</strong> eikä kirjoitettu käsin, koska käsin pidetty
 taulu eroaa ennen pitkää siitä mitä se väittää lukevansa. Kaksi lukua, ja ne mittaavat eri
-asioita: <strong>10 / 24 virstanpylvästä</strong> valmiina, ja niiden sisällä
-<strong>92 / 125 työkohtaa</strong>. Jälkimmäinen on se joka liikkuu kesken
+asioita: <strong>11 / 24 virstanpylvästä</strong> valmiina, ja niiden sisällä
+<strong>109 / 137 työkohtaa</strong>. Jälkimmäinen on se joka liikkuu kesken
 virstanpylvään.
 </p>
 
@@ -272,33 +272,45 @@ oli peittänyt.
     </details>
   </div>
   <div class="area">
-    <h3>Esineet ja kauppa <span class="m-value">0 / 2 valmista, 3 / 10 kohtaa</span></h3>
+    <h3>Esineet ja kauppa <span class="m-value">1 / 2 valmista, 20 / 22 kohtaa</span></h3>
     <details class="mgroup">
-      <summary class="meter is-started" title="Näytä kohdat">
+      <summary class="meter is-done" title="Näytä kohdat">
         <span class="m-name">Objektit, inventaario ja kaupankäynti <span class="m-value">M12</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 50%"></span></span>
-        <span class="m-value">3 / 6, käynnissä</span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">6 / 6</span>
       </summary>
       <ul class="m-items">
         <li class="done"><code>Get</code>-säännön päätös</li>
         <li class="done">Muutettava objektimaailma</li>
         <li class="done"><code>Get</code>-säännön tekopuoli, pudotus ja esineiden siirto</li>
-        <li>Objektien poimiminen, pudottaminen, käyttäminen, konttiobjektit, painorajat</li>
-        <li>Puolueen inventaario, varusteiden pukeminen, <code>BASETILE</code>/<code>frame_n</code>-tilavaihdot</li>
-        <li>Kauppiaslogiikka M8:n hintataulukoilla</li>
+        <li class="done">Objektien poimiminen, pudottaminen</li>
+        <li class="done">Kauppiaslogiikka M8:n hintataulukoilla</li>
+        <li class="done">Varusteiden pukeminen siirretty M21:een</li>
       </ul>
     </details>
     <details class="mgroup">
-      <summary class="meter" title="Näytä kohdat">
+      <summary class="meter is-started" title="Näytä kohdat">
         <span class="m-name">Objektikohtainen käyttölogiikka <span class="m-value">M13</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-        <span class="m-value">0 / 4</span>
+        <span class="m-bar"><span class="m-fill" style="width: 88%"></span></span>
+        <span class="m-value">14 / 16, käynnissä</span>
       </summary>
       <ul class="m-items">
-        <li>Taulukkopohjainen dispatch <code>obj_n</code> → käsittelijä, ei jättimäistä <code>switch</code>-lausetta (§3.1)</li>
-        <li>Käsittelijät louhitaan dekompiloidusta koodista ryhmä kerrallaan</li>
-        <li>Lukot, avaimet, tiirikointi, ansat</li>
-        <li>Objektien yhdistäminen ja muuntaminen (jauhaminen, leipominen, valaminen)</li>
+        <li class="done"><code>IsUsableType</code>:n 85 tyypin jäsenyystesti</li>
+        <li class="done"><code>UseFan</code></li>
+        <li class="done"><code>UseWell</code>, <code>UseCow</code>, <code>UseChurn</code></li>
+        <li class="done">Dispatch-runko ja <code>U6View</code>-kytkentä</li>
+        <li class="done"><code>UseDoor</code>, <code>UseChest</code></li>
+        <li class="done">Kahdeksan ääni-/animaatiotyyppiä</li>
+        <li class="done"><code>UseBeehive</code></li>
+        <li class="done"><code>UseSecretDoor</code>, <code>UseLightSource</code>, <code>UseFood</code>, <code>UseDrink</code>, <code>UsePassthrough</code></li>
+        <li class="done">Koko kartan tyyppihaku, <code>UseLever</code>, <code>UseSwitch</code></li>
+        <li class="done"><code>UseKeyOrLockpick</code></li>
+        <li class="done"><code>UseCrank</code>, <code>ToggleDrawbridge</code></li>
+        <li><code>UseTorch</code>/<code>UseStaff</code> eivät kuulu tähän viipaleeseen</li>
+        <li class="done"><code>UseFishingPole</code></li>
+        <li class="done"><code>UseMoonstone</code></li>
+        <li class="done"><code>UseRune</code>, <code>DestroyGargoyleEggs</code></li>
+        <li>Objektien yhdistäminen ja muuntaminen (jauhaminen, leipominen, valaminen): ei vielä mitattu</li>
       </ul>
     </details>
   </div>
@@ -782,12 +794,25 @@ ennenkin, ja vaihe C kasvoi 19 päivästä 30:een kesken matkan.
     <p>Latauksen silta rakennettu, ja ajettu ensimmäistä kertaa oikealla, pelatulla
        tallennuksella: jokaisen 69 lohkon tietuemäärä täsmäsi tasan.</p>
   </li>
+  <li>
+    <span class="n">50</span>
+    <a href="posts/50-yksinkertaisin-tapaus-oli-vain-yksi-kahdeksasta.html">Yksinkertaisin tapaus oli vain yksi kahdeksasta</a>
+    <p>U6:n "use"-verbi mitattu kokonaan: 85 tyyppiä, ei satoja. Kahdeksasta
+       yksinkertaisimman näköisestä käsittelijästä seitsemän odotti puuttuvaa
+       aliosajärjestelmää.</p>
+  </li>
+  <li>
+    <span class="n">51</span>
+    <a href="posts/51-kahdeksankymmentaviisi-tyyppia-viisitoista-saantoa.html">Kahdeksankymmentäviisi tyyppiä, viisitoista sääntöä</a>
+    <p>Dispatch-taulukko täytetty suurimmalta osin: viisitoista mitattua sääntöä, kahdeksan
+       tyyppiä joilla ei ole moottoripuolta, ja yksi sääntö joka ei mahdu käyttöliittymään.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Seuraavaksi</span>
-  <p>M18 on tältä kierrokselta valmis. Seuraava askel kuuluu laajemmalle
-     pariteettikehykselle, ei yhdelle tiedostomuodolle.</p>
+  <p>Nostosilta omana viipaleenaan, varustepaikat jotka <code>UseTorch</code> tarvitsee, ja
+     käsittelijät jotka selvästi kuuluvat M14:lle tai M23:lle.</p>
 </div>
 
 <footer class="foot">

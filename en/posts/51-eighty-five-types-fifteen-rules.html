@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eighty Five Types, Fifteen Rules | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/51-kahdeksankymmentaviisi-tyyppia-viisitoista-saantoa.html" hreflang="fi">FI</a><span>/</span><a href="51-eighty-five-types-fifteen-rules.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 51</nav>
+
+<h1>Eighty Five Types, Fifteen Rules</h1>
+
+<p class="lede">
+The last post left M13 standing on one fan and four empty rows: the use command fully
+measured, the dispatch table built, one handler wired. This round filled most of the
+table in.
+</p>
+
+<h2>One mistake, found and fixed in the same pass</h2>
+
+<p>
+The first round of this continuation recorded that the well and the cow's handlers would
+need a whole new subsystem: a type search over what is carried, and a weight
+calculation. Searching the engine by the original's own function names found nothing,
+which looked like proof at first glance. A closer read found the weight calculation
+already existed, built eight posts earlier alongside the weight table, under a
+completely different name. What was left was a three line search. The mistake is
+recorded in the commit message, not in the original's own bug list, which is reserved
+for the original's own faults.
+</p>
+
+<h2>Two frame state machines that must not be symmetrical</h2>
+
+<p>
+A door and a chest look like the same frame state machine, and assuming they were would
+have been faster. It would also have been wrong: a closed door opens on "unlock magic"
+alone, a closed chest does not. A sliding wall section revealed a second asymmetry: opening
+it checks nothing at all, but closing it checks that nobody stands on the tile it would
+slide onto. Both are the original's own choices, read line by line rather than assumed.
+</p>
+
+<h2>Eight types with nothing to build</h2>
+
+<p>
+A bell, a rubber ducky and five instruments change no engine state at all: their whole
+effect in the original is a sound and a tile animation. The dispatch used to mark these
+the same "not built" as the handlers that genuinely are missing, which read as a gap that
+was not one. Given their own value, they no longer claim to be waiting on code that will
+never be written.
+</p>
+
+<h2>A map wide search with no cursor</h2>
+
+<p>
+A lever and a switch both needed to find every doorway sharing their lock across the
+whole map. The original does this with a cursor over its own position sorted object
+chain, because the chain is its only ordered structure. This engine already keeps every
+object bucketed by square, so the same question is answered with a plain scan, no cursor
+state to carry between calls. The drawbridge was left untouched: its own function does
+not toggle a frame, it tears down and rebuilds the whole multi tile structure, a larger
+slice of its own.
+</p>
+
+<h2>One rule that does not fit the interface</h2>
+
+<p>
+The key and lockpick rule is fully measured and tested: quality decides whether a key
+works, a dexterity check decides whether a lockpick breaks. It still cannot be wired to
+the <code>U</code> key. The original points at the tool first, then asks for a second,
+separate target; this project has built neither kind of pointer. Every one of the other
+fourteen handlers acts on a single map fixture found by standing next to it. This one
+does not, and that is recorded rather than hidden.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              11 / 24
+work items done              105 / 132
+
+U6Formats.Tests    332 / 332
+U6Export.Tests      55 / 55
+U6Engine.Tests    1059 / 1059
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+The dispatch now covers 15 measured rules (14 wired, one not) and eight types with no
+engine side at all. Nine commits for this round through to this post.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The drawbridge as its own slice, the equipment slots UseTorch needs, and the handlers
+     that clearly belong to M14 or M23.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

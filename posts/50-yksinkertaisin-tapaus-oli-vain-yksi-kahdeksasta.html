@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yksinkertaisin tapaus oli vain yksi kahdeksasta | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="50-yksinkertaisin-tapaus-oli-vain-yksi-kahdeksasta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/50-the-simplest-case-was-only-one-of-eight.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 50</nav>
+
+<h1>Yksinkertaisin tapaus oli vain yksi kahdeksasta</h1>
+
+<p class="lede">
+M18 on valmis, ja seuraava askel oli M13: U6:n "use"-verbi, jonka suunnitelma arvioi
+etukäteen aliarvioiduimmaksi osaksi koko vaihetta. Ensimmäinen kierros ei rakentanut
+käyttökomentoa vaan mittasi sen, ja mittaus muutti sen kokoa toiseen suuntaan kuin odotti.
+</p>
+
+<h2>Ei satoja erikoistapauksia, 85 mitattua tyyppiä</h2>
+
+<p>
+Suunnitelma puhui "sadoista erikoistapauksista". Oikea luku, luettuna <code>CmdUse</code>:sta
+ja sen <code>UsableTypes[]</code>-taulukosta kokonaan: 85 käytettävää objektityyppiä, noin 44
+erillistä käsittelijää. Erotin: taulukon 85 alkiota ja dispatchin switch-lauseen 85
+case-tunnistetta ovat kaksi riippumattomasti poimittua joukkoa, ja ne täsmäävät tasan,
+nollaeroin. Täysi 85 tyyppi &rarr; käsittelijä -taulukko on kirjoitettu ylös kerralla, ei
+myöhemmin tarpeen mukaan.
+</p>
+
+<h2>Kahdeksasta ehdokkaasta seitsemän tarvitsi jotain puuttuvaa</h2>
+
+<p>
+Ensimmäinen arvaus siitä mikä olisi helppoa rakentaa oli väärä. Kahdeksan lyhyimmän
+näköistä käsittelijää luettiin kokonaan dekompilaatiosta: kello, kaivo, lehmä, kirnu,
+tynnyrin ja laatikon avaus, vivut, katkaisin, kampi. Seitsemän niistä tarvitsi jommankumman
+kahdesta puuttuvasta aliosajärjestelmästä: esineen tyyppihaun kannetusta tai varustetusta
+plus täyden painolaskennan, tai koko kartan laajuisen tyyppihaun joka käy läpi jokaisen oven
+tai nostosillan kerralla. Kumpaakaan ei ole rakennettu keskusteluskriptien
+<code>GiveObject</code>/<code>TakeObject</code>-parin ulkopuolelle.
+</p>
+
+<p>
+Kahdeksas, kellon soittaminen, osoittautui eri lajiksi kokonaan: alkuperäisessä se on
+puhdasta tiilianimaatiota ja äänitehoste, nollaa tilamuutosta pelisäännöissä. Se ei
+tarvitse puuttuvaa aliosajärjestelmää eikä mitään moottoripuolen koodia ylipäätään, vaan
+kuuluu näkymäkerrokselle.
+</p>
+
+<h2>Yksi käsittelijä jolla ei ollut velkaa</h2>
+
+<p>
+Fanin kääntäminen oli kolme riviä alkuperäisessä ja nolla uutta riippuvuutta: se lukee ja
+kirjoittaa <code>WindDir</code>:ia, joka on ollut olemassa M16:sta asti purjelaivan ja
+soutuveneen nopeuslaskennan takia. Sen oma dokumentaatio nimesi etukäteen että juuri tämä
+muutostapa puuttuu. <code>U6Wind.RotateByFan</code> täyttää sen aukon, kalman erikoistapaus
+mukaan lukien: <code>(-1 + 1) &amp; 7 = 0</code>, fanin kääntäminen jättää aina todellisen
+suunnan jälkeensä, ei koskaan tyyntä.
+</p>
+
+<h2>Mitä tämä muuttaa seuraavaksi</h2>
+
+<p>
+Kahden puuttuvan aliosajärjestelmän rakentaminen on omat mittaus- ja
+suunnittelupäätöksensä, ei tämän viipaleen jatko: molemmat palvelevat useampaa kuin yhtä
+käsittelijää, niin ne kannattaa mitata kerran kokonaisuutena sen sijaan että jokainen
+käsittelijä keksii oman hakunsa. Kaikki yllä on kirjattu <code>docs/u6-use-command.md</code>:hen.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      11 / 24
+kohtia valmiina               97 / 126
+
+U6Formats.Tests    332 / 332
+U6Export.Tests      55 / 55
+U6Engine.Tests     956 / 956
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+6 uutta testiä: 85 tyypin jäsenyystestin erotin ja rajat, fanin kiertokulku kahdeksalla
+suunnalla ja kalman erikoistapaus.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kaksi puuttuvaa aliosajärjestelmää, inventaariohaku ja koko kartan tyyppihaku, vai
+     jokin muu M13:n 38 jäljellä olevasta käsittelijästä. Ei päätetty vielä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -38,8 +38,8 @@ because the only thing worth tracking is what actually runs.
 <p>
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
-<strong>10 of 24 milestones</strong> finished, and inside them
-<strong>92 of 125 work items</strong>. The second is the one that moves while a
+<strong>11 of 24 milestones</strong> finished, and inside them
+<strong>109 of 137 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -271,33 +271,45 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Items and trade <span class="m-value">0 / 2 done, 3 / 10 items</span></h3>
+    <h3>Items and trade <span class="m-value">1 / 2 done, 20 / 22 items</span></h3>
     <details class="mgroup">
-      <summary class="meter is-started" title="Show the items">
+      <summary class="meter is-done" title="Show the items">
         <span class="m-name">Objects, inventory and trade <span class="m-value">M12</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 50%"></span></span>
-        <span class="m-value">3 / 6, in progress</span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">6 / 6</span>
       </summary>
       <ul class="m-items">
         <li class="done">What the <code>Get</code> command decides</li>
         <li class="done">An object world that can change</li>
         <li class="done">Acting on the <code>Get</code> rule, dropping, and moving things about</li>
-        <li>Picking things up, dropping them, using them, containers and weight limits</li>
-        <li>The party inventory, equipping gear, and the <code>BASETILE</code> and <code>frame_n</code> state changes</li>
-        <li>Merchant logic on M8's price tables</li>
+        <li class="done">Picking things up, dropping them</li>
+        <li class="done">Merchant logic on M8's price tables</li>
+        <li class="done">Equipping gear moved to M21</li>
       </ul>
     </details>
     <details class="mgroup">
-      <summary class="meter" title="Show the items">
+      <summary class="meter is-started" title="Show the items">
         <span class="m-name">Per-object use logic <span class="m-value">M13</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-        <span class="m-value">0 / 4</span>
+        <span class="m-bar"><span class="m-fill" style="width: 88%"></span></span>
+        <span class="m-value">14 / 16, in progress</span>
       </summary>
       <ul class="m-items">
-        <li>Table driven dispatch from <code>obj_n</code> to a handler, not one enormous <code>switch</code></li>
-        <li>The handlers read out of the decompilation a group at a time</li>
-        <li>Locks, keys, lockpicking and traps</li>
-        <li>Combining and transforming things: grinding, baking, casting</li>
+        <li class="done"><code>IsUsableType</code>'s 85 type membership test</li>
+        <li class="done"><code>UseFan</code></li>
+        <li class="done"><code>UseWell</code>, <code>UseCow</code>, <code>UseChurn</code></li>
+        <li class="done">The dispatch skeleton and the <code>U6View</code> wiring</li>
+        <li class="done"><code>UseDoor</code>, <code>UseChest</code></li>
+        <li class="done">Eight sound and animation only types</li>
+        <li class="done"><code>UseBeehive</code></li>
+        <li class="done"><code>UseSecretDoor</code>, <code>UseLightSource</code>, <code>UseFood</code>, <code>UseDrink</code>, <code>UsePassthrough</code></li>
+        <li class="done">The map wide type search, <code>UseLever</code>, <code>UseSwitch</code></li>
+        <li class="done"><code>UseKeyOrLockpick</code></li>
+        <li class="done"><code>UseCrank</code>, <code>ToggleDrawbridge</code></li>
+        <li><code>UseTorch</code>/<code>UseStaff</code> do not belong in this slice</li>
+        <li class="done"><code>UseFishingPole</code></li>
+        <li class="done"><code>UseMoonstone</code></li>
+        <li class="done"><code>UseRune</code>, <code>DestroyGargoyleEggs</code></li>
+        <li>Combining and transforming things, grinding, baking, casting, not yet measured</li>
       </ul>
     </details>
   </div>
@@ -782,12 +794,24 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
     <p>The load bridge built, and run for the first time against a real, played save:
        every one of the 69 blocks kept its exact record count.</p>
   </li>
+  <li>
+    <span class="n">50</span>
+    <a href="posts/50-the-simplest-case-was-only-one-of-eight.html">The Simplest Case Was Only One Of Eight</a>
+    <p>U6's "use" verb measured in full: 85 types, not hundreds. Of the eight simplest
+       looking handlers, seven waited on a missing subsystem.</p>
+  </li>
+  <li>
+    <span class="n">51</span>
+    <a href="posts/51-eighty-five-types-fifteen-rules.html">Eighty Five Types, Fifteen Rules</a>
+    <p>The dispatch table mostly filled in: fifteen measured rules, eight types with no
+       engine side at all, and one rule that does not fit the interface.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>M18 is done for this round. What is next belongs to the larger parity framework, not
-     to one file format.</p>
+  <p>The drawbridge as its own slice, the equipment slots UseTorch needs, and the
+     handlers that clearly belong to M14 or M23.</p>
 </div>
 
 <footer class="foot">

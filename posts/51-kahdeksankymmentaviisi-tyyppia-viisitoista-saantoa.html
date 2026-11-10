@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kahdeksankymmentäviisi tyyppiä, viisitoista sääntöä | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="51-kahdeksankymmentaviisi-tyyppia-viisitoista-saantoa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/51-eighty-five-types-fifteen-rules.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 51</nav>
+
+<h1>Kahdeksankymmentäviisi tyyppiä, viisitoista sääntöä</h1>
+
+<p class="lede">
+Edellinen postaus jätti M13:n yhden fanin ja neljän tyhjän rivin varaan: käyttökomento
+mitattu kokonaan, dispatch-taulukko rakennettu, yksi käsittelijä pystyssä. Tämä kierros
+täytti taulukon suurimmalta osin.
+</p>
+
+<h2>Yksi virhe, löydetty ja korjattu samassa vuorossa</h2>
+
+<p>
+Ensimmäinen kierros tätä jatkoa kirjasi, että kaivon ja lehmän käsittelijät tarvitsisivat
+kokonaan uuden aliosajärjestelmän: esineen tyyppihaun kannetusta ja painolaskennan. Nimihaku
+moottorikoodista alkuperäisen omilla funktionimillä antoi tyhjää, ja se riitti ensi
+näkemältä todisteeksi. Tarkempi luku paljasti, että painolaskenta oli jo olemassa, kahdeksan
+postausta aiemmin rakennettuna painotaulun yhteydessä, täysin eri nimellä. Jäljellä oli
+kolmirivinen hakufunktio. Virhe on kirjattu committiviestiin, ei alkuperäisen
+bugilistaan, joka on varattu alkuperäisen omille vioille.
+</p>
+
+<h2>Kaksi kehystilakonetta jotka eivät saa olla symmetrisiä</h2>
+
+<p>
+Ovi ja arkku näyttävät samalta kehystilakoneelta, ja niiden olettaminen samaksi olisi ollut
+nopeampaa. Se olisi myös ollut väärin: suljettu ovi aukeaa "unlock magic"-lipulla
+yksinään, suljettu arkku ei. Liu'utettava seinäosa paljasti toisen epäsymmetrian: sen
+avaaminen ei tarkista mitään, mutta sulkeminen tarkistaa ettei kukaan seiso kohderuudussa.
+Molemmat ovat alkuperäisen omia valintoja, luettuina rivi riviltä eikä oletettuina.
+</p>
+
+<h2>Kahdeksan tyyppiä joilla ei ole mitä rakentaa</h2>
+
+<p>
+Kello, kumiankka ja viisi soitinta eivät muuta moottorin tilaa ollenkaan: koko niiden
+vaikutus alkuperäisessä on äänite ja tiilianimaatio. Dispatch merkitsi näitä aiemmin samaan
+"ei rakennettu" -koriin kuin oikeasti puuttuvat käsittelijät, mikä olisi näyttänyt
+puutteelta joka ei ole puute. Oma arvonsa saatuaan ne eivät enää väitä odottavansa koodia
+jota ei koskaan kirjoiteta.
+</p>
+
+<h2>Koko kartan haku ilman kursoria</h2>
+
+<p>
+Vivun ja kytkimen piti etsiä kaikki samaa lukkoa jakavat ovet koko kartalta. Alkuperäinen
+tekee tämän kursorilla yli omaa, sijaintijärjestettyä objektiketjuaan, koska ketju on sen
+ainoa järjestetty rakenne. Tässä moottorissa oliot ovat valmiiksi ruutuaskettuja, niin
+sama kysymys vastataan suoralla läpikäynnillä, eikä kursoritilaa tarvitse kantaa kutsujen
+välissä. Nostosilta jäi kääntämättä: sen oma funktio ei togglaa kehystä vaan purkaa ja
+rakentaa koko moniruutuisen rakenteen uudelleen, oma, isompi viipaleensa.
+</p>
+
+<h2>Yksi sääntö joka ei mahdu käyttöliittymään</h2>
+
+<p>
+Avaimen ja tiirikan sääntö on mitattu ja testattu täysin: laatu päättää toimiiko avain,
+näppäryystarkistus päättää rikkooko tiirikka. Sitä ei silti voi kytkeä <code>U</code>-
+näppäimeen. Alkuperäinen osoittaa ensin työkalun, sitten kysyy erillisen kohteen; tämä
+projekti ei ole rakentanut kumpaakaan osoitinta. Kaikki neljätoista muuta käsittelijää
+toimivat yhdellä, lähellä seisomalla löydetyllä esineellä. Tämä ei, ja se on kirjattu
+eikä piilotettu.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      11 / 24
+kohtia valmiina              105 / 132
+
+U6Formats.Tests    332 / 332
+U6Export.Tests      55 / 55
+U6Engine.Tests    1059 / 1059
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Dispatch kattaa nyt 15 mitattua sääntöä (14 kytkettynä, yksi ei) ja kahdeksan tyyppiä
+joilla ei ole moottoripuolta. Yhdeksän committia tätä kierrosta kohden tähän postaukseen
+asti.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Jäljellä on nostosilta omana viipaleenaan, varustepaikat jotka <code>UseTorch</code>
+     tarvitsee, ja käsittelijät jotka selvästi kuuluvat M14:lle tai M23:lle.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

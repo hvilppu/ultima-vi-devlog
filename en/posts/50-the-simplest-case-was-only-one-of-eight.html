@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Simplest Case Was Only One Of Eight | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/50-yksinkertaisin-tapaus-oli-vain-yksi-kahdeksasta.html" hreflang="fi">FI</a><span>/</span><a href="50-the-simplest-case-was-only-one-of-eight.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 50</nav>
+
+<h1>The Simplest Case Was Only One Of Eight</h1>
+
+<p class="lede">
+M18 is done, and the next step was M13: U6's "use" verb, the one the plan's own estimate
+flagged in advance as the most underestimated part of the whole phase. The first round did
+not build the use command, it measured it, and the measurement moved its size in the
+opposite direction from what the plan expected.
+</p>
+
+<h2>Not hundreds of special cases, 85 measured types</h2>
+
+<p>
+The plan spoke of "hundreds of special cases". The real number, read out of
+<code>CmdUse</code> and its <code>UsableTypes[]</code> array in full: 85 usable object
+types, roughly 44 distinct handlers. The discriminator: the array's 85 entries and the
+dispatch switch statement's 85 case labels are two independently extracted sets, and they
+match exactly, zero discrepancy. The full table of 85 types to handlers is written down all
+at once, not filled in as needed later.
+</p>
+
+<h2>Seven of eight candidates needed something missing</h2>
+
+<p>
+The first guess at what would be easy to build was wrong. The eight shortest looking
+handlers were read out of the decompilation in full: the bell, the well, the cow, the churn,
+opening a barrel or a crate, levers, a switch, a crank. Seven of them needed one of two
+missing subsystems: a type search over what is carried or equipped plus a full weight
+calculation, or a map wide type search that walks every door or drawbridge at once. Neither
+has been built outside the conversation scripts' own <code>GiveObject</code>/<code>TakeObject</code>
+pair.
+</p>
+
+<p>
+The eighth, ringing the bell, turned out to be a different kind of thing entirely: in the
+original it is pure tile animation and a sound effect, zero state change in the rules at
+all. It needs neither missing subsystem nor any engine side code whatsoever, since it
+belongs to the view layer.
+</p>
+
+<h2>One handler with no debt</h2>
+
+<p>
+Turning the fan was three lines in the original and zero new dependencies: it reads and
+writes <code>WindDir</code>, which has existed since M16 for the ship's and skiff's own
+speed calculation. Its own documentation already named in advance that exactly this way of
+changing it was missing. <code>U6Wind.RotateByFan</code> fills that gap, calm's own edge case
+included: <code>(-1 + 1) &amp; 7 = 0</code>, turning the fan always leaves a real direction
+behind, never calm.
+</p>
+
+<h2>What this changes next</h2>
+
+<p>
+Building the two missing subsystems is its own measurement and design decision, not a
+continuation of this slice: both serve more than one handler, so they are worth measuring
+once as a whole rather than letting every handler invent its own search. Everything above is
+recorded in <code>docs/u6-use-command.md</code>.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              11 / 24
+work items done               97 / 126
+
+U6Formats.Tests    332 / 332
+U6Export.Tests      55 / 55
+U6Engine.Tests     956 / 956
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+6 new tests: the 85 type membership test's discriminator and boundaries, the fan's turn
+cycle across all eight directions, and calm's own edge case.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The two missing subsystems, inventory search and map wide type search, or one of M13's
+     other 38 remaining handlers. Not decided yet.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
