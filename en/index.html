@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>10 of 24 milestones</strong> finished, and inside them
-<strong>90 of 125 work items</strong>. The second is the one that moves while a
+<strong>92 of 125 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -317,7 +317,7 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Vehicles and plot <span class="m-value">0 / 2 done, 3 / 7 items</span></h3>
+    <h3>Vehicles and plot <span class="m-value">0 / 2 done, 4 / 7 items</span></h3>
     <details class="mgroup">
       <summary class="meter" title="Show the items">
         <span class="m-name">Vehicles and moongates <span class="m-value">M16</span></span>
@@ -333,28 +333,28 @@ them up found two faults in the plan straight away that the total alone had hidd
     <details class="mgroup">
       <summary class="meter" title="Show the items">
         <span class="m-name">Plot and character state <span class="m-value">M17</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 50%"></span></span>
-        <span class="m-value">2 / 4</span>
+        <span class="m-bar"><span class="m-fill" style="width: 75%"></span></span>
+        <span class="m-value">3 / 4</span>
       </summary>
       <ul class="m-items">
         <li>The plot flags and the main quest state machine: the shrines, the Codex, the vortex cube, the gargoyle prophecy and what the ending requires</li>
         <li class="done">Translating the gargoyle language, and how it opens up as the plot moves</li>
         <li class="done">Karma and the virtues, and how they change the way characters react</li>
-        <li>Hunger, rest and camping, and the passing of time</li>
+        <li class="done">Hunger, rest and camping, and the passing of time</li>
       </ul>
     </details>
   </div>
   <div class="area">
-    <h3>Saving and loading <span class="m-value">0 / 1 done, 0 / 2 items</span></h3>
+    <h3>Saving and loading <span class="m-value">0 / 1 done, 1 / 2 items</span></h3>
     <details class="mgroup">
       <summary class="meter" title="Show the items">
         <span class="m-name">Saving and loading <span class="m-value">M18</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-        <span class="m-value">0 / 2</span>
+        <span class="m-bar"><span class="m-fill" style="width: 50%"></span></span>
+        <span class="m-value">1 / 2</span>
       </summary>
       <ul class="m-items">
         <li>A save format compatible with the original: <code>OBJLIST</code> and <code>OBJBLK??</code></li>
-        <li>Starting a new game from the <code>LZOBJBLK</code> and <code>LZDNGBLK</code> starting state</li>
+        <li class="done">Starting a new game from the <code>LZOBJBLK</code> and <code>LZDNGBLK</code> starting state</li>
       </ul>
     </details>
   </div>
@@ -743,11 +743,23 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        quest flag and talking to shrines by quality are in the engine; the rest waits on a
        missing use command.</p>
   </li>
+  <li>
+    <span class="n">44</span>
+    <a href="posts/44-one-meal-is-enough-for-eight.html">One Meal Is Enough for Eight</a>
+    <p>M17 is done. There is no hunger clock, proved five ways, but a bard's own melody drives
+       camp mealtime: without one, a single meal heals the whole party.</p>
+  </li>
+  <li>
+    <span class="n">45</span>
+    <a href="posts/45-that-byte-must-not-be-computed.html">That Byte Must Not Be Computed</a>
+    <p>Writing a save is underway. One coordinate byte is uninitialized stack with no formula
+       for it, and for the same reason so is a written name, "Avatar" after its own NUL.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>The last part of M17: hunger, rest and camping.</p>
+  <p>The rest of M18: the block to superchunk link, and one real save from DOSBox.</p>
 </div>
 
 <footer class="foot">

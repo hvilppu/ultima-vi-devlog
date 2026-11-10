@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One Meal Is Enough for Eight | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/44-yksi-ateria-riittaa-kahdeksalle.html" hreflang="fi">FI</a><span>/</span><a href="44-one-meal-is-enough-for-eight.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 44</nav>
+
+<h1>One Meal Is Enough for Eight</h1>
+
+<p class="lede">
+M17 is done. Its last part was hunger, rest and camping, and the biggest finding is a
+denial: there is no hunger clock. Food is not meaningless for all that, because something
+entirely different from the camp song is what actually drives the mealtime loop.
+</p>
+
+<h2>Five ways to prove something does not exist</h2>
+
+<p>
+"There is no hunger clock" is a claim like any other, and it needs the same proof as any
+other. The whole 130 byte game state block was read through: two counters fall with time,
+and neither is hunger. The party's 24 tables are all named, and none of them has a spare
+byte that could be read as fullness. The one function that ever advances the game's clock
+was read in full, and food is never mentioned in it. Not one hunger message exists anywhere
+in the game. Five independent accountings, the same answer.
+</p>
+
+<h2>Rest's own cooldown is not hunger</h2>
+
+<p>
+One byte in the game state falls by one every hour and limits when a rest can heal again.
+It looks like a hunger clock, since it is a byte that counts downward, but it has exactly
+four references in the whole game: the hourly decrement, rest's own condition, and rest's
+own reset to twelve. Food never raises it and food never reads it. Confusing the two
+counters would have been an easy mistake to make from a shallow reading.
+</p>
+
+<h2>Food affects one thing, and it is not what you would guess</h2>
+
+<p>
+The camp's mealtime loop is not driven by the camp song at all, but by one specific
+musician character's own melody cursor. Without a long caped musician in the party, the
+loop runs exactly one round, and only the first member ever tries to eat. If that try
+succeeds, the whole party heals anyway, off one single food item. If it fails, nobody
+heals, even if the other seven are carrying food. With a bard, the loop runs long enough
+for every member to be tried in turn. Food is not a mechanic so much as a condition on
+camping, and what it means in practice depends entirely on who is in the party.
+</p>
+
+<h2>Unconsciousness is a shape change, not a state</h2>
+
+<p>
+A camping party never gets a sleep status bit at all: it is a plain shape swap into the
+same table death uses. The table has 23 pairs, and seven party-joinable character types are
+not among them. One of them, the mouse, is provably joinable through another command's own
+check. It stays standing while everyone else goes to the ground, and that is not a special
+case the code needs separate handling for, just the same rule read all the way through.
+</p>
+
+<h2>What stayed unbuilt</h2>
+
+<p>
+The night's monster encounter is fully measured, but creating the monster itself needs a
+combat system that does not exist. The gather loop's exact multi round walk is simplified
+to a direct placement. The real search across containers for food was handed to the caller
+rather than built here. And the rest command has no key of its own in the view yet.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              10 / 24
+work items done               91 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    55 / 55
+U6Engine.Tests   950 / 950</code></pre>
+
+<p>
+30 new tests: eight refusals in the measured order, the healing formula, camp mealtime with
+and without a bard, the unconscious shape and its one exception, waking and its three
+conditions, and the inn's own rest with the clock.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>M18: save and load.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

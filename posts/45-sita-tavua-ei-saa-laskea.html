@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sitä tavua ei saa laskea | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="45-sita-tavua-ei-saa-laskea.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/45-that-byte-must-not-be-computed.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 45</nav>
+
+<h1>Sitä tavua ei saa laskea</h1>
+
+<p class="lede">
+M18, tallennus ja lataus, on käynnissä. Sen koko tarkoitus on tiukempi kuin millään aiemmalla
+kierroksella: ei "käyttäytyy oikein" vaan "tuottaa tasan samat tavut kuin alkuperäinen".
+Ensimmäinen todiste on jo olemassa, ja sen matkalla löytyi sama yllätys kahdesti.
+</p>
+
+<h2>Yksi tavu jota mikään pelitila ei selitä</h2>
+
+<p>
+Kun alkuperäinen kirjoittaa säiliössä olevan objektin levylle, se kirjoittaa tasan kaksi
+tavua sen todellisesta säiliöviittauksesta ja jättää kolmannen koskematta. Se tavu on
+pinomuistia joka ei ole koskaan ollut mitään. Omassa datassa 1208 tietueesta 1638:sta antaisi
+mahdottoman tason, jos sitä lukisi sijaintina. Sille ei ole laskukaavaa, koska se ei kuvaa
+mitään: ainoa oikea toteutus on kuljettaa se läpi täysin muuttumattomana.
+</p>
+
+<h2>Sama yllätys toisessa paikassa, löytyi rakentamalla eikä mittaamalla</h2>
+
+<p>
+Hahmon 14 tavun nimikenttä päättyy NUL-merkkiin, aivan kuten pitää. Mutta sen jälkeen oma
+tallennus ei olekaan nollia: Avatarin nimi on <code>"Avatar\0ion\0\0\0\0"</code>. Joku
+pidempi nimi tai sana on jättänyt jälkensä puskuriin, eikä alkuperäinen ole koskaan
+siivonnut sitä pois. Tämä ei ollut mittauksen löytö vaan oman kirjoittajan: tavulleen tarkka
+uudelleenkirjoitustesti epäonnistui tasan tässä kohdassa, koska nimen rakentaminen
+trimmatusta merkkijonosta kirjoittaa nollat sinne missä alkuperäisellä on "ion". Korjaus on
+sama kuin säiliöolion tavulle: kanna raaka 14 tavua läpi, älä rakenna sitä uudelleen.
+</p>
+
+<h2>Kaksi todistetta, ei vielä neljä</h2>
+
+<p>
+Rakennettu ja todistettu tavulleen tarkaksi omaa pelikopiota vastaan: kaikki 69
+<code>OBJBLK??</code>-tiedostoa lukeutuvat ja kirjoittuvat identtisinä, ja koko
+<code>OBJLIST</code> samoin. Jäljellä on kaksi isompaa palaa: tietää mihin 69 tiedostoon
+mikä objekti kuuluu kun maailma on elävä eikä yksi luettu tiedosto, ja yksi oikea tallennus
+alkuperäisellä pelillä, jota ei vielä ole. Oma pelikopio ei ole koskaan tallentanut peliä.
+</p>
+
+<h2>Vanha varoitus osoittautui vääräksi</h2>
+
+<p>
+Aiemmalla kierroksella kirjattiin varoitus: numeroiduille hahmoille ei ole koskematonta
+lähdettä, niin alkuperäisen ajaminen DOSBoxissa pitäisi tehdä varmuuskopioidun
+<code>SAVEGAME/</code>:n kanssa. Tämä oli väärä mittauksen puutteen takia. Pelin
+pakkaamattomat alkutilatiedostot sisältävät koko <code>OBJLIST</code>:in omana hännänään,
+tavulleen samana. Koko toimitettu tallennuskansio on rekonstruoitavissa niistä kahdesta
+tiedostosta. Varmuuskopio kannattaa yhä ottaa, koska se on halpa, mutta se ei ole enää ainoa
+suoja.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      10 / 24
+kohtia valmiina               91 / 125
+
+U6Formats.Tests  307 / 307
+U6Export.Tests    55 / 55
+U6Engine.Tests   950 / 950</code></pre>
+
+<p>
+5 uutta testiä: kaikkien 69 lohkotiedoston ja koko <code>OBJLIST</code>:n tavulleen tarkka
+uudelleenkirjoitus omaa pelikopiota vastaan, ja yksitoista riippumatonta hahmonluonnin
+siirtymää tarkistuksena sille että taulukot ovat oikeassa järjestyksessä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M18:n loput: lohkon ja superchunkin kytkentä, ja yksi oikea tallennus DOSBoxista.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

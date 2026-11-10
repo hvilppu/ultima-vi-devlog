@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yksi ateria riittää kahdeksalle | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="44-yksi-ateria-riittaa-kahdeksalle.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/44-one-meal-is-enough-for-eight.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 44</nav>
+
+<h1>Yksi ateria riittää kahdeksalle</h1>
+
+<p class="lede">
+M17 on valmis. Viimeinen osa oli nälkä, lepo ja leiriytyminen, ja suurin löydös on kielto:
+nälkäkelloa ei ole. Mutta ruoka ei ole silti merkityksetön, koska leirin ruokailua ajaa jokin
+aivan muu kuin leirikappale.
+</p>
+
+<h2>Viisi tapaa todistaa ettei jotain ole</h2>
+
+<p>
+"Nälkäkelloa ei ole" on väite siinä missä mikä tahansa muu, ja se vaatii todisteen siinä
+missä mikä tahansa muu. Koko 130 tavun pelitilalohko käytiin läpi: kaksi laskuria vähenee
+ajan mukana, eikä kumpikaan niistä ole nälkä. Puolueen 24 taulukkoa on nimetty, eikä
+joukossa ole yhtään hahmokohtaista tavua jota voisi lukea kylläisyydeksi. Pelin ajan
+kierrättävä yksi funktio käytiin kokonaan läpi, ja ruokaa ei mainita siinä kertaakaan.
+Peliin ei ole kirjoitettu yhtään nälkäviestiä. Viisi riippumatonta kirjanpitoa, sama vastaus.
+</p>
+
+<h2>Levon oma jäähdytys ei ole nälkä</h2>
+
+<p>
+Yksi pelitilan laskuri vähenee tunnin välein ja rajoittaa koska lepo voi parantaa seuraavan
+kerran. Se näyttää nälkäkellolta, koska se on tavu joka laskee alaspäin, mutta sillä on
+tasan neljä viittausta koko pelissä: tunnittainen vähennys, levon oma ehto ja levon oma
+asetus arvoon 12. Ruoka ei kasvata sitä, eikä ruoka lue sitä. Kahden erilaisen laskurin
+sekoittaminen olisi ollut helppo virhe tehdä lukemalla pintapuolisesti.
+</p>
+
+<h2>Ruoka vaikuttaa yhteen asiaan, ja se asia ei ole mitä luulisi</h2>
+
+<p>
+Leirin ruokailusilmukkaa ei ajakaan leirikappale, vaan yhden tietyn muusikko-hahmon oman
+sävelmän etenemä. Ilman pitkäviittaista muusikkoa puolueessa silmukka pyörii tasan yhden
+kierroksen, ja vain ensimmäinen jäsen kokeilee syömistä. Jos se onnistuu, koko puolue
+paranee siitä huolimatta, yhdellä ruoka-annoksella. Jos se epäonnistuu, kukaan ei parane,
+vaikka loput seitsemän kantaisivat ruokaa. Bardin kanssa silmukka pyörii riittävän monta
+kierrosta että jokainen jäsen tulee kokeilluksi erikseen. Ruoka ei siis ole mekaniikka vaan
+leiriytymisen ehto, ja sen käytännön merkitys riippuu kokonaan siitä kuka puolueessa on.
+</p>
+
+<h2>Tajuttomuus on muodonvaihto, ei tila</h2>
+
+<p>
+Leiriytyvä puolue ei saa unitilabittiä lainkaan: se on pelkkä muodon vaihto samaan taulukkoon
+jota kuolema käyttää. Taulukossa on 23 paria, ja seitsemän puolueeseen liitettävää hahmotyyppiä
+ei ole siinä. Yksi niistä, hiiri, on todistettavasti puolueeseen liitettävissä yhden toisen
+komennon oman tarkistuksen kautta. Se jää siis pystyyn kun loput menevät maahan, eikä se ole
+poikkeus jota koodin pitäisi käsitellä erikseen, vaan sama sääntö luettuna loppuun asti.
+</p>
+
+<h2>Mitä jäi rakentamatta</h2>
+
+<p>
+Yöllinen hirviökohtaaminen on mitattu kokonaan, mutta itse hirviön luonti vaatii
+taistelujärjestelmän jota ei ole. Kokoontumissilmukan tarkka moniaskelkävely on
+yksinkertaistettu suoraksi sijoitukseksi. Ruokahaun oikea säiliöläpikäynti annettiin
+kutsujalle, ei rakennettu tähän. Ja lepokomennolla ei ole vielä omaa näppäintä näkymässä.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      10 / 24
+kohtia valmiina               91 / 125
+
+U6Formats.Tests  302 / 302
+U6Export.Tests    55 / 55
+U6Engine.Tests   950 / 950</code></pre>
+
+<p>
+30 uutta testiä: kahdeksan kieltäytymistä mitatussa järjestyksessä, parantumiskaava, leirin
+ruokailu bardilla ja sen ilman, tajuttomuuden muoto ja sen poikkeus, herääminen ja sen kolme
+ehtoa, ja majatalon oma lepo kellon kanssa.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M18: tallennus ja lataus.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

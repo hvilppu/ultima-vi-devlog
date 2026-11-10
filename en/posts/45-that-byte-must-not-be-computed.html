@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>That Byte Must Not Be Computed | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/45-sita-tavua-ei-saa-laskea.html" hreflang="fi">FI</a><span>/</span><a href="45-that-byte-must-not-be-computed.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 45</nav>
+
+<h1>That Byte Must Not Be Computed</h1>
+
+<p class="lede">
+M18, save and load, is underway. Its whole point is stricter than any earlier round: not
+"behaves correctly" but "produces exactly the same bytes as the original." The first proof
+already exists, and finding it turned up the same surprise twice.
+</p>
+
+<h2>One byte no game state explains</h2>
+
+<p>
+When the original writes a contained object to disk, it writes exactly two bytes of its
+real container reference and leaves the third untouched. That byte is stack memory that was
+never anything. In the owner's own data, 1208 of 1638 records would imply an impossible
+level if read as a position. There is no formula for it, because it describes nothing: the
+only correct implementation is to carry it through completely unchanged.
+</p>
+
+<h2>The same surprise somewhere else, found by building rather than measuring</h2>
+
+<p>
+A character's fourteen byte name field ends with a NUL, exactly as it should. But what
+follows is not zeros either: the Avatar's own name is <code>"Avatar\0ion\0\0\0\0"</code>.
+Some longer name or word left its mark in the buffer, and the original never cleaned it up.
+This was not the measurement's own finding but the writer's: a byte for byte rewrite test
+failed at exactly this spot, because building the name from a trimmed string writes zeros
+where the original has "ion". The fix is the same as for the contained object's byte: carry
+the raw fourteen bytes through, do not rebuild them.
+</p>
+
+<h2>Two proofs, not yet four</h2>
+
+<p>
+Built and proved byte for byte against the owner's own copy: all 69 <code>OBJBLK??</code>
+files read and write back identical, and the whole <code>OBJLIST</code> the same way. Two
+bigger pieces remain: knowing which of the 69 files an object belongs to once the world is
+live rather than one file being read at a time, and one real save from the actual game,
+which does not exist yet. The owner's own copy has never saved a game.
+</p>
+
+<h2>An old warning turned out to be wrong</h2>
+
+<p>
+An earlier round recorded a warning: there is no pristine source for the numbered
+characters, so running the original in DOSBox should be done with a backed up
+<code>SAVEGAME/</code>. That was wrong for lack of measurement. The game's own uncompressed
+starting state files carry the whole <code>OBJLIST</code> as their own tail, byte for byte.
+The entire shipped save directory is reconstructible from those two files. A backup is
+still worth taking, since it is cheap, but it is no longer the only protection.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              10 / 24
+work items done               91 / 125
+
+U6Formats.Tests  307 / 307
+U6Export.Tests    55 / 55
+U6Engine.Tests   950 / 950</code></pre>
+
+<p>
+5 new tests: a byte for byte rewrite of all 69 block files and the whole <code>OBJLIST</code>
+against the owner's own copy, and eleven independent character creation offsets as a check
+that the tables are in the right order.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The rest of M18: the block to superchunk link, and one real save from DOSBox.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
