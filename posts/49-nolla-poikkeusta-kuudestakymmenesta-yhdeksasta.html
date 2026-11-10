@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nolla poikkeusta kuudestakymmenestäyhdeksästä | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="49-nolla-poikkeusta-kuudestakymmenesta-yhdeksasta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/49-zero-exceptions-out-of-sixty-nine.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 49</nav>
+
+<h1>Nolla poikkeusta kuudestakymmenestäyhdeksästä</h1>
+
+<p class="lede">
+Kaksi edellistä postausta rakensivat sillan elävästä tilasta tallennustavuiksi, ensin
+olioille ja sitten hahmoille. Tämä postaus rakensi käänteisen sillan, ja sen jälkeen ajoi
+molemmat yhdessä oikealla, pelatulla tallennuksella läpi ensimmäistä kertaa.
+</p>
+
+<h2>Latauksen silta ei päätä mitään kahdesti</h2>
+
+<p>
+69 oikean lohkotiedoston lukeminen suoraan, aluejärjestyksessä, oli halpa osa: mikään ei
+järjestele tietueita uudelleen lukemisen ja takaisin jakamisen välissä, niin kierto on
+tavulleen tarkka jo lähtökohtaisesti. Hahmoille ei tarvittu mitään uutta: oikea
+<code>OBJLIST</code> luetaan jo olemassa olevalla lukijalla. Elävän tilan puoli ratkesi
+kuitenkin siististi: sen sijaan että olion ja hahmon kentät olisi päätetty uudelleen, lataus
+ajaa oikean tallennuksen oman viennin läpi, väliaikaiseen hakemistoon, ja lukee sen takaisin
+moottorin jo testatuilla lukijoilla. Yksi koodi päättää yhden kentän merkityksen, ei kaksi.
+</p>
+
+<h2>Testi, jota ei ollut vielä koskaan ajettu oikealla pelatulla datalla</h2>
+
+<p>
+Yhdistettiin toimitetun, koskaan ajamattoman tallennuksen 65 koskematonta lohkoa aiemman
+postauksen oikean, pelatun tallennuksen neljään muuttuneeseen, DOSBoxin oman
+overlay-säännön mukaisesti. Tulos on täysi, oikeasti pelattu tallennus. Ladattiin, kirjoitettiin
+välittömästi takaisin, verrattiin samaan dataan.
+</p>
+
+<h2>Jokainen lohko, oikea määrä, nolla poikkeusta</h2>
+
+<p>
+69 lohkosta 55 palasi tavulleen samana. Jäljelle jääneet 14 eivät ole virhe: niiden sisältö
+on oikea, mutta järjestys tulee omasta objektiketjusta eikä pelin mittaamattomasta,
+historiallisesta kirjoitusjärjestyksestä, aivan kuten jo päätettiin kaksi postausta sitten.
+Tärkein luku on se jota ei vertailtu tavuina ollenkaan: jokaisen 69 lohkon tietuemäärä täsmäsi
+tasan, ei yhtäkään poikkeusta. <code>OBJLIST</code> täsmäsi tavulleen paitsi yhden, jo
+kirjatun aukon.
+</p>
+
+<h2>Mitä tämä ei vielä ole</h2>
+
+<p>
+Tämä on luku-ja-kirjoitus-takaisin, ei pelatun session toistaminen: mitään vuoroa ei ajettu
+kummassakaan moottorissa. Varsinainen kaksisuuntainen pariteettitesti vaatisi skriptatun
+syötteen molempiin ja kuuluu omaan, isompaan pariteettikehykseensä.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      10 / 24
+kohtia valmiina               92 / 125
+
+U6Formats.Tests    332 / 332
+U6Export.Tests      55 / 55
+U6Engine.Tests     954 / 954
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+4 uutta testiä: latauksen tavulleen tarkka kierto alkutilaa vastaan, ja kaksi testiä
+latauksen ja tallennuksen yhdistämisestä samaa dataa vastaan.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M18 on tältä kierrokselta valmis. Seuraava askel kuuluu laajemmalle
+     pariteettikehykselle, ei yhdelle tiedostomuodolle.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

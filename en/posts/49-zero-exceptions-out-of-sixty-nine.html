@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zero Exceptions Out of Sixty Nine | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/49-nolla-poikkeusta-kuudestakymmenesta-yhdeksasta.html" hreflang="fi">FI</a><span>/</span><a href="49-zero-exceptions-out-of-sixty-nine.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 49</nav>
+
+<h1>Zero Exceptions Out of Sixty Nine</h1>
+
+<p class="lede">
+The last two posts built a bridge from live state into save bytes, first for objects and
+then for characters. This post built the bridge the other way, and then ran both of them
+together against a real, played save for the first time.
+</p>
+
+<h2>The load bridge decides nothing twice</h2>
+
+<p>
+Reading 69 real block files directly, in area order, was the cheap part: nothing reorders
+any record between reading them and splitting them back out, so the round trip is byte for
+byte exact from the start. Characters needed nothing new at all: the real
+<code>OBJLIST</code> already has a reader. The live state side settled more cleanly,
+though: rather than deciding an object's or a character's fields a second time, loading
+runs the real save's own data through the ordinary export, into a temporary directory, and
+reads that back with the engine's already tested loaders. One piece of code decides what a
+field means, not two.
+</p>
+
+<h2>A test that had never run against real played data before</h2>
+
+<p>
+The shipped, never-played save's 65 untouched blocks were merged with the previous post's
+four real, played ones, the same way DOSBox's own overlay combines them. The result is a
+whole, genuinely played save. It was loaded, written straight back out with no play in
+between, and compared against the same data.
+</p>
+
+<h2>Every block, the right count, zero exceptions</h2>
+
+<p>
+55 of the 69 blocks came back byte for byte identical. The remaining 14 are not a fault:
+their content is correct, only their order comes from this project's own object chain
+rather than the game's own unmeasured, historical write order, exactly the choice already
+made two posts ago. The number that matters most was never a byte comparison at all: every
+one of the 69 blocks kept its exact record count, with no exceptions. <code>OBJLIST</code>
+matched byte for byte except the one already recorded gap.
+</p>
+
+<h2>What this still is not</h2>
+
+<p>
+This is read, then write straight back, not a replayed session: no turn ran in either
+engine. The real two-way parity test would need scripted input for both and belongs to its
+own, larger parity framework.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              10 / 24
+work items done               92 / 125
+
+U6Formats.Tests    332 / 332
+U6Export.Tests      55 / 55
+U6Engine.Tests     954 / 954
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+4 new tests: the load bridge's own exact round trip against the initial state, and two
+tests combining load and save against the same data.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>M18 is done for this round. What is next belongs to the larger parity framework, not
+     to one file format.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
