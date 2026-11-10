@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Third Project Because Two Must Not Know Each Other | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/47-kolmas-projekti-koska-kaksi-ei-saa-tuntea-toisiaan.html" hreflang="fi">FI</a><span>/</span><a href="47-a-third-project-because-two-must-not-know-each-other.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 47</nav>
+
+<h1>A Third Project Because Two Must Not Know Each Other</h1>
+
+<p class="lede">
+The last post left wiring the live world into the block to superchunk link open. That is
+done now, but the road there ran through an unexpected place: a wall between two already
+existing projects, put up on purpose rather than by accident.
+</p>
+
+<h2>The engine and the file format must not know each other</h2>
+
+<p>
+The game's live state (<code>U6Engine</code>) and the save file's own byte layout
+(<code>U6Formats</code>) reference each other nowhere. That is not an oversight: Unity sees
+the first and not the second, and if the second referenced the first, that boundary would
+fail quietly. Turning a live world into save bytes needs both at once, though. The answer
+was a third, small project, <code>Tools/U6GameSave</code>, which references both directly
+and never has to sit inside Unity. Neither rule breaks, because neither existing project
+changes at all.
+</p>
+
+<h2>An area comes from the root, not from the object itself</h2>
+
+<p>
+A map object knows its own area straight from its own position. A contained object knows
+nothing, but its container does, and the object chain's own invariant, a container always
+before its contents, guarantees the container's area is already settled by the time its
+contents are reached. A carried object knows nothing either, but the character carrying it
+does, now that <code>U6Vehicles.TryGetSavedPosition</code> can also answer for one who is
+aboard a vehicle. Three cases, one walk down the chain, and not one special case that was
+not already measured before this.
+</p>
+
+<h2>The position-based formula cross-checked against every real on-map object in the game</h2>
+
+<p>
+A new formula, area straight from x and y, needed proving on an independent path. Every
+object in a given block of the shipped initial state sits, by construction, inside that
+block's own 128 by 128 tile area. When every single on-map object's own position gave
+exactly the area the already-measured, stream-index based formula already gave, two
+independent paths landed on the same answer for every on-map object the shipped game has.
+</p>
+
+<h2>Not byte for byte, and that is the right target</h2>
+
+<p>
+A block's own order here comes from the object chain, not from the file's own unmeasured
+write order, so the output is not byte for byte identical to the shipped file. That is not
+a gap: the last post showed the original itself never reproduces its own leftover byte
+twice, so chasing one historical file's exact order would not have been a goal worth having
+either. What is proved instead is content: every area's own record count matches the real,
+untouched save's own count, and four kinds of live change, a moved object, a new item in a
+container, something carried, something carried aboard a vehicle, land in the right file
+with the right local reference.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              10 / 24
+work items done               92 / 125
+
+U6Formats.Tests    330 / 330
+U6Export.Tests      55 / 55
+U6Engine.Tests     954 / 954
+U6GameSave.Tests     7 / 7</code></pre>
+
+<p>
+13 new tests: the logical constructor's exact round trip across all 16838 real objects in
+the game, the position-based area formula cross-checked against every on-map object, and
+the live bridge's own seven tests of the initial state and four different kinds of live
+change.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The same bridge for <code>OBJLIST</code>, then the real two-way parity test.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

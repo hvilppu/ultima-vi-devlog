@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolmas projekti koska kaksi ei saa tuntea toisiaan | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="47-kolmas-projekti-koska-kaksi-ei-saa-tuntea-toisiaan.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/47-a-third-project-because-two-must-not-know-each-other.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 47</nav>
+
+<h1>Kolmas projekti koska kaksi ei saa tuntea toisiaan</h1>
+
+<p class="lede">
+Edellinen postaus jätti auki elävän maailman kytkemisen lohkon ja superchunkin kytkentään.
+Se on nyt tehty, mutta tie siihen kulki yllättävän paikan läpi: kahden jo olemassa olevan
+projektin välisen muurin, joka oli pystytetty tarkoituksella eikä vahingossa.
+</p>
+
+<h2>Moottori ja tiedostomuoto eivät saa tuntea toisiaan</h2>
+
+<p>
+Pelin elävä tila (<code>U6Engine</code>) ja tallennuksen tavumuoto (<code>U6Formats</code>)
+eivät viittaa toisiinsa missään. Tämä ei ole unohdus: Unity näkee ensimmäisen eikä toista,
+ja jos toinen viittaisi toiseen, se raja pettäisi hiljaa. Elävän maailman muuttaminen
+tallennustavuiksi tarvitsee kuitenkin molemmat yhtä aikaa. Ratkaisu oli kolmas, pieni projekti,
+<code>Tools/U6GameSave</code>, joka viittaa suoraan molempiin eikä koskaan joudu Unityn
+sisään. Kumpikaan sääntö ei synny rikki, koska kumpikaan olemassa oleva projekti ei muutu
+ollenkaan.
+</p>
+
+<h2>Alue tulee juuresta, ei oliosta itsestään</h2>
+
+<p>
+Kartalla oleva olio tietää alueensa suoraan omasta sijainnistaan. Säiliössä oleva olio ei
+tiedä mitään, mutta sen säiliö tietää, ja oman objektiketjun invariantti (säiliö aina ennen
+sisältöään) takaa että säiliön alue on jo ratkaistu siihen mennessä kun sisältöä käsitellään.
+Kannettu olio ei tiedä mitään sekään, mutta sen omistava hahmo tietää, nyt kun
+<code>U6Vehicles.TryGetSavedPosition</code> osaa vastata myös ajoneuvossa olevalle. Kolme
+tapausta, yksi kävely ketjua pitkin, ei yhtään erikoistapausta jota ei olisi jo mitattu
+aiemmin.
+</p>
+
+<h2>Sijaintipohjainen kaava ristiin vahvistettuna jokaista toimitetun pelin kartalla olevaa oliota vastaan</h2>
+
+<p>
+Uusi kaava, alue suoraan x:stä ja y:stä, piti todistaa oikeaksi riippumattomalla tiellä.
+Jokainen olio toimitetun alkutilan tietyssä lohkossa on, rakenteen takia, sen lohkon omalla
+128x128 ruudun alueella. Kun jokaisen kartalla olevan olion oma sijainti antoi täsmälleen
+sen alueen jonka virtaindeksipohjainen, aiemmin mitattu kaava jo antoi, kaksi
+riippumatonta tietä päätyivät samaan vastaukseen jokaisella toimitetun pelin kartalla
+olevalla oliolla.
+</p>
+
+<h2>Ei tavulleen samaa, ja se on oikea tavoite</h2>
+
+<p>
+Lohkon sisäinen järjestys tulee omasta objektiketjusta, ei tiedoston mittaamattomasta
+kirjoitusjärjestyksestä, niin tuloste ei ole tavulleen sama kuin toimitettu tiedosto. Tämä
+ei ole puute: edellinen postaus osoitti ettei alkuperäinenkään saa samaa tavua kahdesti,
+niin täsmälleen yhden historiallisen järjestyksen jäljittely ei olisi lisäarvoinen tavoite.
+Todistettu sen sijaan sisältö: jokaisen alueen tietuemäärä täsmää oikean, koskaan ajamattoman
+tallennuksen lukuun, ja neljä elävää muutosta (siirto kartalla, uusi esine säiliössä,
+kantaminen, kantaminen ajoneuvossa) päätyvät oikeaan tiedostoon oikealla paikallisella
+viittauksella.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      10 / 24
+kohtia valmiina               92 / 125
+
+U6Formats.Tests    330 / 330
+U6Export.Tests      55 / 55
+U6Engine.Tests     954 / 954
+U6GameSave.Tests     7 / 7</code></pre>
+
+<p>
+13 uutta testiä: olion loogisen rakentajan tavulleen tarkka kääntyvyys kaikkien 16838
+toimitetun olion yli, sijaintipohjaisen aluekaavan ristiinvahvistus jokaista kartalla olevaa
+oliota vastaan, ja elävän sillan seitsemän testiä alkutilasta ja neljästä erilaisesta
+elävästä muutoksesta.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Sama silta <code>OBJLIST</code>:lle, ja sen jälkeen varsinainen kaksisuuntainen
+     pariteettitesti.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
