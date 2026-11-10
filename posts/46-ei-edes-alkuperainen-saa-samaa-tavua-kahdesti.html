@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ei edes alkuperäinen saa samaa tavua kahdesti | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="46-ei-edes-alkuperainen-saa-samaa-tavua-kahdesti.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/46-not-even-the-original-gets-the-same-byte-twice.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 46</nav>
+
+<h1>Ei edes alkuperäinen saa samaa tavua kahdesti</h1>
+
+<p class="lede">
+Edellinen postaus jätti kaksi asiaa auki: mihin 69 tiedostoon mikä objekti kuuluu kun maailma
+on elävä, ja yksi oikea tallennus alkuperäisellä pelillä. Molemmat ratkesivat tällä
+kierroksella, mutta tallennuksen etsiminen paljasti ensin ihan toisen ongelman, ja tallennus
+itse paljasti sitten jotain joka muuttaa koko M18:n päämittarin.
+</p>
+
+<h2>Tallennus ei mennytkään minnekään, koska se ei mennyt tähän repoon lainkaan</h2>
+
+<p>
+Oma testikansio <code>Original Ultima 6/SAVEGAME/</code> pysyi tyhjänä tallennuksen jälkeen,
+riippumatta mitä pelissä tehtiin. Syy löytyi DOSBoxin käynnistyskonffista: se mounttaa C:n
+kahdesti, toisen kerran <code>-t overlay</code>, nimenomaan jotta peli ei koskaan muokkaisi
+pohjalla olevia tiedostoja. Oma pelattava kopio asui kokonaan toisessa kansiossa levyllä, eikä
+tämän repon testidata ollut koskaan ollutkaan ajokelpoinen peli, vain vientiä varten. Korjaus
+oli yksinkertainen: käynnistyslinkin kohde ja työhakemisto osoitettiin repon omaan
+<code>DOSBOX</code>-kansioon, jolloin konffin suhteelliset mountit löytävät sen sijaan repon
+oman puolen. Tästä eteenpäin tallennus tulee repon omaan, gitignoroituun
+<code>cloud_saves/SAVEGAME/</code>:iin.
+</p>
+
+<h2>Yksi oikea tallennus vastasi kolmeen kysymykseen kerralla</h2>
+
+<p>
+Oikea <code>CTRL+S</code> tuotti viisi tiedostoa: koko <code>OBJLIST</code> ja neljä
+muuttunutta lohkoa, loput 65 koskemattomina. Kolme asiaa ratkesi yhdellä ajolla. Tallennettu
+<code>OBJLIST</code> on <strong>7283 tavua</strong>, ei 7539, täsmälleen ennustettu luku.
+Säiliöolion alustamaton kolmas tavu (postaus 45) käyttäytyy pelatulla datalla täsmälleen
+samoin kuin toimitetulla: vakio tai kaksi arvoa per lohko. Ja inkrementaalinen tallennus
+vahvistui rakenteellisesti, ei vain luetun datan perusteella: käymättömät 65 lohkoa puuttuivat
+overlaystä kokonaan, mikä DOSBoxin oman overlay-semantiikan mukaan tarkoittaa suoraan
+koskemattomuutta.
+</p>
+
+<h2>Toinen tallennus mursi oman mittarin</h2>
+
+<p>
+Otettiin toinen oikea tallennus samasta pelisessiosta, samasta 944 tietueen lohkosta, jonka
+tietuemäärä ei ollut muuttunut kertaalleen. Ensimmäisellä kerralla kolmas tavu sai kaksi
+arvoa. Toisella kerralla kolme. <strong>Sama data, kaksi tallennusta, eri jäämä.</strong> Tämä
+ei ole oma virhe eikä mittauksen puute: se todistaa suoraan että alkuperäinen itse ei tuota
+samaa tavua kahdesti samasta tilasta, koska tavu ei ole pelitilaa ollenkaan vaan pinon sen
+hetkistä sisältöä. Seuraus on suora M18:n omalle päämittarille: "tavulleen sama" ei voi
+koskaan kattaa tätä yhtä tavua, millä tahansa kirjoittajalla, eikä sitä pidä yrittääkään
+tavoitella.
+</p>
+
+<h2>Lohkon ja superchunkin kytkentä</h2>
+
+<p>
+Maailman litistäminen yhdeksi listaksi latauksessa hävitti lohkorajat, niin mikään ei
+tiennyt mihin 69 tiedostoon mikä objekti kuuluisi takaisin kirjoitettuna. Lohkojen pituudet
+säilyvät nyt latauksen jälkeen, ja kaksi uutta jakajaa palauttavat alkutilan takaisin niihin
+64+5 lohkoon joista se luettiin. Nimen ja alueen kytkennän hoitaa oma luokkansa, joka kapseloi
+sen mitatun 2x2-ryhmäkaavan joka aiemmin asui vain yhden testin sisällä. Jakaminen ja
+kirjoittaminen takaisin tuottaa kaikki 69 oikeaa tiedostoa tavulleen samoina, täysin
+riippumattomalla polulla kuin suora tiedosto-luku-ja-kirjoitus.
+</p>
+
+<h2>Kaksi askelta yhdeksästä, ja yksi epäily joka osoittautui vääräksi</h2>
+
+<p>
+Tallennuksen yhdeksästä elävän tilan askeleesta neljä osoittautui tarpeettomaksi: ne ovat
+1990-luvun muistirajoituksia, ei havaittavia sääntöjä, samaa linjaa kuin tämän projektin oma
+päätös olla kierrättämättä objektinumeroita. Yksi niistä, kaukana olevien merkittyjen
+olioiden poisto tallennuksessa, vaati oman mittauksensa: sen molemmat silmukat koskevat
+vain alkuperäisen omaa ikkunoitua latausta, eivät koskaan koko maailmaa, niin globaali versio
+olisi uusi sääntö eikä jäljittely. Tehtävälipun tallennus rakennettiin omana, testattuna
+primitiivinään. Ja puolueen sijainti ajoneuvossa tallennuksen ajaksi: epäilin aluksi että
+ajoneuvon oma sijainti saattaisi erota johtajan ruudusta, mutta alkuperäisen oman
+boardaus-funktion lukeminen osoitti saman asian jota tämä projekti jo tekee: johtaja siirtyy
+ajoneuvon ruudulle, ei toisinpäin.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      10 / 24
+kohtia valmiina               92 / 125
+
+U6Formats.Tests  324 / 324
+U6Export.Tests    55 / 55
+U6Engine.Tests   954 / 954</code></pre>
+
+<p>
+13 uutta testiä: lohkon jakaminen ja uudelleenkirjoitus alkutilaa vastaan, erotin väärälle
+virtajärjestys-on-aluejärjestys -luennalle, tehtävälipun tallennusbyten luku ja kirjoitus, ja
+ajoneuvossa olevan puolueen tallennussijainti.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Elävän maailman kytkeminen lohkon ja superchunkin kytkentään, ja sen jälkeen varsinainen
+     kaksisuuntainen pariteettitesti.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

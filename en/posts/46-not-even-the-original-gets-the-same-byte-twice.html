@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Not Even the Original Gets the Same Byte Twice | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/46-ei-edes-alkuperainen-saa-samaa-tavua-kahdesti.html" hreflang="fi">FI</a><span>/</span><a href="46-not-even-the-original-gets-the-same-byte-twice.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 46</nav>
+
+<h1>Not Even the Original Gets the Same Byte Twice</h1>
+
+<p class="lede">
+The last post left two things open: which of 69 files any given object belongs to once the
+world is live, and one real save from the actual game. Both are resolved this round, but
+finding the save first exposed an entirely different problem, and the save itself then
+exposed something that changes M18's own yardstick.
+</p>
+
+<h2>The save was never going anywhere, because it was never going into this repo</h2>
+
+<p>
+This project's own test folder, <code>Original Ultima 6/SAVEGAME/</code>, stayed empty after
+saving no matter what happened in game. The cause was the DOSBox launch config: it mounts C
+twice, the second time with an overlay, specifically so the game can never touch the files
+underneath. The owner's actual playable copy lived in a completely different folder on disk,
+and this repo's own copy had never been a runnable game at all, only export material. The fix
+was simple: the launch shortcut's target and working directory now point at the repo's own
+<code>DOSBOX</code> folder, so the config's relative mounts find the repo's own side instead.
+From here on, a save lands in the repo's own, gitignored
+<code>cloud_saves/SAVEGAME/</code>.
+</p>
+
+<h2>One real save answered three questions at once</h2>
+
+<p>
+A real <code>CTRL+S</code> produced five files: the whole <code>OBJLIST</code> and four
+changed blocks, the other 65 untouched. Three things settled in one run. The saved
+<code>OBJLIST</code> is <strong>7283 bytes</strong>, not 7539, exactly the predicted number.
+The contained object's uninitialized third byte (post 45) behaves on played data exactly as
+it did on the shipped data: constant or two values per block. And the incremental save claim
+held up structurally, not just by inference from what was read: the 65 untouched blocks were
+simply missing from the overlay, which under DOSBox's own overlay semantics means untouched,
+full stop.
+</p>
+
+<h2>A second save broke the yardstick itself</h2>
+
+<p>
+A second real save was taken from the same play session, the same 944-record block, whose
+record count had not changed at all. The first time, the third byte took two values. The
+second time, three. <strong>Same data, two saves, a different leftover.</strong> This is not
+a mistake of ours and not a gap in the measurement: it proves directly that the original
+itself does not produce the same byte twice from the same state, because the byte is not game
+state at all, only whatever happened to be on the stack at that moment. The consequence lands
+squarely on M18's own yardstick: "byte for byte" can never cover this one byte, by any writer,
+and chasing it is not a goal worth having.
+</p>
+
+<h2>The block to superchunk link</h2>
+
+<p>
+Flattening the world into one list on load threw away the block boundaries, so nothing knew
+which of 69 files an object belonged back in. Block lengths now survive loading, and two new
+splitters hand the initial state back into the 64+5 blocks it was read from. A small class of
+its own carries the measured 2x2 grouping formula that used to live only inside one test.
+Splitting and writing back out reproduces all 69 real files byte for byte, on a path entirely
+independent of the direct read-and-write test that already covered this.
+</p>
+
+<h2>Two steps of nine, and one suspicion that turned out wrong</h2>
+
+<p>
+Of the save's nine live-state steps, four turned out unnecessary: 1990s memory limits, not
+observable rules, the same line this project already drew when it chose not to recycle object
+numbers. One of them, deleting far away marked objects on save, needed its own measurement:
+both of its loops only ever touch the original's own windowed load, never the whole world, so
+a global version here would be a new rule rather than an imitation. The quest flag's own save
+step was built as a tested primitive of its own. And the party's position while aboard a
+vehicle during a save: an initial worry that the vehicle's own position might differ from the
+leader's square turned out wrong on reading the original's own boarding function, which does
+exactly what this project already does: the leader moves onto the vehicle's square, not the
+other way round.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              10 / 24
+work items done               92 / 125
+
+U6Formats.Tests  324 / 324
+U6Export.Tests    55 / 55
+U6Engine.Tests   954 / 954</code></pre>
+
+<p>
+13 new tests: splitting a block back out and rewriting it against the initial state, the
+discriminator against the wrong stream-order-is-area-order reading, reading and writing the
+quest flag's own save byte, and a boarded party's save position.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Wiring the live world into the block to superchunk link, then the real two-way parity
+     test.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
