@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kahdentoista toiminnon sarja | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="53-kahdentoista-toiminnon-sarja.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/53-a-sequence-of-twelve-actions.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 53</nav>
+
+<h1>Kahdentoista toiminnon sarja</h1>
+
+<p class="lede">
+M14:n toinen viipale, vuorojärjestys, oli auki olevana arkkitehtuurikysymyksenä jo ennen tätä
+kierrosta. Se on nyt mitattu, rakennettu ja testattu tasan sitä kahdentoista toiminnon sarjaa
+vasten jonka mittaus antoi, eikä yhtäkään kokonaismäärää vasten: kolme väärää valintasääntöä
+antavat täsmälleen samat summat kuin oikea.
+</p>
+
+<h2>Summa ei erota, järjestys erottaa</h2>
+
+<p>
+Neljä puolueenjäsentä kolmea hirviötä vastaan, kaikki hyökkäävät: kolme väärää tapaa valita
+seuraava toimija antavat 13 minuuttia peliaikaa ja 53-55 vihollisen iskua, täsmälleen niin kuin
+oikea tapa. Nopeus tulee kokonaan `DEXTE`:stä ja teon hinnasta, ei siitä kuka valitaan
+ensimmäiseksi. Testi joka laskisi iskuja tai lukisi kelloa menisi läpi kaikkien kolmen väärän
+säännön kanssa. Testi joka pinnaa ensimmäisen kahdentoista toimijan järjestyksen ei mene, ja se
+on se mikä kirjoitettiin.
+</p>
+
+<h2>Yksi skaalaustekijä kahdessa paikassa</h2>
+
+<p>
+Peliaika etenee vain kun kukaan ei voi toimia, ja ohjaus palaa pelaajalle vasta kun pelaaja on
+vuorossa, niin peliaika kuluu täsmälleen pelaajan omaa pistekulutusta vastaan. Kävelylle tämä
+antoi aiemmin mitatun 12,5-kertaisen poikkeaman nykyisen moottorin ja alkuperäisen välillä.
+Hyökkäämiselle sama kaava antaa 7,5-kertaisen. Kaksi erillistä löytöä olisi huolestuttavampaa
+kuin yksi: tämä on sama ilmiö mitattuna kahdesti eri kustannuksella, ei kaksi erillistä bugia.
+</p>
+
+<h2>Mitä rakennettiin ja mitä ei kytketty mihinkään</h2>
+
+<p>
+<code>U6TurnScheduler</code> toteuttaa alkuperäisen <code>RunNPCTurns</code>:n valintasäännön:
+seitsemän kelpoisuusehtoa, ristikertolaskulla laskettu suhde, tasapelisääntö ja katkaisu.
+<code>U6MinuteTick</code> kattaa nukkumisen ja halvaantumisen kerran minuutissa, luettuna suoraan
+<code>PassTime</code>:n omasta koodista. Myrkky jäi ulos: se kutsuisi alkuperäisen
+<code>LoseHP</code>:ta, joka hoitaa kuoleman, karman ja kokemuksen yhdessä, eikä sitä ole
+rakennettuna missään. Näkymättömyys, suojaus, kirous ja lumous jäivät ulos samasta syystä kuin
+loitsut yleensä: ei bittiä niille eikä <code>SpellFx</code>:ää saa keksiä tilalle.
+</p>
+
+<p>
+Luokka ei ole kytketty mihinkään elävään peliin. Taistelulla ei ole vielä
+<code>COMBAT_begin</code>-vastinetta, niin kävely käyttää yhä nykyistä tuntijakoa muuttumattomana.
+Kytkentä on kaksi erillistä askelta: taisteluun ensin, koska siellä ei ole mitään mikä voisi
+regressoida, kävelyyn omana viipaleenaan sen jälkeen. Yksi ansapaikka kirjattu valmiiksi
+seuraavalle: nykyinen tuntijako jakaa pisteet puolueenjäsenille ennen kuin se suodattaa pois
+taistelussa olevat, niin kellon omistajan täytyy omistaa jako yksin siinä vaiheessa kun
+molemmat voivat käydä samaan aikaan.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              117 / 144
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1178 / 1178
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M14:n kolmas viipale, vihollisten perus-AI ja taistelun käynnistys, joka antaa
+     vuorottajalle ensimmäisen kytkennän oikeaan peliin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

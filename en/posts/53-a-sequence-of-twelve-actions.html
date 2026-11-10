@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Sequence Of Twelve Actions | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/53-kahdentoista-toiminnon-sarja.html" hreflang="fi">FI</a><span>/</span><a href="53-a-sequence-of-twelve-actions.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 53</nav>
+
+<h1>A Sequence Of Twelve Actions</h1>
+
+<p class="lede">
+M14's second slice, the turn order, has stood as an open architectural question since before
+this round started. It is now measured, built and tested against the exact sequence of twelve
+actions the measuring gave, not against any total: three wrong selection rules give exactly the
+same totals as the right one.
+</p>
+
+<h2>The total does not tell them apart, the order does</h2>
+
+<p>
+Four party members against three monsters, everyone attacking: three wrong ways to pick the
+next actor all give 13 minutes of game time and 53 to 55 enemy hits, exactly like the right way.
+Speed comes entirely from DEXTE and the cost of an action, not from who gets picked first. A
+test that counted hits or read the clock would pass against all three wrong rules. A test that
+pins the order of the first twelve actors does not, and that is the one written.
+</p>
+
+<h2>One scale factor in two places</h2>
+
+<p>
+Game time only advances when nobody can act, and control cannot return to the player until the
+player is eligible again, so game time spends at exactly the rate the player's own points do.
+For walking this already gave a measured 12.5 times divergence between this engine and the
+original. The same formula gives 7.5 times for attacking. Two separate findings would have been
+more worrying than one: this is the same phenomenon measured twice at a different cost, not two
+separate bugs.
+</p>
+
+<h2>What got built and what is wired to nothing</h2>
+
+<p>
+<code>U6TurnScheduler</code> implements the original <code>RunNPCTurns</code>' own selection
+rule: seven eligibility conditions, a cross-multiplied ratio, a tie-break and an early cutoff.
+<code>U6MinuteTick</code> covers sleep and paralysis wearing off once a minute, read straight out
+of <code>PassTime</code>'s own code. Poison stayed out: it would call the original's own
+<code>LoseHP</code>, which handles death, karma and experience together, and none of that is
+built anywhere yet. Invisibility, protection, curses and charm stayed out for the same reason
+spells in general do: there is no bit for them and <code>SpellFx</code> must not be invented in
+their place.
+</p>
+
+<p>
+The class is wired to nothing in the live game yet. Combat has no <code>COMBAT_begin</code>
+counterpart built, so walking keeps using today's hourly grant unchanged. Adoption is two
+separate steps: combat first, since nothing there can regress, then walking in its own slice
+after that. One trap recorded for whoever does that: today's hourly grant hands out points to
+party members before it filters out anyone in combat, so whoever owns the clock will need to own
+the grant alone once both can run at the same time.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              13 / 24
+work items done              117 / 144
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1178 / 1178
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>M14's third slice, basic enemy AI and starting a fight, which gives the scheduler its
+     first connection to the real game.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

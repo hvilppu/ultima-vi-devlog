@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fifty Monster Classes Out Of Sixty Four | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/52-viisikymmenta-hirvioluokkaa-kuudestakymmenestaneljasta.html" hreflang="fi">FI</a><span>/</span><a href="52-fifty-monster-classes-out-of-sixty-four.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 52</nav>
+
+<h1>Fifty Monster Classes Out Of Sixty Four</h1>
+
+<p class="lede">
+M14, combat and magic, opened this round. Its first slice, the player's Attack command and
+<code>combat.c</code>'s own tables, is measured and built. Both in the same session, which is
+unusual: the measuring stopped at the usual handover point, but the owner asked for it to carry
+straight on into building, and that call is theirs to make.
+</p>
+
+<h2>Ten bytes that would have looked right</h2>
+
+<p>
+<code>combat.c</code>'s data sits ten bytes lower in the owner's own <code>GAME.EXE</code> than
+the decompilation's own address comments claim, while <code>spell.c</code>'s comments are exact
+against the same base. A wrong reading would not have crashed anything: it would have handed
+back an armour table starting at six instead of one, a perfectly plausible run of type numbers.
+That is why every table in this slice is found by searching the whole 205,613 byte program for
+its own shape, four independent searches, each hitting exactly one place, none of them computed
+from a decompilation address.
+</p>
+
+<h2>Fifty classes over one bit</h2>
+
+<p>
+Granting experience turned out to depend on one bit, not on the whole alignment value.
+<code>u6.h</code> names four values with two bits, and "attacks the player" is only the lower
+one. Seventeen of the sixty four monster classes are EVIL and thirty three are CHAOTIC, and both
+carry that bit, so a gate written as "alignment is CHAOTIC" would have granted experience to the
+thirty three and silently denied it to the seventeen. The engine had no value of its own for
+this at all. The same defect shape as <code>NameOf</code> and <code>IsInParty</code> before it: a
+rule read from the surrounding code rather than from the handler itself, which looked sensible
+right up until the bits were counted separately.
+</p>
+
+<h2>What the slice does not cover</h2>
+
+<p>
+The turn order collides with the owner's earlier decision that play time keeps no minute clock,
+so it needs its own measuring session and its own decision before anything is built. Spells are
+entirely unmeasured, <code>spell.c</code> is 2,802 lines of code rather than a table. The missile
+flight's blocking rules and spread tiles were read only far enough to know they are unmeasured.
+The alarm and vigilante path reaches into karma and guard modes this slice does not build, and
+was read once rather than twice.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              13 / 24
+work items done              117 / 143
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1156 / 1156
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+The attack path now covers range, spread, armour and weapons at the table level, four rule
+classes in the engine, and one shot-resolved-end-to-end function that hands its result back for
+the message layer to read rather than acting as a side effect.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The turn order as its own measuring session, the owner's decision about the minute clock
+     first, and spells after that.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

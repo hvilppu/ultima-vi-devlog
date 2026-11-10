@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Viisikymmentä hirviöluokkaa kuudestakymmenestäneljästä | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="52-viisikymmenta-hirvioluokkaa-kuudestakymmenestaneljasta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/52-fifty-monster-classes-out-of-sixty-four.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 52</nav>
+
+<h1>Viisikymmentä hirviöluokkaa kuudestakymmenestäneljästä</h1>
+
+<p class="lede">
+M14, taistelu ja taikuus, avattiin tällä kierroksella. Ensimmäinen viipale, pelaajan
+hyökkäyskomento ja <code>combat.c</code>:n taulukot, on mitattu ja rakennettu. Poikkeuksellisesti
+molemmat samassa istunnossa: mittaus päättyi tavalliseen luovutuspisteeseen, mutta omistaja
+pyysi jatkamaan suoraan rakentamiseen, ja se on hänen päätöksensä.
+</p>
+
+<h2>Kymmenen tavua jotka olisivat näyttäneet oikealta</h2>
+
+<p>
+<code>combat.c</code>:n data istuu omistajan <code>GAME.EXE</code>:ssä kymmenen tavua
+matalammalla kuin dekompilaation omat osoitekommentit väittävät, kun samaan kantaan nähden
+<code>spell.c</code>:n kommentit täsmäävät tarkalleen. Väärä lukutapa ei olisi kaatunut mihinkään:
+se olisi antanut panssaritaulun joka alkaa kuudesta eikä ykkösestä, täysin järkevän näköisen
+sarjan tyyppinumeroita. Siksi jokainen taulukko tässä viipaleessa on paikannettu hakemalla koko
+205613 tavun ohjelmasta taulukon oma muoto, neljä riippumatonta hakua, jokainen osuu tasan yhteen
+paikkaan, eikä yksikään laskemalla dekompilaation osoitteesta.
+</p>
+
+<h2>Viisikymmentä luokkaa bitin takia</h2>
+
+<p>
+Kokemuspisteiden myöntäminen osoittautui riippuvaksi yhdestä bitistä, ei alignment-arvosta
+kokonaisuudessaan. <code>u6.h</code> nimeää neljä arvoa kahdella bitillä, ja "hyökkää pelaajaa
+vastaan" on niistä pelkkä alempi. 64 hirviöluokasta 17 on EVIL ja 33 CHAOTIC, ja molemmat
+kantavat sen bitin, joten ehto "alignment on CHAOTIC" olisi myöntänyt kokemuksen 33 luokalle ja
+evännyt sen hiljaa 17:ltä. Moottorista puuttui tätä varten oma arvonsa kokonaan. Sama vikamuoto
+kuin aiemmin löytyi <code>NameOf</code>:sta ja <code>IsInParty</code>:sta: sääntö joka luettiin
+ympäröivästä koodista eikä käsittelijästä itsestään, ja joka näytti järkevältä kunnes bitit
+laskettiin erikseen.
+</p>
+
+<h2>Mitä viipale ei sisällä</h2>
+
+<p>
+Vuorojärjestys törmää omistajan aiempaan päätökseen että peliajassa ei ole minuuttikelloa, joten
+se tarvitsee oman mittaussessionsa ja oman päätöksen ennen rakentamista. Loitsut ovat
+kokonaan mittaamatta, <code>spell.c</code> on 2802 riviä koodia eikä taulukko. Ammuksen lennon
+estosäännöt ja hajontaruudut on luettu vain sen verran että tietää niiden olevan mittaamatta.
+Hälytys- ja vigilante-polku ulottuu karmaan ja vartijatiloihin joita tämä viipale ei rakenna, ja
+on luettu kertaalleen, ei kahdesti.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              117 / 143
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1156 / 1156
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Hyökkäyspolku kattaa nyt kantaman, hajonnan, panssarin ja aseet taulukkotasolla, neljä
+sääntöluokkaa moottorissa, ja yhden osuma-alusta-loppuun-funktion joka palauttaa arvon
+viestikerroksen luettavaksi eikä sivuvaikutuksena.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Vuorojärjestys omana mittaussessionaan, omistajan päätös minuuttikellosta ensin,
+     ja sen jälkeen loitsut.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

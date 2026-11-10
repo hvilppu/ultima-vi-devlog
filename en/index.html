@@ -38,8 +38,8 @@ because the only thing worth tracking is what actually runs.
 <p>
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
-<strong>11 of 24 milestones</strong> finished, and inside them
-<strong>109 of 137 work items</strong>. The second is the one that moves while a
+<strong>13 of 24 milestones</strong> finished, and inside them
+<strong>117 of 144 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -271,7 +271,7 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Items and trade <span class="m-value">1 / 2 done, 20 / 22 items</span></h3>
+    <h3>Items and trade <span class="m-value">2 / 2 done, 27 / 27 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-done" title="Show the items">
         <span class="m-name">Objects, inventory and trade <span class="m-value">M12</span></span>
@@ -288,10 +288,10 @@ them up found two faults in the plan straight away that the total alone had hidd
       </ul>
     </details>
     <details class="mgroup">
-      <summary class="meter is-started" title="Show the items">
+      <summary class="meter is-done" title="Show the items">
         <span class="m-name">Per-object use logic <span class="m-value">M13</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 88%"></span></span>
-        <span class="m-value">14 / 16, in progress</span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">21 / 21</span>
       </summary>
       <ul class="m-items">
         <li class="done"><code>IsUsableType</code>'s 85 type membership test</li>
@@ -305,23 +305,30 @@ them up found two faults in the plan straight away that the total alone had hidd
         <li class="done">The map wide type search, <code>UseLever</code>, <code>UseSwitch</code></li>
         <li class="done"><code>UseKeyOrLockpick</code></li>
         <li class="done"><code>UseCrank</code>, <code>ToggleDrawbridge</code></li>
-        <li><code>UseTorch</code>/<code>UseStaff</code> do not belong in this slice</li>
+        <li class="done"><code>UseTorch</code>/<code>UseStaff</code> do not belong in this slice</li>
         <li class="done"><code>UseFishingPole</code></li>
         <li class="done"><code>UseMoonstone</code></li>
         <li class="done"><code>UseRune</code>, <code>DestroyGargoyleEggs</code></li>
-        <li>Combining and transforming things, grinding, baking, casting, not yet measured</li>
+        <li class="done"><code>UseBalloonPlans</code></li>
+        <li class="done"><code>UseDeflatedBalloon</code></li>
+        <li class="done"><code>UseLadder</code></li>
+        <li class="done"><code>UseOpenBarrel</code>, <code>UseOpenCrate</code></li>
+        <li class="done">Combining and transforming things, grinding, baking, casting, not yet measured</li>
+        <li class="done">All 22 handlers that could be built so far are built</li>
       </ul>
     </details>
   </div>
   <div class="area">
-    <h3>Combat and magic <span class="m-value">0 / 1 done, 0 / 3 items</span></h3>
+    <h3>Combat and magic <span class="m-value">0 / 1 done, 0 / 5 items</span></h3>
     <details class="mgroup">
-      <summary class="meter" title="Show the items">
+      <summary class="meter is-started" title="Show the items">
         <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
         <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-        <span class="m-value">0 / 3</span>
+        <span class="m-value">0 / 5, in progress</span>
       </summary>
       <ul class="m-items">
+        <li>Slice A: the attack command and <code>combat.c</code>'s tables.</li>
+        <li>Slice B: the turn order.</li>
         <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
         <li>Sixty four spells, the reagents and mixing them, mana cost and the targeting types</li>
         <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
@@ -357,15 +364,15 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Saving and loading <span class="m-value">0 / 1 done, 1 / 2 items</span></h3>
+    <h3>Saving and loading <span class="m-value">1 / 1 done, 2 / 2 items</span></h3>
     <details class="mgroup">
-      <summary class="meter" title="Show the items">
+      <summary class="meter is-done" title="Show the items">
         <span class="m-name">Saving and loading <span class="m-value">M18</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 50%"></span></span>
-        <span class="m-value">1 / 2</span>
+        <span class="m-bar"><span class="m-fill" style="width: 100%"></span></span>
+        <span class="m-value">2 / 2</span>
       </summary>
       <ul class="m-items">
-        <li>A save format compatible with the original: <code>OBJLIST</code> and <code>OBJBLK??</code></li>
+        <li class="done">A save format compatible with the original: <code>OBJLIST</code> and <code>OBJBLK??</code></li>
         <li class="done">Starting a new game from the <code>LZOBJBLK</code> and <code>LZDNGBLK</code> starting state</li>
       </ul>
     </details>
@@ -806,12 +813,26 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
     <p>The dispatch table mostly filled in: fifteen measured rules, eight types with no
        engine side at all, and one rule that does not fit the interface.</p>
   </li>
+  <li>
+    <span class="n">52</span>
+    <a href="posts/52-fifty-monster-classes-out-of-sixty-four.html">Fifty Monster Classes Out Of Sixty Four</a>
+    <p>M14's first slice: the Attack command and <code>combat.c</code>'s own tables, measured
+       and built. The decompilation's addresses ten bytes off, and granting experience behind
+       one bit rather than the whole alignment value.</p>
+  </li>
+  <li>
+    <span class="n">53</span>
+    <a href="posts/53-a-sequence-of-twelve-actions.html">A Sequence Of Twelve Actions</a>
+    <p>M14's second slice: the turn order, measured and built. Three wrong selection rules give
+       exactly the same totals as the right one, so the test pins the order actors act in
+       rather than a total.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>The drawbridge as its own slice, the equipment slots UseTorch needs, and the
-     handlers that clearly belong to M14 or M23.</p>
+  <p>M14's third slice, basic enemy AI and starting a fight, which gives the scheduler its
+     first connection to the real game.</p>
 </div>
 
 <footer class="foot">
