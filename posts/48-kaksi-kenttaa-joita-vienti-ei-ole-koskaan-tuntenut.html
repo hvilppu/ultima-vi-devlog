@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaksi kenttää joita vienti ei ole koskaan tuntenut | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="48-kaksi-kenttaa-joita-vienti-ei-ole-koskaan-tuntenut.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/48-two-fields-the-export-has-never-known.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 48</nav>
+
+<h1>Kaksi kenttää joita vienti ei ole koskaan tuntenut</h1>
+
+<p class="lede">
+Edellinen postaus rakensi sillan olioille. Tämä on sen pari, sama silta hahmoille: elävä
+<code>U6CharacterData</code> muuttuu <code>OBJLIST</code>:n tavuiksi. Matkalla löytyi kaksi
+kenttää joita tämän projektin vientiketju ei ole koskaan tuntenut, ja molemmat piti mitata
+ennen kuin niitä voitiin kirjoittaa.
+</p>
+
+<h2>Tehdas tiedoston sijaan</h2>
+
+<p>
+<code>U6CharacterTable.ToBytes</code> luki aina vain omia, tiedostosta ladattuja kenttiään.
+Uusi <code>FromLiveState</code> on sille tehdas, joka ottaa samat kentät valmiiksi koottuina
+eikä tiedostosta luettuina, ja <code>U6LiveCharacterTable.Build</code> kokoaa ne elävästä
+hahmotaulusta. Kaksi askelta jotka olivat valmiina primitiiveinä mutta vaille kutsujaa saivat
+viimein kytkennän: tehtävälipun tallennus ja ajoneuvossa olevan jäsenen sijainti.
+</p>
+
+<h2>Yksi kenttä selvisi suoraan laskemalla, ei arvaamalla</h2>
+
+<p>
+<code>Amount</code>, siirtymässä 0x0600, 512 tavua. Luettu suoraan oikeasta
+<code>OBJLIST</code>:sta: jokainen 200 käytössä olevasta hahmopaikasta kappalemäärä 1, laatu
+0. Jokainen 56 käyttämättömästä: 0, 0. Täydellinen korrelaatio sen lipun kanssa jota moottori
+jo pitää kirjaa, niin sääntö ei vaatinut uutta tilaa ollenkaan, vain yhden ehdon.
+</p>
+
+<h2>Toinen kenttä on tämän projektin oma, vahvistamaton nimi</h2>
+
+<p>
+<code>PathData</code>, siirtymässä 0x1AF1, 256 tavua. Haku koko dekompilaatiosta tällä nimellä
+antaa tyhjää. Mitattu suoraan: kaikki 256 tavua ovat nollia ainoassa oikeassa näytteessä joka
+on käytössä. Kirjoitetaan nollina, mutta ei väitetä enempää kuin mitattiin: ei ole vahvistettu
+että se pysyy nollana koko pelin ajan, vain että se on sitä juuri tässä yhdessä tallennuksessa.
+</p>
+
+<h2>Koko ketju todistettu yhdellä ajolla</h2>
+
+<p>
+Oikea <code>OBJLIST</code> → oman viennin <code>characters.bin</code> → elävä
+<code>U6CharacterData</code> → <code>U6LiveCharacterTable.Build</code>: tulos täsmää
+alkuperäisen kanssa tavulleen, paitsi nimikentän siivoamaton täyte, jota vienti ei ole koskaan
+kuljettanut pidemmälle kuin trimmattuun merkkijonoon. Se ei ole uusi aukko, vain samaa
+jo kirjattua ilmiötä toisessa paikassa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      10 / 24
+kohtia valmiina               92 / 125
+
+U6Formats.Tests    331 / 331
+U6Export.Tests      55 / 55
+U6Engine.Tests     954 / 954
+U6GameSave.Tests    11 / 11</code></pre>
+
+<p>
+15 uutta testiä: tehtaan oma tavulleen tarkka uudelleenrakennus, ja elävän sillan neljä
+testiä alkutilasta, tehtävälipusta ja ajoneuvossa olevasta jäsenestä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Varsinainen kaksisuuntainen pariteettitesti alkuperäistä vastaan.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

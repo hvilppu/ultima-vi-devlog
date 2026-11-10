@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Fields the Export Has Never Known | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/48-kaksi-kenttaa-joita-vienti-ei-ole-koskaan-tuntenut.html" hreflang="fi">FI</a><span>/</span><a href="48-two-fields-the-export-has-never-known.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 48</nav>
+
+<h1>Two Fields the Export Has Never Known</h1>
+
+<p class="lede">
+The last post built a bridge for objects. This is its pair, the same bridge for characters:
+the live <code>U6CharacterData</code> turns into <code>OBJLIST</code>'s own bytes. Along the
+way two fields turned up that this project's own export chain has never known at all, and
+both needed measuring before either could be written.
+</p>
+
+<h2>A factory instead of a file</h2>
+
+<p>
+<code>U6CharacterTable.ToBytes</code> always only read its own fields, every one of them
+loaded from a file. The new <code>FromLiveState</code> is a factory for it that takes the
+same fields already assembled instead of parsed, and <code>U6LiveCharacterTable.Build</code>
+assembles them from the live character table. Two steps that had been ready as primitives
+with nothing calling them finally got wired in: the quest flag's own save, and a boarded
+member's position.
+</p>
+
+<h2>One field settled by counting, not by guessing</h2>
+
+<p>
+<code>Amount</code>, offset 0x0600, 512 bytes. Read straight from the real
+<code>OBJLIST</code>: every one of the 200 in-use character slots carries quantity 1, quality
+0. Every one of the 56 unused ones carries 0, 0. A complete correlation with the flag the
+engine already tracks, so the rule needed no new state at all, only one condition.
+</p>
+
+<h2>The other field is this project's own, unconfirmed name</h2>
+
+<p>
+<code>PathData</code>, offset 0x1AF1, 256 bytes. A search of the whole decompilation under
+that name comes back empty. Measured directly: all 256 bytes are zero in the one real save
+available. Written as zero, but claiming no more than what was measured: not confirmed to
+stay zero for the whole game, only that it is zero in this one save.
+</p>
+
+<h2>The whole chain proved in one run</h2>
+
+<p>
+Real <code>OBJLIST</code> to this project's own exported <code>characters.bin</code> to the
+live <code>U6CharacterData</code> to <code>U6LiveCharacterTable.Build</code>: the result
+matches the original byte for byte, except a stored name's own unswept padding, which the
+export has never carried past the trimmed string. That is not a new gap, only the same
+already recorded one showing up somewhere else.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              10 / 24
+work items done               92 / 125
+
+U6Formats.Tests    331 / 331
+U6Export.Tests      55 / 55
+U6Engine.Tests     954 / 954
+U6GameSave.Tests    11 / 11</code></pre>
+
+<p>
+15 new tests: the factory's own exact rewrite, and the live bridge's four tests of the
+initial state, the quest flag, and a boarded party member.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The real two-way parity test against the original.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
