@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Pool That Never Gave A Slot Back | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/79-allas-joka-ei-koskaan-antanut-paikkaa-takaisin.html" hreflang="fi">FI</a><span>/</span><a href="79-a-pool-that-never-gave-a-slot-back.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 79</nav>
+
+<h1>A pool that never gave a slot back</h1>
+
+<p class="lede">
+M14's slice F9, and it is this project's own fault, not the original's: slice F6 wired eggs to
+hatch as the party walks, and that slice's own brief never once mentioned the routine that
+undoes the result. The owner found this in play. Pressing the F9 development key spawns a
+creature; after walking about twenty squares it refuses, "all 32 temporary slots are already
+taken." Once the pool is full, no egg can hatch either, and the world quietly stops producing
+creatures for the rest of the session.
+</p>
+
+<h2>Every creature takes a slot, and nothing gave one back</h2>
+
+<p>
+A temporary creature, a hatched monster included, lives in one of 32 slots this project has
+always kept at a fixed size. Nothing in this project ever freed one. Walking crosses the
+loaded area's own boundary every eight tiles or so; each crossing sweeps for eggs and hatches
+whatever is willing to, and after a few crossings the pool is simply gone. The development key
+is the loud half of the symptom. The quiet half is worse: once nothing can be created, an egg
+that already hatched stays hatched forever, because nothing ever clears that bit either, so
+every egg in the game can fire exactly once per save.
+</p>
+
+<h2>Two halves, read straight out of <code>object.c</code></h2>
+
+<p>
+The original's own counterpart is <code>OBJ_PurgeFarLocals</code>, and it had been named as
+missing in four separate places in this project already, once in the character data, twice in
+the object world and once in the creature generator, each one a comment left behind by an
+earlier slice saying the purge did not exist yet. It has two halves. The first deletes every
+temporary actor, slots <code>0xe0</code> to <code>0xff</code>, that is both far from the centre
+and carries the local bit. The second walks the whole object chain: a far map object that is
+local or already shapeless is deleted outright, and a far egg that has already hatched simply
+has its hatched bit cleared, so it gets a real try the next time the party walks back within
+range.
+</p>
+
+<h2>The window is forty tiles wide and deliberately not symmetric</h2>
+
+<p>
+<code>object.c</code>'s own four inequalities read <code>x - 20 &gt; objX || x + 20 &lt;=
+objX || ...</code>, which keeps everything from the centre minus twenty up to but
+<strong>not including</strong> the centre plus twenty. An object sitting exactly twenty tiles
+east of the centre is far; one sitting exactly twenty tiles west is kept. The obvious symmetric
+reading, treat both edges the same, is wrong on one side, and the test pins both edges
+separately for exactly that reason.
+</p>
+
+<h2>Centred on the area, not on the party, and run before the sweep</h2>
+
+<p>
+Two details that would have been easy to get backwards, both read straight out of
+<code>map.c</code>. <code>MAP_BuildArea</code> calls the purge with the loaded area's own
+centre, its own origin plus twenty on each axis, never the party's own square; the two differ
+by up to twenty tiles as the party crosses a forty tile area. And it calls the purge
+<strong>before</strong> it ever hatches that area's own eggs, not after. Freeing a slot after a
+sweep has already found the pool full leaves that refusal standing until the next area change;
+this project's own walking step now calls the purge first, on the same aligned area boundary
+that already gated the hatch sweep.
+</p>
+
+<h2>A delete's own spilled contents get the same test immediately</h2>
+
+<p>
+Deleting a container spills what it holds onto the square the container stood on, which is
+still inside the purge's own far window. If what spilled is itself local, it needs the same
+delete, cascading through a chest inside a chest exactly as far as the nesting goes. The
+original's own walk resumes from the one id its delete just spilled rather than the id it had
+already queued up next, because the chain moved under it. This project reaches the same outcome
+a different way: the purge recurses straight onto whatever a delete spills, so every object a
+single call touches gets the identical test before that call returns.
+</p>
+
+<h2>What this does not do yet</h2>
+
+<p>
+A multi-tile creature's extra map tiles, a dragon's wings or a hydra's eight bodies, carry no
+containment link back to the head actor at all: the original finds them with a spatial search
+around the head's own square, <code>OBJ_MoveCreatureParts</code> and
+<code>OBJ_MoveSerpentBody</code>, and neither is built here. The head is purged the same as any
+other temporary actor, but its extra tiles are left standing on the map, orphaned. Named rather
+than silently dropped.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              143 / 169
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2051 / 2051
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Turn based combat still waits on the owner's own decision about the F9 development key's
+     fate, now that the real symptom it surfaced is fixed. The multi-tile creature's own extra
+     tiles, and a soak test that walks for a long time and checks invariants after every step
+     rather than only at the end, are both measured but not built.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

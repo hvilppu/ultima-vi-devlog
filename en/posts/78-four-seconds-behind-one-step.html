@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Four Seconds Behind One Step | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/78-nelja-sekuntia-yhden-askeleen-takana.html" hreflang="fi">FI</a><span>/</span><a href="78-four-seconds-behind-one-step.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 78</nav>
+
+<h1>Four seconds behind one step</h1>
+
+<p class="lede">
+Not a slice, and not the original's fault: a performance defect in this project's own code,
+found by the owner in play rather than by any test. A direction key moved the party about four
+seconds after it was pressed. Every one of the 2031 tests that existed at the time passed,
+because none of them measures how long anything takes.
+</p>
+
+<h2>A helper that rebuilt the whole world on every single change</h2>
+
+<p>
+<code>U6ObjectWorld</code> keeps three lookup dictionaries, by square, by owner and by
+container, so a renderer or a search never has to scan all sixteen thousand objects by hand.
+Nine different mutations, <code>Create</code>, <code>Destroy</code>, <code>MoveTo</code>,
+<code>PutInside</code> and five others, kept those three dictionaries correct the same way:
+clear all three and walk the <strong>entire chain</strong> from the front, rebuilding every
+bucket from scratch. Against the owner's own exported data, 16838 objects, one call to that
+rebuild cost about 1.5 milliseconds.
+</p>
+
+<h2>Harmless for years, until something called it in a loop</h2>
+
+<p>
+A linear helper is not a defect by itself. It was correct, it was tested, and it stayed cheap
+enough to ignore for as long as nothing in the game actually mutated the object world very
+often: a player walks one step at a time, and one step never used to create or move dozens of
+objects. Two of M14's own slices changed that without anyone measuring the cost. Eggs now hatch
+as the party walks (slice F6), and every creature an egg hatches is immediately given its own
+possessions (slice F5), and every possession is one more call into the same rebuilding helper.
+One step across an area boundary can hatch several eggs at once, each with its own creatures and
+their own gear, so a single key press turned into hundreds of rebuilds, each walking the whole
+world. Hundreds of 1.5 millisecond rebuilds is the four seconds.
+</p>
+
+<h2>The fix is incremental bookkeeping, not a smaller rebuild</h2>
+
+<p>
+<code>U6ObjectWorld</code>'s three dictionaries are incremental now. A create puts its own
+record straight into its own bucket. A destroy takes it back out. A move carries a whole
+subtree from one bucket to another rather than rebuilding either one. The full rebuild still
+exists, because the file loading path genuinely does need to build all three buckets once from
+nothing, and the constructor is now its only caller. Measured the same way as before, on the
+same 16838 object export: 0.017 milliseconds a create, about eighty-eight times faster by the
+same stopwatch that found the problem.
+</p>
+
+<p>
+One rule had to survive the change exactly: a newly placed object goes in front of whatever
+already stands on its square, not behind, because four of the party-ring spells depend on that
+order to find the right target first. Every incremental insert this fix makes is a prepend for
+exactly that reason, proven by the same invariant checks the object world already carried.
+</p>
+
+<h2>A second, smaller version of the same mistake</h2>
+
+<p>
+<code>U6View</code> read and parsed a JSON table from disk, the creature class table and the
+possession table, on <em>every single call</em> that needed either one: the walking step and
+all three hit application paths. Neither table changes while the game runs, so both are read
+once now and kept, which removes a disk read and a parse from the hottest path in the game.
+</p>
+
+<h2>What a passing suite cannot tell you</h2>
+
+<p>
+Every test in this project's own suite asks whether an answer is right. None of them asks what
+it cost, because nothing before this counted work or measured time at all. That is not a gap
+this single fix closes: it is a second kind of question this project has never asked of itself,
+and it needed the owner actually playing the game to surface it. The shape is worth keeping:
+a helper that is linear in the whole data structure is cheap only as long as nobody calls it
+often, and nothing about the helper itself changes the day that stops being true.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              142 / 168
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2031 / 2031
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The temporary actor pool that this same walk also exhausted, and the far egg that this
+     project left able to hatch only once: both are the next post, M14's own slice F9.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

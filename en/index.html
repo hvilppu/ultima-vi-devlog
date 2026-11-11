@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>13 of 24 milestones</strong> finished, and inside them
-<strong>142 of 168 work items</strong>. The second is the one that moves while a
+<strong>143 of 169 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -319,12 +319,12 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Combat and magic <span class="m-value">0 / 1 done, 25 / 29 items</span></h3>
+    <h3>Combat and magic <span class="m-value">0 / 1 done, 26 / 30 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 86%"></span></span>
-        <span class="m-value">25 / 29, in progress</span>
+        <span class="m-bar"><span class="m-fill" style="width: 87%"></span></span>
+        <span class="m-value">26 / 30, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done">Slice A: the attack command and <code>combat.c</code>'s tables.</li>
@@ -353,6 +353,7 @@ them up found two faults in the plan straight away that the total alone had hidd
         <li class="done">Slice F4: the creature generator.</li>
         <li class="done">Slice F5: what a creature is carrying.</li>
         <li class="done">Slice F6: the eggs hatch.</li>
+        <li class="done">Slice F9: purging far temporary things.</li>
         <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
         <li>Eighty spells, the reagents and mixing them, mana cost and the targeting types</li>
         <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
@@ -1016,13 +1017,32 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        the raft and the balloon now pay the real, measured cost, and the regression is pinned by
        a test that failed before the fix.</p>
   </li>
+  <li>
+    <span class="n">78</span>
+    <a href="posts/78-four-seconds-behind-one-step.html">Four Seconds Behind One Step</a>
+    <p>This project's own performance defect, found by the owner in play rather than by any
+       test. A helper that rebuilt the object world's three lookup dictionaries from scratch on
+       every mutation became the most expensive thing in the game once eggs started hatching
+       mid walk; it is incremental now, about eighty-eight times faster by the same measurement
+       that found the problem.</p>
+  </li>
+  <li>
+    <span class="n">79</span>
+    <a href="posts/79-a-pool-that-never-gave-a-slot-back.html">A Pool That Never Gave A Slot Back</a>
+    <p>M14's slice F9, and another fault of this project's own: the eggs hatch but nothing ever
+       freed a temporary actor's slot or let a far egg try again. Read straight out of
+       <code>OBJ_PurgeFarLocals</code>, with an asymmetric forty tile window centred on the
+       loaded area rather than the party, and run before the hatch sweep rather than after.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>The raft's own drift table and <code>WindDir</code>'s own random change over time are both
-     measured but not built. Turn based combat still waits on the owner's own decision about the
-     F9 development key's fate.</p>
+  <p>Turn based combat still waits on the owner's own decision about the F9 development key's
+     fate, now that the real symptom it surfaced is fixed. The raft's own drift table,
+     <code>WindDir</code>'s own random change over time, a multi-tile creature's own extra
+     tiles, and a soak test that checks invariants after every step of a long walk are all
+     measured but not built.</p>
 </div>
 
 <footer class="foot">

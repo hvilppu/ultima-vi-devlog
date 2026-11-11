@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Allas Joka Ei Koskaan Antanut Paikkaa Takaisin | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="79-allas-joka-ei-koskaan-antanut-paikkaa-takaisin.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/79-a-pool-that-never-gave-a-slot-back.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 79</nav>
+
+<h1>Allas joka ei koskaan antanut paikkaa takaisin</h1>
+
+<p class="lede">
+M14:n viipale F9, ja se on tämän projektin oma vika, ei alkuperäisen: viipale F6 kytki munat
+kuoriutumaan kävelyn aikana, ja sen oma brief ei koskaan maininnut rutiinia joka kumoaa
+tuloksen. Omistaja löysi tämän pelaamalla. F9-kehitysnäppäimen painaminen synnyttää olennon;
+parinkymmenen ruudun kävelyn jälkeen se kieltäytyy viestillä "all 32 temporary slots are
+already taken". Täyden altaan jälkeen mikään muna ei voi kuoriutua ollenkaan, ja maailma
+lakkaa tuottamasta olentoja lopun sessiota huomaamatta.
+</p>
+
+<h2>Joka olento ottaa paikan, ja mikään ei antanut sitä takaisin</h2>
+
+<p>
+Tilapäinen olento, kuoriutunut hirviö mukaan lukien, elää yhdessä 32 paikasta jotka tämä
+projekti on aina pitänyt kiinteän kokoisina. Mikään tässä projektissa ei koskaan vapauttanut
+yhtäkään. Kävely ylittää ladatun alueen omaa rajaa noin kahdeksan ruudun välein; joka ylitys
+pyyhkii munat ja kuoriuttaa sen mikä on halukas, ja muutaman ylityksen jälkeen allas on
+yksinkertaisesti tyhjä. Kehitysnäppäin on oireen äänekäs puolisko. Hiljainen puolisko on
+pahempi: kun mitään ei voi luoda, muna joka on jo kuoriutunut pysyy kuoriutuneena ikuisesti,
+koska mikään ei koskaan tyhjennä sitä bittiä, niin joka muna koko pelissä voi laueta tasan
+kerran per tallennus.
+</p>
+
+<h2>Kaksi puoliskoa, luettu suoraan <code>object.c</code>:stä</h2>
+
+<p>
+Alkuperäisen oma vastinpari on <code>OBJ_PurgeFarLocals</code>, ja se oli nimetty puuttuvana
+neljässä eri paikassa tässä projektissa jo valmiiksi, kerran hahmodatassa, kahdesti
+objektimaailmassa ja kerran olentogeneraattorissa, joka yksi aiemman viipaleen jättämä
+kommentti sanomassa että puhdistusta ei ole vielä rakennettu. Sillä on kaksi puoliskoa.
+Ensimmäinen poistaa joka tilapäisen toimijan, paikat <code>0xe0</code>-<code>0xff</code>, joka
+on kaukana keskipisteestä ja kantaa local-bitin. Toinen kävelee koko objektiketjun läpi:
+kaukainen kartta-olio joka on local tai jo muodoton poistetaan suoraan, ja kaukainen muna joka
+on jo kuoriutunut saa kuoriutunut-bittinsä yksinkertaisesti tyhjennetyksi, niin se saa oikean
+yrityksen kun puolue kävelee takaisin kantaman sisään.
+</p>
+
+<h2>Ikkuna on neljäkymmentä ruutua leveä ja tahallisesti epäsymmetrinen</h2>
+
+<p>
+<code>object.c</code>:n omat neljä epäyhtälöä lukevat <code>x - 20 &gt; objX || x + 20 &lt;=
+objX || ...</code>, joka pitää kaiken keskipisteestä miinus kaksikymmentä ylöspäin asti mutta
+<strong>ei mukaan lukien</strong> keskipistettä plus kaksikymmentä. Olio tasan kaksikymmentä ruutua itään
+keskipisteestä on kaukana; tasan kaksikymmentä ruutua länteen oleva pidetään. Ilmeinen
+symmetrinen lukutapa, kohdella molempia reunoja samoin, on väärä toisella puolella, ja testi
+pinnaa molemmat reunat erikseen juuri siitä syystä.
+</p>
+
+<h2>Keskitetty alueeseen, ei puolueeseen, ja ajettu ennen pyyhkäisyä</h2>
+
+<p>
+Kaksi yksityiskohtaa jotka olisi ollut helppo saada väärinpäin, molemmat luettu suoraan
+<code>map.c</code>:stä. <code>MAP_BuildArea</code> kutsuu puhdistuksen ladatun alueen omalla
+keskipisteellä, sen omalla alkuperällä plus kaksikymmentä kummallakin akselilla, ei koskaan
+puolueen omalla ruudulla; kaksi eroavat toisistaan jopa kaksikymmentä ruutua kun puolue
+kävelee neljänkymmenen ruudun alueen läpi. Ja se kutsuu puhdistuksen <strong>ennen</strong> kuin se
+kuoriuttaa kyseisen alueen munat, ei jälkeen. Paikan vapauttaminen pyyhkäisyn jälkeen, kun
+allas on jo todettu täydeksi, jättää kieltäytymisen voimaan seuraavaan alueenvaihtoon asti;
+tämän projektin oma kävelyaskel kutsuu nyt puhdistuksen ensin, samalla kohdistetulla
+aluerajalla joka jo portitti kuoriutumispyyhkäisyn.
+</p>
+
+<h2>Kaatamisen omat kaadetut sisällöt saavat samantien saman testin</h2>
+
+<p>
+Säiliön kaataminen kaataa sen sisällön säiliön omalle ruudulle, joka on yhä puhdistuksen omaa
+kaukaista ikkunaa. Jos kaadettu on itse local, se tarvitsee saman kaatamisen, kaskadina läpi
+arkun arkun sisällä juuri niin pitkälle kuin pesintä menee. Alkuperäisen oma kävely jatkuu sen
+yhden id:n kohdalta jonka sen kaataminen juuri kaatoi, ei id:stä jonka se oli jo jonottanut
+seuraavaksi, koska ketju muuttui sen alla. Tämä projekti päätyy samaan tulokseen eri
+mekanismilla: puhdistus rekursioi suoraan sen päälle mitä kaataminen kaataa, niin joka olio
+jonka yksi kutsu koskettaa saa saman testin ennen kuin kutsu palaa.
+</p>
+
+<h2>Mitä tämä ei tee vielä</h2>
+
+<p>
+Moniruutuisen olennon lisäruuduilla, lohikäärmeen siivillä tai hydran kahdeksalla ruumiilla,
+ei ole säiliöviittausta päähän ollenkaan: alkuperäinen löytää ne tilahaulla pään oman ruudun
+ympäriltä, <code>OBJ_MoveCreatureParts</code> ja <code>OBJ_MoveSerpentBody</code>, joista
+kumpaakaan ei ole rakennettu tässä. Pää puhdistetaan samoin kuin mikä tahansa tilapäinen
+toimija, mutta sen lisäruudut jäävät kartalle seisomaan, orvoiksi. Nimetty, ei hiljaa
+pudotettu.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina            143 / 169
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2051 / 2051
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Vuoropohjainen taistelu odottaa yhä omistajan päätöstä kehitysnäppäimen F9 kohtalosta,
+     nyt kun sen esiin tuoma oikea oire on korjattu. Moniruutuisen olennon omat lisäruudut, ja
+     pitkän kävelyn vakaustesti joka tarkistaa invariantit joka askeleen jälkeen eikä vain
+     lopussa, ovat molemmat mitattu mutta rakentamatta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

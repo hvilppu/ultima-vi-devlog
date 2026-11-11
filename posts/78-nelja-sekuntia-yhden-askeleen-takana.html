@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neljä Sekuntia Yhden Askeleen Takana | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="78-nelja-sekuntia-yhden-askeleen-takana.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/78-four-seconds-behind-one-step.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 78</nav>
+
+<h1>Neljä sekuntia yhden askeleen takana</h1>
+
+<p class="lede">
+Ei viipale, ei alkuperäisen vika: tämän projektin oma suorituskykyvirhe, löydetty pelaamalla
+eikä millään testillä. Suuntanäppäin siirsi puoluetta noin neljä sekuntia painalluksen jälkeen.
+Kaikki sen hetken 2031 testiä menivät läpi, koska mikään niistä ei mittaa kuinka kauan mikään
+kestää.
+</p>
+
+<h2>Apufunktio joka rakensi koko maailman uudelleen joka ainoalla muutoksella</h2>
+
+<p>
+<code>U6ObjectWorld</code> pitää kolmea hakudictionarya, ruudun, omistajan ja säiliön mukaan,
+jotta renderöijä tai haku ei joutuisi käymään kaikkia kuuttatoista tuhatta oliota läpi käsin.
+Yhdeksän eri mutaatiota, <code>Create</code>, <code>Destroy</code>, <code>MoveTo</code>,
+<code>PutInside</code> ja viisi muuta, pitivät nämä kolme dictionarya oikeina samalla tavalla:
+tyhjennä kaikki kolme ja käy <strong>koko ketju</strong> läpi alusta, rakentaen joka kori uudelleen tyhjästä.
+Omistajan omaa vietyä dataa vasten, 16838 oliota, yksi kutsu tähän uudelleenrakennukseen maksoi
+noin 1,5 millisekuntia.
+</p>
+
+<h2>Harmitonta vuosia, kunnes joku kutsui sitä silmukassa</h2>
+
+<p>
+Lineaarinen apufunktio ei ole vika sinällään. Se oli oikein, se oli testattu, ja se pysyi
+riittävän halvana unohdettavaksi niin kauan kuin mikään pelissä ei käytännössä mutatoinut
+object worldia usein: pelaaja kävelee yksi askel kerrallaan, ja yksi askel ei ennen luonut tai
+siirtänyt kymmeniä olioita. Kaksi M14:n omaa viipaletta muutti tämän kenenkään mittaamatta
+kustannusta. Munat alkavat nyt kuoriutua kävelyn aikana (viipale F6), ja joka olento jonka muna
+kuoriuttaa saa välittömästi omaisuutensa (viipale F5), ja joka omaisuusesine on yksi kutsu
+lisää samaan uudelleenrakentavaan apufunktioon. Yksi askel alueen rajan yli voi kuoriuttaa
+useita munia kerralla, joka omine olentoineen ja niiden omine tavaroineen, niin yksi
+näppäilypainallus muuttui sadoiksi uudelleenrakennuksiksi, joka käveli koko maailman läpi.
+Sata 1,5 millisekunnin uudelleenrakennusta on se neljä sekuntia.
+</p>
+
+<h2>Korjaus on inkrementaalinen kirjanpito, ei pienempi uudelleenrakennus</h2>
+
+<p>
+<code>U6ObjectWorld</code>:n kolme dictionarya ovat nyt inkrementaalisia. Luonti laittaa omaa
+tietueensa suoraan omaan koriinsa. Tuhoaminen ottaa sen pois. Siirto kantaa koko alipuun yhdestä
+korista toiseen sen sijaan että se rakentaisi joko korin uudelleen. Täysi uudelleenrakennus on
+yhä olemassa, koska tiedoston latauspolku todella tarvitsee rakentaa kaikki kolme koria kerran
+tyhjästä, ja konstruktori on nyt sen ainoa kutsuja. Mitattu samalla tavalla kuin ennen, samaa
+16838 olion vientiä vasten: 0,017 millisekuntia per luonti, noin 88-kertainen nopeutus samalla
+sekuntikellolla jolla ongelma löytyi.
+</p>
+
+<p>
+Yksi sääntö piti säilyttää tarkasti muutoksen läpi: vasta sijoitettu olio menee sen eteen mikä
+sen ruudulla jo seisoo, ei sen taakse, koska neljä puolueenympäri-loitsua nojaa tähän
+järjestykseen löytääkseen oikean kohteen ensimmäisenä. Joka inkrementaalinen lisäys tässä
+korjauksessa on juuri tästä syystä etuliite, todistettuna samoilla invarianttitarkistuksilla
+jotka object world jo kantoi.
+</p>
+
+<h2>Toinen, pienempi versio samasta virheestä</h2>
+
+<p>
+<code>U6View</code> luki ja jäsensi JSON-taulukon levyltä, olentoluokkataulun ja
+omaisuustaulukon, <strong>joka ainoalla kutsulla</strong> joka tarvitsi joko taulua: kävelyaskeleelta ja
+kaikista kolmesta osumapolusta. Kumpikaan taulu ei muutu pelin käydessä, niin molemmat luetaan
+nyt kerran ja pidetään muistissa, mikä poistaa levyluvun ja jäsennyksen pelin kuumimmalta
+polulta.
+</p>
+
+<h2>Mitä läpäisevä testijoukko ei kerro</h2>
+
+<p>
+Joka testi tämän projektin omassa joukossa kysyy onko vastaus oikein. Mikään niistä ei kysy
+mitä se maksoi, koska mikään ennen tätä ei laskenut työtä eikä mitannut aikaa ollenkaan. Tätä
+aukkoa ei suljeta yhdellä korjauksella: se on toisenlainen kysymys jota tämä projekti ei ole
+koskaan kysynyt itseltään, ja se vaati omistajan todella pelaamaan ennen kuin se tuli näkyviin.
+Muoto kannattaa muistaa: apufunktio joka on lineaarinen koko tietorakenteen suhteen on halpa
+vain niin kauan kuin kukaan ei kutsu sitä usein, eikä mikään itse apufunktiossa muutu sinä
+päivänä kun se lakkaa olemasta totta.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina            142 / 168
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2031 / 2031
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Tilapäisten toimijoiden allas jonka tämä sama kävely myös tyhjensi loppuun, ja kaukainen
+     muna jonka tämä projekti jätti kuoriutuvaksi tasan kerran: molemmat ovat seuraava
+     kirjoitus, M14:n oma viipale F9.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
