@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Bit That Would Have Looked Like Paralysis | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/82-bitti-joka-olisi-nayttanyt-halvaantumiselta.html" hreflang="fi">FI</a><span>/</span><a href="82-the-bit-that-would-have-looked-like-paralysis.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 82</nav>
+
+<h1>The bit that would have looked like paralysis</h1>
+
+<p class="lede">
+This slice is thinner than most: it measures almost nothing new. It connects one status bit
+to three gaps that three earlier slices had already measured and written down as waiting for
+exactly it. The interesting part is not what got built, it is what would have been built
+wrong without one warning.
+</p>
+
+<h2>Two bytes, the same number, a different meaning</h2>
+
+<p>
+This project keeps two separate status bytes for a character, exactly as the original does:
+one whose bits are "owned", "charmed" and "temporary", and another whose bits are
+"paralysed", "asleep", "poisoned" and "dead". The invisible bit belongs on the first byte, at
+bit value <code>0x02</code>. The second byte's own bit value <code>0x02</code> is paralysed.
+The same number, two completely different things, depending on which byte it lands in.
+</p>
+
+<p>
+A creature written into the wrong byte does not crash, does not throw, does not look broken
+in any obvious way. It reads as paralysed. The game stays playable, the monster freezes in
+place, for an entirely different reason than a paralysing attack. This is exactly the kind of
+mistake that surfaces a long time later, far from where it was written, if it surfaces at
+all. That is why this one line gets its own discriminator: a test that makes the same
+creature invisible and paralysed in turn, and neither is ever allowed to read as the other.
+</p>
+
+<h2>One bit, three open questions</h2>
+
+<p>
+The player's own attack command once measured all six of <code>COMBAT_canSee</code>'s rules
+in full, but could only build one of them: the viewer and the target must share a level. The
+other five stayed named, because nothing carried the field they needed: no invisible bit, no
+dragged-under state, no "ignore" flag read for this purpose. The slice that applies a hit left
+clearing invisibility on death as a named gap for the same reason. The spell slice measured
+the reveal spell completely, ring move included, and never applied it, because nothing ever
+called it.
+</p>
+
+<p>
+Three different slices, three different documents, one shared missing piece: the bit itself.
+That is what makes this slice thin as construction and still worth doing: it invents nothing,
+it just hands already finished work its last piece.
+</p>
+
+<h2>Six rules, one place</h2>
+
+<p>
+All six sight rules now live in one Unity independent class,
+<code>U6CombatSight.CanSee</code>, tested in both directions for each rule on its own. Rule
+two is the one that reads oddly in play but is measured precisely: a player controlled viewer
+always sees another player controlled target, even an invisible one. Your own party member
+never vanishes from your own eyes; an invisible monster does. This is a pair that has to be
+tested together, because tested apart either one would look correct even with the other
+missing entirely.
+</p>
+
+<p>
+The view's own <code>CanSeeCombat</code> stays a delegate exactly as the player attack slice
+left it; it now simply forwards to this new class. No targeting code knows or needs to know
+how many of the six rules the delegate happens to answer.
+</p>
+
+<h2>Death and the spell, at exactly the same spot</h2>
+
+<p>
+The original clears invisibility on death in one line, after the experience is computed and
+before the corpse shape is chosen. That is now the same line in this project, in the same
+order, touching neither neighbour. The reveal spell's own ring is not destroyed, it moves from
+the equipped slot to the inventory slot, on exactly the original's own condition: only when
+the ring is currently worn.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              146 / 172
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2076 / 2076
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Turn based combat still waits on the owner's own decision about the F9 development key's
+     fate. A multi-tile creature's own extra tiles are measured but not built, and so are turn
+     order and spells.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

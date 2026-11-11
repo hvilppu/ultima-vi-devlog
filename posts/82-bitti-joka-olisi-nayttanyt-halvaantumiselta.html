@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bitti Joka Olisi Näyttänyt Halvaantumiselta | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="82-bitti-joka-olisi-nayttanyt-halvaantumiselta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/82-the-bit-that-would-have-looked-like-paralysis.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 82</nav>
+
+<h1>Bitti joka olisi näyttänyt halvaantumiselta</h1>
+
+<p class="lede">
+Tämä viipale on tavallista ohuempi: se ei mittaa oikeastaan mitään uutta. Se yhdistää yhden
+statusbitin kolmeen aukkoon joita kolme eri viipaletta oli jo aiemmin mitannut ja kirjannut
+odottamaan juuri sitä. Mielenkiintoisin osa ei ole se mitä rakennettiin, vaan se mikä olisi
+rakentunut väärin ilman yhtä varoitusta.
+</p>
+
+<h2>Kaksi tavua, sama numero, eri merkitys</h2>
+
+<p>
+Tämä projekti mallintaa hahmolle kaksi erillistä statustavua, täsmälleen kuten alkuperäinen:
+yksi jonka bitit ovat "omistettu", "lumottu" ja "tilapäinen", ja toinen jonka bitit ovat
+"halvaantunut", "nukkuva", "myrkytetty" ja "kuollut". Näkymätön-bitti kuuluu ensimmäiseen
+tavuun, bittiarvolla <code>0x02</code>. Toisen tavun bittiarvo <code>0x02</code> on
+halvaantunut. Sama numero, kaksi täysin eri asiaa, riippuen siitä kumpaan tavuun se
+kirjoitetaan.
+</p>
+
+<p>
+Olento joka kirjoitetaan väärään tavuun ei kaadu, ei heitä poikkeusta, ei näytä miltään
+vialta. Se lukee halvaantuneena. Peli pysyy pelattavana, hirviö jämähtää paikoilleen, ja
+täysin eri syy kuin halvaannuttava hyökkäys. Juuri tällainen virhe löytyy pitkän ajan
+kuluttua, kaukana siitä missä se kirjoitettiin, jos se löytyy ollenkaan. Siksi tälle
+yhdelle riville on oma erottelijansa: testi jossa samaa hahmoa tehdään vuorotellen
+näkymättömäksi ja halvaannutetaan, ja kumpikaan ei koskaan näy toisena.
+</p>
+
+<h2>Yksi bitti, kolme avointa kysymystä</h2>
+
+<p>
+Pelaajan oma hyökkäyskomento mittasi aikanaan <code>COMBAT_canSee</code>:n kuusi sääntöä
+kokonaisuudessaan, mutta pystyi rakentamaan niistä vain yhden: kohteen ja katsojan täytyy
+olla samalla tasolla. Viisi muuta jäivät nimetyiksi, koska mitään niistä kantavaa kenttää
+ei ollut: ei näkymätön-bittiä, ei vedetty-maan-alle-tilaa, ei luettua "ohita"-lippua
+käyttötarkoituksessa. Osuman soveltamisen oma viipale jätti kuolemassa poistettavan
+näkymättömyyden nimetyksi aukoksi samasta syystä. Loitsuviipale mittasi reveal-loitsun
+täydellisesti, sormuksen siirtoa myöten, ja jätti sen soveltamatta, koska mikään ei
+koskaan kutsunut sitä.
+</p>
+
+<p>
+Kolme eri viipalettä, kolme eri dokumenttia, yksi yhteinen puuttuva kappale: bitti itse.
+Tämä on se asia joka tekee tästä viipaleesta ohuen rakentamisen kannalta ja silti arvokkaan:
+se ei keksi mitään, se antaa jo tehdylle työlle sen viimeisen palasen.
+</p>
+
+<h2>Kuusi sääntöä, yhdessä paikassa</h2>
+
+<p>
+Kaikki kuusi näkyvyyssääntöä asuvat nyt yhdessä Unity-riippumattomassa luokassa,
+<code>U6CombatSight.CanSee</code>, testattuna molempiin suuntiin joka säännölle erikseen.
+Toinen sääntö on se joka tuntuu pelissä oudolta mutta on mitattu tarkasti: pelaajan ohjaama
+katsoja näkee aina toisen pelaajan ohjaaman kohteen, vaikka tämä olisi näkymättömyysloitsun
+alla. Oma seurueenjäsen ei katoa näkyvistä omilta silmiltä; näkymätön hirviö katoaa. Tämä on
+pari joka on testattava yhdessä, koska erillisinä testeinä kumpikin näyttäisi oikealta vaikka
+toinen puuttuisi kokonaan.
+</p>
+
+<p>
+Näkymän oma <code>CanSeeCombat</code> pysyy delegaattina täsmälleen kuten pelaajan
+hyökkäyskomennon viipale sen jätti; se ohjaa nyt yksinkertaisesti tähän uuteen luokkaan.
+Mikään kohteenvalintakoodi ei tiedä eikä sen tarvitse tietää montako kuudesta säännöstä
+delegaatti kulloinkin vastaa.
+</p>
+
+<h2>Kuolema ja loitsu, täsmälleen samalla paikalla</h2>
+
+<p>
+Alkuperäinen poistaa näkymättömyyden kuolemassa yhdellä rivillä, kokemuksen laskemisen
+jälkeen ja ruumiinmuodon valinnan edellä. Se on nyt sama rivi tässä projektissa, samassa
+järjestyksessä, koskematta kumpaankaan vierusta. Reveal-loitsun sormus ei tuhoudu, se
+siirtyy varustesijasta inventaariosijaan, täsmälleen alkuperäisen omalla ehdolla: vain kun
+sormus on sillä hetkellä puettuna.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina            146 / 172
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2076 / 2076
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Vuoropohjainen taistelu odottaa yhä omistajan päätöstä kehitysnäppäimen F9 kohtalosta.
+     Moniruutuisen olennon omat lisäruudut ovat mitattu mutta rakentamatta, samoin
+     vuorojärjestys ja loitsut.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
