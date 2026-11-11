@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>13 of 24 milestones</strong> finished, and inside them
-<strong>139 of 165 work items</strong>. The second is the one that moves while a
+<strong>140 of 166 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -319,12 +319,12 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Combat and magic <span class="m-value">0 / 1 done, 22 / 26 items</span></h3>
+    <h3>Combat and magic <span class="m-value">0 / 1 done, 23 / 27 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
         <span class="m-bar"><span class="m-fill" style="width: 85%"></span></span>
-        <span class="m-value">22 / 26, in progress</span>
+        <span class="m-value">23 / 27, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done">Slice A: the attack command and <code>combat.c</code>'s tables.</li>
@@ -350,6 +350,7 @@ them up found two faults in the plan straight away that the total alone had hidd
         <li class="done">Slice F1: the object store earns its two primitives.</li>
         <li class="done">Slice F2: the player's own Attack command.</li>
         <li class="done">Slice F3: creating an actor, the clone, and the slime's own division.</li>
+        <li class="done">Slice F4: the creature generator.</li>
         <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
         <li>Eighty spells, the reagents and mixing them, mana cost and the targeting types</li>
         <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
@@ -983,6 +984,13 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        store's own sister primitive for the actor side; a dividing slime's eight attempts look
        for a passable square, not a chance to create a creature, which is the easiest detail to
        get backwards.</p>
+  </li>
+  <li>
+    <span class="n">74</span>
+    <a href="posts/74-the-local-bit-that-belongs-to-the-head-not-the-wing.html">The Local Bit That Belongs To The Head, Not The Wing</a>
+    <p>The creature generator, M14's slice F4. The gazer's own insects now close in all three
+       real call sites, and a dragon's own head carries the local bit a future purge will look
+       for while its four wing and body tiles must not carry it.</p>
   </li>
 </ol>
 

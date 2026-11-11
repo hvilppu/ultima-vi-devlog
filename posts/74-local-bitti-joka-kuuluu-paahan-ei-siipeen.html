@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Local-bitti joka kuuluu päähän, ei siipeen | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="74-local-bitti-joka-kuuluu-paahan-ei-siipeen.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/74-the-local-bit-that-belongs-to-the-head-not-the-wing.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 74</nav>
+
+<h1>Local-bitti joka kuuluu päähän, ei siipeen</h1>
+
+<p class="lede">
+M14:n viipale F4: olennon generointi. Edellinen viipale rakensi toimijan luonnin, jonka tarkoin
+mukana ei tule mitään tilastoa; tämä viipale on se joka täyttää ne. Gazerin hyönteiset, joita
+kolme viime kertaa nimesi aukoksi, sulkeutuivat kaikissa kolmessa paikassa missä ne oikeasti
+voivat laukaista, ja kehitysnäppäin lakkasi arpomasta tilastoja käsin. Yksi yksityiskohta oli
+helpoin saada väärinpäin: lohikäärmeen pää kantaa sen bitin jota puhdistus etsii, ja sen neljä
+lisäruutua eivät saa kantaa sitä, vaikka ne ovat osa samaa olentoa.
+</p>
+
+<h2>Mutanttilippu muuttaa yhden asian</h2>
+
+<p>
+<code>EGG_generate</code> irrottaa tyypin korkeimman bitin ensimmäisenä: se on mutanttilippu,
+kaksipäisyyden merkki jättiläisskorpionille ja sitä suuremmille. Sen jälkeen se ei näy missään
+muualla paitsi yhdessä paikassa, kaksiruutuisen olennon toisen ruudun kehyksessä. Ei luokkahaussa,
+ei tilastoissa, ei lohikäärmeessä eikä hydrassa. Tunnettu luokka arpoo voiman, näppäryyden, älyn
+ja osumapisteet luokan arvon ympäriltä ja laskee tason arvotuista osumapisteistä pyöristäen
+ylöspäin, kolmekymmentä on taso yksi ja kolmekymmentäyksi taso kaksi; tuntematon luokka on neljä
+kiinteää lukua, ei kieltäytyminen eikä nollattu olento. Taika on nolla jokaiselle näin syntyvälle
+olennolle, koska mikään neljästä taikaa kantavasta muodosta ei ole koskaan hirviö, ja kokemus on
+aina kiinteä sata, ei luokan oma luku jota tämä metodi ei lue lainkaan.
+</p>
+
+<h2>Lisäruutu joka ei ole hahmo</h2>
+
+<p>
+Neljä muototapausta, kukin luettuna käsittelijästä suoraan. Siivekäs gargoyle tai kyklooppi saa
+yhden erityiskehyksen eikä lisäruutuja. Jättiläisskorpioni ja sitä suuremmat ovat kaksiruutuisia:
+pää ja toinen ruutu sarakkeessa plus yksi. Lohikäärme saa neljä: pää, häntä ja molemmat siivet,
+yksi ruudun verran kunkin omaan suuntaansa. Hydra saa kahdeksan ruumista, yhden joka naapurissa,
+jokaisen oma suunta tallennettuna kehykseen muodossa <code>suunta &lt;&lt; 2</code>: tämä
+vahvistui lukemalla alkuperäisen omasta käänteisoperaatiosta, joka löytää hydran pään ruumiin
+kehyksestä, ei arvattuna.
+
+Mutta jokainen näistä lisäruuduista on tavallinen kartan olio, ei hahmo. Alkuperäinen pakottaa
+local-bitin päälle joka luomalleen kartan oliolle ja tyhjentää sen heti takaisin joka
+lisäruudulle; pää ei koske siihen lainkaan, koska se on hahmo jonka edellinen viipale on jo
+sijoittanut local-bitti päällä. Kun tämä saadaan väärinpäin, lisäruudun oma bitti jää päälle, ja
+puhdistus joka joskus poistaa kaukaiset väliaikaiset olennot löytäisi ja poistaisi lohikäärmeen
+siiven yksinään, jättäen lopun olennon pystyyn. Tämä paljasti myös aukon joka oli ollut näkymätön
+asti: kartan olioilla ei ollut local- eikä owned-bittiä tässä moottorissa lainkaan, koska mikään
+kutsuja ei ollut sitä tarvinnut ennen tätä viipaletta.
+</p>
+
+<h2>Mitä löytyi, mitä ei löytynyt</h2>
+
+<p>
+Hydran suunta vahvistui. Mutta osan kolme kirjaimelliset kehysluvut, luettuna egg.c:stä
+sellaisenaan, ei voitu tarkistaa viedyn kuviodatan vasten: tässä projektissa ei ole yleistä
+kaavaa objektityypin ja tiilinumeron välillä ollenkaan, koska hahmojen oma taide ei ole
+renderöinnin piirissä vielä. Tämä jätettiin avoimeksi löydökseksi eikä korjattu hiljaa
+arvaukseksi, koska väärä luku näkyisi vasta kun hahmopiirros joskus rakennetaan.
+</p>
+
+<h2>Yhdistäminen joka ei ole puolikas</h2>
+
+<p>
+Loitsujen summon ja conjure mittasivat viisi olentoa ja daemonin aiemmalla kierroksella, mutta
+jättivät niiden oikeat tyypit nimeämättä. Ne ovat nyt tunnettuja: troll, jättiläisrotta,
+jättiläishämähäkki, jättiläislepakko, käärme, daemon. Mutta kytkeminen tähän generaattoriin ei
+ole yhden kutsun lisäys. Alkuperäinen luo olennon kokonaan ennen kahdeksaa sijoitusyritystään, ei
+jälkeen, niin kytkeminen ilman loitsun omaa arpajärjestyksen uudelleenjärjestämistä siirtäisi
+joka seuraavan arvonnan taistelussa yhden askelen väärään kohtaan. Ja omaisuusrutiini, jota
+generaattori kutsuisi joka tapauksessa, puuttuu kokonaan. Nimetty paikka jätettiin paikalleen eikä
+puolikkaasti kytketty.
+</p>
+
+<h2>Kolme oikeaa paikkaa, ei yksi testi</h2>
+
+<p>
+Gazerin hyönteiset olivat jo nimetty aukko jonka edellinen viipale jätti avoimeksi, koska se
+tarvitsi juuri tätä generaattoria. Nyt kaikki kolme paikkaa missä <code>ApplyHit</code> oikeasti
+ajaa pelissä (pelaajan oma hyökkäys, sivupultti ja toimijan oma hyökkäys) saavat luokkataulun,
+eikä vain yksi niistä. Aukko jää nimetyksi yhä, mutta nyt vain silloin kun kutsuja jättää
+tarkoituksella pois jonkin kolmesta riippuvuudesta, samalla kurilla kuin veritekeella ja
+limaolennon jakautumisella.
+</p>
+
+<h2>Oma hesitaatio, joka oli väärässä kahdella tavalla</h2>
+
+<p>
+Katselmointi löysi oman virheen tästä viipaleesta. Objektidokumentti väitti jo, että kartalle
+luotu olio saa local-bitin pakotettuna päälle, ja että juuri se on perusta kahdenkymmenen
+ruudun puhdistukselle. Mutta <code>U6ObjectWorld.Create</code> ei pakottanut sitä: jätin sen
+pois, koska pelkäsin <code>U6ObjectTransfer</code>:in oman paljaan tasa-arvotestin pitoarvoa
+vasten rikkoutuvan jos joka uusi olio yllättäen kantaisi ylimääräisen bitin. Perustelu oli
+väärä kahdella tavalla. Ensin: dokumentti kuvasi olemassa olevan säännön, ei vaihtoehtoa, niin
+sen jättäminen toteuttamatta oli dokumentti ja koodi eri mieltä keskenään, mikä on pahempi kuin
+kumpikaan yksinään. Ja toiseksi: se vertailu oli jo väärä riippumatta tästä. Pito on kahden
+bitin kenttä statustavun sisällä, ei koko tavu, niin paljas tasa-arvo osuu vain olioon jolla ei
+ole mitään muuta bittiä päällä lainkaan. Olennon omaisuusrutiini, seuraava viipale, luo juuri
+puettuja ja omistettuja esineitä yhdessä, niin tämä ei ollut hypoteettinen uhka vaan odottava
+virhe. Molemmat korjattu: luonti pakottaa local-bitin kartalle täsmälleen dokumentoidun säännön
+mukaisesti, ja vertailu maskataan pitoarvon omalla maskilla. Uusi testi, rakennettu viedyn
+tallennuksen päälle, todistaa että puettu ja omistettu pino ohitetaan oikein; virhe
+kirjoitettiin takaisin kerran todistamaan että testi todella havaitsee sen.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              140 / 166
+
+U6Formats.Tests    359 / 359
+U6Export.Tests      56 / 56
+U6Engine.Tests    1936 / 1936
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Vuoropohjainen taistelu etenee: aloitejärjestys sekä osuma- ja vahinkolaskenta M8:n omilla
+     kaavoilla, ja vihollisten perus-AI lähestymiselle, pakenemiselle, ampumiselle ja
+     loitsimiselle. Olennon omaisuus ja munat, jotka päättävät milloin olento ilmestyy
+     ollenkaan, kuuluvat generaattorin omiin, myöhempiin viipaleisiin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

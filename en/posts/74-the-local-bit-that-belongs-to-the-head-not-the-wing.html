@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Local Bit That Belongs To The Head, Not The Wing | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/74-local-bitti-joka-kuuluu-paahan-ei-siipeen.html" hreflang="fi">FI</a><span>/</span><a href="74-the-local-bit-that-belongs-to-the-head-not-the-wing.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 74</nav>
+
+<h1>The local bit that belongs to the head, not the wing</h1>
+
+<p class="lede">
+M14's slice F4: the creature generator. The previous slice built the actor create, which
+deliberately rolls no statistic at all; this slice is the one that fills them in. The gazer's
+own insects, which the last three posts named as a gap, now close in all three places where
+they can actually fire, and the development key stopped rolling its own statistics by hand.
+One detail was the easiest to get backwards: a dragon's own head carries the bit a future purge
+will look for, and its four extra tiles must not carry it, even though they are part of the
+same creature.
+</p>
+
+<h2>The mutant flag changes one thing</h2>
+
+<p>
+<code>EGG_generate</code> strips the type word's own high bit first: a mutant flag, the mark of
+a two-headed giant scorpion and everything above it. After that it shows up nowhere else except
+one place, the second tile's own frame on a two-tile creature. Not the class lookup, not the
+statistics, not the dragon, not the hydra. A known class rolls strength, dexterity,
+intelligence and hit points around the class's own value and takes the level from the rolled
+hit points, rounding upward, so thirty hit points is level one and thirty one is level two; an
+unknown class is four fixed numbers, not a refusal and not a zeroed creature. Mana is zero for
+every creature made this way, since none of the four shapes that hold any mana at all is ever a
+monster, and experience is always a flat hundred, never the class's own figure, which this
+method never reads at all.
+</p>
+
+<h2>An extra tile that is not an actor</h2>
+
+<p>
+Four shape cases, each read straight from the handler. A winged gargoyle or a cyclops takes one
+special frame and gains no extra tile. A giant scorpion and everything above it is a two-tile
+creature: a head and a second tile one column over. A dragon gains four: a head, a tail and
+both wings, one square out in each one's own direction. A hydra gains eight bodies, one on each
+neighbour, each one's own direction stored in its frame as <code>direction &lt;&lt; 2</code>:
+this was confirmed by reading the original's own reverse operation, the one that finds a
+hydra's head from a body's own frame, not assumed.
+
+But every one of these extra tiles is an ordinary map object, not an actor. The original forces
+its own local bit on for every map object it creates and clears it straight back off for every
+extra tile; the head never touches it at all, because it is the actor the previous slice has
+already placed with the local bit already on. Get this backwards and an extra tile's own bit
+stays on, and a purge that someday removes distant temporary creatures would find and remove a
+dragon's wing on its own, leaving the rest of the creature standing. This also exposed a gap
+that had been invisible until now: map objects carried no local or owned bit in this engine at
+all, because no caller had ever needed one before this slice.
+</p>
+
+<h2>What was found, and what was not</h2>
+
+<p>
+The hydra's own direction was confirmed. But the literal frame numbers in part three, read out
+of <code>egg.c</code> as written, could not be checked against the exported shape data: this
+project has no general formula at all between an object type and a tile number, because a
+character's own art is not inside the renderer's reach yet. This was left as an open finding
+rather than quietly patched into a guess, because a wrong number would not show until a
+character's own drawing is someday built.
+</p>
+
+<h2>A connection that is not half made</h2>
+
+<p>
+The conjure and summon spells measured five creatures and a daemon in an earlier round, but
+left their real types unnamed. They are known now: a troll, a giant rat, a giant spider, a
+giant bat, a snake, a daemon. But wiring them to this generator is not a one line addition. The
+original makes the creature in full before its own eight placement attempts, not after, so
+wiring the generator in without also reordering the spell's own draw sequence would shift every
+later roll in a fight by one step. And the possessions routine this generator would call either
+way does not exist yet. The named gap was left in place rather than half connected.
+</p>
+
+<h2>Three real places, not one test</h2>
+
+<p>
+The gazer's own insects were already a named gap the previous slice left open, because it
+needed exactly this generator. Now all three places where <code>ApplyHit</code> actually runs
+in play (the player's own attack, the side bolt and a creature's own attack) get the class
+table, not just one of them. The gap stays named still, but only when a caller deliberately
+leaves one of the three dependencies out, the same discipline the blood pool and a slime's own
+division already follow.
+</p>
+
+<h2>A hesitation that was wrong twice over</h2>
+
+<p>
+Review caught an own mistake in this slice. The object document already stated that a map
+create forces the local bit on, and that this is exactly what the twenty tile purge needs to
+find anything at all. But <code>U6ObjectWorld.Create</code> did not force it: I left it out,
+afraid that <code>U6ObjectTransfer</code>'s own naked equality test against a hold value would
+break if every new object suddenly carried an extra bit it never asked for. The reasoning was
+wrong twice over. First, the document described an existing rule, not an option, so leaving it
+unimplemented meant the document and the code disagreed with each other, which is worse than
+either alone. And second, that comparison was already wrong regardless. The hold is a two bit
+field inside the status byte, not the whole byte, so a naked equality only matches an item with
+no other bit set at all. The creature's own possessions routine, the next slice, creates
+exactly such items, equipped and owned together, so this was not a hypothetical threat but a
+defect waiting at the door. Both are fixed now: the create forces the local bit on the map
+exactly as the document already claimed, and the comparison is masked with the hold's own mask.
+A new test, built on the real export, proves an equipped and owned pile is still skipped; the
+fault was written back in once to prove the test actually catches it.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              140 / 166
+
+U6Formats.Tests    359 / 359
+U6Export.Tests      56 / 56
+U6Engine.Tests    1936 / 1936
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Turn based combat moves on: initiative order and the hit and damage formulas from M8, and
+     the enemies' own basic AI for approaching, fleeing, shooting and casting. A creature's own
+     possessions and the eggs that decide whether it ever appears at all belong to the
+     generator's own, later slices.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
