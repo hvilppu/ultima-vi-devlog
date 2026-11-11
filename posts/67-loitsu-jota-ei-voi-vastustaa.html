@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loitsu jota ei voi vastustaa | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="67-loitsu-jota-ei-voi-vastustaa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/67-the-spell-that-cannot-be-resisted.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 67</nav>
+
+<h1>Loitsu jota ei voi vastustaa</h1>
+
+<p class="lede">
+Tuulet, puolueenympäri-loitsut ja kutsut, M14:n viipale D7, viimeiset kolme loitsujen
+dispatcher-kartan kahdeksasta jaetusta käsittelijästä. Yksi niistä paljasti matkalla virheen
+edellisen viipaleen omassa väitteessä: energiatuuli, jonka piti käyttäytyä kuin kaksi muuta
+suoran vahingon loitsua, ei käy minkäänlaisen vastustusheiton läpi ollenkaan.
+</p>
+
+<h2>Lähettäjää luettiin jotain muuta mitatessa</h2>
+
+<p>
+Edellinen viipale, D4, väitti suoran vahingon palvelevan kolmea loitsua, harmia, disablea ja
+energiatuulta, kaikkien kulkevan saman taisteluheiton läpi. Se on väärin yhden kolmasosan
+osalta. <code>SPELL_DirectDamage</code>:lla on tasan kaksi kutsupaikkaa koko dispatcherissa,
+ammuskaston switch harmille ja esinekaston switch disablelle, eikä energiatuulelle yhtäkään.
+Lähettäjä ohjaa energiatuulen omaan tuulikäsittelijäänsä, joka heittää oman 1d30:nsa suoraan,
+ilman mitään vastustustestiä. Kahden rutiinin heitto sattuu olemaan sama 1d30, mikä on juuri
+syy siihen miksi ero ei näkynyt aiemmin: kumpikin näyttää samalta ulkoa päin.
+</p>
+
+<p>
+Energiatuuli on siis ainoa tämän ryhmän vahingoittava loitsu jota ei voi vastustaa lainkaan.
+Korjaus löytyi sivutuotteena tuulikäsittelijää mitattaessa, ei omana mittauksenaan, ja se
+todistettiin siemenidentiteetillä: vastustusheitto on yksi nosto jaetusta generaattorista, ja
+yksi nosto siirtää joka myöhemmän heiton yhdellä paikalla. Kahden rinnakkaisen generaattorin
+sama siemen, yksi jolle annetaan ylimääräinen heitto ja yksi ei, osoittaa eron suoraan: ne
+ajautuvat eri kohtiin samaa sarjaa.
+</p>
+
+<h2>Kolme käsittelijää, kolme eri vastausta onnistumiselle</h2>
+
+<p>
+Ammuskasto tulostaa onnistumisviestin ja soittaa äänen. Massa- ja kenttäkäsittelijä tulostavat
+viestin soittamatta mitään. Tuulikäsittelijä ei tee kumpaakaan: ei viestiä, ei ääntä, silmukka
+loppuu ja käsittelijä palaa. Puolueenympäri-loitsut tekevät neljännen asian, tulostavat ja
+soittavat aina, ehdoitta, riippumatta siitä mitä per-uhri-silmukka teki kenellekään. Neljä
+käsittelijää rakennettuna tähän mennessä, neljä eri vastausta samaan kysymykseen, eikä niitä
+ole missään vaiheessa yhdenmukaistettu.
+</p>
+
+<h2>Lumous vie kohteelta vastustajan</h2>
+
+<p>
+Puolueenympäri-loitsuista confuse ei ohjaa vihollisia toisiaan vastaan, vaikka nimi antaisi
+ymmärtää niin. Se asettaa kohteen tilan hyökkäykseksi mutta myös asenteen NEUTRAALiksi, ja
+viipale C2 mittasi aiemmin, että NEUTRAALi toimija löytää nolla kelvollista kohdetta kohteenhaun
+omasta logiikasta, ellei se ole erityinen Vigilante-tila. Lumottu olio hyökkää siis ei kenenkään
+kimppuun. Tämä testattiin tässä suoraan oikean kohteenhaun läpi rinnakkain saman tilanteen
+kanssa jossa asenne jätettäisiin koskemattomaksi, ja jälkimmäinen todella löytää kohteen: ero on
+yksinomaan tuo yksi kirjoitus.
+</p>
+
+<h2>Kaksi heittoa, yksi käyttämätön</h2>
+
+<p>
+Kutsuloitsuista conjure valitsee yhden viidestä hirviöstä yhdellä heitolla 0:sta 15:een,
+painotuksella 4, 3, 3, 3, 3 of 16, ei tasan viidesosa. Summon ottaa saman heiton mutta ei
+koskaan käytä sitä: se kutsuu aina daemonin. Heitto otetaan ennen kuin loitsua tarkastellaan
+lainkaan, niin summonin kastaminen kuluttaa hirviötyypin jota se ei koskaan käytä. Näkymätöntä
+pelissä, näkyvää siemenestä: sama siemen kummallekin loitsulle tuottaa täsmälleen samat
+sijoitusyritykset, mikä olisi eri jos summon jättäisi heiton väliin. Jos kaikki kahdeksan
+sijoitusyritystä 11 kertaa 11 ruudun laatikossa epäonnistuvat, olio poistetaan hiljaa: ainoastaan
+epäonnistumisääni soi, ei viestiä, missä joka muu tämän ja aiempien viipaleiden epäonnistuminen
+sanoo jotain.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              132 / 158
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1710 / 1710
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kaikki kahdeksan loitsujen dispatcher-kartan jaettua käsittelijää on nyt mitattu ja
+     rakennettu. Jäljellä on 19 omaa haaraansa, joista kukin tarvitsee oman lukunsa, eikä
+     mikään M14:stä ole yhä kytketty elävään peliin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

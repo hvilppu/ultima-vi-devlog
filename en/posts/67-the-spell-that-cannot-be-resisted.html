@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Spell That Cannot Be Resisted | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/67-loitsu-jota-ei-voi-vastustaa.html" hreflang="fi">FI</a><span>/</span><a href="67-the-spell-that-cannot-be-resisted.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 67</nav>
+
+<h1>The spell that cannot be resisted</h1>
+
+<p class="lede">
+The winds, the party-ring spells and the summons, M14's slice D7, the last three of the spell
+dispatcher map's eight shared handlers. One of them turned up a mistake in the previous slice's
+own claim along the way: energy wind, which was supposed to behave like the other two direct
+damage spells, runs through no resistance check of any kind.
+</p>
+
+<h2>The dispatcher was read while measuring something else</h2>
+
+<p>
+The previous slice, D4, claimed direct damage serves three spells, harm, disable and energy
+wind, all three running through the same combat contest. That is wrong for one of the three.
+<code>SPELL_DirectDamage</code> has exactly two call sites in the whole dispatcher, the missile
+cast's switch for harm and the object cast's switch for disable, and none at all for energy
+wind. The dispatcher sends energy wind to its own wind handler instead, which rolls its own
+1d30 directly, with no resistance test. The two routines happen to roll the same 1d30, which is
+exactly why the difference never showed: from the outside, both look the same.
+</p>
+
+<p>
+Energy wind is therefore the one damaging spell in this group that cannot be resisted at all.
+The correction turned up as a side effect of measuring the wind handler, not as a measurement of
+its own, and it was proved by seed identity: a contest roll is one draw from the shared
+generator, and one draw shifts every later roll by one position. The same seed fed to two
+parallel generators, one given the extra contest draw and one not, shows the difference
+directly: they land on different points of the same sequence.
+</p>
+
+<h2>Three handlers, three different answers to success</h2>
+
+<p>
+The missile cast prints a success message and plays a sound. The mass and field handlers print
+the message without playing anything. The wind handler does neither: no message, no sound, the
+loop ends and the handler returns. The party-ring spells do a fourth thing, printing and playing
+a sound always, unconditionally, regardless of what the per-victim loop did to anyone. Four
+handlers built so far, four different answers to the same question, and none of them have been
+unified at any point.
+</p>
+
+<h2>Confuse takes away an opponent, not gives one</h2>
+
+<p>
+Among the party-ring spells, confuse does not turn enemies against each other, despite what the
+name suggests. It sets the target's mode to assault but also its alignment to neutral, and slice
+C2 had already measured that a neutral actor finds zero valid targets in the opponent search's
+own logic, unless it is in the special vigilante mode. A confused creature therefore attacks
+nobody. This was tested here directly through the real opponent search, run side by side against
+the same situation with the alignment left untouched, where the latter does find a target: the
+only difference is that one write.
+</p>
+
+<h2>Two rolls, one unused</h2>
+
+<p>
+Among the summoning spells, conjure picks one of five creatures with a single roll of 0 to 15,
+weighted 4, 3, 3, 3, 3 of 16, not a uniform fifth. Summon takes the same roll but never uses it:
+it always calls a daemon. The roll is taken before the spell is even examined, so casting summon
+consumes a creature type it never uses. Invisible in play, visible from a seed: the same seed fed
+to both spells produces exactly the same placement attempts, which would differ if summon skipped
+the draw. If all eight placement attempts in an 11 by 11 box fail, the creature is deleted
+silently: only the failure sound plays, no message, where every other failure in this and the
+earlier slices says something.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              132 / 158
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1710 / 1710
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>All eight of the spell dispatcher map's shared handlers are now measured and built. The
+     19 own branches are what remain, each needing its own reading, and nothing in M14 is wired
+     into a live game yet.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
