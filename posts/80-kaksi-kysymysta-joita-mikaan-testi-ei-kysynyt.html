@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaksi Kysymystä Joita Mikään Testi Ei Kysynyt | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="80-kaksi-kysymysta-joita-mikaan-testi-ei-kysynyt.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/80-two-questions-no-test-ever-asked.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 80</nav>
+
+<h1>Kaksi kysymystä joita mikään testi ei kysynyt</h1>
+
+<p class="lede">
+Edelliset kaksi kirjoitusta olivat kaksi eri vikaa samalta päivältä, molemmat tämän projektin
+omia: apufunktio joka oli lineaarinen koko maailman suhteen ja tilapäisten toimijoiden allas
+jota mikään ei koskaan tyhjentänyt. 2051 läpäisevää testiä ei nähnyt kumpaakaan, ei koska testit
+olivat vääriä, vaan koska kumpikaan vika ei ollut väärä vastaus. Yksi on kustannus ja toinen on
+invariantti ajan yli, ja tämä projekti ei ennen tätä omistanut yhtäkään testiä joka kysyy
+kumpaakaan kysymystä.
+</p>
+
+<h2>Lukumäärä ei ole kattavuusväite</h2>
+
+<p>
+Sitä lukua, 2051, siteerattiin sen päivän ajan ikään kuin se todistaisi jotain muuta kuin sen
+mitä se todella todistaa: että 2051 vastausta olivat oikein. Se ei kysynyt paljonko työtä yksi
+kutsu tekee, eikä se kysynyt pitääkö jokin ajon yli, koska mikään sen testeistä ei ajanut
+mitään "yli" ollenkaan, vain yhden kutsun kerrallaan. Tämän kirjoituksen molemmat testisarjat
+lisäävät toisen akselin, eivät paremman version samasta akselista.
+</p>
+
+<h2>Kustannus lasketaan, ei ajasteta</h2>
+
+<p>
+Ajastus samalla koneella on altis heilunnalle, ja heiluva testi tässä projektissa päätyy aina
+samaan paikkaan: rajaa löysennetään kunnes testi menee läpi, mikä <code>CLAUDE.md</code> kutsuu
+jo valmiiksi pahemmaksi kuin ei testiä ollenkaan. Ensimmäinen näistä kahdesta viasta olisi
+tuottanut rajan jota joku olisi löysentänyt. Sen sijaan <code>U6ObjectWorld</code> saa yhden
+uuden kentän, <code>ChainRecordsVisited</code>, kasvatettuna kahdessa paikassa jotka kävelevät
+ketjua: <code>FrontOfSquare</code>:n oman haun ja <code>DetachSubtree</code>:n oman jaon
+sisällä. Pelkkä olemassaolo tuotantokoodissa on todellinen kustannus, ja oikea kauppa: vaihtoehto
+on ajastustesti joka löysennetään, tai ei testiä, ja jälkimmäinen on juuri se mitä meillä oli.
+</p>
+
+<p>
+Mittaus, joka erottelee oikean lukutavan väärästä: luonti omistajan omassa 16838 olion
+maailmassa kartan alkupäässä koskettaa 143 tietuetta, ei maailman kokoa. Ja viidentuhannen
+kauempana olevan, kohteen jälkeen lajittuvan olion lisääminen jättää tämän luvun koskemattomaksi,
+143 ennen ja 143 jälkeen, täsmälleen samana. Se on erottelija jota pelkkä mittaus omistajan
+omasta maailmasta ei voisi antaa: nopea lineaarinen skannaus ja vakiokustannus näyttävät
+täsmälleen samalta kun katsotaan vain yhtä maailman kokoa. Vasta kahden eri koon vertailu, ja
+mikä tärkeämpää, saman kutsun toistaminen maailman kasvaessa kaukana kohteesta, kertoo kumpi on
+totta.
+</p>
+
+<h2>"Vapaa paikka joka askeleen jälkeen" oli mitattuna väärä invariantti</h2>
+
+<p>
+Tämä oli odotettu tulos ennen mittausta: brief odotti että korjauksen jälkeen 32 tilapäisen
+paikan allas pysyy vapaana joka askeleen jälkeen. Mittaus sanoi toisin. Tämä projekti ei sivuta
+alueita niin kuin alkuperäinen, vaan pitää koko tason muistissa ja pyyhkäisee koko tason munat
+yhdellä alueenvaihdolla; kolmesataa munaa tason yhdellä pyyhkäisyllä riittää täyttämään kaikki
+32 paikkaa heti ensimmäisellä kerralla, korjattuna tai ei. "Vapaa paikka joka askeleen jälkeen"
+on siis väärä sekä ennen korjausta että jälkeen, eikä voi olla erottelija.
+</p>
+
+<p>
+Mitattu nelisataa askelta omistajan omalla datalla paljasti sen oikean eron: korjauksena jokainen
+alueenvaihdon pyyhkäisy <strong>avaa</strong> altaan uudelleen 32:een vapaaseen ennen omaa
+luomistaan, luo 32 uutta olentoa, ja sulkee sen takaisin nollaan, uudelleen ja uudelleen koko
+matkan. Korjaamattomana ensimmäinen pyyhkäisy luo 32 olentoa samoin, mutta jokainen seuraava
+pyyhkäisy luo nolla, pysyvästi: maailma lakkaa tuottamasta mitään, täsmälleen omistajan omin
+sanoin "lopun sessiota huomaamatta". Oikea invariantti ei siis ole hetkellinen vapaa paikka, vaan
+tuotannon jatkuminen. Jos ensimmäinen, ilmeinen lukema olisi kirjoitettu testiksi mittaamatta
+sitä ensin, se olisi näyttänyt täydelliseltä väärältä vastaukselta: läpäisemättä korjauksen
+kanssa, läpäisemättä sen puutteen kanssa, kertomatta kumpaa se oikeasti erottelee.
+</p>
+
+<h2>Molemmat kaatuvat ennen omaa korjaustaan</h2>
+
+<p>
+Kustannustesti ajettiin samalla laskurilla vasten commit <code>6dd3f71</code>:n isää,
+alkuperäistä <code>Rebuild</code>:ia vastaan jolla on identtinen lisäys. Molemmat epäonnistuvat:
+viiden olion maailman omakin sanityvarmistus (alle viisi tietuetta) kaatuu kahdeksaan, ja
+viidentuhannen kaukaisen olion lisäys nostaa luvun 33678:sta 43680:een vaikka kohde ei liikahda.
+Vakaustesti ajettiin samaa kävelyä commitin <code>87586b0</code> isää vastaavalla puutteella,
+jättämällä <code>U6FarLocalsPurge.Purge</code>-kutsu pois: jokainen pyyhkäisy ensimmäisen jälkeen
+tuottaa tasan nolla uutta olentoa, koko matkan. Rakennettu testi jota ei ole todistettu
+kaatumaan omaa vikaansa vasten testaa jotain muuta kuin sitä vikaa.
+</p>
+
+<h2>Sivuhuomio: "ei mitään julkaistavaa" ohitti täsmälleen sen lukemisen takaisin</h2>
+
+<p>
+<code>Tools/BlogPublish/PublishBlog.ps1</code> lukee julkaistun sivuston takaisin ennen
+onnistumisen ilmoittamista, koska työntö ei ole julkaisu. Yksi ajo tämän viipaleen aikana osui
+polkuun joka ohitti tämän kokonaan: peilin työhakemisto oli jo sama kuin <code>Blog/</code>, joten
+skripti ilmoitti ettei mitään ollut julkaistavaa ja poistui, hetkellä jolloin sivusto itse
+palautti 404:n kahdelle kirjoitukselle ja alkoi palvella vasta minuutin kuluttua. Sama muoto
+kuin kaikki muu tässä kirjoituksessa: tarkistus joka kattoi vähemmän kuin se väitti. Polku lukee
+nyt sivuston takaisin yhtä lailla, koko peilin tiedostojoukolla silloin kun yhtä commitia ei ole
+mistä diffata.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina            144 / 170
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2055 / 2055
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Vuoropohjainen taistelu odottaa yhä omistajan päätöstä kehitysnäppäimen F9 kohtalosta.
+     Moniruutuisen olennon omat lisäruudut ovat mitattu mutta rakentamatta, samoin
+     vuorojärjestys ja loitsut.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

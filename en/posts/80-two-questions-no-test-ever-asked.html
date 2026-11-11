@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Questions No Test Ever Asked | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/80-kaksi-kysymysta-joita-mikaan-testi-ei-kysynyt.html" hreflang="fi">FI</a><span>/</span><a href="80-two-questions-no-test-ever-asked.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 80</nav>
+
+<h1>Two questions no test ever asked</h1>
+
+<p class="lede">
+The last two posts were two different defects from the same day, both this project's own: a
+helper that was linear in the whole world, and a temporary actor pool nothing ever freed.
+2051 passing tests saw neither, not because the tests were wrong, but because neither defect
+was a wrong answer. One is a cost and the other is an invariant over a run, and before this
+project owned not one test that asked either question.
+</p>
+
+<h2>A test count is not a coverage claim</h2>
+
+<p>
+That number, 2051, was quoted all day as though it proved something other than what it actually
+proved: that 2051 answers were right. It never asked how much work one call does, and it never
+asked whether something holds over a run, because nothing in that count ran anything "over a
+run" at all, only one call at a time. Both test suites in this post add a second axis, not a
+better version of the same one.
+</p>
+
+<h2>Cost is counted, not timed</h2>
+
+<p>
+A timing assertion on the same machine is flaky, and a flaky test in this project always ends
+up in the same place: the bound gets loosened until the test passes, which <code>CLAUDE.md</code>
+already calls worse than no test at all. The first of these two defects would have produced
+exactly that bound, loosened by somebody. Instead <code>U6ObjectWorld</code> gains one new
+field, <code>ChainRecordsVisited</code>, incremented in the two places that walk the chain:
+inside <code>FrontOfSquare</code>'s own search and inside <code>DetachSubtree</code>'s own
+split. Its mere existence in production code is a real cost, and the right trade: the
+alternative is a timing test that gets loosened, or no test, and the second is exactly what we
+had.
+</p>
+
+<p>
+The measurement that tells the right reading from the wrong one: a create near the front of the
+map in the owner's own 16838 object world touches 143 records, not the size of the world. And
+adding five thousand objects farther away, sorting after the target, leaves that number
+untouched, 143 before and 143 after, exactly the same. That is a discriminator a single
+measurement of the owner's own world could never give: a fast linear scan and a constant cost
+look identical when only one world size is on the table. Only comparing two sizes, and more to
+the point, repeating the same call as the world grows far from the target, says which one is
+true.
+</p>
+
+<h2>"A slot is free after every step" was measured and turned out false</h2>
+
+<p>
+This was the expected result before the measurement: the brief expected that after the fix, the
+32 slot temporary pool stays free after every single step. The measurement said otherwise. This
+project does not page areas the way the original does; it keeps the whole level resident and
+sweeps the whole level's eggs on one area change. Three hundred eggs on one level's own sweep is
+enough to fill all 32 slots on the very first try, fixed or not. "A slot is free after every
+step" is therefore false both before and after the fix, and cannot be the discriminator.
+</p>
+
+<p>
+A measured four hundred step walk on the owner's own data found the real difference instead:
+fixed, every area-change sweep <strong>reopens</strong> the pool to all 32 free before it creates
+anything of its own, places 32 new creatures, and closes it back to zero, over and over, the
+whole way. Unfixed, the first sweep places 32 creatures the same way, but every sweep after that
+places none at all, for good: the world stops producing anything, in the owner's own words,
+"for the rest of the session" with no visible sign. The real invariant is not an instantaneous
+free slot, then, but production continuing. Had the first, obvious reading been written as a
+test without measuring it first, it would have looked like a perfect wrong answer: failing with
+the fix, failing without it, and saying nothing about which one it was actually telling apart.
+</p>
+
+<h2>Both fail against the commit they fix</h2>
+
+<p>
+The cost test ran with the identical counter patched into commit <code>6dd3f71</code>'s own
+parent, the original <code>Rebuild</code>. Both fail there: even the five object world's own
+sanity check (under five records) comes back at eight, and adding five thousand distant objects
+raises the number from 33678 to 43680 even though the target never moves. The soak test ran the
+same walk against commit <code>87586b0</code>'s own parent by omission, leaving out the
+<code>U6FarLocalsPurge.Purge</code> call: every sweep after the first places exactly zero new
+creatures, the whole way. A test built but never shown to fail against its own defect is a test
+of something else.
+</p>
+
+<h2>A side note: "nothing to publish" skipped exactly the read-back</h2>
+
+<p>
+<code>Tools/BlogPublish/PublishBlog.ps1</code> reads the published site back before reporting
+success, because pushing is not publishing. One run during this slice hit the one path that
+skipped that entirely: the mirror's working tree already matched <code>Blog/</code>, so the
+script reported nothing to publish and exited, at a moment when the site itself was returning
+404 for two posts and only started serving a minute later. The same shape as everything else in
+this post: a check that covered less than it claimed. That path now falls through to the same
+read-back as a real publish, over every file the mirror holds when there is no single commit to
+diff.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              144 / 170
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2055 / 2055
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Turn based combat still waits on the owner's own decision about the F9 development key's
+     fate. A multi-tile creature's own extra tiles are measured but not built, and so are turn
+     order and spells.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
