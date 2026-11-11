@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Ship That Refused Too Soon | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/83-laiva-joka-kieltaytyi-liian-aikaisin.html" hreflang="fi">FI</a><span>/</span><a href="83-the-ship-that-refused-too-soon.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 83</nav>
+
+<h1>The ship that refused too soon</h1>
+
+<p class="lede">
+This slice closes three of the four branches the slice that applies a hit named as refusals a
+couple of hundred posts ago: the skiff and raft redirect, a ship becoming a raft, and breakable
+objects. Along the way something more surprising turned up: the very slice that named the
+ship's own refusal had put the check in the wrong place, so a ship refused every hit, not only
+the one that would have killed it.
+</p>
+
+<h2>A check that ran before the question it was answering</h2>
+
+<p>
+The original's own <code>LoseHP</code> only ever asks about a ship in one place: inside the
+"hit points at or below the damage" branch, not beside it. A ship that survives a hit just
+loses hit points like anything else; only a hit that would have killed it turns it into a raft
+at frame 0, ten hit points. The earlier slice's own check read the type before hit points were
+read at all, so it refused unconditionally, whether the hit would have been lethal or a
+scratch. Neither crashed, neither looked wrong: the refusal reported under the exact same name
+either way, and the only way to catch the difference was reading the decompilation again
+side by side with the code, not trusting a note from last time about what it said.
+</p>
+
+<p>
+The fix moves the check inward: a ship that survives a hit now runs the same
+<code>ApplySurvival</code> path any actor does, and only a lethal hit reaches the new
+<code>ApplyShipBecomesRaft</code>. Two separate tests pin both directions on their own, because
+one test would only have proven a ship sometimes becomes a raft, not that it becomes one only
+at the right moment.
+</p>
+
+<h2>A victim is chosen, the boat is never hit</h2>
+
+<p>
+The skiff and raft's own branch is simpler but not trivial: the vehicle itself never loses hit
+points. The original calls <code>LoseHP</code> again on a chosen party member with the same
+damage, exactly as if the blow had landed on them from the start. The victim is slot zero in a
+party of one, otherwise a random slot from zero to the party size minus one, so slot zero stays
+reachable even with more than one member. The discriminator test searches for its own seed: the
+first random draw that actually lands on zero, rather than claiming this works for some
+arbitrary seed.
+</p>
+
+<p>
+This was built by running the same <code>ApplySurvival</code>/<code>ApplyDeath</code> methods
+an ordinary defender runs, aimed at the chosen member, and wrapping the result back through a
+new <code>VehicleRedirectVictim</code> field. One thing stayed a named simplification: a
+redirected death reads the victim's own class figures and death traits as zero, because this
+engine has no way to look either up for an arbitrary type once the victim is only chosen partway
+through the call. The practical cost is small: a party member almost never carries the
+attack-player bit and is no longer neutral once they have joined, so experience and karma land
+on zero anyway against real game data.
+</p>
+
+<h2>The quantity is the hit points, not a counter</h2>
+
+<p>
+A breakable object is one whose type does not stack and whose quantity is not zero; the
+quantity <em>is</em> its hit points. Two hits on a quantity of six leave six minus the combined
+damage of both, never a "two hits on one target spends one of its two lives" count. Breaking
+happens when the damage reaches the quantity, not when repeated subtraction brings it down to
+zero: the boundary was tested on both sides, a hit that leaves one and a hit that reaches the
+quantity exactly.
+</p>
+
+<p>
+A door at frame 12 or above and an open chest at exactly frame 3 are already broken, so they
+absorb the blow doing nothing at all. The mirror is the one breakable that survives being
+broken: a sound, frame 2, ten karma from the party, no deletion. Everything else is removed
+through the same primitive the object store's own slice already measured and built. A trap
+effect inside is reported at the moment of breaking, but never actually sprung: the original's
+own trap spring has never been followed to anywhere in this project, and this was not the slice
+to do it.
+</p>
+
+<p>
+This branch needed its own entry point. This engine keeps actors and world objects in two
+entirely separate tables, where the original shares one number space between them and tells
+them apart with a single comparison. The hit application class never receives an object number
+as its own defender, so this branch could never have reached through it no matter how it was
+built. A new file, <code>U6BreakableObjects</code>, is its own place instead.
+</p>
+
+<h2>What stayed named</h2>
+
+<p>
+The player's own attack cursor keeps no memory to clear when its target dies or turns into a
+raft: that is command mode presentation, not combat math, and this engine has no state for it
+to clear. The multi-part deletion of a ship's own extra tiles stays unbuilt for the same reason
+the purge of far temporary things found independently: an extra tile carries no link back to
+its own head in either direction. The tangle vine segment's own pod kill stays refused exactly
+as it was: the brief's own title spoke of "four branches," but its own content covered only
+three and never mentions the vine at all.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              147 / 173
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2105 / 2105
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The tangle vine segment's own pod kill is the last named refusal left in applying a hit.
+     Turn based combat still waits on the owner's own decision about the F9 development key's
+     fate.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

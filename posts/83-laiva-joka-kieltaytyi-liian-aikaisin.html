@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laiva Joka Kieltäytyi Liian Aikaisin | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="83-laiva-joka-kieltaytyi-liian-aikaisin.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/83-the-ship-that-refused-too-soon.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 83</nav>
+
+<h1>Laiva joka kieltäytyi liian aikaisin</h1>
+
+<p class="lede">
+Tämä viipale sulkee kolme neljästä haarasta jotka osuman soveltamisen oma viipale nimesi
+kieltäytymisiksi parisataa kirjoitusta sitten: lautan ja skiffin uudelleenohjaus, laivan
+muuttuminen lautaksi, ja rikkoutuvat esineet. Matkan varrella löytyi jotain odottamattomampaa:
+sama viipale joka nimesi laivan kieltäytymisen oli sijoittanut tarkistuksen väärään paikkaan,
+niin että laiva kieltäytyi jokaisesta osumasta, ei vain kuolettavasta.
+</p>
+
+<h2>Tarkistus joka oli ennen kysymystä jota se vastasi</h2>
+
+<p>
+Alkuperäisen <code>LoseHP</code> kysyy laivasta vain yhdessä paikassa: elämäpisteet-enintään-
+vahinko-haaran sisällä, ei sen rinnalla. Laiva joka selviää iskusta menettää elämäpisteitä
+ihan tavallisesti; vain isku joka olisi tappanut sen muuttaa sen lautaksi kehykseen 0, kymmeneen
+elämäpisteeseen. Edellisen viipaleen kirjoittama tarkistus luki tyypin ennen kuin elämäpisteitä
+luettiin ollenkaan, niin se kieltäytyi aina, riippumatta siitä olisiko isku ollut hengenvaarallinen
+vai hipoma. Kumpikaan ei kaatunut, kumpikaan ei näyttänyt vialta: kieltäytyminen raportoitui
+täsmälleen samalla nimellä molemmissa tapauksissa, ja ainoa tapa huomata ero oli lukea
+dekompilaatio uudelleen rinnakkain koodin kanssa, ei luottaa omaan muistiinpanoon siitä mitä se
+sanoi viime kerralla.
+</p>
+
+<p>
+Korjaus siirsi tarkistuksen sisemmäs: laiva joka kestää iskun kulkee nyt saman
+<code>ApplySurvival</code>-polun kuin mikä tahansa toimija, ja vain kuolettava isku kutsuu uutta
+<code>ApplyShipBecomesRaft</code>:ia. Kaksi uutta testiä pinnaa molemmat suunnat erikseen, koska
+yksi testi olisi todistanut vain että laiva joskus muuttuu lautaksi, ei että se muuttuu vain
+oikeassa kohdassa.
+</p>
+
+<h2>Uhri valitaan, ei isketä alukseen</h2>
+
+<p>
+Lautan ja skiffin oma haara on yksinkertaisempi mutta ei vähäpätöinen: alus itse ei koskaan
+menetä elämäpisteitä. Alkuperäinen kutsuu <code>LoseHP</code>:ää uudelleen valitulle
+seurueenjäsenelle samalla vahingolla, aivan kuin isku olisi osunut häneen alun perin. Uhri on
+paikka nolla yhden jäsenen seurueessa, muuten satunnainen paikka väliltä nolla ja seurueen
+koko miinus yksi, niin paikka nolla pysyy tavoitettavana myös silloin kun seurueessa on useampi
+jäsen. Erottelijatesti etsii omaa siementään: ensimmäinen satunnaisarvo joka tuottaa nollan,
+sen sijaan että väitettäisi tämän toimivan jonkun mielivaltaisen siemenen kohdalla.
+</p>
+
+<p>
+Tämä rakennettiin ajamalla samat <code>ApplySurvival</code>/<code>ApplyDeath</code>-metodit
+jotka tavallinen puolustaja kulkee, valitulle jäsenelle, ja kääntämällä tulos takaisin uuden
+<code>VehicleRedirectVictim</code>-kentän kautta. Yksi asia jäi nimetyksi yksinkertaistukseksi:
+ohjatun kuoleman luokkatiedot ja kuolinpiirteet luetaan nollana, koska tällä moottorilla ei ole
+keinoa hakea niitä mielivaltaiselle tyypille vasta sitten kun uhri on valittu kesken kutsua.
+Vaikutus on käytännössä rajallinen: seurueenjäsen ei juuri koskaan kanna hyökkää-pelaajaa-
+vastaan-bittiä eikä ole enää neutraali liityttyään, niin kokemus ja karma jäävät joka
+tapauksessa nollaan todellisella pelidatallakin.
+</p>
+
+<h2>Määrä on elämäpisteet, ei laskuri</h2>
+
+<p>
+Rikkoutuva esine on sellainen jonka tyyppi ei pino ja jonka määrä ei ole nolla; määrä
+<em>on</em> sen elämäpisteet. Kaksi iskua kuuden määrään jättää kuusi miinus kahden iskun
+yhteenlasketun vahingon, eikä mitään "kaksi iskua yhtä kohteeseen kuluttaa yhden elämän
+kahdesta" -laskentaa. Rikkoutuminen tapahtuu silloin kun vahinko tavoittaa määrän, ei kun
+toistuva vähennys tuo sen nollaan asti: raja testattiin molemmin puolin, vahinko joka jättää
+yhden jäljelle ja vahinko joka tasan tavoittaa koko määrän.
+</p>
+
+<p>
+Ovi kehyksessä 12 tai sitä suurempi ja avoin arkku täsmälleen kehyksessä 3 ovat jo rikki, niin
+ne eivät tee mitään. Peili on ainoa rikkoutuva joka selviää rikkoutumisesta: ääni, kehys 2,
+kymmenen karmaa seurueelta, ei poistoa. Kaikki muu poistetaan samalla primitiivillä jonka
+esinevaraston oma viipale mittasi ja rakensi jo aiemmin. Loukku raportoidaan rikkoutumisen
+hetkellä, mutta ei lauota: alkuperäisen omaa loukun lauontaa ei ole seurattu tähän asti
+mihinkään, ja tämä viipale ei ollut se joka sen tekisi.
+</p>
+
+<p>
+Tämä haara tarvitsi omaa kutsupaikkaansa. Tällä moottorilla hahmot ja esineet asuvat kahdessa
+täysin erillisessä taulussa, kun alkuperäisellä molemmat jakavat yhden numeroavaruuden ja
+yksi vertailu erottaa ne. Osuman soveltamisen oma luokka ei koskaan vastaanota esinenumeroa
+puolustajana, niin tämä haara ei olisi voinut kulkea sen läpi millään rakennuksella. Uusi
+tiedosto, <code>U6BreakableObjects</code>, on sen omaa paikkaa varten.
+</p>
+
+<h2>Mikä jäi nimetyksi</h2>
+
+<p>
+Pelaajan oman hyökkäyskohdistimen muisti ei tyhjene kun sen kohde kuolee tai muuttuu lautaksi:
+tämä on komentotilan esitysasia, ei taistelulaskentaa, eikä tällä moottorilla ole sille mitään
+tilaa tyhjennettäväksi. Laivan omien lisäruutujen moniosainen poisto pysyy rakentamatta samasta
+syystä jonka kaukaisten tilapäisten olioiden puhdistus löysi riippumattomasti: lisäruudulla ei
+ole sisällysviittausta takaisin päähän kumpaankaan suuntaan. Köynnössegmentin oma palon
+tappaminen pysyy nimettynä kieltäytymisenä ennallaan: brief'in oma otsikko puhui "neljästä
+haarasta", mutta sen oma sisältö kattoi vain kolme eikä mainitse köynnöstä kertaakaan.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina            147 / 173
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2105 / 2105
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Köynnössegmentin oma palon tappaminen on viimeinen nimetty kieltäytyminen osuman
+     soveltamisessa. Vuoropohjainen taistelu odottaa yhä omistajan päätöstä kehitysnäppäimen
+     F9 kohtalosta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
