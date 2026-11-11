@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muna joka kuoriutuu vain kerran | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="76-muna-joka-kuoriutuu-vain-kerran.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/76-an-egg-that-hatches-only-once.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 76</nav>
+
+<h1>Muna joka kuoriutuu vain kerran</h1>
+
+<p class="lede">
+M14:n viipale F6: munat kuoriutuvat. Viisi edellistä viipaletta rakensivat esinevaraston,
+pelaajan hyökkäyskomennon, toimijan luonnin, olennon generaattorin ja sen omaisuuden. Tämä
+viipale on se mikä kutsuu niitä kaikkia: muna joka istuu näkymättömänä kartalla, laskee
+pitäisikö sen avautua, ja tekee sen vain kerran. Kehitysnäppäin F9, joka on toistaiseksi ollut
+ainoa tapa saada vihollinen pelissä ollenkaan, sai dokumentaationsa sanomaan nyt suoraan että
+tämä on se työ jonka se korvasi.
+</p>
+
+<h2>Prosenttiluku on yksi kertainen mahdollisuus, ei joka käynnillä uusiutuva</h2>
+
+<p>
+Munan oma määrä on kuoriutumisen prosenttitodennäköisyys, ja ilmeinen väärä luenta on että
+peli heittäisi sen uudelleen joka kerta kun pelaaja kävelee munan ohi. Alkuperäinen ei tee
+niin. <code>EGG_hatches</code> heittää kerran, ja <strong>tapahtuipa mitä tahansa, muna
+merkitään kuoriutuneeksi ja näkymättömäksi sen jälkeen</strong>: epäonnistunut heitto kuluttaa
+munan täsmälleen niin kuin onnistunutkin. Harva kohtaaminen pysyy harvana juuri tämän takia.
+Testi todistaa sen suoraan: yhden prosentin muna, heitto joka epäonnistuu, ja seuraava kutsu
+samalle munalle ei enää heitä mitään, tarkistaa vain kuoriutunut-bitin.
+</p>
+
+<h2>Kaksi vikaa, kumpikaan korjattu</h2>
+
+<p>
+<code>egg.c</code> kantaa oman taistelutilamuuttujansa koko munan kutsun ajan, embryo-silmukan
+ulkopuolella, ja nostaa sen liikkumattomasta vain kertaalleen. Munan ensimmäinen embryo joka
+tarjoaa jonkin muun tilan antaa sen kaikille myöhempien embryojen olennoille samassa munassa,
+riippumatta siitä mitä tilaa niiden oma laatu kantaisi. Kahden olentotyypin seosmuna
+käyttäytyy siis yhtenäisesti väärin, ei kahdella tavalla oikein.
+</p>
+
+<p>
+Toinen on hiljaisempi. Gargyylien ruohonsyönnin testi kysyy puolueen jokaiselta jäseneltä
+onko kyseessä gargyyli, mikä on oikein, mutta sen amulettipuolisko kysyy aina objektilta
+yksi, avatarilta, kirjaimellisella ykkösellä koodissa. Anna alistumisen amuletti kumppanille
+ja jätä se avatarilta pois, ja munan gargyylit taistelevat yhä, koska testi ei koskaan
+katsonut kumppanin omaa inventaaria. Molemmat on kirjattu <code>originalBugs.md</code>:hen
+ja toistettu rakenteen puolesta, ei korjattu.
+</p>
+
+<h2>Koko taso, ei neljäkymmentä kertaa neljäkymmentä ruutua</h2>
+
+<p>
+Alkuperäinen kuoriuttaa munat vain ladatun 40x40 ikkunan sisällä, koska se pitää muistissa
+vain sen verran kerrallaan. Tämä projekti pitää koko maailman muistissa koko ajan, sama
+poikkeama jo nimetty esinevaraston oman rajan kohdalla, niin alueen pyyhkäisy käy läpi koko
+tason suoraan. Se ei koskaan muuta kumpaa munaa kuoriutuu, koska ikkuna ei koskaan vaikuta
+etäisyys-, paikallis- tai pakotussääntöön itseensä; se voi vain kuoriuttaa munan aiemmin,
+ei eri tavalla. Pelin puolella suorituskyky on silti nimetty: <code>HatchEggsNear</code>
+pyyhkäisee uudelleen vasta kun sama kohdistettu alue, täsmälleen alkuperäisen omalla
+<code>(koordinaatti - 16) &amp; ~7</code>-kaavalla, oikeasti vaihtuu, ei joka askeleella.
+</p>
+
+<h2>Olento ei katoa tyhjiin, eikä sen omaisuus</h2>
+
+<p>
+Olento jonka sijoitus epäonnistuu poistetaan, ja ensimmäinen luonnos jätti sen omaisuuden
+roikkumaan vapautuneelle paikalle nimettynä aukkona. Se oli väärä syy jättää sääntö pois:
+sääntö on jo mitattu ja jo rakennettu. <code>U6ObjectWorld.Destroy</code> kaataa poistetun
+olion sisällön sen omalle ruudulle eikä hävitä sitä, ja alkuperäisen oma kutsujärjestys,
+omaisuus ensin generaattorista ja teleport vasta sen jälkeen, tekee samasta säännöstä
+tavoitettavan toimijallekin. <code>DeleteGeneratedActor</code> kaataa nyt olennon suoraan
+kantamat esineet sen omalle ruudulle ennen paikan tyhjennystä, ja uusi testi todistaa sen:
+olento jonka sijoitus epäonnistuu jättää esineensä maahan, eikä mikään esine enää nimeä
+vapautunutta paikkaa.
+</p>
+
+<h2>Mitä tämä ei vielä tee</h2>
+
+<p>
+Hopeakäärmeen segmenttiketju ja köynnöskasvin palon neljä köynnöstä on mitattu mutta ei
+rakennettu: molemmat ovat omia, erillisiä geometrioita joiden kuvaus odottaa
+<code>docs/u6-munat.md</code>:ssä seuraavaa viipaletta varten lähteen uudelleenlukemisen
+sijaan. Armageddon-portti on nimetty parametrina, koska projektissa ei ole sellaista lippua.
+Kumppanin "kuulen jotain" -varoitus saa suuntansa ja heittonsa, mutta ei tekstinpainatusta,
+koska mitään tässä projektissa ei vielä käännä suuntaa riviksi eikä tiedä onko kumppani
+elossa, puolueessa ja tarpeeksi lähellä.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              142 / 168
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2012 / 2012
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Vuoropohjainen taistelu etenee: aloitejärjestys sekä osuma- ja vahinkolaskenta M8:n omilla
+     kaavoilla, ja vihollisten perus-AI lähestymiselle, pakenemiselle, ampumiselle ja
+     loitsimiselle. Hopeakäärmeen ja köynnöskasvin palon omat geometriat, summon/conjure-
+     loitsujen kytkeminen generaattoriin, ja kehitysnäppäimen F9 kohtalo odottavat yhä
+     omistajan päätöstä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>An Egg That Hatches Only Once | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/76-muna-joka-kuoriutuu-vain-kerran.html" hreflang="fi">FI</a><span>/</span><a href="76-an-egg-that-hatches-only-once.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 76</nav>
+
+<h1>An egg that hatches only once</h1>
+
+<p class="lede">
+M14's slice F6: the eggs hatch. The previous five slices built the object store, the player's
+own Attack command, actor creation, the creature generator and what it carries. This slice is
+the one that calls all of them: an egg sitting invisible on the map, deciding whether it should
+open, and doing it exactly once. The F9 development key, which has been the only way to get a
+hostile creature into the game at all until now, has its own documentation saying outright that
+this is the work it stood in for.
+</p>
+
+<h2>The percentage is a one shot, not a chance taken on every visit</h2>
+
+<p>
+An egg's own quantity is the percentage chance to hatch, and the obvious wrong reading is that
+the game would roll it again every time the player walks past. The original does not.
+<code>EGG_hatches</code> rolls once, and <strong>whatever happens, the egg is marked hatched
+and invisible afterward</strong>: a failed roll spends the egg exactly as a successful one does.
+A rare encounter stays rare for exactly this reason. The test proves it directly: a one percent
+egg, a roll that fails, and the next call on the same egg never rolls again, it only checks the
+hatched bit.
+</p>
+
+<h2>Two faults, neither one fixed</h2>
+
+<p>
+<code>egg.c</code> keeps its own combat mode variable alive for the whole call to one egg,
+outside the embryo loop, and only ever raises it out of motionless once. The first embryo that
+supplies some other mode gives it to every later embryo's own creatures in the same egg,
+regardless of what mode their own quality would carry. A mixed egg of two creature types
+therefore behaves wrong in one consistent way, not right in two different ones.
+</p>
+
+<p>
+The second is quieter. The gargoyle grazing test asks every party member in turn whether they
+are a gargoyle, which is correct, but its amulet half always asks object one, the Avatar, a
+literal one in the code. Give the amulet of submission to a companion and leave the Avatar
+without it, and the egg's gargoyles still fight, because the test never once looked at the
+companion's own inventory. Both are recorded in <code>originalBugs.md</code> and reproduced
+faithfully, not fixed.
+</p>
+
+<h2>The whole level, not a forty by forty window</h2>
+
+<p>
+The original only hatches eggs inside its loaded 40 by 40 window, because that is all it ever
+keeps resident at once. This project keeps the whole world resident all the time, the same
+departure already named at the object store's own limit, so the area sweep searches the whole
+level directly. It never changes which egg hatches, because the window never touches the
+distance, local or forced rule itself; it can only hatch an egg sooner, never differently. The
+performance side is still named: <code>HatchEggsNear</code> only sweeps again once the same
+aligned area, using the original's own <code>(coordinate - 16) &amp; ~7</code> formula, actually
+changes, not on every single step.
+</p>
+
+<h2>A deleted creature does not vanish empty handed</h2>
+
+<p>
+A creature whose placement fails is deleted, and the first draft left its own possessions
+hanging on the freed slot as a named gap. That was the wrong reason to leave the rule out: the
+rule is already measured and already built. <code>U6ObjectWorld.Destroy</code> spills a deleted
+object's own contents onto its square rather than destroying them with it, and the original's
+own call order, possessions from the generator first, the teleport only after, makes that same
+rule reachable for an actor too. <code>DeleteGeneratedActor</code> now spills whatever the
+creature directly carries onto its own square before the slot is cleared, and a new test proves
+it: a creature whose placement fails leaves its items on the ground, and no item still names a
+slot that has been freed.
+</p>
+
+<h2>What this does not do yet</h2>
+
+<p>
+The silver serpent's segment chain and the tangle vine pod's four vines are measured but not
+built: both are their own, separate geometries whose description is waiting in
+<code>docs/u6-munat.md</code> for the next slice rather than a re-read of the source. The
+armageddon gate is named as a parameter, because this project carries no such flag. The
+companion's own "hears something" warning gets its direction and its roll, but not a printed
+line, because nothing in this project yet turns a direction into text or knows whether a
+companion is alive, in the party and close enough.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              142 / 168
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2012 / 2012
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Turn based combat moves on: initiative order and the hit and damage formulas from M8, and
+     the enemies' own basic AI for approaching, fleeing, shooting and casting. The silver
+     serpent's and the tangle vine pod's own geometries, wiring the summon and conjure spells
+     into the generator, and the F9 development key's own fate, all still wait on the owner.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
