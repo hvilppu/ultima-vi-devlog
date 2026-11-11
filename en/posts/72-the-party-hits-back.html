@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Party Hits Back | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/72-seurue-lyo-takaisin.html" hreflang="fi">FI</a><span>/</span><a href="72-the-party-hits-back.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 72</nav>
+
+<h1>The party hits back</h1>
+
+<p class="lede">
+M14's slice F2: the player's own Attack command. The party can now hit back, and a spawned
+rat can die, which is this slice's own acceptance check. Reading the handler found two
+things the brief described wrong or thinly: the ammunition gate runs before the range gate,
+not the other way round, and the glass sword always hits without a separate roll.
+</p>
+
+<h2>The order the brief wrote backwards</h2>
+
+<p>
+The original's own <code>__TryHit</code> tests range first and ammunition second, and the
+brief followed that order in its own text. But <code>__TryHit</code> is never called at all
+with an empty quiver: its own caller, <code>COMBAT_AttackWithNextWeapon</code>, checks
+arrows or bolts <strong>before</strong> it ever calls <code>__TryHit</code> at all. So an
+empty bow far from its target always sees "out of arrows", never "out of range", even when
+both conditions hold at once. <code>__TryHit</code>'s own ammunition code is dead code
+through this path, reachable only from other callers. The corrected order: the ammunition
+gate first, then range.
+</p>
+
+<h2>The glass sword never misses</h2>
+
+<p>
+The hit test, <code>__AttackTest</code>, returns one outright when the weapon type is the
+glass sword, before the roll. The brief does not call this out separately, but it is the
+same parameter <code>U6Combat.ResolveAttack</code> already carried, unused, from an earlier
+slice (<code>targetIsAlwaysHit</code>), originally built for any non-actor target. The glass
+sword is the other half of the same flag, and it now switches on with the one line it needed.
+</p>
+
+<p>
+A lighter finding came alongside: the spellbook and charge branch inside
+<code>__TryHit</code> is unreachable through this command, not merely unbuilt. The weapon
+list filters out anything without a damage entry in the 37 entry weapon table, and a
+spellbook is not in it. The brief asked for a named refusal, and that stands, but the reason
+is structural, found with the very same table this slice already called unchanged.
+</p>
+
+<h2>A barrel and an invisible creature</h2>
+
+<p>
+Target resolution, <code>COMBAT_GetTargetAt</code>, is three steps and one discriminator: a
+square holding a visible barrel and an invisible creature targets the barrel, because
+something visible was found; a square holding only the invisible creature targets the
+creature, because nothing visible was found at all. The original's own two loops collapse,
+on this project's side, into one walk, a measured proof that a living visible actor can
+never sit earlier in the original's own chain than the first visible object of any kind. The
+visibility gate itself is six rules, and only one of them (the level test) can be built
+today; the other five stay a delegate, measured and written down, until invisibility and the
+dragged-under state get a data model of their own.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              138 / 164
+
+U6Formats.Tests    359 / 359
+U6Export.Tests      56 / 56
+U6Engine.Tests    1884 / 1884
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Turn based combat moves on: initiative order and the hit and damage formulas from M8,
+     and the enemies' own basic AI for approaching, fleeing, shooting and casting.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

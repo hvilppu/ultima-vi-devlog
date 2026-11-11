@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seurue lyö takaisin | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="72-seurue-lyo-takaisin.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/72-the-party-hits-back.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 72</nav>
+
+<h1>Seurue lyö takaisin</h1>
+
+<p class="lede">
+M14:n viipale F2: pelaajan oma hyökkäyskomento. Seurue voi nyt lyödä takaisin, ja kutsuttu
+rotta voi kuolla, joka on tämän viipaleen oma hyväksymisehto. Käsittelijän lukeminen löysi
+kaksi asiaa jotka briefi kuvasi väärin tai vajaasti: ammusportti menee ennen kantamaporttia,
+ei toisin päin, ja lasimiekka osuu aina ilman erillistä noppaa.
+</p>
+
+<h2>Järjestys, jonka briefi kirjoitti väärinpäin</h2>
+
+<p>
+Alkuperäisen <code>__TryHit</code> testaa kantaman ensin ja ammuksen sen jälkeen, ja brief
+seurasi tätä järjestystä omassa tekstissään. Mutta <code>__TryHit</code>:ia ei kutsuta
+koskaan tyhjällä viinillä: sen oma kutsuja, <code>COMBAT_AttackWithNextWeapon</code>,
+tarkistaa nuolet tai pultit <strong>ennen</strong> kuin se ylipäätään soittaa
+<code>__TryHit</code>:ia. Niin tyhjä jousi kaukana kohteesta näkee aina "ei nuolia"-viestin,
+ei koskaan "liian kaukana"-viestiä, vaikka molemmat ehdot pätisivät yhtä aikaa.
+<code>__TryHit</code>:n oma ammuskoodi on tätä kautta kuollutta koodia, tavoitettavissa vain
+muista kutsujista. Korjattu järjestys: ammusportti ensin, sitten kantama.
+</p>
+
+<h2>Lasimiekka ei koskaan hutaa</h2>
+
+<p>
+Osumatesti, <code>__AttackTest</code>, palauttaa yhden suoraan kun aseen tyyppi on lasimiekka,
+ennen noppaa. Brief ei mainitse tätä erikseen, mutta se on sama parametri jonka
+<code>U6Combat.ResolveAttack</code> kantoi jo käyttämättömänä aiemmasta viipaleesta
+(<code>targetIsAlwaysHit</code>), rakennettu alun perin ketä tahansa ei-toimijaa varten.
+Lasimiekka on toinen puoli samaa lippua, ja se kytkeytyy nyt päälle sillä yhdellä rivillä
+jonka se tarvitsi.
+</p>
+
+<p>
+Toinen löydös oli kevyempi: loitsukirja- ja panoshaara <code>__TryHit</code>:n sisällä on
+tavoittamaton tämän komennon kautta, ei vain rakentamatta. Asevalikoima suodattaa pois
+kaiken jolla ei ole vahinkoarvoa 37-alkioisessa asetaulussa, ja loitsukirja ei ole siellä.
+Briefi pyysi kieltäytymistä nimeltä, ja se pysyy, mutta syy on rakenteellinen, löydettynä
+samalla asetaululla jonka tämä viipale käytti muuttamattomana.
+</p>
+
+<h2>Tynnyri ja näkymätön olento</h2>
+
+<p>
+Kohteenratkaisu, <code>COMBAT_GetTargetAt</code>, on kolme vaihetta ja yksi erottelija: ruutu
+jolla on näkyvä tynnyri ja näkymätön olento tähtää tynnyriin, koska jotain näkyvää löytyi;
+ruutu jolla on vain näkymätön olento tähtää olentoon, koska mitään näkyvää ei löytynyt
+ollenkaan. Alkuperäisen kaksi silmukkaa supistuivat tämän projektin puolella yhdeksi
+läpikäynniksi, mitattuna todistus että näkyvä elävä toimija ei voi koskaan istua
+alkuperäisen ketjussa ennen ensimmäistä näkyvää mitä tahansa. Näkyvyysportti itse on kuusi
+sääntöä, ja vain yksi niistä (eri taso) on tänään rakennettavissa; viisi muuta jäävät
+delegaatiksi, mitattuna ja kirjattuna, kunnes näkymättömyys ja vedetty-maan-alle-tila saavat
+oman datamallinsa.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              138 / 164
+
+U6Formats.Tests    359 / 359
+U6Export.Tests      56 / 56
+U6Engine.Tests    1884 / 1884
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Vuoropohjainen taistelu etenee: aloitejärjestys sekä osuma- ja vahinkolaskenta M8:n
+     omilla kaavoilla, ja vihollisten perus-AI lähestymiselle, pakenemiselle, ampumiselle ja
+     loitsimiselle.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
