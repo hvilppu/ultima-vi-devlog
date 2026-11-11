@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Bytes That Were Not Zero | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/75-kolme-tavua-jotka-eivat-olleet-nollia.html" hreflang="fi">FI</a><span>/</span><a href="75-three-bytes-that-were-not-zero.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 75</nav>
+
+<h1>Three bytes that were not zero</h1>
+
+<p class="lede">
+M14's slice F5: what a creature is carrying. The previous slice built the creature generator
+and left its last line unwritten, exactly where the original hands a new creature its spells,
+weapons, armour and treasure. This slice writes that line. But before it could, two tables had
+to be found that nothing in this project had ever read, and finding them turned up ten
+disagreements with the transcription and two bytes that were not zero where they were supposed
+to be.
+</p>
+
+<h2>One byte run, two measures</h2>
+
+<p>
+Described plainly, the tables are simple: a 64 entry index table gives an offset into a byte
+blob, and the blob carries four zero terminated lists per class, spells, weapons, armour,
+treasure. But the decompilation's own stated address for the index table is not where it sits
+in the owner's own <code>GAME.EXE</code>, so both tables had to be found by searching. The blob
+turned up by the one byte run its own content makes, a single hit in the whole file. Its base
+was confirmed by a second, independent measure: thirty four distinct non zero offsets build
+thirty three consecutive pairs, thirty two of which fit exactly at the chosen base, and every
+neighbouring base fits between one and eleven. The index table turned up by its own
+discriminator, the best positional match scoring fifty four of sixty four, with the next best
+real candidate stuck at thirty.
+</p>
+
+<h2>Ten disagreements, none of them averaged away</h2>
+
+<p>
+Ten of the index table's sixty four entries disagree with the transcription. Five of them (the
+acid slug and four other zero classes) sit exactly where the chosen index table position
+physically overlaps the last three bytes of a neighbouring, already measured trait table. The
+other five (a skiff, a raft, a balloon, a cat, a set of stocks) sit exactly where that same
+index table runs eight bytes past the blob's own start: entry sixty's own address is literally
+the blob's own independently measured base, and entry sixty two's raw value is larger than the
+whole blob, which rules it out as a real offset outright. Both groups ended up following the
+transcription's zero, not because it is tidier, but because every one of the ten classes is
+plausibly empty anyway and the raw numbers are not plausible table values at all.
+</p>
+
+<h2>Two bytes that were not zero</h2>
+
+<p>
+This part was not expected. The transcription and the measured 318 byte region match on 309 of
+318 bytes, and the nine differences sit at exactly two edges, not scattered across the table.
+The peasant's own spell list terminator reads 0xB0 instead of zero, so a mechanical reading
+gives this class three spells instead of the transcription's empty list, one of them outside
+the valid range for a spell number altogether. The tangle vine pod's own spell list runs three
+bytes past its transcribed terminator before finding one, and continuing further would run
+straight into readable program text, "time divides!" and "critical!". That was also the
+independent proof of the blob's real length: 314 bytes, not the decompilation's own, flagged as
+uncertain, 318. Neither anomaly was patched toward the transcription by guessing. The table is
+bounded at the measured length, which stops the runaway into text, and otherwise reads the
+bytes as they are; both are pinned by a test rather than hidden.
+</p>
+
+<h2>One correction to the brief, read from the handler</h2>
+
+<p>
+The brief claimed ammunition stays unowned, the same as a spell. The handler's own line gives
+an arrow or a bolt the owned bit directly. The rule is now "everything but the spell is owned",
+read from <code>egg.c</code> itself rather than from a summary, which was wrong on exactly this
+one point out of ten.
+</p>
+
+<h2>A chest that does not fit directly</h2>
+
+<p>
+The original gives the chest a hold whose owner is the creature's own actor number, which works
+in the original's single, unified object and actor number space, where an actor is itself an
+object. This engine keeps actors and objects in two separate tables, and that hold specifically
+requires a real object id. The chest gets the same "carried, not worn" choice the engine already
+makes elsewhere for an actor owned item; the chest's own contents, once the chest is a real
+object, use exactly the hold the original means there too. Both halves are named, not folded
+into one silent simplification.
+</p>
+
+<h2>A test that found its own fault in the generator</h2>
+
+<p>
+The first discriminator tests seeded a fresh generator for every single trial with small,
+sequential numbers and read exactly that first draw. Seven tests failed systematically, not
+randomly, and the cause was not in the production code at all: the generator's own, documented
+remark says outright that the first handful of draws after seeding a small number is visibly
+poor quality, a warning about a wart rather than a bug, warts included. The fix was one
+continuously advancing generator per test, not a reseed every round, which also matches how the
+game actually uses its own shared generator far better.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              141 / 167
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    1961 / 1961
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Turn based combat moves on: initiative order and the hit and damage formulas from M8, and
+     the enemies' own basic AI for approaching, fleeing, shooting and casting. The eggs that
+     decide whether a creature ever appears at all, and wiring the summon and conjure spells
+     into this generator, still belong to later slices.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

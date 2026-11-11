@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>13 of 24 milestones</strong> finished, and inside them
-<strong>140 of 166 work items</strong>. The second is the one that moves while a
+<strong>141 of 167 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -319,12 +319,12 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Combat and magic <span class="m-value">0 / 1 done, 23 / 27 items</span></h3>
+    <h3>Combat and magic <span class="m-value">0 / 1 done, 24 / 28 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 85%"></span></span>
-        <span class="m-value">23 / 27, in progress</span>
+        <span class="m-bar"><span class="m-fill" style="width: 86%"></span></span>
+        <span class="m-value">24 / 28, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done">Slice A: the attack command and <code>combat.c</code>'s tables.</li>
@@ -351,6 +351,7 @@ them up found two faults in the plan straight away that the total alone had hidd
         <li class="done">Slice F2: the player's own Attack command.</li>
         <li class="done">Slice F3: creating an actor, the clone, and the slime's own division.</li>
         <li class="done">Slice F4: the creature generator.</li>
+        <li class="done">Slice F5: what a creature is carrying.</li>
         <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
         <li>Eighty spells, the reagents and mixing them, mana cost and the targeting types</li>
         <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
@@ -991,6 +992,13 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
     <p>The creature generator, M14's slice F4. The gazer's own insects now close in all three
        real call sites, and a dragon's own head carries the local bit a future purge will look
        for while its four wing and body tiles must not carry it.</p>
+  </li>
+  <li>
+    <span class="n">75</span>
+    <a href="posts/75-three-bytes-that-were-not-zero.html">Three Bytes That Were Not Zero</a>
+    <p>What a creature is carrying, M14's slice F5. Two new export tables turned up by
+       searching, ten index entries disagreed with the transcription and two bytes in the blob
+       were not zero where they were supposed to be; both reported, neither guessed fixed.</p>
   </li>
 </ol>
 

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolme tavua jotka eivät olleet nollia | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="75-kolme-tavua-jotka-eivat-olleet-nollia.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/75-three-bytes-that-were-not-zero.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 75</nav>
+
+<h1>Kolme tavua jotka eivät olleet nollia</h1>
+
+<p class="lede">
+M14:n viipale F5: olennon omaisuus. Edellinen viipale rakensi olennon generaattorin ja jätti
+sen viimeisen rivin kirjoittamatta, täsmälleen siinä kohdassa missä alkuperäinen antaa uudelle
+olennolle sen loitsut, aseet, panssarit ja aarteet. Tämä viipale kirjoittaa sen rivin. Mutta
+ennen sitä piti löytää kaksi taulua joita mikään tässä projektissa ei ollut vielä lukenut, ja
+löytäminen paljasti kymmenen erimielisyyttä transkription kanssa ja kaksi tavua jotka eivät
+olleet nollia siellä missä niiden piti olla.
+</p>
+
+<h2>Yksi tavujono, kaksi mittaria</h2>
+
+<p>
+Taulut ovat yksinkertaiset kuvattuina: 64 arvon indeksitaulu antaa offsetin tavublobiin, ja
+blobi kantaa luokkaa kohti neljä nollapäätteistä listaa, loitsut, aseet, panssarit, aarteet.
+Mutta dekompilaation oma osoite indeksitaululle ei ole se missä se on omistajan
+<code>GAME.EXE</code>:ssä, niin kumpikin taulu piti löytää hakemalla. Blobi löytyi sen oman
+sisällön ainutlaatuisella tavujonolla, yksi osuma koko tiedostossa. Sen kanta vahvistettiin
+toisella, riippumattomalla mittarilla: 34 erillisestä nollasta eroavasta offsetista rakennetut
+33 peräkkäistä paria, joista 32 sopii täsmälleen valitulla kannalla ja joka vierellä oleva
+kanta sopii yhdestä yhteentoista. Indeksitaulu löytyi omalla erottelijallaan, parhaan
+sijaintiosuman pisteet 54 kuudestakymmenestäneljästä, seuraavaksi parhaan oikean ehdokkaan
+jäädessä kolmeenkymmeneen.
+</p>
+
+<h2>Kymmenen erimielisyyttä, ei yksikään keskiarvoistettuna</h2>
+
+<p>
+Kymmenen indeksitaulun merkintää kuudestakymmenestäneljästä ei täsmää transkriptioon. Viisi
+niistä (happosuli ja neljä muuta nolla-luokkaa) osuu kohtaan missä valittu indeksitaulun kanta
+on fyysisesti päällekkäin viereisen, jo mitatun piirretaulun kolmen viimeisen tavun kanssa.
+Toiset viisi (vene, lautta, pallo, kissa, pölkky) osuvat kohtaan missä sama indeksitaulu
+ulottuu kahdeksan tavua blobin oman alun yli: merkinnän kuusikymmentä oma osoite on
+kirjaimellisesti blobin oma, riippumattomasti mitattu kanta, ja merkinnän
+kuusikymmentäkaksi raaka arvo on suurempi kuin koko blobi, mikä sulkee sen pois offsettina
+kokonaan. Molemmille ryhmille seurattiin lopulta transkription nollaa, ei koska se on siistimpi
+vaan koska jokainen kymmenestä luokasta on uskottavasti tyhjä muutenkin ja koska raa'at luvut
+eivät ole uskottavia tauluarvoja ollenkaan.
+</p>
+
+<h2>Kaksi tavua jotka eivät olleet nollia</h2>
+
+<p>
+Tämä oli odottamaton osa. Transkriptio ja mitattu 318 tavun alue täsmäävät 309 tavussa 318:sta,
+ja yhdeksän eroa osuvat tarkalleen kahteen reunaan. Maanviljelijän oma loitsulistan
+tyhjä pääte lukee <code>0xB0</code> nollan sijaan, niin mekaaninen luku antaa hänelle kolme
+loitsua transkription tyhjän listan sijaan, yksi niistä loitsunumeroiden kelvollisen alueen
+ulkopuolella. Köynnöskasvin palon oma loitsulista jatkuu kolme tavua transkriboidun päätteensä
+yli ennen omaa nollaansa, ja jatkaminen siitä eteenpäin ajautuisi suoraan luettaviin
+peliteksteihin, "time divides!" ja "critical!". Se oli samalla riippumaton todiste blobin
+oikeasta pituudesta: 314 tavua, ei dekompilaation oma, epävarmana merkitty 318.
+Kumpaakaan poikkeamaa ei korjattu arvauksella kohti transkriptiota. Taulu rajataan mitattuun
+pituuteen, mikä estää ajautumisen tekstiin, ja muuten luetaan tavut sellaisina kuin ne ovat;
+molemmat on pinnattu testeinä eikä piilotettu.
+</p>
+
+<h2>Yksi korjaus briefiin, luettuna käsittelijästä</h2>
+
+<p>
+Brief väitti ammuksen jäävän omistamattomaksi niin kuin loitsu. Käsittelijän oma rivi antaa
+nuolelle ja varrelle omistettu-bitin suoraan. Sääntö on nyt "kaikki paitsi loitsu on
+omistettu", luettuna egg.c:stä itsestään eikä yhteenvedosta, joka osui väärään yhdellä
+kohdalla kymmenestä.
+</p>
+
+<h2>Arkku joka ei sovi suoraan</h2>
+
+<p>
+Alkuperäinen antaa arkulle pitoarvon jonka omistaja on olennon oma hahmonumero, mikä toimii
+alkuperäisen yhtenäisessä olio- ja toimijanumeroavaruudessa, missä toimija on itsekin olio.
+Tässä moottorissa toimijat ja esineet ovat kaksi eri taulua, ja se pitoarvo vaatii nimenomaan
+esinetaulun oman id:n. Arkku saa sen sijaan saman "kannettu, ei puettu" -valinnan jonka moottori
+tekee jo muualla toimijan omistamalle esineelle; arkun oma sisältö, kun arkku on jo todellinen
+olio, käyttää täsmälleen sitä pitoarvoa jota alkuperäinen sielläkin tarkoittaa. Kumpikin
+puoli nimetty, ei piilotettu yhdeksi yksinkertaistukseksi.
+</p>
+
+<h2>Testi joka löysi oman vikansa generaattorista</h2>
+
+<p>
+Ensimmäiset erottelijatestit siemensivät uuden generaattorin joka koeyrityksellä pienillä
+peräkkäisillä luvuilla ja lukivat juuri sen ensimmäisen heiton. Seitsemän testiä epäonnistui
+systemaattisesti, ei satunnaisesti, eikä syy ollut tuotantokoodissa ollenkaan: generaattorin
+oma, dokumentoitu kommentti sanoo suoraan että ensimmäinen kourallinen heittoja pienellä
+siemenellä on näkyvän heikkolaatuinen, varoitus viasta, warts included. Korjaus oli yksi
+jatkuvasti etenevä generaattori koetta kohti, ei uudelleensiemennys joka kierroksella, mikä
+myös vastaa paremmin miten peli oikeasti käyttää jaettua generaattoriaan.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              141 / 167
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    1961 / 1961
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Vuoropohjainen taistelu etenee: aloitejärjestys sekä osuma- ja vahinkolaskenta M8:n omilla
+     kaavoilla, ja vihollisten perus-AI lähestymiselle, pakenemiselle, ampumiselle ja
+     loitsimiselle. Munat, jotka päättävät milloin olento ilmestyy ollenkaan, ja
+     summon/conjure-loitsujen kytkeminen tähän generaattoriin, kuuluvat edelleen
+     myöhempiin viipaleisiin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
