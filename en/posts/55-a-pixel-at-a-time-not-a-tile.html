@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Pixel at a Time, Not a Tile | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/55-pikseli-kerrallaan-ei-ruutu.html" hreflang="fi">FI</a><span>/</span><a href="55-a-pixel-at-a-time-not-a-tile.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 55</nav>
+
+<h1>A Pixel at a Time, Not a Tile</h1>
+
+<p class="lede">
+The line of fire for M14's third slice is now measured and built: <code>COMBAT_Missile</code>
+and the <code>Missiles</code> function it wraps walk a shot in world pixels, sixteen to a
+tile, starting at the source tile's centre, rather than one tile at a time the way any
+reimplementation would naturally write it first. The difference is not a style choice: it
+changes where a shot stops.
+</p>
+
+<h2>Same line, a different set of tiles</h2>
+
+<p>
+Over all 224 offsets a shot can be aimed at, 182 of them test a different set of tiles under
+the pixel walk than under a tile walk, and the difference is one directional: the pixel walk
+always tests a tile the tile walk never does, and never the other way round. A tile stepping
+version would therefore be systematically more permissive, not merely different: it would
+let shots through walls the original stops, and would never block one the original lets
+through.
+</p>
+
+<h2>A corner movement would refuse</h2>
+
+<p>
+28 of the 224 offsets enter a tile diagonally, both coordinates changing on the same pixel
+step. The code commits to that tile without looking at either orthogonal neighbour, so a
+shot passes between two walls that touch only at a corner. Movement refuses exactly this,
+through <code>__TryDiagMove</code>'s requirement that one of the two side tiles be open.
+This is now on record as a rule the two were never meant to agree on, not a bug waiting to
+be fixed by accident: they differ on purpose.
+</p>
+
+<h2>The window exception reaches only the shooter's own grid</h2>
+
+<p>
+The exception is measured from the source, not the path: only the eight offsets inside the
+shooter's own 3x3 can ever cross a window at all. Of the owner's own <code>tileflags.bin</code>,
+27 of 2048 tiles are windows, but only 9 of those block missiles at all, so the exception
+decides anything for those nine alone; the other 18 windows are already transparent to a shot
+at any range. 206 of 2048 tiles block a missile outright.
+</p>
+
+<h2>A hit stays, the list does not walk the path</h2>
+
+<p>
+The stop tile is written back only for a shot that fell short; a clean hit is left
+untouched, so it keeps the target the player chose. Every actor a shot crossed lands on the
+list in ascending object number order, not path order, because the list comes from walking
+the collision mask rather than walking the path again.
+</p>
+
+<h2>The wrong reading travels with the tests</h2>
+
+<p>
+All 18 new tests run against injected predicates, not against a file: the flags were already
+exported, so neither the data nor the export needed to change. The tile walk model is ported
+into the test suite itself, not just into this writeup, and asserted to disagree with the
+pixel walk on exactly the measured offsets, so a later tidy up cannot turn one into the other
+unnoticed.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              13 / 24
+work items done              117 / 146
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1218 / 1218
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>M14's third slice continues: choosing a target (<code>COMBAT_pickOpponent</code>) and
+     the enemies' basic AI (<code>COMBAT_AI_Assault</code>), both of which now have a line
+     of fire to call, plus the remaining ammo half of slice A: ammo consumption, a thrown
+     weapon falling, burning oil.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

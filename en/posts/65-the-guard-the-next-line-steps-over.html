@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Guard the Next Line Steps Over | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/65-vartio-jonka-ohittaa-seuraava-rivi.html" hreflang="fi">FI</a><span>/</span><a href="65-the-guard-the-next-line-steps-over.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 65</nav>
+
+<h1>The guard the next line steps over</h1>
+
+<p class="lede">
+Four effects the last two slices left owed: dispel and fire damage were named refusals,
+healing and the douse and ignite pair were not measured at all. One of the four repeats the
+same fault as the last post, two lines from its own test this time.
+</p>
+
+<h2>A guard that exists and is stepped over</h2>
+
+<p>
+Fire damage, the routine the fireball, the explosion and the flame wind all share, first
+checks whether the target's class number is valid before asking about immunity: an unknown
+class is let through rather than excluded. The very next line asks whether that same unknown
+class is vulnerable to fire, for the doubling, with no guard at all. The same shape of pair as
+the last post, sleep careful and poison not, but this time two lines apart inside one routine
+rather than between two routines. The guard is not missing, it simply does not cover both
+tests, and that is exactly the shape that is easiest to read twice carelessly and once
+correctly.
+</p>
+
+<h2>A return value turned against the obvious reading</h2>
+
+<p>
+Dispel clears sleep, poison, paralysis and a charm from a target, and returns
+<strong>0 when something was cleared, 1 when nothing was</strong>. The most natural way to
+read a return value is as a boolean where non-zero is truthy, and calling truthy success. That
+is exactly backwards: a dispel that worked returns a falsy value, a dispel that found nothing
+returns a truthy one. Built so the raw return value is kept as its own named field, separate
+from the result derived from it, so a caller never has to guess which direction is correct.
+</p>
+
+<h2>A number that got worse a second time</h2>
+
+<p>
+The last slice found one measurement mistake in itself: a class's abilities are stored in a
+text field that prints names comma separated when every bit matches a named ability, and a raw
+number otherwise, and nine of 64 classes print as names. This slice measured fire immunity and
+fire vulnerability again with the same method, and the same mistake turned up a second time:
+the brief claimed 6 classes immune to fire and 4 that take double damage, but read directly
+from the class table with both serialisations parsed, the real numbers are
+<strong>7 and 7</strong>. Four classes print as names for exactly these two abilities, and
+those four were missing from the first count. The corrected number is the one used here, not
+the brief's.
+</p>
+
+<h2>Two routes, one number at the boundary</h2>
+
+<p>
+Heal adds a 1d30 roll to the current total, but only when the maximum is strictly greater than
+that sum; otherwise the total is set straight to the maximum. At the exact boundary where the
+roll lands on the maximum, both routes give the same number, which is exactly why the outcome
+also carries its own flag for which route ran, not just the final hit point total. The number
+alone could not tell a correct strict comparison apart from a careless non-strict one at
+precisely that boundary.
+</p>
+
+<h2>A torch that does not stay behind</h2>
+
+<p>
+Douse and ignite cover seven object types: torch, fireplace, candle, campfire, brazier,
+candelabra and powder keg. A brazier refuses outright once its frame is above one, for the
+same reason the "use" command's own version does: it uses the frame's second bit for something
+dousing must not disturb. A torch is a special case in the other direction too: when it is
+doused it does not sit at frame 0, it is <strong>deleted</strong> outright. And a powder keg at
+frame 0, when ignited, does not just get frame 1: it gets a fuse of three, remembered as the
+keg that will go off, even though the detonation itself waits for another slice.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done               130 / 156
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1606 / 1606
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Every refusal in the two cast helpers is now either an effect or a spell nobody has
+     measured yet. The eight halo spells, the four winds, the four around-party spells and the
+     two summons are all still waiting for their own reading, and nothing in M14 is wired into
+     a live game yet.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

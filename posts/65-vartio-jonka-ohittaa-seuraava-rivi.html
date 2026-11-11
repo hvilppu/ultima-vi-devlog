@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vartio jonka ohittaa seuraava rivi | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="65-vartio-jonka-ohittaa-seuraava-rivi.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/65-the-guard-the-next-line-steps-over.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 65</nav>
+
+<h1>Vartio jonka ohittaa seuraava rivi</h1>
+
+<p class="lede">
+Neljä vaikutusta joita kaksi edellistä viipaletta jättivät velkaa: dispel ja tulivahinko olivat
+nimettyjä kieltäytymisiä, parannus ja sammutus-sekä-sytytys-pari olivat mittaamattomia
+kokonaan. Yksi niistä toistaa saman vian kuin edellinen postaus, kahden rivin päässä omasta
+testistään tällä kertaa.
+</p>
+
+<h2>Vartio joka on olemassa ja jonka yli astutaan</h2>
+
+<p>
+Tulivahinko, tulipallon, räjähdyksen ja liekkituulen jakama rutiini, testaa ensin onko kohteen
+luokkanumero kelvollinen ennen kuin se kysyy immuniteetista: tuntematon luokka päästetään läpi,
+ei suljeta pois. Tarkalleen seuraava rivi kysyy onko se sama tuntematon luokka herkkä tulelle,
+kaksinkertaista vahinkoa varten, ilman mitään vartiointia. Samanlainen pari rutiineja kuin
+edellisessä postauksessa, jossa uni oli varovainen ja myrkky ei, mutta tällä kertaa kahden
+rivin sisällä samassa rutiinissa eikä kahden rutiinin välillä. Vartio ei puutu, se vain ei
+kata molempia testejä, ja se on juuri se muoto joka on helpoin lukea kahdesti huolimattomasti
+ja oikein kerran.
+</p>
+
+<h2>Paluuarvo joka on käännetty totuusarvoa vastaan</h2>
+
+<p>
+Dispel tyhjentää kohteelta unen, myrkyn, halvauksen ja lumouksen, ja palauttaa <strong>0 kun
+jotain tyhjennettiin, 1 kun ei mitään</strong>. Luonnollisin tapa lukea paluuarvo on kohdella
+sitä totuusarvona, jossa epänolla on tosi, ja kutsua totuutta onnistumiseksi. Se on tasan
+väärinpäin: dispel joka toimi palauttaa falsyn arvon, dispel joka ei löytänyt mitään palauttaa
+truthyn. Rakennettu niin että raaka paluuarvo pidetään omana, nimettynä kenttänään erillään
+siitä lasketusta tuloksesta, niin kutsujan ei tarvitse itse arvata kumpi suunta on oikea.
+</p>
+
+<h2>Luku joka huononi toista kertaa</h2>
+
+<p>
+Edellinen viipale löysi yhden mittausvirheen itsestään: luokan kyvyt tallentuvat tekstikenttään
+joka näyttää nimet pilkuilla kun kaikki bitit osuvat nimettyihin kykyihin, ja raa'an luvun
+muuten, ja yhdeksän luokkaa 64:stä näyttää nimillä. Tämä viipale mittasi tuli-immuniteetin ja
+tuli-herkkyyden uudelleen samalla menetelmällä, ja sama virhe löytyi toisen kerran: brief väitti
+6 luokkaa immuuniksi tulelle ja 4 kaksinkertaisella vahingolla, mutta suoraan luokkataulusta
+molemmat serialisointimuodot lukien oikeat luvut ovat <strong>7 ja 7</strong>. Neljä luokkaa
+näkyy nimillä juuri näiden kahden kyvyn kohdalla, ja ne neljä puuttuivat ensimmäisestä
+laskusta. Korjattu luku on tässä, ei brief'in.
+</p>
+
+<h2>Kaksi reittiä, yksi luku rajalla</h2>
+
+<p>
+Parannus lisää 1d30-heiton nykyiseen summaan, mutta vain kun maksimi on tiukasti suurempi kuin
+tuo summa; muuten summa asetetaan suoraan maksimiin. Rajalla, jossa heitto osuu täsmälleen
+maksimiin, molemmat reitit antavat saman luvun, mikä on juuri syy siihen miksi tulos
+kantaa myös oman lipun siitä kumpi reitti ajettiin, ei vain lopullista osumapistemäärää. Luku
+yksin ei voisi erottaa oikeaa tiukkaa vertailua huolimattomasta ei-tiukasta vertailusta
+täsmälleen tällä rajalla.
+</p>
+
+<h2>Soihtu joka ei jää jäljelle</h2>
+
+<p>
+Sammutus ja sytytys kattavat seitsemän oliotyyppiä: soihtu, takka, kynttilä, nuotio,
+lamppu-alusta, kynttelikkö ja ruutitynnyri. Lamppu-alusta kieltäytyy kokonaan kun sen kehys on
+yli yksi, samasta syystä kuin käytä-komennon oma versio: se käyttää kehyksen
+toista bittiä johonkin jota sammutus ei saa häiritä. Soihtu on erikoistapaus myös toiseen
+suuntaan: sammuessaan se ei jää kehykseen 0, se <strong>poistetaan</strong> kokonaan. Ja
+ruutitynnyri kehyksessä 0, sytytettynä, ei saa vain kehystä 1: se saa sulakkeen 3, joka
+muistetaan kekona joka räjähtää, vaikka itse räjähdys odottaa toista viipaletta.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              130 / 156
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1606 / 1606
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Jokainen kieltäytyminen kahdessa kastinapufunktiossa on nyt jompikumpi: vaikutus, tai
+     loitsu jota ei ole kenenkään mitattu. Kahdeksan halo-loitsua, neljä tuulta, neljä
+     puolueenympäri-loitsua ja kaksi kutsuloitsua odottavat yhä omaa lukuaan, ja mikään M14:stä
+     ei ole kytketty elävään peliin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>825 of 900 | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/64-825-yhdeksastasadasta.html" hreflang="fi">FI</a><span>/</span><a href="64-825-of-900.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 64</nav>
+
+<h1>825 of 900</h1>
+
+<p class="lede">
+Six small routines several spells share: sleep, poison, the magic arrow, direct damage for
+three spells, charm and kill. Four of them use a resistance formula that looks familiar and is
+not: the last slice's three rolls were one formula, this is a second one, and the difference
+shows up in 825 of 900 measured pairs.
+</p>
+
+<h2>A formula that looks the same and is not</h2>
+
+<p>
+<code>combat.c</code>'s own combat contest halves the target's figure and takes the caster's
+whole: <code>INT(target)/2 + 15 - INT(caster) &gt; 1d30</code>. The last slice's three rolls
+quarter the target and halve the caster instead. Two formulas, both look like the same idea,
+and 825 of 900 pairs of figures from 1 to 30 differ observably in which one they give. The
+difference is not uniform: at equal high intelligence, 30 against 30, the combat contest never
+lets the target resist at all, where the other formula lets it resist one time in five. Against
+a strong target and a weak caster the order flips: the combat contest is then the harsher of
+the two. A port that shared one resistance helper between these two formulas would get four of
+the six effects wrong in 825 of 900 cases, and nothing would fail to signal it.
+</p>
+
+<h2>A caution that was not shared</h2>
+
+<p>
+Sleep and poison both read the same creature class immunity table, but only sleep checks
+first whether the class number is even valid. Poison hands the number straight to the lookup,
+whatever it is. Two routines, written minutes apart in the same file, one defensive and one
+not. The asymmetry is recorded rather than tidied away: nothing in this project lives at that
+memory address to be corrupted, so inventing a victim for it would be inventing behaviour
+rather than measuring it.
+</p>
+
+<h2>A charm that cannot be repeated</h2>
+
+<p>
+Cast charm on a target that is not charmed, and it gets charmed. Cast it again on the same
+target, and the charm <em>ends</em>. Nothing happens twice, no error message: the result is
+left untouched, so the cast reports plain success as though nothing special happened at all.
+This is the only way to end a charm on purpose, and a port that treated a recast as a no-op
+would lose it entirely.
+</p>
+
+<h2>A scratch that kills</h2>
+
+<p>
+Every other damaging effect in this slice tells a neutral target how much damage it took, and
+that number decides whether the target turns hostile. Kill does not. Kill always passes a
+constant one, whether the target had one hit point left or a hundred. Killing a neutral
+outright provokes it exactly as a scratch would, no more.
+</p>
+
+<h2>One hit point, not a bit</h2>
+
+<p>
+Disable sounds like a status effect, and it is not. It computes the target's hit points minus
+one and runs it through the same damage routine as harm: the same experience calculation, the
+same wound severity. The outcome is exactly one hit point left, reached by damage rather than
+by flipping a bit.
+</p>
+
+<h2>A number that got worse and was better for it</h2>
+
+<p>
+The measuring session's own figures claimed 14 of 64 classes immune to sleep, 3 to death and
+4 to poison. Recomputed directly from the exported class table, the real numbers are 19, 4 and
+6. The cause turned out to be the file format itself: a class's abilities are stored in a
+<code>Traits</code> field as text, and when every one of its bits matches a named ability the
+field prints the names comma separated; when a higher, unnamed bit is also set, it prints the
+raw number instead. Nine of the 64 classes print as names, and the original measurement only
+read the numbers, silently dropping nine rows while the denominator stayed at 64 regardless.
+Exactly the mistake this project has already made once before with a search that only matches
+digits. The corrected number looks worse written down, and it is the real one, and it is the
+one in the tests now.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done               129 / 155
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1555 / 1555
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Six effects are now built as routines, but none is wired to any one spell: which spell
+     uses which effect with what parameters is a measurement to make one spell at a time.
+     Dispel, fire damage, healing, and the douse and ignite pair are all still waiting for
+     their own measurement, and nothing in M14 is wired into a live game yet.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

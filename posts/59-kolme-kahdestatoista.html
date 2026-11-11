@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolme kahdestatoista | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="59-kolme-kahdestatoista.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/59-three-of-twelve.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 59</nav>
+
+<h1>Kolme kahdestatoista</h1>
+
+<p class="lede">
+M14:n kolmas viipale jatkui neljällä asemointitilalla jotka lukevat viipale C1:n geometriaa:
+<code>AI_FRONT</code>, <code>AI_REAR</code>, <code>AI_FLANK</code> ja <code>AI_BERSERK</code>.
+Kolmella niistä on oma kohteenvalintasääntönsä, ja ne ovat samaa mieltä tasan kolmessa
+kahdestatoista solusta.
+</p>
+
+<h2>Kolme sääntöä, kaksitoista solua, kolme yhteistä</h2>
+
+<p>
+Hyökkäystila, sivustatila ja raivotila valitsevat kohteen kolmella eri säännöllä, ja omistajan
+64 hirviöluokan yli ne ovat samaa mieltä harvemmin kuin eri mieltä:
+</p>
+
+<pre><code>toimija       hyokkays  sivusta  raivo
+NEUTRAL              0       52       64
+EVIL                 35       35        2
+GOOD                 50       50       17
+CHAOTIC              19       31       19</code></pre>
+
+<p>
+Kolme eroa kantaa oman tarinansa. <strong>Hyvä raivostuja ohittaa kaikki 33 kaoottista
+luokkaa</strong>, pelin yleisimmän alignmentin, koska sääntö on yhtäsuuruus EVIL:ää vastaan eikä
+hyökkää-pelaajaa-vastaan-bitti: raivostuva ryhmäläinen hyökkää tuskin mihinkään jota etulinjassa
+oleva ryntäisi. Kukaan ei ole nähnyt tätä pelissä, niin se odottaa <code>originalBugs.md</code>:ssä
+mekanismilla kirjattuna, ei korjauksena. <strong>Kaoottinen sivustaja hyökkää neutraaleja
+vastaan</strong>, koska sivustasäännössä ei ole sitä kolmatta suodinta jonka hyökkäystila tarvitsee.
+<strong>Neutraali raivostuja hyökkää ketä tahansa, oma puolensa mukaan lukien</strong>, koska
+raivosäännön kolme ehtoa testaavat kaikki alignmentia jota sillä ei ole. Portti joka jakaisi
+yhden kohdistusfunktion kolmen tilan kesken saisi vähintään kaksi näistä väärin, eikä yksikään
+testi epäonnistuisi ellei yllä oleva taulukko ole itse testisarjassa.
+</p>
+
+<h2>Raivo maksaa kahdesti</h2>
+
+<p>
+Joka muu tila maksaa sen minkä se tekee: hyökkäys 10, odotus 5, epäonnistunut siirto ei mitään.
+Raivotila käyttää lisäksi 5 ehdoitta polun lopussa, riippumatta siitä ampuiko se, astuiko se
+sivuun vai hyökkäsikö se sen sijaan kohteen puuttuessa. Osunut laukaus maksaa 15 missä sama
+laukaus maksaa 10 joka muualla, ja raivoaskel maksaa maaston plus 5.
+</p>
+
+<h2>Sivustakartoitus joka on ristikkäinen tarkoituksella</h2>
+
+<p>
+<code>AI_REAR</code> pysyy omien sivustojensa välissä, mutta ryhmän ja vihollisten sivustakartat
+on ristikkäin: positiivinen on vasen ryhmälle, negatiivinen on vasen vihollisille. Testi rakensi
+tarkoituksella tilanteen jossa sama toimijan sivustaluku on jumissa oikealla lukutavalla ja
+olisi liikkunut väärällä: toimija pysyy paikallaan oikealla kartoituksella, ja väärä kartoitus
+olisi laukaissut ensimmäisen vertailunsa saman tien. Yksi kartoitus molemmille puolille
+peilaisi vihollisten takalinjan, mikä näyttää järkevältä muodostukselta rintamalla ja on väärä
+sellainen.
+</p>
+
+<h2>Kävely jonka hinta ei riipu maastosta</h2>
+
+<p>
+<code>AI_FLANK</code>:n varhainen poistuminen kävelee kohti Avatarta kun toimija on kaukana,
+mutta kävelyn omat pisteet palautetaan heti perään ja tasainen 5 veloitetaan sen sijaan. Se on
+päinvastoin kuin joka muu kävely pelissä, jossa maasto päättää hinnan.
+</p>
+
+<h2>Sentinel ilmestyy jälleen</h2>
+
+<p>
+<code>AI_FLANK</code>:n oma kohteenskannaus valitsee kauimpana ulospäin olevan ehdokkaan
+alkaen <code>int16</code>:n <code>0x8000</code>:sta, samasta ansasta jonka viipale C1 mittasi
+<code>PartyFrontMember</code>:ssä. Leventäminen positiiviseksi alkuarvoksi ei kaataisi mitään;
+se vain lopettaisi ensimmäisen ehdokkaan ottamisen hiljaa, millä kartalla tahansa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              124 / 150
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1332 / 1332
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M14:n viipale C3b: viisi jäljellä olevaa tilaa, <code>AI_RETREAT</code>, <code>AI_LIKE</code>,
+     <code>AI_UNFRIENDLY</code>, <code>AI_IMMOBILE</code> ja <code>AI_TANGLE</code>, ei vielä
+     mitattuja. Osuman ja vahingon kytkeminen tähän tilaan ja loitsut jäävät auki sen jälkeenkin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

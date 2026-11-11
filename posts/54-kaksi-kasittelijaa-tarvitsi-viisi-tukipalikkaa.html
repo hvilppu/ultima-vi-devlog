@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaksi käsittelijää tarvitsi viisi tukipalikkaa | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="54-kaksi-kasittelijaa-tarvitsi-viisi-tukipalikkaa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/54-two-handlers-needed-five-supporting-pieces.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 54</nav>
+
+<h1>Kaksi käsittelijää tarvitsi viisi tukipalikkaa</h1>
+
+<p class="lede">
+M14:n kolmannen viipaleen ensimmäinen pala on nyt rakennettuna: taisteluun siirtyminen, siitä
+poistuminen ja lumouksen päättyminen. Kolmen käsittelijän oma logika oli jo auki edellisen
+viipaleen mittauksen jälkeen, mutta rakentaminen paljasti viisi puuttuvaa palikkaa jotka logiikka
+nojasi mutta joita hahmotietue ei vielä tarjonnut.
+</p>
+
+<h2>Sääntö tiedossa ei tarkoita että data on olemassa</h2>
+
+<p>
+<code>COMBAT_begin</code>, <code>COMBAT_breakOff</code> ja <code>COMBAT_stopCharm</code> olivat
+porttauskelpoisia sellaisenaan: ei avoimia kysymyksiä siinä mitä niiden pitää tehdä. Mutta
+tekeminen kaatui heti kahteen bittiin ja kolmeen kenttään joita <code>U6CharacterData</code>
+ei lukenut: lumotuksi-bitti, varmuuskopioitu alignment, ryhmänjohtaja, soolojäsen ja alkuperäisen
+tilan tallennuspaikka. Jokainen oli jo mitattu aiemmin tai luettavissa suoraan
+dekompilaatiosta, mutta kukaan ei ollut vielä kirjoittanut niitä ulos.
+</p>
+
+<h2>Kaksi tavua joilla on sama bittinumero</h2>
+
+<p>
+Lumotuksi-bitti <code>0x04</code> istuu <code>Status</code>-tavulla. Se on eri tavu kuin
+<code>NpcStatus</code>, jonka oma <code>0x04</code> tarkoittaa nukkumista. Sama kuvio toistuu
+alignmentissa: varmuuskopioitu alignment käyttää maskia <code>0x60</code> <code>NpcFlags</code>
+-tavulla, kun elävä alignment käyttää samaa maskia eri tavulla, <code>NpcStatus</code>:lla. Kumpikin
+pari olisi helppo sekoittaa lukemalla vain bitin numeron, ei sen tavua.
+</p>
+
+<h2>Ajonaikainen tila joka ei ole missään viedyssä tavussa</h2>
+
+<p>
+<code>SavedNpcMode</code> tallentaa sen käyttäytymisen joka oli voimassa ennen komentotilaan
+siirtymistä, jotta <code>breakOff</code> voi palauttaa sen. Alkuperäisessä se on yksi globaali
+muuttuja osoitteessa 0x2CC4, kaukana viedyn 130 tavun pelitilalohkon ulkopuolella. Se ei siis
+ole mitään joka pitäisi persistoida tiedostoon; se mallinnettiin suoraan ajonaikaisena
+ominaisuutena.
+</p>
+
+<h2>Sivussa: kaksi laattabittiä valmiiksi seuraavaa viipaletta varten</h2>
+
+<p>
+<code>U6TileBank</code> saa kaksi uutta kyselyä, <code>IsWindow</code> ja
+<code>BlocksMissiles</code>, molemmat Display-tavun biteillä <code>0x08</code> ja
+<code>0x20</code> <code>u6.h</code>:n nimien mukaan. 2048 laatasta 27 on ikkunoita, 206 estää
+ammuksen kokonaan, ja 9 molempia. Kumpaakaan ei käytä mikään vielä: ne odottavat
+<code>COMBAT_Missile</code>:n tulilinjasääntöä, jota ei ole mitattu.
+</p>
+
+<h2>Yksi ehdokasvirhe, ei toistettu</h2>
+
+<p>
+Alkuperäinen lukisi yhden paikan ryhmätaulukon ohi, jos koko ryhmä on toimintakyvyttömänä
+samanaikaisesti valittaessa kuka saa hallinnan. Hallittu taulukko ei voi antaa tuota lukuarvoa
+takaisin, niin tämä versio palaa paikkaan 0 sen sijaan ja tapaus on kirjattu avoimeksi
+ehdokasvirheeksi, ei toistettuna eikä korjattuna.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              117 / 145
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1200 / 1200
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M14:n kolmannen viipaleen loppuosa: taistelukohteen valinta ja vihollisten perus-AI,
+     jotka tarvitsevat oman mittaussession koordinaattigeometrialle ja tulilinjalle.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

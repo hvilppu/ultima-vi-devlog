@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muuttuja jota mikään ei lue | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="56-muuttuja-jota-mikaan-ei-lue.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/56-a-variable-nothing-reads.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 56</nav>
+
+<h1>Muuttuja jota mikään ei lue</h1>
+
+<p class="lede">
+M14:n kolmannen viipaleen seuraava pala on mitattu ja rakennettu: <code>ComputeCombatGeometry</code>,
+joka laskee joka taisteluvuoron alussa ryhmän ja vihollisten painopisteet sekä etumaisen
+jäsenen ja neljä sivustapaikkaa. Yksi viiden muuttujan joukosta osoittautui sellaiseksi, jota
+koko dekompilaatiossa ei lue mikään ainuttakaan kertaa, ja se lasketaan silti uudelleen joka
+vuoro.
+</p>
+
+<h2>Pyöristystermi on ryhmän koko, ei laskettu määrä</h2>
+
+<p>
+Ryhmän painopiste ohittaa sivussa olevan tai raivostuneen jäsenen summasta, mutta pyöristys
+käyttää koko ryhmän kokoa silti, ei sitä montaa jäsentä joka oikeasti laskettiin. Toimitetulla
+ryhmällä, kun yksi neljästä on suljettu pois, alkuperäinen antaa (307, 354) ja siisti
+<code>num &gt;&gt; 1</code> -lukutapa antaisi (307, 353): yhden ruudun verran väärässä, ja
+koko etulinja siirtyy sen myötä. Tyhjentävästi yli kaikkien ryhmäkokojen yhdestä kahdeksaan ja
+joka lasketun määrän, ero osuu ainakin yhteen koordinaattisummaan joka tapauksessa jossa joku on
+pois laskuista, ja virhe on tavoitettavissa yhdellä näppäinpainalluksella: pelaaja asettaa
+jäsenen sivuun tilariviltä kesken taistelun.
+</p>
+
+<h2>-32768, ei +32768</h2>
+
+<p>
+Etumaisen jäsenen haku vertaa jokaista osallistujaa juoksevaan enimmäisarvoon, joka alkaa
+<code>0x8000</code>:sta luettuna allekirjoitettuna 16-bittisenä kokonaislukuna, -32768. Portti
+joka leventäisi muuttujan 32-bittiseksi antaisi sille arvon +32768 sen sijaan, ja seuraus ei ole
+pienempi ero vaan ei mitään: toimitetulla ryhmällä kaikissa kolmessa mitatussa
+akselisuunnassa etumaista jäsentä ei aseteta kertaakaan, niin muuttuja jäisi ikuisesti siihen
+mitä se oli viimeksi kun jokin vielä löi sen. Väärä leveys näyttää harmittomalta kunnes
+huomaa, että se ei anna väärää vastausta, se lakkaa antamasta vastausta ollenkaan.
+</p>
+
+<h2>Muuttuja jota mikään ei lue</h2>
+
+<p>
+Kuudesta valitusta toimijasta viisi kulkeutuu eteenpäin: kuluttajat lukevat vihollisten
+etumaisen ja sivustat, ja ryhmän sivustat. Kuudes, <code>PartyFrontMember</code>, lasketaan
+tasan samalla pistetulolla kuin ryhmän muutkin tulokset, mutta koko dekompilaatiossa sillä on
+yksi ainoa kirjoitus ja nolla lukua. Ei yksikään taisteluntilan käsittelijä, ei
+<code>COMBAT_MoveToFrontLine</code>, ei mikään muu, kysy sen arvoa koskaan. Se on toteutettu
+tässä tarkalleen alkuperäisen laskemana, ei nollana eikä ohitettuna, mutta mikään tässä
+projektissa ei saa kuluttaa sitä: väärä siirto ei olisi laskeminen vaan käyttäminen, mikä olisi
+käyttäytymisen keksimistä jota alkuperäisellä ei ole.
+</p>
+
+<h2>Osallistuminen on tiukka suodatin, ei koko ryhmä</h2>
+
+<p>
+Vain <code>AI_FRONT</code> ja <code>AI_COMMAND</code> osallistuvat hakuun, ja toimitetulla
+ryhmällä kolmas jäsen (<code>AI_REAR</code>) ei koskaan, vaikka hänen omat koordinaattinsa
+voittaisivat haun jos hän osallistuisi. Sivustan raja alkaa nollasta ja vertailu on tiukka, niin
+osallistuja joka istuu tarkalleen akselilla ei ole koskaan sivusta: toimitetulla ryhmällä
+Avatarin oma <code>side</code> on tarkalleen nolla, ja molemmat sivustapaikat täyttyvät
+kahdella muulla jäsenellä hänen ohitsensa. Vihollisten oma etumaispaikka, nimestään huolimatta,
+ei ole etumaisin vihollinen vaan alin paikkanumero osallistuvien joukossa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              117 / 147
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1235 / 1235
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M14:n kolmas viipale jatkuu: kohteen valinta (<code>COMBAT_pickOpponent</code>) ja
+     vihollisten perus-AI (<code>COMBAT_AI_Assault</code>), joilla on nyt tulilinja ja
+     geometria molemmat kutsuttavana, sekä viipale A:n jäljellä oleva ammuspuolisko.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

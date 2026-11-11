@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three of Twelve | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/59-kolme-kahdestatoista.html" hreflang="fi">FI</a><span>/</span><a href="59-three-of-twelve.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 59</nav>
+
+<h1>Three of Twelve</h1>
+
+<p class="lede">
+M14's third slice continued with the four positioning modes that read slice C1's own geometry:
+<code>AI_FRONT</code>, <code>AI_REAR</code>, <code>AI_FLANK</code> and <code>AI_BERSERK</code>.
+Three of them pick a target by their own rule, and they agree in exactly three of twelve cells.
+</p>
+
+<h2>Three rules, twelve cells, three in common</h2>
+
+<p>
+Assault, flank and berserk each choose a target by a different rule, and over the owner's own
+64 creature classes they disagree more often than they agree:
+</p>
+
+<pre><code>actor         assault     flank   berserk
+NEUTRAL             0        52        64
+EVIL               35        35         2
+GOOD               50        50        17
+CHAOTIC            19        31        19</code></pre>
+
+<p>
+Each of the three differences carries its own story. <strong>A good berserker ignores all 33
+chaotic classes</strong>, the game's commonest alignment, because the clause is an equality
+against EVIL rather than the attack-player bit: a berserk party member attacks almost nothing a
+front one would charge. Nobody has seen this in play, so it waits in <code>originalBugs.md</code>
+with a mechanism, not a fix. <strong>A chaotic flanker attacks neutrals</strong>, because the
+flank rule has no equivalent of the third filter assault needs. <strong>A neutral berserker
+attacks anybody, its own side included</strong>, because all three of the berserk rule's clauses
+test for an alignment it does not have. A port sharing one targeting function between the three
+modes would get at least two of them wrong, and no test would fail unless the table above is in
+the suite itself.
+</p>
+
+<h2>Berserk pays twice</h2>
+
+<p>
+Every other mode pays for what it does: an attack costs 10, a wait costs 5, a failed move costs
+nothing. Berserk additionally spends 5 unconditionally at the end of every path, whether it
+fired, sidestepped, or assaulted instead for lack of a target. A shot that lands costs 15 where
+the same shot costs 10 everywhere else, and a berserk step costs the terrain plus 5.
+</p>
+
+<h2>A flank mapping that is crossed on purpose</h2>
+
+<p>
+<code>AI_REAR</code> stays between its own flanks, but the party's and the enemies' flank maps
+are crossed: positive is left for the party, negative is left for the enemies. The test built a
+scenario on purpose where the same actor's own side value is stuck under the correct reading
+and would have moved under the wrong one: the actor stays put with the real mapping, and the
+wrong mapping would have fired its very first comparison instead. One mapping for both sides
+would mirror the enemies' own back line, which looks like a sensible formation on the field and
+is the wrong one.
+</p>
+
+<h2>A walk whose price does not depend on the terrain</h2>
+
+<p>
+<code>AI_FLANK</code>'s early exit walks toward the Avatar when the actor is far away, but the
+walk's own points are restored right afterward and a flat 5 is charged instead. That is the
+opposite of every other walk in the game, where the terrain decides the price.
+</p>
+
+<h2>The sentinel again</h2>
+
+<p>
+<code>AI_FLANK</code>'s own target scan picks whichever candidate sits furthest outward,
+starting from <code>int16</code>'s <code>0x8000</code>, the same trap slice C1 measured in
+<code>PartyFrontMember</code>. Widening that start to a positive value would not crash anything;
+it would just quietly stop taking the first candidate, on any map at all.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              13 / 24
+work items done              124 / 150
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1332 / 1332
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>M14's slice C3b: the five remaining modes, <code>AI_RETREAT</code>, <code>AI_LIKE</code>,
+     <code>AI_UNFRIENDLY</code>, <code>AI_IMMOBILE</code> and <code>AI_TANGLE</code>, not yet
+     measured. Wiring the hit and damage roll into this mode, and spellcasting, both stay open
+     even after that.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

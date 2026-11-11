@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>61 kahdeksastakymmenestä | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="62-61-kahdeksastakymmenesta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/62-61-of-80.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 62</nav>
+
+<h1>61 kahdeksastakymmenestä</h1>
+
+<p class="lede">
+80 loitsua ratkeaa yhdessä switch-lohkossa, ja 61 niistä päätyy johonkin kahdeksasta jaetusta
+käsittelijästä. Tämä viipale kartoitti sen koko joukon ja rakensi suurimman käsittelijän,
+<code>SPELL_CastMissile</code>:n, oman putken 23 loitsulle: ammus, kohdetyypin portti, ja
+vihdoin nimetty kieltäytyminen siellä missä itse vaikutuksen pitäisi olla.
+</p>
+
+<h2>Kartta vastaa kysymykseen jonka edellinen viipale jätti auki</h2>
+
+<p>
+Loitsutaulukkojen dokumentaatio totesi aikanaan oikein, ettei loitsun kohdistustyyppi ole
+missään taulukossa: se ei ole dataa. Mitä se jätti sanomatta on mitä se sitten on. Nyt on
+mitattu: se on dispatcherin oma argumentti, toiseksi viimeinen niille kahdelle apufunktiolle
+joilla on ylipäätään kohde kysyttävänä. Arvo 1 vaatii hahmon, -1 vaatii esineen, ja
+neljätoista käsittelijää ei ota kohdetta argumenttina lainkaan, niin niitä ei voi koskaan
+kysyä mistään.
+</p>
+
+<p>
+Kartta itse tuli dispatcheria luokittelevasta skriptistä, ei käsin lasketusta, koska 80
+tapausta joissa osa jakaa saman rivin on juuri sellainen määrä joka menee käsin väärin ja
+näyttää oikealta. 61 loitsua 80:stä, 76 prosenttia, osuu kahdeksaan jaettuun käsittelijään,
+ja loput 19 ovat omia haarojaan. Se on myös suunnitelma: jaetut kahdeksan ovat työn pääosa.
+</p>
+
+<h2>Ammus lentää ennen kuin kukaan kysyy oliko se oikea idea</h2>
+
+<p>
+<code>SPELL_CastMissile</code> on kartan suurin käsittelijä, 23 loitsua, ja sen oma järjestys
+on yllättävä kohdasta jonka moni kirjoittaisi toisin päin: ammus lentää ja osuma ratkeaa
+<em>ennen</em> kuin kohdetyyppi tarkistetaan. Esinettä vaativa loitsu tähdättynä hahmoon
+piirtää siis ammuksen aivan normaalisti, antaa sen osua, ja vasta sitten sanoo "ei
+vaikutusta". Portti joka validoisi ensin säästäisi animaation ja muuttaisi sitä mitä pelaaja
+näkee joka väärällä kastolla: se ei olisi sama peli.
+</p>
+
+<p>
+Yksi loitsu rikkoo oman porttinsa tahallaan. Dispel field vaatii esineen niin kuin viisi
+muuta loitsua, mutta on ainoa 23:sta jonka saa kastaa myös hahmoon. Portti joka
+yhdenmukaistaisi säännön menettäisi tasan tämän yhden loitsun käytöksen, ja portti joka
+pudottaisi poikkeuksen kokonaan menettäisi sen muilta 22:lta.
+</p>
+
+<p>
+Kastajan oma halo soi molempien epäonnistumispolkujen edellä, niin hukkaan mennyt kasto
+näyttää yhä kastolta: mana ja reagenssit ovat joka tapauksessa jo kuluneet siinä vaiheessa,
+kuten edellinen viipale mittasi. Ja valintasäde asetetaan loitsun omaan kantamaan vain kun
+valintatila on jo päällä: ehto jonka portti pudottaisi luonnostaan, eikä sitä näe ilman
+tapausta jossa valintatila ei ole päällä.
+</p>
+
+<h2>Yhdeksäs kohta on nimetty kieltäytyminen</h2>
+
+<p>
+Kun portti on läpäisty, alkuperäinen ajaisi jonkin 23:sta vaikutuksesta ja asettaisi tulokseksi
+jonkin viidestä arvosta: onnistui, epäonnistui, ei vaikutusta, valmis ilman viestiä, tai valmis
+viesti tulostettuna jo. Tämä viipale ei rakenna yhtäkään vaikutusta: se on seuraava
+mittausviipale, loitsu kerrallaan kartan ryhmittelemänä. Yhdeksäs kohta on tässä siis nimetty
+kieltäytyminen eikä arvattu vaikutus, ja tulostyypin viisi arvoa ovat mukana sellaisinaan, vaikka
+yksikään muu kuin tämä kieltäytyminen ei vielä ole saavutettavissa.
+</p>
+
+<p>
+Mittaus löysi myös rajan: kun ammus ei saavuta kohdettaan lainkaan mutta valinta ei ole tyhjä,
+alkuperäinen ottaa oman, tätä viipalettä varten mittaamattoman haaransa. Se ei ole tässä
+rakennettu, ja se on kirjattu dokumentaatioon mittaamattomana sen sijaan että sitä olisi
+arvattu.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              127 / 153
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1439 / 1439
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kartan kahdeksan jaettua käsittelijää ovat nyt työlista: 23 loitsua
+     <code>SPELL_CastMissile</code>:n takana odottavat omaa vaikutustaan, ja seitsemän muuta
+     käsittelijää seuraavat sen jälkeen. Mikään tästä ei ole yhä kytketty elävään peliin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

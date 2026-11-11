@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>13 of 24 milestones</strong> finished, and inside them
-<strong>117 of 144 work items</strong>. The second is the one that moves while a
+<strong>130 of 156 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -319,18 +319,30 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Combat and magic <span class="m-value">0 / 1 done, 0 / 5 items</span></h3>
+    <h3>Combat and magic <span class="m-value">0 / 1 done, 13 / 17 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-        <span class="m-value">0 / 5, in progress</span>
+        <span class="m-bar"><span class="m-fill" style="width: 76%"></span></span>
+        <span class="m-value">13 / 17, in progress</span>
       </summary>
       <ul class="m-items">
-        <li>Slice A: the attack command and <code>combat.c</code>'s tables.</li>
+        <li class="done">Slice A: the attack command and <code>combat.c</code>'s tables.</li>
         <li>Slice B: the turn order.</li>
+        <li class="done">Slice C, part 1: entering combat, leaving it and a charm ending.</li>
+        <li class="done">Slice C0: <code>Missiles</code>'s path model and the line of fire call.</li>
+        <li class="done">Slice C1: the combat geometry.</li>
+        <li class="done">Slice C2: target and weapon choice, and <code>COMBAT_AI_Assault</code>.</li>
+        <li class="done">Slice A2: what a ranged shot leaves behind (<code>COMBAT_FireRangedWeapon</code>).</li>
+        <li class="done">Slice C3a: four positioning modes (<code>AI_FRONT</code>, <code>AI_REAR</code>, <code>AI_FLANK</code>, <code>AI_BERSERK</code>).</li>
+        <li class="done">Slice C3b: the five remaining modes (<code>AI_RETREAT</code>, <code>AI_LIKE</code>, <code>AI_UNFRIENDLY</code>, <code>AI_IMMOBILE</code>, <code>AI_TANGLE</code>).</li>
+        <li class="done">Slice D1: the casting gateway.</li>
+        <li class="done">Slice D2: the spell dispatcher map and <code>SPELL_CastMissile</code>'s plumbing.</li>
+        <li class="done">Slice D3: <code>SPELL_CastMass</code> and <code>SPELL_CastField</code>.</li>
+        <li class="done">Slice D4: the six shared target effects.</li>
+        <li class="done">Slice D5: the four effects that were owed.</li>
         <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
-        <li>Sixty four spells, the reagents and mixing them, mana cost and the targeting types</li>
+        <li>Eighty spells, the reagents and mixing them, mana cost and the targeting types</li>
         <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
       </ul>
     </details>
@@ -827,12 +839,94 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        exactly the same totals as the right one, so the test pins the order actors act in
        rather than a total.</p>
   </li>
+  <li>
+    <span class="n">54</span>
+    <a href="posts/54-two-handlers-needed-five-supporting-pieces.html">Two Handlers Needed Five Supporting Pieces</a>
+    <p>The first piece of M14's third slice: entering combat, leaving it and a charm ending. A
+       known rule ran into five supporting pieces missing from the character record.</p>
+  </li>
+  <li>
+    <span class="n">55</span>
+    <a href="posts/55-a-pixel-at-a-time-not-a-tile.html">A Pixel at a Time, Not a Tile</a>
+    <p>Combat's line of fire measured: the original walks a shot in pixels, not tiles, and a
+       tile stepping version would be systematically more permissive, not merely different.</p>
+  </li>
+  <li>
+    <span class="n">56</span>
+    <a href="posts/56-a-variable-nothing-reads.html">A Variable Nothing Reads</a>
+    <p>Combat's own geometry measured: the party's and the enemies' gravity centres, a front
+       member and four flank slots. One of the six selected variables is written every turn,
+       and nothing in the whole decompilation ever reads it.</p>
+  </li>
+  <li>
+    <span class="n">57</span>
+    <a href="posts/57-a-coin-that-favours-the-last-one.html">A Coin That Favours the Last One</a>
+    <p>Target and weapon choice, and the basic AI that attacks with them. The coin that breaks
+       a tie favours the last candidate half the time no matter how many are tied, and an NPC
+       must not cast, even though the gate for it is built.</p>
+  </li>
+  <li>
+    <span class="n">58</span>
+    <a href="posts/58-thirty-six-of-forty-five.html">Thirty-Six of Forty-Five</a>
+    <p>What a ranged shot leaves behind, the last half of M14's slice A. A thrown weapon is
+       only lost on nine of forty-five wet tiles, the deep ones, and a flask of oil reads the
+       same byte from a different bit.</p>
+  </li>
+  <li>
+    <span class="n">59</span>
+    <a href="posts/59-three-of-twelve.html">Three of Twelve</a>
+    <p>Four positioning modes, M14's third slice. Assault, flank and berserk each pick a target
+       by a different rule and agree in exactly three of twelve cells, and berserk pays twice
+       on every path.</p>
+  </li>
+  <li>
+    <span class="n">60</span>
+    <a href="posts/60-three-of-sixteen.html">Three of Sixteen</a>
+    <p>The five combat modes still left, M14's slice C3b. A tangle vine pod's own random
+       growth flips 180 degrees into exactly the one direction the growth routine refuses, so
+       three attempts in sixteen succeed, not four.</p>
+  </li>
+  <li>
+    <span class="n">61</span>
+    <a href="posts/61-870-of-900.html">870 of 900</a>
+    <p>The casting gateway, M14's slice D1. Three refusals in order, three resistance rolls
+       that halve the target's figure and not the caster's, and the difference shows up in
+       870 of 900 measured pairs.</p>
+  </li>
+  <li>
+    <span class="n">62</span>
+    <a href="posts/62-61-of-80.html">61 of 80</a>
+    <p>The spell dispatcher map and <code>SPELL_CastMissile</code>'s plumbing, M14's slice D2.
+       61 of 80 spells land in one of eight shared handlers, and the biggest of them lets its
+       missile fly before the target kind is even checked.</p>
+  </li>
+  <li>
+    <span class="n">63</span>
+    <a href="posts/63-two-helpers-five-quiet-differences.html">Two Helpers, Five Quiet Differences</a>
+    <p><code>SPELL_CastMass</code> and <code>SPELL_CastField</code>, M14's slice D3. Five exact
+       differences from the missile cast, and an explosion that prints success exactly when it
+       touched nobody.</p>
+  </li>
+  <li>
+    <span class="n">64</span>
+    <a href="posts/64-825-of-900.html">825 of 900</a>
+    <p>Six shared target effects, M14's slice D4. A fourth resistance formula, not a third roll
+       with a new constant, differing from the earlier three in 825 of 900 pairs.</p>
+  </li>
+  <li>
+    <span class="n">65</span>
+    <a href="posts/65-the-guard-the-next-line-steps-over.html">The Guard the Next Line Steps Over</a>
+    <p>Dispel, fire damage, healing and the douse and ignite pair, M14's slice D5. Fire damage's
+       own guard protects only the immunity test, and the next line steps right over it.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>M14's third slice, basic enemy AI and starting a fight, which gives the scheduler its
-     first connection to the real game.</p>
+  <p>Every refusal in the two cast helpers is now either an effect or a spell nobody has
+     measured yet. The eight halo spells, the four winds, the four around-party spells and the
+     two summons are all still waiting for their own reading, and nothing in M14 is wired into
+     a live game yet.</p>
 </div>
 
 <footer class="foot">

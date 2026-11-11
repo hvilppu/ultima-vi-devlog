@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>825 yhdeksästäsadasta | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="64-825-yhdeksastasadasta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/64-825-of-900.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 64</nav>
+
+<h1>825 yhdeksästäsadasta</h1>
+
+<p class="lede">
+Kuusi loitsujen jakamaa pientä rutiinia: uni, myrkky, taikanuoli, suora vahinko kolmelle
+loitsulle, lumous ja tappo. Neljä niistä käyttää vastustuskaavaa joka näyttää tutulta ja ei ole:
+edellisen viipaleen kolme heittoa olivat yksi kaava, tämä on toinen, ja ero näkyy 825:ssä
+900:sta mitatusta parista.
+</p>
+
+<h2>Kaava joka näyttää samalta ja ei ole</h2>
+
+<p>
+<code>combat.c</code>:n oma taisteluheitto puolittaa kohteen luvun ja ottaa kastajan
+kokonaisena: <code>ÄLY(kohde)/2 + 15 - ÄLY(kastaja) &gt; 1d30</code>. Edellisen viipaleen kolme
+heittoa neljännentävät kohteen ja puolittavat kastajan. Kaksi kaavaa, molemmat näyttävät samalta
+idealta, ja 825 paria 900:sta luvuista 1-30 eroaa havaittavasti siinä kumman ne antavat.
+Ero ei ole tasainen: tasaväkisellä korkealla älyllä, 30 vastaan 30, taisteluheitto ei päästä
+kohdetta vastustamaan koskaan, siinä missä toinen kaava päästää sen vastustamaan yhden kerran
+viidestä. Vahvalla kohteella heikkoa kastajaa vastaan järjestys kääntyy: taisteluheitto on silloin
+ankarampi kahdesta. Portti joka jakaisi yhden vastustusrutiinin näiden kahden kaavan kesken saisi
+neljä kuudesta vaikutuksesta väärin 825 tapauksessa 900:sta, eikä mikään kaatuisi sen takia.
+</p>
+
+<h2>Varovaisuus jota ei jaettu</h2>
+
+<p>
+Uni ja myrkky molemmat lukevat samaa hirviöluokan immuniteettitaulua, mutta vain uni testaa
+ensin onko luokkanumero kelvollinen. Myrkky antaa numeron suoraan haulle, oli se mitä tahansa.
+Kaksi rutiinia, kirjoitettu minuuttien sisällä toisistaan samassa tiedostossa, joista yksi on
+varovainen ja toinen ei. Epäsymmetria on kirjattu muistiin, ei siivottu pois: tässä projektissa
+ei ole mitään siinä muistiosoitteessa mitä voisi turmeltua, niin yhden keksiminen olisi
+käyttäytymisen keksimistä eikä mittausta.
+</p>
+
+<h2>Lumous jota ei voi toistaa</h2>
+
+<p>
+Kasta lumous kohteeseen jota ei ole lumottu, ja kohde lumotaan. Kasta se uudelleen samaan
+kohteeseen, ja lumous <em>päättyy</em>. Ei mitään tapahdu kahdesti, ei virheilmoitusta: tulos
+jätetään koskemattomaksi, niin kasto ilmoittaa paljaan onnistumisen ikään kuin mitään
+erikoista ei olisi tapahtunut. Tämä on ainoa tapa päättää lumous tarkoituksella, ja portti joka
+kohtelisi uudelleenkastoa no-opina menettäisi sen kokonaan.
+</p>
+
+<h2>Naarmu joka tappaa</h2>
+
+<p>
+Joka muu tämän viipaleen vahingoittava vaikutus kertoo neutraalille kohteelle kuinka paljon
+vahinkoa se sai, ja se luku päättää provosoituuko kohde. Tappo ei. Tappo antaa aina vakion yksi,
+riippumatta siitä oliko kohteella jäljellä yksi osumapiste tai sata. Neutraalin tappaminen
+suoraan provosoi täsmälleen niin kuin naarmu provosoisi, ei enempää.
+</p>
+
+<h2>Yksi osumapiste, ei bitti</h2>
+
+<p>
+Disable kuulostaa tilavaikutukselta, ja se ei ole. Se laskee kohteen osumapisteet miinus yksi
+ja ajaa sen saman vahinkorutiinin läpi kuin harm: sama kokemuslaskenta, sama haavan vakavuus.
+Lopputulos on tasan yksi osumapiste jäljellä, saavutettu vahingolla eikä bitin kääntämisellä.
+</p>
+
+<h2>Luku joka huononi ja oli parempi huononneena</h2>
+
+<p>
+Mittaussessio väitti immuniteettilukuja 14/64 unelle, 3/64 kuolemalle ja 4/64 myrkylle.
+Suoraan viedystä luokkataulusta uudelleen laskettuna oikeat luvut ovat 19, 4 ja 6. Syy löytyi
+tiedostomuodosta: luokan kyvyt tallentuvat <code>Traits</code>-kenttään tekstinä, ja kun kaikki
+sen bitit osuvat nimettyihin kykyihin, kenttä näyttää nimet pilkuilla eroteltuna; kun joukossa on
+nimeämätön korkeampi bitti, kenttä näyttää raa'an luvun sen sijaan. Yhdeksän luokkaa 64:stä
+näyttää nimillä, ja alkuperäinen mittaus luki vain numerot, pudottaen yhdeksän riviä hiljaa
+nimittäjän pysyessä 64:nä silti. Täsmälleen se virhe jonka tämä projekti on kokenut ennenkin
+numeroihin täsmäävän haun kanssa. Korjattu luku on huonompi näyttää listassa, ja se on oikea
+luku, ja se on nyt se joka on kokeissa.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              129 / 155
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1555 / 1555
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kuusi vaikutusta ovat rakennettu rutiineina, mutta ei kytketty mihinkään yksittäiseen
+     loitsuun: mikä loitsu käyttää mitä parametreilla on loitsu kerrallaan tehtävä mittaus.
+     Dispel, tulivahinko, parannus ja sammutus-sekä-sytytys-pari odottavat yhä omaa mittaustaan,
+     eikä mikään M14:stä ole kytketty elävään peliin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pikseli kerrallaan, ei ruutu | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="55-pikseli-kerrallaan-ei-ruutu.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/55-a-pixel-at-a-time-not-a-tile.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 55</nav>
+
+<h1>Pikseli kerrallaan, ei ruutu</h1>
+
+<p class="lede">
+M14:n kolmannen viipaleen tulilinja on nyt mitattu ja rakennettu: <code>COMBAT_Missile</code>
+ja sen kääräisemä <code>Missiles</code> kävelevät laukauksen maailman pikseleinä,
+kuusitoista yhtä ruutua kohti, lähderuudun keskeltä alkaen, eikä ruutu kerrallaan niin kuin
+mikä tahansa uudelleentoteutus kirjoittaisi ensin. Ero ei ole tyylikysymys: se muuttaa mihin
+laukaus pysähtyy.
+</p>
+
+<h2>Sama viiva, mutta eri ruutujoukko</h2>
+
+<p>
+Yli kaikkien 224 siirtymän joihin laukaus voidaan tähdätä, 182:ssa pikselikävely testaa eri
+ruutujoukon kuin ruutukävely, ja ero on yksisuuntainen: pikselikävely testaa aina ruudun
+jota ruutukävely ei koskaan testaa, eikä kertaakaan toisinpäin. Ruutuaskeltava portti olisi
+siis systemaattisesti sallivampi, ei vain erilainen: se päästäisi laukauksia seinien läpi
+joita alkuperäinen pysäyttää, eikä koskaan estäisi yhtään joka alkuperäisellä menisi läpi.
+</p>
+
+<h2>Kulma jota liikkuminen kieltäisi</h2>
+
+<p>
+28 siirtymää 224:stä astuu ruutuun diagonaalisesti, molemmat koordinaatit yhdellä
+pikseliaskeleella. Koodi sitoutuu siihen ruutuun katsomatta kumpaakaan kohtisuoraa
+naapuria, niin laukaus kulkee kahden vain kulmassa koskettavan seinän välistä. Liikkuminen
+kieltää juuri tämän, <code>__TryDiagMove</code>:n vaatimuksen kautta että toinen kahdesta
+sivuruudusta on vapaa. Nyt kirjattu säännöksi jota ei yhdenmukaistettu liikkumisen kanssa,
+ei vahingossa korjattavaksi virheeksi: ne eroavat tarkoituksella.
+</p>
+
+<h2>Ikkunapoikkeus ulottuu vain ampujan omaan ruudukkoon</h2>
+
+<p>
+Poikkeus mitataan lähteestä, ei polusta: vain ampujan 3x3:n kahdeksan siirtymää 224:stä voi
+koskaan olla ylitetty ikkuna. Omistajan omasta <code>tileflags.bin</code>:sta 2048 ruudusta
+27 on ikkunoita, mutta niistä vain 9 estää ammuksia ollenkaan, niin poikkeus päättää mitään
+vain näille yhdeksälle; loput 18 ikkunaa ovat jo läpinäkyviä laukaukselle millä etäisyydellä
+tahansa. 206 ruutua 2048:sta estää ammuksen kokonaan.
+</p>
+
+<h2>Osuma säilyy, lista ei kävele polkua</h2>
+
+<p>
+Pysähdysruutu kirjoitetaan takaisin vain laukaukselle joka jäi vajaaksi; perille päässyttä
+ei kosketa, niin se säilyttää kohteen jonka pelaaja valitsi. Joka toimija jonka laukaus
+ylitti tulee listalle nousevassa objektinumerojärjestyksessä, ei polkujärjestyksessä, koska
+lista rakennetaan kävelemällä törmäysmaskia, ei polkua uudelleen.
+</p>
+
+<h2>Väärä lukutapa matkustaa testien mukana</h2>
+
+<p>
+Kaikki 18 uutta testiä ajavat injektoituja väitepredikaatteja vasten, ei tiedostoa vasten:
+liput olivat jo viedyt, eikä mikään data- tai vientimuutos ollut tarpeen. Ruutukävelyn malli
+on portattu testisarjaan asti, ei vain tähän kuvaukseen, ja väitetty eroavan
+pikselikävelystä täsmälleen mitatuilla siirtymillä, niin myöhempi siistiminen ei voi
+kääntää yhtä toiseksi huomaamatta.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              117 / 146
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1218 / 1218
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M14:n kolmas viipale jatkuu: kohteen valinta (<code>COMBAT_pickOpponent</code>) ja
+     vihollisten perus-AI (<code>COMBAT_AI_Assault</code>), joilla on nyt tulilinja
+     kutsuttavana, sekä viipale A:n jäljellä oleva ammuspuolisko: ammuksen kuluminen,
+     heitetyn aseen putoaminen, palava öljy.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

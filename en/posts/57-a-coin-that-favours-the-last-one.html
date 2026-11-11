@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Coin That Favours the Last One | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/57-kolikko-joka-suosii-viimeista.html" hreflang="fi">FI</a><span>/</span><a href="57-a-coin-that-favours-the-last-one.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 57</nav>
+
+<h1>A Coin That Favours the Last One</h1>
+
+<p class="lede">
+M14's third slice continues: who attacks whom (<code>COMBAT_pickOpponent</code>), with what
+(<code>__PickWeapon</code>), and <code>COMBAT_AI_Assault</code>, the mode every other attack
+mode falls into when it has nothing better to do. All three were already measured, with slice
+C0's line of fire and slice C1's geometry sitting ready, so this piece only had to call them.
+</p>
+
+<h2>The third filter is not redundant</h2>
+
+<p>
+Target choice runs five filters in order, and the third one, which rejects every neutral
+target, looks at first glance like it repeats the two that follow it: a GOOD actor rejects
+anything without the attack-player bit anyway, and EVIL rejects the other way round, and
+neutral carries neither bit. It earns its keep for exactly one actor: CHAOTIC. With it, a
+chaotic actor has 19 valid targets out of 64. Without it, 31. And the 12 extra are exactly the
+12 monster classes that are themselves neutral. Dropping the filter would have looked like
+tidier code and made chaotic monsters start killing townspeople.
+</p>
+
+<h2>Three distances, not one</h2>
+
+<p>
+The same pair of functions uses three different ways to measure "how far": the eight tile gate
+is Chebyshev, <code>max(|dx|, |dy|)</code>; the nearest target is chosen by squared Euclidean
+distance; and a weapon's reach is tested against the combat range table, which is neither of
+the above. Measuring every offset that lands inside the gate, 288 of them, found 1680 pairs
+that Chebyshev and squared Euclidean rank in opposite orders: one can be nearer by one measure
+and farther by the other at the same time. The gate itself is not a circle either: 92 offsets
+pass the eight tile Chebyshev gate that an equivalent Euclidean gate would reject, all of them
+diagonal, and none the other way round. Three measures, three different jobs, and none of them
+stands in for another.
+</p>
+
+<h2>A coin that favours the last one</h2>
+
+<p>
+When two targets are exactly tied for distance, the original does not pick between them evenly:
+it tosses a coin for every later tied candidate, one at a time, rather than once over the whole
+group. The result is biased in a very particular way: the last candidate scanned wins half the
+time <em>no matter how many are tied</em>. With five tied candidates the chances from first to
+last are 0.062, 0.062, 0.125, 0.250 and 0.500, not 0.200 each, which is what an even pick would
+give. A uniform reservoir pick is the implementation anyone would write first, and it is wrong.
+</p>
+
+<h2>An NPC must not cast</h2>
+
+<p>
+Weapon choice walks the actor's inventory and stops if a spellbook or a charge passes three
+conditions: a one in four roll, the <code>SpellFx[13]</code> flag clear, and a second roll that
+strongly favours low circles. In the original this means casting the spell. In this project an
+NPC cannot cast yet, so the gate is built and consumes exactly the same random draws in the
+same order, but refuses to pick the spellbook as a weapon instead, the same shape of refusal
+the player's own Attack command already uses for anything that is not a weapon. One side note
+from measuring it: <code>SpellFx[13]</code> is not only the Negate Magic spell, it stays set the
+entire time anyone in the party wears a storm cloak, which switches off every NPC's spellcasting
+for as long as it is worn.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              13 / 24
+work items done              121 / 148
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1276 / 1276
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>M14's third slice continues with the other attack modes (<code>AI_FRONT</code>,
+     <code>AI_REAR</code>, <code>AI_FLANK</code>, <code>AI_BERSEK</code> and the rest), which
+     now have the geometry ready to call; wiring the hit and damage roll into this mode, and
+     spellcasting itself, both stay open.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

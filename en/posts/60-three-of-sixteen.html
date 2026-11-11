@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three of Sixteen | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/60-kolme-kuudestatoista.html" hreflang="fi">FI</a><span>/</span><a href="60-three-of-sixteen.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 60</nav>
+
+<h1>Three of Sixteen</h1>
+
+<p class="lede">
+Every combat mode in M14 is now measured. Slice C3b took the five that were left: fleeing in
+four flavours, two ways of feeling about the party, an immobile monster, and a tangle vine
+pod whose own random growth cancels itself a quarter of the time it tries.
+</p>
+
+<h2>Four fleeing modes, one handler</h2>
+
+<p>
+<code>AI_RETREAT</code>, <code>AI_SHY</code>, <code>AI_FEAR</code> and
+<code>AI_SCHED_SHY</code> share one function and differ in three places: how close a
+threat has to get before they flee (8 tiles or 3), whether they fight back when a flight
+fails, and whether they walk home to the party once they are out of flee range. Only two
+of them fight back, only the good ones walk home, and the step is the actor's own square
+mirrored away from the threat, not a single tile toward it. Beyond seven tiles from the
+Avatar the handler does not even try: movement points are set to zero outright, a
+different kind of stop from a wait, visible as a difference in who moves next. And only
+<code>AI_RETREAT</code> ever recovers: one time in four it gains a hit point, and only
+then does it check whether that still leaves it critical; a reading above zero hands the
+mode back to whatever combat stance was stored, in the very same roll that healed it.
+</p>
+
+<h2>The flip that cancels itself</h2>
+
+<p>
+The tangle vine pod grows toward its target, or, with nothing better to do, in a random
+cardinal direction one time in four. That random direction gets flipped 180 degrees
+whenever it would otherwise match the pod's own current heading. The reasoning is sound
+enough: a pod should not grow straight back into its own body. But the growth routine
+itself already refuses exactly the one direction that is 180 degrees from the pod's own
+heading, before it spends anything. So the flip never steers growth away from the
+forbidden direction. It steers it straight into it.
+</p>
+
+<pre><code>a turn attempts a random growth           0.2500
+of those, cancelled by the flip           0.2500
+a turn actually grows randomly            0.1875  (3/16)
+a port that dropped the flip would grow   0.2500  (4/16)</code></pre>
+
+<p>
+Three growth attempts in sixteen actually succeed, not four, and the attempt itself costs
+nothing, because the refusal happens before a single step is paid for. The number did not
+come from the arithmetic alone: an engine test runs the pod's own final branch sixteen
+thousand times over one seeded generator and counts how often the straight move is
+actually called, not merely how often the attempt begins. Nobody has reported seeing this
+in play; it waits in <code>originalBugs.md</code> with a mechanism attached, not a fix.
+</p>
+
+<h2>A frame table read flat, not two columns wide</h2>
+
+<p>
+When a growth succeeds, the pod picks itself a new frame from a table the original wrote
+as eight rows of two columns. The pod's own read indexes the row by direction and the
+column by a four-sided die, which reaches column three of a table that is nominally two
+columns wide. The largest index either read reaches is two times six plus three, which is
+fifteen: the table's own last byte, neither past its end nor safely inside its own row.
+A port that bounded the column to the row would only change how the pod looks, and no
+existing test would notice; this project's own test builds the table out of distinctive
+values and shows directly that index fifteen was the one actually read.
+</p>
+
+<h2>A conversion that does not revert</h2>
+
+<p>
+<code>AI_UNFRIENDLY</code> is hostile but holds its fire unless the party comes within
+three tiles. Then, one time in eight, it writes its own mode to
+<code>AI_ASSAULT</code> straight into its own stored field, not just this turn's choice,
+and attacks at once. Nothing in this project ever writes it back: a creature that rolls
+that one in eight is hostile for the rest of the fight, and the rest of the game.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              13 / 24
+work items done              125 / 151
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1376 / 1376
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Every combat mode in M14 is measured now, but none of them is wired into a live game, and
+     the hit and damage roll is not wired into any of them either. Spellcasting
+     (<code>spell.c</code>, 2802 lines) still waits for a measuring session of its own.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

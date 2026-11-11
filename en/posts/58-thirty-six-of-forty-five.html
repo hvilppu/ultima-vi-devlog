@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thirty-Six of Forty-Five | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/58-kolmekymmentakuusi-neljastakymmenestaviidesta.html" hreflang="fi">FI</a><span>/</span><a href="58-thirty-six-of-forty-five.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 58</nav>
+
+<h1>Thirty-Six of Forty-Five</h1>
+
+<p class="lede">
+M14's slice A was left open on one half: what happens to the shot itself once it has already
+flown, <code>COMBAT_FireRangedWeapon</code>. It was waiting on the line of fire slice C0 built,
+and this piece closes that half for good: ammunition spent, a thrown weapon's fate, burning
+oil, Zu Ylem's sleep, a wand's vanishing.
+</p>
+
+<h2>A puddle is not deep water</h2>
+
+<p>
+The natural reading for a thrown weapon is "it is lost in the water". Measured from the
+owner's own <code>tileflags.bin</code>, 45 of 2048 tiles are wet, but only 9 of those are
+<em>also</em> impassable, which is deep water. A thrown weapon, a spear, a throwing axe or a
+dagger, is only destroyed on those nine plus four void tiles, thirteen in all.
+<strong>Thirty-six of the forty-five wet tiles are a puddle</strong>, where the weapon drops to
+the bottom instead of vanishing. And even a deep, empty tile is not quite enough on its own:
+the condition also requires that nothing already stands on the square. A raft or a bridge
+piece over deep water drops the weapon onto it instead of swallowing it.
+</p>
+
+<h2>The oil reads the same byte, a different bit</h2>
+
+<p>
+The flask of oil's rule reads exactly the same terrain byte as the thrown weapon's rule, but
+only its wet bit. A fire field fizzles on all 45 wet tiles, puddles and deep water alike, even
+where a dagger would drop all the way to the bottom on 36 of them. On the very same deep water
+tile, the dagger is destroyed and the oil still only fizzles, not one rule folded into the
+other but two separate bits of the same byte.
+</p>
+
+<h2>Two counts inside one triple crossbow</h2>
+
+<p>
+The triple crossbow fires up to three bolts on one shot, and it has two different ways of
+counting bolts inside the same action. How many fly is <code>TestObj</code>'s recursive total
+over the whole inventory, capped at three. How many are spent falls on
+<code>FindInvType</code>'s own first stack alone, and that stack is deleted entirely when it
+holds no more than three. A single stack never disagrees between the two, so the difference
+never shows in ordinary play. But two stacks, two and two bolts, fire three and pay two: the
+third bolt comes free. A port that computed both counts the same way would get the single
+stack case right and every split stack wrong, always in the direction of charging more than
+the original does.
+</p>
+
+<h2>A hit before terrain, never both</h2>
+
+<p>
+When a thrown weapon hits an actor, it is destroyed, and terrain is never consulted after
+that at all. The two branches are strict and mutually exclusive: "it fell in the water after
+hitting him" is not a case the original recognises. Zu Ylem splits the same way but in the
+other direction: it is always spent regardless of the hit, and only a hit would open its own
+sleep rule, which this project refuses to cast yet, by name, the same shape of refusal the
+player's own Attack command and the basic AI's weapon choice already use. A lightning or fire
+wand does not care about the hit at all: it is destroyed on exactly one chance in a hundred on
+every shot, hit or not.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              13 / 24
+work items done              123 / 149
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1307 / 1307
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>M14's third slice continues with the other attack modes (<code>AI_FRONT</code>,
+     <code>AI_REAR</code>, <code>AI_FLANK</code>, <code>AI_BERSEK</code> and the rest), which
+     have the geometry ready to call; wiring the hit and damage roll into this mode, and
+     spellcasting itself, both stay open.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

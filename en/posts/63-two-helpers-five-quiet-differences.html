@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Helpers, Five Quiet Differences | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/63-kaksi-apufunktiota-viisi-hiljaista-eroa.html" hreflang="fi">FI</a><span>/</span><a href="63-two-helpers-five-quiet-differences.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 63</nav>
+
+<h1>Two Helpers, Five Quiet Differences</h1>
+
+<p class="lede">
+<code>SPELL_CastMass</code> and <code>SPELL_CastField</code> look like the previous slice's
+<code>SPELL_CastMissile</code> at first glance: a prompt, a halo, a shot, a failure path. Five
+exact points differ, and those five are exactly where a merged port would go wrong without
+noticing.
+</p>
+
+<h2>Five points a merge would break</h2>
+
+<p>
+The prompt is a third one, not either of the previous two: message index 10, where the last
+slice measured 9 for an actor target and 8 for an object target. The select range is never set,
+not conditionally as in the missile cast but not at all, so the cursor is not bounded by the
+spell's own range. The empty-selection test reads only the coordinates, not the selected object,
+so a location spell aimed at an empty square proceeds rather than stopping there, which is the
+whole point of a location spell. The shot flies at a hardcoded range of 8, not the spell's own.
+And a shot that misses prints message index 4 unconditionally, where the missile cast would
+choose between 3 and 4 by a range test. The same number, two different meanings: "missed, for
+any reason" here, "stopped short but still in range" there. That last difference alone is why
+the miss path is not shared with the missile cast, even though the rest of the sequence is:
+<code>U6SpellLocationCast.Locate</code> consumes slice C0's own missile trace rather than
+recomputing it, and both helpers build on top of it.
+</p>
+
+<h2>An explosion that succeeds quietly</h2>
+
+<p>
+Nine area effects share one per-victim loop, and eight of them print the success message no
+matter what they did. The ninth, the explosion, does not. In the original, <code>SpellResult =
+-1</code> is assigned inside the loop, and only the explosion branch ever assigns it; after the
+loop, the success message prints only when that assignment never happened. An explosion that
+touches nobody never makes the assignment, so it prints success completely normally. An
+explosion that touches anybody at all silences itself entirely. The intuition runs exactly
+backwards: silence does not mean "nothing happened", it means "something happened and the
+original kept quiet about it". Four of the other eight effects, mass awaken, mass protect, mass
+curse and mass invisibility, are now built by setting a status bit; five shared routines, sleep,
+dispel, charm, kill and fire damage, are waiting for their own named refusal in the next slice.
+</p>
+
+<h2>A field exists before it is tested</h2>
+
+<p>
+The four field spells, fire, poison, sleep and energy, create the field object at the stop point
+<em>first</em>, and only test the square afterward. If the square refuses, the object just
+created is deleted again. The outcome looks the same as if the square had been tested first and
+the object never created at all, but it is not the same order, and this project reproduces the
+original's order rather than only its visible result.
+</p>
+
+<h2>Ten of sixty four, and neither half is enough alone</h2>
+
+<p>
+Who cannot be made invisible: ten of 64 creature classes, by two separate rules. Six classes are
+caught by one comparison, at or above the giant scorpion's own type number, the same comparison
+the multi-tile head resolution uses. Four are caught by name: the dragon, the hydra, the silver
+serpent and the slime, all below that type number. A port that kept only the four names would
+lose the six; a port that kept only the comparison would lose the four. The count is run over
+the 64 exported classes, not written by hand.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              13 / 24
+work items done              128 / 154
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1505 / 1505
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Five shared routines, sleep, dispel, charm, kill and fire damage, are waiting for their own
+     measurement: more than these two helpers' nine spells use them. After that, the chain
+     reaction that was not called here, and the remaining sixty spell effects. None of this is
+     wired into a live game yet.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

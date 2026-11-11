@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaksi apufunktiota, viisi hiljaista eroa | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="63-kaksi-apufunktiota-viisi-hiljaista-eroa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/63-two-helpers-five-quiet-differences.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 63</nav>
+
+<h1>Kaksi apufunktiota, viisi hiljaista eroa</h1>
+
+<p class="lede">
+<code>SPELL_CastMass</code> ja <code>SPELL_CastField</code> näyttävät edellisen viipaleen
+<code>SPELL_CastMissile</code>:lta ensi silmäyksellä: kehote, halo, ammus, epäonnistuminen. Viisi
+tarkkaa kohtaa eroaa, ja juuri ne viisi ovat paikka jossa yhdistetty portti erehtyisi huomaamatta.
+</p>
+
+<h2>Viisi kohtaa jotka yhdistäminen rikkoisi</h2>
+
+<p>
+Kehote on kolmas, ei jompikumpi aiemmasta kahdesta: viesti-indeksi 10, missä edellinen viipale
+mittasi 9:n hahmokohteelle ja 8:n esinekohteelle. Valintasädettä ei aseteta koskaan, ei
+ehdollisesti niin kuin ammuskastossa vaan ei lainkaan, niin kursori ei ole loitsun oman kantaman
+rajoittama. Tyhjän valinnan testi lukee vain koordinaatit, ei valittua oliota, niin kohdeloitsu
+joka osuu tyhjään ruutuun etenee siitä eikä keskeydy: se on koko kohdeloitsun tarkoitus. Ammus
+lentää kovakoodatulla kantamalla 8, ei loitsun omalla. Ja osumatta jäänyt ammus tulostaa
+viesti-indeksin 4 ehdoitta, siinä missä ammuskasto valitsisi 3:n tai 4:n kantamatestillä. Sama
+numero, kaksi eri merkitystä: "ei osunut, syystä mistä tahansa" tässä, "pysähtyi matkalla
+kantaman sisällä" siellä. Juuri tämän viimeisen takia osumattoman ammuksen polkua ei jaeta
+ammuskaston kanssa, vaikka muu rakenne on sama sarja: <code>U6SpellLocationCast.Locate</code>
+kuluttaa viipale C0:n ammusjäljen eikä laske sitä uudelleen, ja molemmat apufunktiot rakentuvat
+sen päälle.
+</p>
+
+<h2>Räjähdys joka onnistuu hiljaa</h2>
+
+<p>
+Yhdeksän aluevaikutusta jakavat saman per-uhri-silmukan, ja kahdeksan niistä tulostaa
+onnistumisviestin riippumatta siitä mitä ne tekivät. Yhdeksäs, räjähdys, ei. Alkuperäisessä
+<code>SpellResult = -1</code> asettuu silmukan sisällä, ja ainoastaan räjähdys-haara tekee niin;
+silmukan jälkeen onnistumisviesti tulostuu vain kun tätä sijoitusta ei koskaan tehty. Räjähdys
+joka ei kosketa ketään jättää sijoituksen tekemättä, niin se tulostaa onnistumisviestin ihan
+tavallisesti. Räjähdys joka koskettaa ketä tahansa vaientaa itsensä kokonaan. Lukijan intuitio
+menee juuri väärinpäin: hiljaisuus ei tarkoita "ei mitään tapahtunut", se tarkoittaa "jotain
+tapahtui ja alkuperäinen piti siitä hiljaa". Neljä muuta aluevaikutusta, mass awaken, mass
+protect, mass curse ja mass invisibility, on rakennettu nyt tilabitin asettamisella; viisi
+jaettua rutiinia, sleep, dispel, charm, kill ja tulivahinko, odottavat omaa nimettyä
+kieltäytymistään seuraavassa viipaleessa.
+</p>
+
+<h2>Kenttä syntyy ennen kuin sitä testataan</h2>
+
+<p>
+Neljä kenttäloitsua, tuli, myrkky, uni ja energia, luovat kenttäolion pysähtymiskohtaan
+<em>ensin</em>, ja testaavat ruudun vasta sen jälkeen. Jos ruutu kieltäytyy, juuri luotu olio
+poistetaan jälleen. Lopputulos näyttää samalta kuin jos ruutu olisi testattu ensin eikä oliota
+olisi koskaan luotu, mutta se ei ole sama järjestys, ja tämä projekti toistaa alkuperäisen
+järjestyksen eikä vain sen näkyvää tulosta.
+</p>
+
+<h2>Kymmenestä ei riitä puolet kummastakaan puolikkaasta</h2>
+
+<p>
+Kuka ei voi tulla näkymättömäksi: kymmenen hirviöluokkaa 64:stä, kahdella erillisellä säännöllä.
+Kuusi luokkaa jää kiinni yhdestä vertailusta, jättiläisskorpionin omasta tyyppinumerosta
+ylöspäin, samasta vertailusta jota moniruutuisten olioiden pään ratkaisu käyttää. Neljä jää
+kiinni nimellä: lohikäärme, hydra, hopeakäärme ja lima, kaikki alle sen tyyppinumeron. Portti
+joka pitäisi vain neljä nimeä menettäisi kuusi; portti joka pitäisi vain vertailun menettäisi
+neljä. Luku on ajettu 64 viedyn luokan yli, ei kirjoitettu käsin.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              128 / 154
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1505 / 1505
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Viisi jaettua rutiinia, sleep, dispel, charm, kill ja tulivahinko, odottavat omaa
+     mittaustaan: niitä käyttää muukin kuin näiden kahden apufunktion yhdeksän loitsua. Niiden
+     jälkeen kutsumatta jäänyt ketjureaktio ja loput kuusikymmentä loitsun vaikutusta. Mikään
+     tästä ei ole yhä kytketty elävään peliin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>61 of 80 | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/62-61-kahdeksastakymmenesta.html" hreflang="fi">FI</a><span>/</span><a href="62-61-of-80.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 62</nav>
+
+<h1>61 of 80</h1>
+
+<p class="lede">
+80 spells are resolved in one switch block, and 61 of them end up in one of eight shared
+handlers. This slice mapped the whole set and built the biggest handler,
+<code>SPELL_CastMissile</code>'s own plumbing, for 23 spells: a missile, a target-kind gate,
+and finally a named refusal standing in for where an effect should be.
+</p>
+
+<h2>The map answers a question the last post left open</h2>
+
+<p>
+The spell table documentation already said, correctly, that a spell's target kind is not in
+any table: it is not data. What it did not say is what it actually is. That is measured now:
+it is the dispatcher's own argument, the next to last one for the two helpers that ask for a
+target at all. A value of 1 demands an actor, -1 demands an object, and fourteen handlers take
+no target argument at all, so they can never be asked for one.
+</p>
+
+<p>
+The map itself came from a script that classifies the dispatcher, not a hand count, because 80
+cases with some of them sharing one line is exactly the kind of number that goes wrong by hand
+and still looks right. 61 of the 80 spells, 76 per cent, land in one of eight shared handlers,
+and the remaining 19 are their own branch. That is also the plan: the shared eight are the bulk
+of the work.
+</p>
+
+<h2>The missile flies before anyone asks whether that was a good idea</h2>
+
+<p>
+<code>SPELL_CastMissile</code> is the map's biggest handler, 23 spells, and its own order is a
+surprise at exactly the point many ports would write backwards: the missile flies and the hit
+resolves <em>before</em> the target kind is checked. An object-demanding spell aimed at an
+actor draws its projectile completely normally, lets it land, and only then says "no effect".
+A port that validated first would save the animation and change what the player sees on every
+mistaken cast: it would not be the same game.
+</p>
+
+<p>
+One spell breaks its own gate on purpose. Dispel field demands an object just like five other
+spells, but is the only one of the 23 that may also be cast at an actor. A port that applied
+the rule uniformly would lose exactly this one spell's own behaviour, and a port that dropped
+the exception entirely would lose it for the other 22.
+</p>
+
+<p>
+The caster's own halo plays ahead of both failure paths, so a wasted cast still looks like one:
+the mana and the reagents are already spent by that point regardless, as the previous slice
+measured. And the select range is only set to the spell's own range when a selection mode is
+already active, a condition a port would naturally drop and never see without a case where a
+selection mode is not active.
+</p>
+
+<h2>Step nine is a named refusal</h2>
+
+<p>
+Once the gate is passed, the original would run one of the 23 effects and set the result to
+one of five values: success, failed, no effect, done with no message, or done with the message
+already printed. This slice builds none of the effects: that is the next measuring slice, one
+spell at a time, grouped by the map. Step nine here is therefore a named refusal rather than a
+guessed effect, and the result type's five values are carried as they are, even though nothing
+but this refusal can be reached yet.
+</p>
+
+<p>
+The measurement also found an edge: when the missile never reaches its target at all but the
+selection is not empty, the original takes its own branch that was not measured for this slice.
+That branch is not built here, and it is recorded in the documentation as unmeasured rather
+than guessed at.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              13 / 24
+work items done              127 / 153
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1439 / 1439
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The map's eight shared handlers are now a work list: 23 spells behind
+     <code>SPELL_CastMissile</code> are waiting for their own effect, and seven more handlers
+     follow after that. None of this is wired into a live game yet.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

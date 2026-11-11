@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Variable Nothing Reads | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/56-muuttuja-jota-mikaan-ei-lue.html" hreflang="fi">FI</a><span>/</span><a href="56-a-variable-nothing-reads.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 56</nav>
+
+<h1>A Variable Nothing Reads</h1>
+
+<p class="lede">
+The next piece of M14's third slice is now measured and built: <code>ComputeCombatGeometry</code>,
+which runs at the top of every combat turn to work out the party's and the enemies' own gravity
+centres, plus a front member and four flank slots. One of the five selected actors turned out
+to be something nothing in the whole decompilation ever reads, and it still gets recomputed
+every single turn.
+</p>
+
+<h2>The rounding term is the party size, not the number counted</h2>
+
+<p>
+The party's own gravity centre skips anyone flanking or berserk when summing positions, but the
+rounding still adds the whole party's size rather than however many actually got summed. On the
+shipped party, with one of four excluded, the original gives (307, 354) and the tidy
+<code>num &gt;&gt; 1</code> reading would give (307, 353): one square off, and the whole front
+line shifts with it. Exhaustively over every party size from one to eight and every count, the
+two readings differ on at least one coordinate sum whenever anybody is excluded, and the fault
+is reachable with one keystroke: the player sets a member to flank from the status line
+mid fight.
+</p>
+
+<h2>-32768, not +32768</h2>
+
+<p>
+The front member search compares every participant against a running maximum that starts at
+<code>0x8000</code> read as a signed 16 bit integer, -32768. A port that widens the variable to
+32 bits would give it +32768 instead, and the result is not a smaller error but no answer at
+all: on the shipped party, in all three measured axis directions, the front member is never
+assigned even once, so the variable would be stuck forever at whatever the last turn that still
+beat it left there. A wrong width looks harmless until it turns out it does not give a wrong
+answer, it stops giving any answer.
+</p>
+
+<h2>A variable nothing reads</h2>
+
+<p>
+Of the six selected actors, five travel onward: the consumers read the enemies' own front
+member and flanks, and the party's own flanks. The sixth, <code>PartyFrontMember</code>, is
+computed with exactly the same dot product as the rest of the party's own results, but across
+the whole decompilation it has one single write and zero reads. No combat state handler, not
+<code>COMBAT_MoveToFrontLine</code>, nothing else ever asks for its value. It is implemented
+here exactly as the original computes it, not as nought and not skipped, but nothing in this
+project may consume it: the wrong move here would not be computing it, it would be using it,
+which would be inventing behaviour the original does not have.
+</p>
+
+<h2>Participation is a strict filter, not the whole party</h2>
+
+<p>
+Only <code>AI_FRONT</code> and <code>AI_COMMAND</code> take part in the search, and on the
+shipped party the third member (<code>AI_REAR</code>) never does, even though his own
+coordinates would win the search if he did. The flank threshold starts at nought and the
+comparison is strict, so a participant sitting exactly on the axis is never a flank: on the
+shipped party the Avatar's own <code>side</code> is exactly nought, and both flank slots fill
+with the two other members instead. The enemies' own front slot, despite its name, is not the
+most forward enemy at all, it is the lowest slot number among those taking part.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              13 / 24
+work items done              117 / 147
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1235 / 1235
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>M14's third slice continues: choosing a target (<code>COMBAT_pickOpponent</code>) and
+     the enemies' basic AI (<code>COMBAT_AI_Assault</code>), which now have both a line of
+     fire and this geometry to call, plus the remaining ammo half of slice A.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

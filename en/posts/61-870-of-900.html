@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>870 of 900 | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/61-870-yhdeksastasadasta.html" hreflang="fi">FI</a><span>/</span><a href="61-870-of-900.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 61</nav>
+
+<h1>870 of 900</h1>
+
+<p class="lede">
+M14's casting gateway is measured and built: what happens between choosing a line in the
+spellbook and the spell doing anything. Three refusals in order, two costs, taking the
+reagents, and three resistance rolls that are all the same one line with different figures.
+</p>
+
+<h2>A halving that changes everything</h2>
+
+<p>
+Every resistable spell rolls <code>((target / 2) + 30 - caster) / 2 > 1d30</code>, all integer
+division. The target's figure is halved and the caster's is not. It looks like the same idea
+as the attack roll, which halves neither, and that resemblance is exactly the trap: the two do
+not share a line of code in this project, and they should not.
+</p>
+
+<p>
+The measurement ran every pair of target and caster figures from 1 to 30, 900 pairs in all.
+The halved and unhalved readings differ in threshold in <strong>870 of them</strong> and
+observably in 867: three pairs have thresholds of 0 and 1, which against a die of 1 to 30 both
+mean never resisting, so their difference cannot be seen in play. The smaller number is the one
+that holds, which is why it is here. The unhalved
+reading is never the lower of the two, so a port that forgets the halving makes every
+resistable spell weaker across the board, not just sometimes. Two evenly matched characters
+at 30 resist 20.0% of the time with the halved formula and 46.7% with the unhalved one, more
+than twice the difference, in exactly the situation that is most ordinary: two characters of
+equal strength facing each other.
+</p>
+
+<h2>Three refusals, one message at a time</h2>
+
+<p>
+Casting from the book asks three things in this order: level below the circle, magic points
+below the circle, the spellbook page's own castable count at zero. Only the first one that
+fires is reported, so a caster short on all three only ever hears about the level. Only the
+third consults the reagents, and it does so through a count the page itself already computed
+rather than recounting the inventory: the reagent check is a question about display state, not
+about the items themselves.
+</p>
+
+<h2>A fourth inventory walk</h2>
+
+<p>
+This project has now measured four different ways of walking the object list, and they are
+not interchangeable: one walks recursively and stops at the end of the owner's own chain,
+another stops at the first item the owner does not own, a third stops at the first thing lying
+on the map, and the reagent take's own search does not stop at anything at all. That last one
+can therefore walk past the caster's own belongings and find something somebody else owns
+somewhere else on the map. It costs nothing, because the search only decides whether to
+attempt a take, and the take itself is always scoped to the caster: a stray match never moves
+anyone else's reagent onto the caster's side of the ledger.
+</p>
+
+<h2>A write that does not say who it hits</h2>
+
+<p>
+The path a mouse-clicked spell target takes writes the reagent counter outside its own
+eight-byte table, indexed by the target's object number rather than by a line number. The
+measurement is exact about that much: the write is real and its index is measured. What it
+does not claim is which byte it actually hits, because the decompilation's own memory
+addresses were measured, in an earlier slice, to be ten bytes off from the owner's own build.
+Naming the victim would be a guess dressed up as a measurement, so it stays unnamed: recorded
+in <code>originalBugs.md</code> as an anomaly with that limitation stated, not reproduced,
+because there is nothing in this project at that address to corrupt.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              13 / 24
+work items done              126 / 152
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1416 / 1416
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The casting gateway decides whether to refuse a cast or to spend on one, but it does not
+     yet run any of the 64 effects: their dispatcher is the next measuring slice. The
+     spellbook requirement and the Negate Magic check, which M8 already measured from the
+     tables, are not read in this slice either, and none of this is wired into a live game.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

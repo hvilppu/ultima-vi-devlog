@@ -39,7 +39,7 @@ ainoa seuraamisen arvoinen asia on se, mikä oikeasti toimii.
 Palkit on <strong>johdettu suunnitelmasta</strong> eikä kirjoitettu käsin, koska käsin pidetty
 taulu eroaa ennen pitkää siitä mitä se väittää lukevansa. Kaksi lukua, ja ne mittaavat eri
 asioita: <strong>13 / 24 virstanpylvästä</strong> valmiina, ja niiden sisällä
-<strong>117 / 144 työkohtaa</strong>. Jälkimmäinen on se joka liikkuu kesken
+<strong>130 / 156 työkohtaa</strong>. Jälkimmäinen on se joka liikkuu kesken
 virstanpylvään.
 </p>
 
@@ -320,18 +320,30 @@ oli peittänyt.
     </details>
   </div>
   <div class="area">
-    <h3>Taistelu ja taikuus <span class="m-value">0 / 1 valmista, 0 / 5 kohtaa</span></h3>
+    <h3>Taistelu ja taikuus <span class="m-value">0 / 1 valmista, 13 / 17 kohtaa</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Näytä kohdat">
         <span class="m-name">Taistelu ja taikuus <span class="m-value">M14</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-        <span class="m-value">0 / 5, käynnissä</span>
+        <span class="m-bar"><span class="m-fill" style="width: 76%"></span></span>
+        <span class="m-value">13 / 17, käynnissä</span>
       </summary>
       <ul class="m-items">
-        <li>Viipale A: hyökkäyskomento ja <code>combat.c</code>:n taulukot.</li>
+        <li class="done">Viipale A: hyökkäyskomento ja <code>combat.c</code>:n taulukot.</li>
         <li>Viipale B: vuorojärjestys.</li>
+        <li class="done">Viipale C, osa 1: taisteluun siirtyminen, siitä poistuminen ja lumouksen päättyminen.</li>
+        <li class="done">Viipale C0: <code>Missiles</code>:n polkumalli ja tulilinjan kutsu.</li>
+        <li class="done">Viipale C1: taistelun geometria.</li>
+        <li class="done">Viipale C2: kohteen ja aseen valinta, ja <code>COMBAT_AI_Assault</code>.</li>
+        <li class="done">Viipale A2: mitä ammus jättää jälkeensä (<code>COMBAT_FireRangedWeapon</code>).</li>
+        <li class="done">Viipale C3a: neljä asemointitilaa (<code>AI_FRONT</code>, <code>AI_REAR</code>, <code>AI_FLANK</code>, <code>AI_BERSERK</code>).</li>
+        <li class="done">Viipale C3b: viisi jäljellä olevaa tilaa (<code>AI_RETREAT</code>, <code>AI_LIKE</code>, <code>AI_UNFRIENDLY</code>, <code>AI_IMMOBILE</code>, <code>AI_TANGLE</code>).</li>
+        <li class="done">Viipale D1: loihtimisen portti.</li>
+        <li class="done">Viipale D2: loitsujen dispatcher-kartta ja <code>SPELL_CastMissile</code>:n putki.</li>
+        <li class="done">Viipale D3: <code>SPELL_CastMass</code> ja <code>SPELL_CastField</code>.</li>
+        <li class="done">Viipale D4: kuusi jaettua kohdevaikutusta.</li>
+        <li class="done">Viipale D5: neljä vielä velkaa ollutta vaikutusta.</li>
         <li>Vuoropohjainen taistelu, aloitejärjestys, osuma- ja vahinkolaskenta M8:n kaavoilla</li>
-        <li>64 loitsua, reagenssit ja niiden sekoitus, manankulutus, kohdistustyypit</li>
+        <li>80 loitsua, reagenssit ja niiden sekoitus, manankulutus, kohdistustyypit</li>
         <li>Vihollisten perus-AI (lähesty, pakene, ammu, loitsi)</li>
       </ul>
     </details>
@@ -828,12 +840,95 @@ ennenkin, ja vaihe C kasvoi 19 päivästä 30:een kesken matkan.
        antavat täsmälleen samat summat kuin oikea, niin testi pinnaa toimijoiden järjestyksen
        eikä kokonaismäärää.</p>
   </li>
+  <li>
+    <span class="n">54</span>
+    <a href="posts/54-kaksi-kasittelijaa-tarvitsi-viisi-tukipalikkaa.html">Kaksi käsittelijää tarvitsi viisi tukipalikkaa</a>
+    <p>M14:n kolmannen viipaleen ensimmäinen pala: taisteluun siirtyminen, siitä poistuminen ja
+       lumouksen päättyminen. Tunnettu sääntö kaatui viiteen puuttuvaan tukipalikkaan
+       hahmotietueessa.</p>
+  </li>
+  <li>
+    <span class="n">55</span>
+    <a href="posts/55-pikseli-kerrallaan-ei-ruutu.html">Pikseli kerrallaan, ei ruutu</a>
+    <p>Taistelun tulilinja mitattu: alkuperäinen kävelee laukauksen pikseleinä eikä ruuduittain,
+       ja ruutuaskeltava versio olisi systemaattisesti sallivampi, ei vain erilainen.</p>
+  </li>
+  <li>
+    <span class="n">56</span>
+    <a href="posts/56-muuttuja-jota-mikaan-ei-lue.html">Muuttuja jota mikään ei lue</a>
+    <p>Taistelun geometria mitattu: ryhmän ja vihollisten painopisteet, etumainen jäsen ja
+       neljä sivustapaikkaa. Yksi kuudesta valitusta muuttujasta kirjoitetaan joka vuoro, mutta
+       sitä ei lue koko dekompilaatiossa mikään.</p>
+  </li>
+  <li>
+    <span class="n">57</span>
+    <a href="posts/57-kolikko-joka-suosii-viimeista.html">Kolikko joka suosii viimeistä</a>
+    <p>Kohteen ja aseen valinta, ja perus-AI joka hyökkää niillä. Tasapelin ratkaiseva kolikko
+       suosii viimeistä ehdokasta puolet ajasta riippumatta kentän koosta, ja NPC ei saa
+       loihtia, vaikka portti sen eteen on rakennettu.</p>
+  </li>
+  <li>
+    <span class="n">58</span>
+    <a href="posts/58-kolmekymmentakuusi-neljastakymmenestaviidesta.html">Kolmekymmentäkuusi neljästäkymmenestäviidestä</a>
+    <p>Ammuksen seuraukset, M14:n viipale A:n viimeinen puolisko. Heitetty ase häviää vain
+       yhdeksältä syvän veden ruudulta neljästäkymmenestäviidestä kosteasta, ja öljyastia
+       lukee samaa tavua eri bitiltä.</p>
+  </li>
+  <li>
+    <span class="n">59</span>
+    <a href="posts/59-kolme-kahdestatoista.html">Kolme kahdestatoista</a>
+    <p>Neljä asemointitilaa, M14:n kolmas viipale. Hyökkäys-, sivusta- ja raivotila valitsevat
+       kohteen kolmella eri säännöllä ja ovat samaa mieltä tasan kolmessa kahdestatoista
+       solussa, ja raivo maksaa kahdesti joka polulla.</p>
+  </li>
+  <li>
+    <span class="n">60</span>
+    <a href="posts/60-kolme-kuudestatoista.html">Kolme kuudestatoista</a>
+    <p>Viisi jäljellä ollutta taistelutilaa, M14:n viipale C3b. Köynnöspalon oma
+       satunnaiskasvu kääntyy 180 astetta juuri siihen yhteen suuntaan jonka kasvufunktio
+       kieltäytyy, niin kolme yritystä kuudestatoista onnistuu, ei neljä.</p>
+  </li>
+  <li>
+    <span class="n">61</span>
+    <a href="posts/61-870-yhdeksastasadasta.html">870 yhdeksästäsadasta</a>
+    <p>Loihtimisen portti, M14:n viipale D1. Kolme kieltäytymistä järjestyksessä, kolme
+       vastustusheittoa jotka puolittavat kohteen luvun mutta eivät kastajan, ja ero näkyy
+       870:ssä 900:sta mitatusta parista.</p>
+  </li>
+  <li>
+    <span class="n">62</span>
+    <a href="posts/62-61-kahdeksastakymmenesta.html">61 kahdeksastakymmenestä</a>
+    <p>Loitsujen dispatcher-kartta ja <code>SPELL_CastMissile</code>:n putki, M14:n viipale D2.
+       61 loitsua 80:stä osuu kahdeksaan jaettuun käsittelijään, ja suurin niistä lennättää
+       ammuksen ennen kuin kohdetyyppi edes tarkistetaan.</p>
+  </li>
+  <li>
+    <span class="n">63</span>
+    <a href="posts/63-kaksi-apufunktiota-viisi-hiljaista-eroa.html">Kaksi apufunktiota, viisi hiljaista eroa</a>
+    <p><code>SPELL_CastMass</code> ja <code>SPELL_CastField</code>, M14:n viipale D3. Viisi
+       tarkkaa eroa ammuskastoon, ja räjähdys joka tulostaa onnistumisviestin tasan silloin kun
+       se ei koskettanut ketään.</p>
+  </li>
+  <li>
+    <span class="n">64</span>
+    <a href="posts/64-825-yhdeksastasadasta.html">825 yhdeksästäsadasta</a>
+    <p>Kuusi loitsujen jakamaa kohdevaikutusta, M14:n viipale D4. Neljäs vastustuskaava, ei
+       kolmas uudella vakiolla, ja eroaa kolmesta aiemmasta heitosta 825 parissa 900:sta.</p>
+  </li>
+  <li>
+    <span class="n">65</span>
+    <a href="posts/65-vartio-jonka-ohittaa-seuraava-rivi.html">Vartio jonka ohittaa seuraava rivi</a>
+    <p>Dispel, tulivahinko, parannus ja sammutus-sekä-sytytys-pari, M14:n viipale D5. Tulivahingon
+       oma vartio suojaa vain immuniteettitestiä, ja seuraava rivi astuu sen yli.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Seuraavaksi</span>
-  <p>M14:n kolmas viipale, vihollisten perus-AI ja taistelun käynnistys, joka antaa
-     vuorottajalle ensimmäisen kytkennän oikeaan peliin.</p>
+  <p>Jokainen kieltäytyminen kahdessa kastinapufunktiossa on nyt jompikumpi: vaikutus, tai
+     loitsu jota ei ole kenenkään mitattu. Kahdeksan halo-loitsua, neljä tuulta, neljä
+     puolueenympäri-loitsua ja kaksi kutsuloitsua odottavat yhä omaa lukuaan, eikä mikään
+     M14:stä ole kytketty elävään peliin.</p>
 </div>
 
 <footer class="foot">

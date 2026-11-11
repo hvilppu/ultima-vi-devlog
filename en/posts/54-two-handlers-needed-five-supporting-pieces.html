@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Handlers Needed Five Supporting Pieces | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/54-kaksi-kasittelijaa-tarvitsi-viisi-tukipalikkaa.html" hreflang="fi">FI</a><span>/</span><a href="54-two-handlers-needed-five-supporting-pieces.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 54</nav>
+
+<h1>Two Handlers Needed Five Supporting Pieces</h1>
+
+<p class="lede">
+The first piece of M14's third slice is now built: entering combat, leaving it and a charm
+ending. The three handlers' own logic was already settled after the previous slice's measuring,
+but building them uncovered five missing pieces the logic leaned on that the character record
+did not yet offer.
+</p>
+
+<h2>A known rule does not mean the data already exists</h2>
+
+<p>
+<code>COMBAT_begin</code>, <code>COMBAT_breakOff</code> and <code>COMBAT_stopCharm</code> were
+portable as they stood, no open question about what they are supposed to do. Building them hit
+two bits and three fields that <code>U6CharacterData</code> did not read yet: a charmed bit, a
+backed up alignment, a party leader, a solo member and a place to save the original's mode.
+Every one of them had already been measured earlier or was readable straight out of the
+decompilation; nobody had written them out yet.
+</p>
+
+<h2>Two bytes that share a bit number</h2>
+
+<p>
+The charmed bit, <code>0x04</code>, sits on the <code>Status</code> byte. That is a different
+byte from <code>NpcStatus</code>, whose own <code>0x04</code> means asleep. The same shape
+repeats for alignment: the backed up alignment uses mask <code>0x60</code> on the
+<code>NpcFlags</code> byte, while the live alignment uses the same mask on a different byte,
+<code>NpcStatus</code>. Either pair would be easy to get wrong by reading only the bit number
+and not its byte.
+</p>
+
+<h2>Runtime state that lives in no exported byte</h2>
+
+<p>
+<code>SavedNpcMode</code> keeps the behaviour that was in force before command mode took over,
+so <code>breakOff</code> can restore it. In the original it is a single global variable at
+address 0x2CC4, far outside the exported 130 byte game state block. So it is not something that
+should be saved to a file at all; it was modelled as a plain runtime property instead.
+</p>
+
+<h2>On the side: two tile bits for the next slice</h2>
+
+<p>
+<code>U6TileBank</code> gets two new queries, <code>IsWindow</code> and
+<code>BlocksMissiles</code>, both on the display byte's bits <code>0x08</code> and
+<code>0x20</code> under <code>u6.h</code>'s own names. Of 2048 tiles, 27 are windows, 206 block
+a shot outright, and 9 do both. Neither is used by anything yet; they are waiting on
+<code>COMBAT_Missile</code>'s own line of fire rule, which has not been measured.
+</p>
+
+<h2>One candidate bug, not reproduced</h2>
+
+<p>
+The original would read one place past the party array if the whole party is incapacitated at
+once when picking who gets control. A managed array cannot hand that value back, so this version
+falls back to place 0 instead, and the case is recorded as an open candidate bug, neither
+reproduced nor fixed.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              13 / 24
+work items done              117 / 145
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1200 / 1200
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The rest of M14's third slice: choosing a combat target and the enemies' basic AI, which
+     need their own measuring session for the coordinate geometry and the line of fire.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
