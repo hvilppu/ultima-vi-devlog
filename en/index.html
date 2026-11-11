@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>13 of 24 milestones</strong> finished, and inside them
-<strong>130 of 156 work items</strong>. The second is the one that moves while a
+<strong>131 of 157 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -319,12 +319,12 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Combat and magic <span class="m-value">0 / 1 done, 13 / 17 items</span></h3>
+    <h3>Combat and magic <span class="m-value">0 / 1 done, 14 / 18 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 76%"></span></span>
-        <span class="m-value">13 / 17, in progress</span>
+        <span class="m-bar"><span class="m-fill" style="width: 78%"></span></span>
+        <span class="m-value">14 / 18, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done">Slice A: the attack command and <code>combat.c</code>'s tables.</li>
@@ -341,6 +341,7 @@ them up found two faults in the plan straight away that the total alone had hidd
         <li class="done">Slice D3: <code>SPELL_CastMass</code> and <code>SPELL_CastField</code>.</li>
         <li class="done">Slice D4: the six shared target effects.</li>
         <li class="done">Slice D5: the four effects that were owed.</li>
+        <li class="done">Slice D6: eight spells, one shared three line shape.</li>
         <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
         <li>Eighty spells, the reagents and mixing them, mana cost and the targeting types</li>
         <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
@@ -919,14 +920,20 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
     <p>Dispel, fire damage, healing and the douse and ignite pair, M14's slice D5. Fire damage's
        own guard protects only the immunity test, and the next line steps right over it.</p>
   </li>
+  <li>
+    <span class="n">66</span>
+    <a href="posts/66-a-light-level-that-is-not-a-level.html">A Light Level That Is Not a Level</a>
+    <p>Eight spells, one shared three line shape, M14's slice D6. The decompilation names one
+       effect slot wrong in its own comment, and the only place in the whole game that reads it
+       is enough to refute it.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>Every refusal in the two cast helpers is now either an effect or a spell nobody has
-     measured yet. The eight halo spells, the four winds, the four around-party spells and the
-     two summons are all still waiting for their own reading, and nothing in M14 is wired into
-     a live game yet.</p>
+  <p>All eight of D2's shared handlers are now measured and built. The four winds, the four
+     around-party spells, the two summons and the 19 own branches are still waiting, and
+     nothing in M14 is wired into a live game yet.</p>
 </div>
 
 <footer class="foot">

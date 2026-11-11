@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Valotaso joka ei ole taso | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="66-valotaso-joka-ei-ole-taso.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/66-a-light-level-that-is-not-a-level.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 66</nav>
+
+<h1>Valotaso joka ei ole taso</h1>
+
+<p class="lede">
+Kahdeksan loitsua joilla on yksi jaettu kolmirivinen muoto, M14:n viipale D6. Kuusi niistä on
+kestoloitsuja, kaksi toimii heti. Dekompilaatio nimeää yhden efektislotin kommentissaan
+väärin, ja koko slotin ainoa lukupaikka on yksi rivi koodia jonka löytäminen riitti
+kumoamaan sen.
+</p>
+
+<h2>Kommentti joka on väärässä</h2>
+
+<p>
+Light ja great light kirjoittavat samaan efektislottiin, numeroon 0, ja dekompilaatio on
+kommentoinut sen "valotasoksi". Koko pelistä löytyy tasan yksi paikka joka lukee tätä slottia,
+maailmankellon valaistustesti, ja se ei lue siitä lukua: se kysyy onko slotti tyhjä vai ei.
+Totuusarvo, ei kirkkaus. Niin light ja great light ovat täsmälleen sama vaikutus niin kauan kuin
+kumpikaan kestää, eivätkä eri vahvuisia valoja: 100 minuuttia toiselle, 255 toiselle, eikä
+mitään muuta eroa. Tämä ei ole kommentin uudelleenkirjoitus toisin sanoin, se on sen kumoaminen:
+yksi rivi riitti, koska se oli ainoa rivi joka olisi voinut todistaa toisin.
+</p>
+
+<h2>Kahdeksan loitsua, yksi muoto</h2>
+
+<p>
+Loitsujen dispatcher-kartta (viipale D2) nimesi kahdeksan loitsua yhden jaetun käsittelijän
+alle, <code>MagicalHalo</code>: kastajan oma halo, loitsun piirin casting-efekti, ja yksi oma
+rivi per loitsu. Kuusi riviä kirjoittaa yhden efektislotin ja minuuttimäärän; kaksi ei tee niin
+ollenkaan. Peer käyttää gemiä ja tulostaa viestin 7; locate tulostaa sijainnin eikä mitään
+muuta. Yksi rakennettu muoto kahdeksalla tapauksella, ei kahdeksan käsittelijää jotka
+toistaisivat halon ja casting-efektin kukin erikseen ja ajautuisivat lopulta erilleen.
+</p>
+
+<p>
+Peerin oma gem-käyttö osoittautui briefin väitettä tarkemmin katsottuna toisenlaiseksi kuin
+luultiin: brief nimesi sen M13:n rakentamaksi rutiiniksi, mutta käyttökomennon oma taulukko
+listaa <code>UseGem</code>:n rakentamattomaksi, ja M13:n viimeiset commitit rakensivat tikapuut
+ja avoimen tynnyrin, ei gemiä. Rutiini otetaan siis injektoituna delegaattina sen rakentamisen
+sijaan, samalla tavalla kuin joka muukin tämän projektin muualla rakennettu toiminto.
+</p>
+
+<h2>Kaksi kelloa jotka käynnistyvät eri tavalla</h2>
+
+<p>
+Light ja great light käynnistävät maailmankellon nollalla minuutilla, mikä päivittää ajasta
+riippuvan tilan etenemättä mihinkään: valo ilmestyy saman tien sen sijaan että odottaisi
+seuraavaa minuuttia. Muut neljä kestoloitsua, infravision, negate magic, time stop ja eclipse,
+eivät tee tätä. Moottori ei omista maailmankelloa, niin tämä on rakennettu lippuna tuloksessa,
+ei kellon kutsuna moottorikokoonpanon sisältä.
+</p>
+
+<h2>Myrskyviitan törmäys</h2>
+
+<p>
+Puettu myrskyviitta kirjoittaa saman efektislotin, 13, ykköseksi joka maailmankellon kutsulla,
+niin kauan kuin kukaan puolueessa kantaa viittaa. Negate magic kirjoittaa 20:n samaan slottiin.
+Kumpikaan mittaus, viitan eikä loitsun, ei maininnut toista: törmäyksen näkee vain huomaamalla
+että molemmat koskevat samaa tavua. Niin negate magicin kastaminen viitan ollessa puettu antaa
+seuraavassa käynnistyksessä yhden minuutin kahdenkymmenen sijaan, eikä mikään kerro siitä
+pelaajalle. Kirjattu, ei korjattu: viitan oma sääntö kuuluu viipaleelle joka joskus mittaa
+myrskyviitan.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              131 / 157
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1640 / 1640
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kaikki kahdeksan D2:n jaettua käsittelijää on nyt mitattu ja rakennettu. Jäljellä on neljä
+     tuulta, neljä puolueenympäri-loitsua, kaksi kutsuloitsua ja 19 omaa haaraansa, eikä mikään
+     M14:stä ole kytketty elävään peliin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

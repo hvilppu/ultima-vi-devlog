@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Light Level That Is Not a Level | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/66-valotaso-joka-ei-ole-taso.html" hreflang="fi">FI</a><span>/</span><a href="66-a-light-level-that-is-not-a-level.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 66</nav>
+
+<h1>A light level that is not a level</h1>
+
+<p class="lede">
+Eight spells that share one three line shape, M14's slice D6. Six of them are duration spells,
+two act at once. The decompilation names one effect slot wrong in its own comment, and the only
+place in the whole game that reads that slot is one line of code, which was enough on its own
+to refute it.
+</p>
+
+<h2>A comment that is wrong</h2>
+
+<p>
+Light and great light write the same effect slot, number 0, and the decompilation comments it
+as a "light level". Exactly one place in the entire game reads that slot, the world clock's own
+lighting test, and it does not read a number out of it: it asks whether the slot is empty or
+not. A truth value, not a brightness. So light and great light are exactly the same effect for
+as long as either lasts, not two different strengths of light: 100 minutes for one, 255 for the
+other, and nothing else differs. This is not the comment restated in other words, it is its
+refutation: one line was enough, because it was the only line that could ever have shown
+otherwise.
+</p>
+
+<h2>Eight spells, one shape</h2>
+
+<p>
+The spell dispatcher map (slice D2) named eight spells under one shared handler,
+<code>MagicalHalo</code>: the caster's own halo, the casting effect for the spell's circle, and
+one line of its own per spell. Six of those lines write one effect slot and a number of
+minutes; two do not write a slot at all. Peer uses the gem and prints message 7; locate prints
+the location and nothing else. One built shape covering eight cases, not eight handlers that
+would each repeat the halo and the casting effect and eventually drift apart.
+</p>
+
+<p>
+Peer's own gem use turned out to be something other than the brief claimed, once looked at more
+closely: the brief named it a routine M13 had already built, but the "use" command's own table
+lists <code>UseGem</code> as not built, and M13's last commits built a ladder and an open
+barrel, not the gem. The routine is taken as an injected delegate instead of being built here,
+the same shape every other routine built elsewhere in this project already uses.
+</p>
+
+<h2>Two clocks that start differently</h2>
+
+<p>
+Light and great light tick the world clock by zero minutes, which refreshes the time dependent
+state without advancing anything: the light takes effect at once rather than waiting for the
+next minute to pass. The other four duration spells, infravision, negate magic, time stop and
+eclipse, do not. The engine does not own the world clock, so this is built as a flag in the
+outcome rather than a call to the clock from inside the engine assembly.
+</p>
+
+<h2>The storm cloak collision</h2>
+
+<p>
+A worn storm cloak writes the same effect slot, 13, to 1 on every world clock tick, for as long
+as anyone in the party wears it. Negate magic writes 20 to that same slot. Neither measurement,
+the cloak's or the spell's, mentions the other: the collision only shows up by noticing both
+touch the one byte. So casting negate magic while the cloak is worn leaves one minute instead
+of twenty at the very next tick, and nothing tells the player. Recorded, not fixed: the cloak's
+own rule belongs to whichever slice eventually measures the storm cloak.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              131 / 157
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1640 / 1640
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>All eight of D2's shared handlers are now measured and built. The four winds, the four
+     around-party spells, the two summons and the 19 own branches are still waiting, and
+     nothing in M14 is wired into a live game yet.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
