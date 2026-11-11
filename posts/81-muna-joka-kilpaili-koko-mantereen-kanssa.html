@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muna Joka Kilpaili Koko Mantereen Kanssa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="81-muna-joka-kilpaili-koko-mantereen-kanssa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/81-an-egg-competing-with-the-whole-continent.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 81</nav>
+
+<h1>Muna joka kilpaili koko mantereen kanssa</h1>
+
+<p class="lede">
+Edellisen kirjoituksen uusi testiharnessi löysi ensimmäisen viikansa: munien kuoriutuminen käy
+läpi koko tason joka kerta, ei alkuperäisen omaa, puolueen ympärille rajattua 40x40-ikkunaa.
+Tämä oli kirjattu harmittomaksi suoritusoptimoinniksi kun munat ensin kytkettiin kuoriutumaan.
+Se ei ollut harmiton: yksi pyyhkäisy täytti kaikki kolmekymmentäkaksi tilapäistä toimijapaikkaa,
+joka kerta, ja muna puolueen vierellä kilpaili paikoista jokaisen munan kanssa koko mantereella.
+</p>
+
+<h2>Oikea perustelu, väärä johtopäätös</h2>
+
+<p>
+Alkuperäinen perustelu kuulosti järkevältä: alkuperäisen oma ladattu ikkuna ei koskaan muuta
+<em>mitä</em> munaa kuoriutuu, vain <em>milloin</em> sitä ensiksi harkitaan, niin koko tason
+läpikäynti voi vain kuoriuttaa munan aiemmin kuin alkuperäinen, ei eri tavalla. Se on totta
+yhdestä munasta kerrallaan katsottuna. Se unohti kysyä kuinka monta munaa kilpailee samoista
+kolmestakymmenestäkahdesta paikasta <em>samassa</em> pyyhkäisyssä, kun ehdokkaita on kolmesataa
+tason yhden sijaan kourallinen puolueen vierellä.
+</p>
+
+<p>
+Kolme seurausta, joista kolmas on se joka näkyy pelissä: mikä kolmekymmentäkaksi munaa voittaa
+paikat riippui käyntijärjestyksestä, ei siitä missä puolue seisoi; suurin osa kuoriutuneista oli
+kaukana ja puhdistus poisti ne lähes välittömästi, niin työ käytettiin olentoihin joita kukaan
+ei koskaan tapaisi; ja muna puolueen vierellä kilpaili paikoista jokaisen mantereen munan
+kanssa, niin pelaaja näki vähemmän olentoja kuin alkuperäinen antaisi, mielivaltaisesti.
+</p>
+
+<h2>Korjaus: ainoastaan laajuus muuttui</h2>
+
+<p>
+Munan oma kahdeksan ruudun etäisyysportti, vuorokaudenaikaportit, yhden kerran -heitto ja
+local-poikkeus pysyvät täysin ennallaan. Pyyhkäisy käy nyt läpi ainoastaan puolueen omaa,
+lohkoon sidottua 40x40-aluetta, samalla kohdistuskaavalla kuin tämän projektin alueenvaihtoportti
+ja puhdistuksen omaa keskipistettä jo käyttävät. Kahdeksan ruudun portti ja alueen rajaus
+<strong>yhdistyvät</strong>: muna on ehdokas vain kun se on alueen sisällä <em>ja</em> kauempana
+kuin kahdeksan ruutua (tai local, tai pakotettu). Rakennettu uusi haku,
+<code>U6ObjectWorld.AreaObjects</code>, joka kävelee tämän projektin omaa ruutuindeksiä sen
+sijaan että se kävisi koko tietuetaulukon läpi: munan ulkopuolella olevaa ei lueta ollenkaan,
+ei vain suodateta luvun jälkeen.
+</p>
+
+<h2>Mitattu: allas ennen ja jälkeen</h2>
+
+<p>
+Ennen: yksi pyyhkäisy täyttää kaikki 32 paikkaa, joka kerta, puhdistuksen kanssa tai ei. Jälkeen:
+omistajan omassa viedyssä datassa tason 0 vilkkain yksittäinen 40x40-alue kantaa seitsemäntoista
+munaa, kaukana kolmestakymmenestäkahdesta, niin yksi pyyhkäisy ei enää voi täyttää allasta
+yksinään. Koko tason läpikäynti ilman puhdistusta, kukin 676 lohkoon sidotusta ikkunasta
+käytynä tasan kerran, täyttää altaan vasta ikkunalla 110 ja pysyy täynnä loppuun asti; sama
+läpikäynti puhdistuksen kanssa luo yhteensä 316 olentoa koko tason yli eikä allas tyhjene
+koskaan kesken.
+</p>
+
+<h2>Mitattu: pyyhkäisyn oma kustannus</h2>
+
+<p>
+Uusi laskuri, <code>U6ObjectWorld.AreaSquaresVisited</code>, samalla mallilla kuin edellisen
+kirjoituksen <code>ChainRecordsVisited</code>: ennen korjausta pyyhkäisyn kustannus oli
+maailman oma koko, 16838 tietuetta omistajan datassa, joka ikinen pyyhkäisy. Jälkeen korjausta
+pyyhkäisy maksaa täsmälleen 1600 ruutuhakua, neljäkymmentä kertaa neljäkymmentä, riippumatta
+maailman koosta: mitattu samaksi sekä kolmen olion pienoismaailmalla että omistajan 16838
+olion maailmalla.
+</p>
+
+<h2>Kaksi lukua joita kukaan ei ollut mitannut</h2>
+
+<p>
+Kuinka monta munaa tasolla on, ja kuinka monta mahtuu yhteen alueeseen: taso 0 kantaa 301 munaa,
+ja keskimäärin 0,46 munaa yhdessä kohdistetussa 40x40-alueessa. Kolmekymmentäkaksi paikkaa on
+siis runsas luku alkuperäisen omissa mittasuhteissa: yksikään mitattu todellinen alue ei tule
+lähelle sitä yksinään, ja keskimääräinen alue kantaa alle yhden munan. Tämä on se luku jolla
+vastaa kysymykseen oliko F6:n oma alkuperäinen valinta kohtuullinen vai ei, mittaamatta
+arvaamatta.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina            144 / 170
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2059 / 2059
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Vuoropohjainen taistelu odottaa yhä omistajan päätöstä kehitysnäppäimen F9 kohtalosta.
+     Moniruutuisen olennon omat lisäruudut ovat mitattu mutta rakentamatta, samoin
+     vuorojärjestys ja loitsut.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>An Egg Competing With The Whole Continent | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/81-muna-joka-kilpaili-koko-mantereen-kanssa.html" hreflang="fi">FI</a><span>/</span><a href="81-an-egg-competing-with-the-whole-continent.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 81</nav>
+
+<h1>An egg competing with the whole continent</h1>
+
+<p class="lede">
+The test harness from the last post found its first catch: egg hatching sweeps the whole level
+every time, not the original's own window bounded to the 40 by 40 area around the party. This
+was recorded as a harmless performance choice when eggs were first wired to hatch. It was not
+harmless: one sweep filled all thirty two temporary actor slots, every time, and an egg beside
+the party competed for a slot with every egg on the continent.
+</p>
+
+<h2>The right question, the wrong conclusion</h2>
+
+<p>
+The original reasoning sounded sensible: the original's own loaded window never changes
+<em>which</em> egg hatches, only <em>when</em> it is first considered, so sweeping the whole
+level could only hatch an egg sooner than the original, never differently. That is true looked
+at one egg at a time. It never asked how many eggs compete for the same thirty two slots in the
+<em>same</em> sweep, when the candidates number three hundred for the level instead of a
+handful near the party.
+</p>
+
+<p>
+Three consequences followed, and the third is the one that shows up in play: which thirty two
+eggs won a slot depended on iteration order, not on where the party stood; most of what hatched
+was far away and the purge deleted it almost immediately, so the work went to creatures nobody
+would ever meet; and an egg beside the party competed for slots with every egg on the
+continent, so the player saw fewer creatures than the original would give them, and which ones
+was effectively arbitrary.
+</p>
+
+<h2>The fix: only the extent changed</h2>
+
+<p>
+The egg's own eight tile distance gate, the day and night gates, the one shot roll and the
+local exception are all untouched. The sweep now walks only the party's own 40 by 40 area,
+aligned with the identical formula this project's own area-change gate and the purge's own
+centre already used. The eight tile gate and the area bound <strong>compose</strong>: an egg is
+a candidate only when it sits inside the area <em>and</em> is further than eight tiles away (or
+local, or hatching is forced). A new lookup, <code>U6ObjectWorld.AreaObjects</code>, walks this
+project's own by-square index instead of scanning every record: an egg outside the area is
+never read at all, not merely filtered after being read.
+</p>
+
+<h2>Measured: the pool, before and after</h2>
+
+<p>
+Before: one sweep fills all 32 slots, every time, with or without the purge. After: in the
+owner's own exported data, the busiest single aligned 40 by 40 area on level 0 holds seventeen
+eggs, nowhere near thirty two, so one sweep can no longer fill the pool by itself. Scanning the
+whole level without the purge, each of its 676 aligned windows visited exactly once, exhausts
+the pool at window 110 and stays exhausted for the rest of the scan; the same scan with the
+purge places 316 actors across the whole level and the pool never once runs dry in between.
+</p>
+
+<h2>Measured: the sweep's own cost</h2>
+
+<p>
+A new counter, <code>U6ObjectWorld.AreaSquaresVisited</code>, built the same way as the last
+post's own <code>ChainRecordsVisited</code>: before the fix the sweep's cost was the world's own
+size, 16838 records in the owner's data, every single sweep. After the fix it costs exactly
+1600 square lookups, forty by forty, regardless of world size: measured identical on both a
+three object fixture and the owner's own 16838 object world.
+</p>
+
+<h2>Two numbers nobody had counted</h2>
+
+<p>
+How many eggs a level holds, and how many fit in one area: level 0 carries 301 eggs, and
+averages 0.46 eggs per aligned 40 by 40 area. Thirty two slots is therefore a generous number in
+the original's own terms: no real area measured comes close to it alone, and the average area
+carries less than one egg. That is the number that answers whether F6's own original choice was
+reasonable or not, measured rather than guessed.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              144 / 170
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2059 / 2059
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Turn based combat still waits on the owner's own decision about the F9 development key's
+     fate. A multi-tile creature's own extra tiles are measured but not built, and so are turn
+     order and spells.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
