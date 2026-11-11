@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Clock With a Reason to Tick | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/68-kello-jolla-on-syy-kayda.html" hreflang="fi">FI</a><span>/</span><a href="68-a-clock-with-a-reason-to-tick.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 68</nav>
+
+<h1>A clock with a reason to tick</h1>
+
+<p class="lede">
+M14's slice E1: the town's clock moved off the fixed five-minute step and started running on
+the turn scheduler the previous slice built but never wired to anything. Walking is now the
+first thing that actually uses it, and wiring it up turned up two places that would have
+granted movement points twice and one place that would have frozen the player's own turn for
+good.
+</p>
+
+<h2>Two grants, and both had to stop</h2>
+
+<p>
+Before this slice, <code>U6DailyRound.Apply</code> granted <code>DEXTE</code> to every
+character from 2 to 223 that had a shape, and only afterward came the filter that skips anyone
+not on their routine or backing out of a fight. The grant happened before the filter, not
+instead of it, which means a character fixed in combat was granted exactly the same as one
+following its schedule. Nobody noticed, because nothing until now read those points at minute
+granularity. <code>U6View.RunDailyRound</code> did the same for the Avatar separately, because
+the Avatar falls outside the range <code>Apply</code> governs and never got a grant from it at
+all.
+</p>
+
+<p>
+Now that <code>U6TurnScheduler.GrantRound</code> grants every minute, either of the old grants
+would have produced the same <code>DEXTE</code> twice every game hour: once from the
+scheduler, once from code that has no idea the scheduler exists. Both were removed, and a test
+builds exactly this situation directly: a character is forced into combat, its points are
+granted once by the scheduler, and then the hour that used to grant a second time is run
+against it. The points land exactly where one grant would leave them.
+</p>
+
+<h2>A clock that only ticks when there is a reason</h2>
+
+<p>
+The old clock walked five minutes forward on every step, regardless of what the character did
+or how nimble it was. <code>U6TurnScheduler.Advance</code> does the opposite: it looks for the
+next actor with the largest share of its movement points, and the clock only ticks a minute
+when nobody at all is eligible. The player's own step still spends its own cost exactly as
+before, and after that the view loops the scheduler until the turn comes back to the Avatar
+itself, exactly where the original stops too.
+</p>
+
+<p>
+A discriminator was already sitting there waiting: the town's own schedules send a batch of
+characters walking at noon, and measured by distance alone, not one of them would have missed
+the hour at the original's own pace, where the old fixed step missed on sixteen of
+twenty-three. What the live game mechanics actually reproduce is a smaller but tighter set:
+of the characters that refuse an immediate teleport because they or their goal are too close
+to the player, not one misses the hour at the new pace either. That set is four, not
+twenty-three, because most distant characters simply teleport into place and never walk a
+single step.
+</p>
+
+<h2>The Avatar that left its own level and never came back</h2>
+
+<p>
+The scheduler's own eligibility test reads a character's level straight out of
+<code>U6CharacterData</code>. The Avatar's own row there had never needed to stay current,
+because everything else in the view, party following, the character layer, finding the
+nearest conversation partner, already read its position from the view's own spatial index
+instead. The two had drifted apart since the day that index was built, and neither side
+noticed.
+</p>
+
+<p>
+The scheduler is the first reader that asks the raw table for a character's level directly,
+and without a fix the very first ladder down would have been enough: the Avatar's row would
+stay on the old level, the scheduler would never consider it eligible on the new one, and the
+player's own turn would never come back. The fix is one method, called once at the top of the
+loop before it asks the scheduler anything, and the same pass closed two other spots, two
+different ways of using a ladder, that had not even been keeping the spatial index current.
+</p>
+
+<h2>A finding left open: the vehicle's own clock</h2>
+
+<p>
+Travelling by vehicle does not charge the Avatar's own points, because that is its own slice
+of work, left for later on purpose. Under the old fixed step that was a harmless detail,
+because the clock advanced regardless. Under the new one it is not: since the clock only ticks
+when nobody at all is eligible, and the Avatar is always eligible with a full share when
+nothing ever spends it, a lone vehicle trip does not move the clock at all. That is a real
+regression from the fixed step it replaces, not a simplification chosen on purpose, and it
+only closes once the vehicle's own points pool is wired in.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              133 / 159
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1717 / 1717
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Wiring combat to the same scheduler is its own slice, because combat has no turn
+     selection of its own yet that could call it. The vehicle's own points pool is the other
+     open end, now recorded for a reason rather than guessed at.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

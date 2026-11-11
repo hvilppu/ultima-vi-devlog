@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Grip That Lets Go on Its Own Turn | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/69-ote-joka-irtoaa-omalla-vuorolla.html" hreflang="fi">FI</a><span>/</span><a href="69-a-grip-that-lets-go-on-its-own-turn.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 69</nav>
+
+<h1>A grip that lets go on its own turn</h1>
+
+<p class="lede">
+M14's slice E2: combat now runs through the same turn loop the previous slice gave walking.
+Nine measured combat modes that have existed and been tested for months got their first
+caller. Wiring it up found two ways this very brief's own count of nine was wrong, and one
+piece of game mechanics that was not where it was assumed to be.
+</p>
+
+<h2>A grip that lets go on its own turn</h2>
+
+<p>
+In melee, the <code>Leader</code> field remembers the last attacker standing next to a
+character, and while it is set a ranged shot refuses to fire: the grip holds. The question is
+when it lets go. The original resets it in two places, both under the same condition
+(<code>NPCMode</code> between 2 and 15): at the top of the turn loop, for the controlled actor,
+and at the end of every actor's own turn, for itself. The second is the one that settles it:
+the grip lets go on the engaged actor's own turn, not the instant it is hit and not only once
+something else happens to clear it.
+</p>
+
+<p>
+That is not a value to pin, it is two turns. The test hits an actor with an adjacent attack,
+checks that a ranged shot refuses while that stands, runs the actor's own turn, and checks that
+it no longer refuses. A port that left <code>Leader</code> set until something else cleared it
+would produce a creature that can never fire again once anyone has closed on it; this is what
+pins that the engine does not do that.
+</p>
+
+<h2>Ten entry points, not nine</h2>
+
+<p>
+Wiring this up meant reading <code>NPC_TakeTurn</code>'s own switch exactly, not as the
+brief's prose but straight from the decompilation. It is ten distinct function calls, not the
+nine the brief counted: two pairs share one entry point each
+(<code>AI_ASSAULT</code>/<code>AI_VIGILANTE</code>, and
+<code>AI_RETREAT</code>/<code>AI_SHY</code>/<code>AI_FEAR</code>/<code>AI_SCHED_SHY</code>),
+and counting each shared entry once still leaves ten, not nine. The number was corrected rather
+than forced to agree.
+</p>
+
+<h2>Two conditions that look like the same thing twice and are not</h2>
+
+<p>
+The numeric range (2 to 15) that resets <code>Leader</code> and the dispatch switch's own set
+of modes look, on a first read, like the same fact written down twice. They are not:
+<code>AI_FEAR</code> (19), <code>AI_SCHED_SHY</code> (154) and <code>AI_VIGILANTE</code> (155)
+all dispatch to a combat handler but sit numerically outside the range, so their own
+<code>Leader</code> never resets by it. Conversely <code>AI_GRAZE</code> (12) and the east-west
+patrol (15) sit inside the range but dispatch to no combat handler at all. A port that used one
+test for both would reset <code>Leader</code> for a grazing cow and leave it unreset for a
+creature that was just hit and fought back: wrong in both directions at once.
+</p>
+
+<h2>Five delegates nobody had ever assembled from the real game</h2>
+
+<p>
+The combat modes' own entry points take five inputs (can the actor see the target, can it step
+onto a square, does a square block a shot) that no earlier slice had ever assembled from
+anything but a test's own fakes. Three were assembled straight from already measured pieces as
+they stand. Two had to be named as gaps: <code>canSee</code> here only tests the same level, not
+invisibility and not a buried tangle pod, because neither is modelled in this project's
+character data; and the step's own terrain cost in combat borrows the walking formula as is,
+because the original's own formula was never measured for a combat caller, its own comments say
+so directly. A tangle pod's own new vine segment always refuses to be created, by name: the pod
+can still move and attack, it just never leaves a vine behind it, because this engine has no
+primitive yet for adding a new object to the map.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              134 / 160
+
+U6Formats.Tests    358 / 358
+U6Export.Tests      56 / 56
+U6Engine.Tests    1759 / 1759
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The player's own attack command is its own slice: the player can now move and toggle
+     combat, but not yet strike. Casting needs a spellbook interface before it can be wired
+     in at all.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

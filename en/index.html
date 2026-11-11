@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>13 of 24 milestones</strong> finished, and inside them
-<strong>132 of 158 work items</strong>. The second is the one that moves while a
+<strong>136 of 162 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -319,12 +319,12 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Combat and magic <span class="m-value">0 / 1 done, 15 / 19 items</span></h3>
+    <h3>Combat and magic <span class="m-value">0 / 1 done, 19 / 23 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 79%"></span></span>
-        <span class="m-value">15 / 19, in progress</span>
+        <span class="m-bar"><span class="m-fill" style="width: 83%"></span></span>
+        <span class="m-value">19 / 23, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done">Slice A: the attack command and <code>combat.c</code>'s tables.</li>
@@ -343,6 +343,10 @@ them up found two faults in the plan straight away that the total alone had hidd
         <li class="done">Slice D5: the four effects that were owed.</li>
         <li class="done">Slice D6: eight spells, one shared three line shape.</li>
         <li class="done">Slice D7: the winds, the party-ring spells and the summons.</li>
+        <li class="done">Slice E1: wiring walking to the turn scheduler.</li>
+        <li class="done">Slice E2: wiring combat into the turn loop.</li>
+        <li class="done">Development key (F9): one test creature, alternating rat and skeleton.</li>
+        <li class="done">Slice E3: applying a hit.</li>
         <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
         <li>Eighty spells, the reagents and mixing them, mana cost and the targeting types</li>
         <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
@@ -935,13 +939,33 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        handler turned up a mistake in the previous slice: energy wind runs through no
        resistance check at all.</p>
   </li>
+  <li>
+    <span class="n">68</span>
+    <a href="posts/68-a-clock-with-a-reason-to-tick.html">A Clock With a Reason to Tick</a>
+    <p>Walking wired to the turn scheduler, M14's slice E1. Two old point grants had to stop,
+       and one finding, the Avatar's own row never following its level, would have frozen the
+       player's turn for good on the first ladder down.</p>
+  </li>
+  <li>
+    <span class="n">69</span>
+    <a href="posts/69-a-grip-that-lets-go-on-its-own-turn.html">A Grip That Lets Go on Its Own Turn</a>
+    <p>Combat wired to the same turn loop, M14's slice E2. Nine measured combat modes got their
+       first caller, and wiring it up found two places where the brief's own count of nine was
+       wrong.</p>
+  </li>
+  <li>
+    <span class="n">70</span>
+    <a href="posts/70-the-armour-nobody-added-up.html">The Armour Nobody Added Up</a>
+    <p>Applying a hit, M14's slice E3. The brief's own claim of six ready built primitives held
+       for five, not six: nothing summed a defender's own worn armour.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>All eight of the spell dispatcher map's shared handlers are now measured and built. The
-     19 own branches are what remain, each needing its own reading, and nothing in M14 is wired
-     into a live game yet.</p>
+  <p>The player's own attack command is its own slice: the player can now move and toggle
+     combat, but not yet strike. Casting needs a spellbook interface before it can be wired in
+     at all.</p>
 </div>
 
 <footer class="foot">

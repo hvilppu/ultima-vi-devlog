@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panssari Jota Kukaan Ei Laskenut Yhteen | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="70-panssari-jota-kukaan-ei-laskenut-yhteen.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/70-the-armour-nobody-added-up.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 70</nav>
+
+<h1>Panssari jota kukaan ei laskenut yhteen</h1>
+
+<p class="lede">
+M14:n viipale E3: rotta kävelee seurueen luo, päättää hyökätä ja edellinen viipale kulutti sen
+liikepisteet mutta ei muuta. Tämä viipale soveltaa itse osuman: tyhjä laukaus, hipoma, vahinko,
+kuolema, täsmälleen siinä järjestyksessä jossa alkuperäinen tekee sen. Kuusi haaraa nimettiin
+sen sijaan että ne olisi rakennettu, ja yksi briefin oma väite osoittautui väärään viidestä
+kuudesta syötteestä, ei kuudesta.
+</p>
+
+<h2>Viisi kuudesta, ei kuudesta</h2>
+
+<p>
+Briefi väitti että jokaisella osuman syötteellä, puolustajan ketteryydellä, hyökkääjän voimalla
+tai ketteryydellä, aseen vahingolla, suojalla ja epäkuolleisuudella, on jo valmis primitiivi.
+Viisi piti paikkansa. Kuudes ei: <code>U6Combat.Protection</code> ottaa sisään valmiiksi lasketun
+panssarisumman, se ei laske sitä itse, ja mikään muu ei laskenut sitä puolustajan varustettujen
+esineiden yli ennen tätä viipaletta. Ilman sitä joka ikinen osuma seurueenjäseneen olisi lukenut
+panssaria nollana, riippumatta siitä mitä hahmo oikeasti kantaa. Rakennettu
+<code>U6AttackRules.EquippedProtection</code>:na, vierekkäin olemassa olevan
+<code>EquippedWeapons</code>:in kanssa, samalla kaavalla: käy varustetut esineet läpi, summaa
+niiden panssariarvot.
+</p>
+
+<h2>Ärsytystarkistus jota ei ole rakennettu kukaan</h2>
+
+<p>
+Alkuperäinen ajaa neutraalin ärsytystarkistuksen joka hipoman ja vahingon jälkeen, ja
+täsmälleen samalla tavalla kuolemaniskulla kuin eloonjäämisellä: portti on vain se, että
+puolustaja oli tarkoituksella valittu kohde, ei se jäikö puolustaja henkiin. Ensimmäinen
+kirjoitus tässä väitti toista, luettuna dekompilaation omasta yhteenvedosta eikä itse
+käsittelijästä; käsittelijä on auktoriteetti ja yhteenveto oli väärässä, korjattu ja pinnattu
+testillä. Itse tarkistusta tämä moottori ei ole koskaan rakentanut, ei tässä viipaleessa eikä
+kahdessa aiemmassa loitsuviipaleessa jotka jo raportoivat oman
+<code>ProvokeAmount</code>-arvonsa kukaan lukematta sitä. Se tarvitsee vartijahälytyksen 32
+ruudun sisällä, NPC-aikataulun seurannan ja väliaikaisen hirviön käsitteen, kolme asiaa joista
+yksikään ei ole olemassa, ja aukko kasvaa viipaleesta toiseen. <code>U6HitApplication</code>
+jatkaa samaa linjaa: palauttaa määrän, ei tee mitään sen kanssa.
+</p>
+
+<h2>Neljä lippua, ei yksi, ja ne estivät kolme sääntöä</h2>
+
+<p>
+Luurangon oma <code>Traits</code>-kenttä <code>monsters.json</code>:ssa purkautui siististi
+nimiksi. Rotan oma purkautui raakana lukuna, 10308. Ensimmäinen kirjoitus tässä löysi yhden
+puuttuvan lipun ja pysähtyi siihen. Oikea määrä, luettuna omistajan omasta dekompilaatiosta,
+on neljä: olemassa olevan <code>Ethereal</code>-lipun yläpuolella on <code>NoCorpse</code>,
+<code>Vanishes</code>, <code>Bleeds</code> ja <code>Human</code>. Erottelija joka naulaa tämän
+kerralla: kaikkien 64 luokan liput yhteen OR:attuna antaa täsmälleen kaikkien viidentoista
+nimetyn lipun maskin, eikä yksikään luokka kanna bittiä sen ulkopuolella.
+</p>
+
+<p>
+Puute ei ollut vain dokumentaation vaje: se esti kolme mitattua sääntöä kuolemahaarassa, jonka
+alkuperäinen ajaa saman koodin läpi kuin nukahtamisen. Löytyvä ja ei-katoava tyyppi saa ruumiin
+muodon taulukosta; muuten kuolleena tuijottaja synnyttäisi hyönteisiä, katoamaton tai katoava
+luokka poistettaisiin kokonaan, lima päivittäisi kehyksensä; ja vuotava luokka jättäisi
+veritekeen, mutta vain onnistuneen lisäyksen jälkeen, aivan erillisenä tarkistuksena. Rotta ja
+luuranko osoittavat tämän kahdesta vastakkaisesta suunnasta: rotta ei saa koskaan ruumista ja
+vuotaa aina, luuranko saa aina ruumiin ja ei koskaan vuoda. Neljä lippua lisätty, vienti ajettu
+uudelleen, ja kuolemahaara rakennettu niiden varaan tässä samassa viipaleessa, koska puute esti
+koodia jota oltiin juuri kirjoittamassa.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              136 / 162
+
+U6Formats.Tests    359 / 359
+U6Export.Tests      56 / 56
+U6Engine.Tests    1826 / 1826
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Pelaajan oma hyökkäyskomento on edelleen omansa: sen jälkeen olento voi tappaa seurueen ja
+     seurue ei voi vastata, ja se raja on tarkoituksellinen.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

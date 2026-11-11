@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Armour Nobody Added Up | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/70-panssari-jota-kukaan-ei-laskenut-yhteen.html" hreflang="fi">FI</a><span>/</span><a href="70-the-armour-nobody-added-up.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 70</nav>
+
+<h1>The armour nobody added up</h1>
+
+<p class="lede">
+M14's slice E3: a rat walks up to the party, decides to attack, and the previous slice spent
+its movement points and nothing else. This slice applies the hit itself: a miss, a graze,
+damage, death, in exactly the order the original runs them. Six branches were named instead
+of built, and one of the brief's own claims turned out wrong for one input out of six, not
+zero.
+</p>
+
+<h2>Five out of six, not six</h2>
+
+<p>
+The brief claimed every input a hit needs, the defender's dexterity, the attacker's strength or
+dexterity, the weapon's damage, protection and undead status, already had a built primitive.
+Five did. The sixth did not: <code>U6Combat.Protection</code> takes an already summed armour
+total in, it does not sum one itself, and nothing else summed a defender's own worn armour
+before this slice. Without it, every single hit on a party member would have read protection as
+zero, whatever the character actually wears. Built as
+<code>U6AttackRules.EquippedProtection</code>, sitting next to the existing
+<code>EquippedWeapons</code>, with the same shape: walk the equipped items, add up their armour
+values.
+</p>
+
+<h2>A provoke check nobody has ever built</h2>
+
+<p>
+The original runs the neutral provoke check right after the graze and the damage, and on a
+killing blow exactly the same way as on a survivor: the only gate is whether the defender was
+the deliberately chosen target, not whether the defender lived. An earlier draft of this
+report claimed otherwise, read from the decompilation's own summary document rather than the
+handler itself; the handler is the authority and the summary was wrong, now corrected and
+pinned by a test. The check itself this engine has never built, not in this slice and not in
+the two earlier spell slices that already report their own <code>ProvokeAmount</code> with
+nobody reading it back. It needs a guard alert radius, scheduled NPC tracking and a notion of
+a temporary monster, three things that do not exist, and the gap grows with every slice that
+adds another amount nobody reads. <code>U6HitApplication</code> keeps the same shape: it
+reports the amount and does nothing with it.
+</p>
+
+<h2>Four flags, not one, and they were blocking three rules</h2>
+
+<p>
+The skeleton's own <code>Traits</code> field in <code>monsters.json</code> decoded cleanly into
+names. The rat's own decoded as a raw number, 10308. An earlier draft of this report found one
+missing flag and stopped there. The real count, read from the owner's own decompilation, is
+four: above the existing <code>Ethereal</code> flag sit <code>NoCorpse</code>,
+<code>Vanishes</code>, <code>Bleeds</code> and <code>Human</code>. The discriminator that
+settles it this time: OR every one of the 64 classes' own flags together and the result is
+exactly the mask of all fifteen named flags, with not one class carrying a bit outside it.
+</p>
+
+<p>
+This was not only a documentation gap: it was blocking three measured rules in the death
+branch, which the original runs through the same code as falling asleep. A type found in the
+corpse table that does not vanish takes its corpse shape; otherwise, on death, a gazer would
+spawn insects, a no-corpse or vanishing class would be deleted outright, a slime would refresh
+its frames; and a bleeding class leaves a pool of blood, but only after the object is actually
+added, checked as its own separate step. The rat and the skeleton show the two opposite ends of
+this: the rat never gets a corpse and always bleeds, the skeleton always gets a corpse and
+never bleeds. Four flags added, the export regenerated, and the death branch built on top of
+them in this same slice, because the gap was blocking code that was being written right then.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              136 / 162
+
+U6Formats.Tests    359 / 359
+U6Export.Tests      56 / 56
+U6Engine.Tests    1826 / 1826
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The player's own attack command is still its own slice: after it, a creature can kill the
+     party and the party cannot answer, and that boundary is deliberate.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
