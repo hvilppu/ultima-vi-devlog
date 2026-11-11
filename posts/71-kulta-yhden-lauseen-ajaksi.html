@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kulta Yhden Lauseen Ajaksi | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="71-kulta-yhden-lauseen-ajaksi.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/71-gold-for-one-sentence.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 71</nav>
+
+<h1>Kulta yhden lauseen ajaksi</h1>
+
+<p class="lede">
+M14:n viipale F1: esinevarasto sai omat luonti- ja tuhoprimitiivinsä, joiden olemassaolo oli
+jo koko ajan totta vaikka kaksi aiempaa viipaletta väitti toisin. Sivussa löytyi alkuperäisen
+oma kummallisuus, laiva joka muuttuu kullaksi juuri sen verran kauan että se mahtuu
+poistumaan, ja briefi oli väärässä kahdesti samaan suuntaan: se sijoitti asian väärälle
+puolelle sen sijaan että olisi kysynyt oikealta.
+</p>
+
+<h2>Kulta ei ole arvaus</h2>
+
+<p>
+Puolue nousee laivaan, ja alkuperäinen poistaa laivan karttaobjektin kutsumalla
+<code>DeleteObj</code>:a. Mutta juuri sitä ennen se tekee jotain, jolle dekompiloijan oma
+kommentti ei löydä parempaa selitystä kuin arvauksen: se vaihtaa laivan tyypin
+kultakimpaleeksi. "Why? (maybe so that DeleteObj doesn't handle it as a multi-tile
+object)". Moniosaisen poiston takia, siis, hydran ja lohikäärmeen kaltaisten olioiden
+varalta.
+</p>
+
+<p>
+Arvaus on näppärä ja väärä. <code>DeleteObj</code>:n moniosainen haara on portitettu ehdolla
+<code>objNum &lt; 0x100</code>, hahmoalueelle; laivan runko on karttaobjekti sen yläpuolella,
+eikä se voisi koskaan osua siihen haaraan, millä tyypillä tahansa. Todellinen syy istuu
+yhtä tarkistusta aiemmin: <code>DeleteObj</code> palauttaa suoraan jos poistettava on laiva,
+kommentti sanoo sen suoraan, "Ships can't be deleted". Laiva ei poistu niin kauan kuin se on
+laiva. Kullaksi vaihtaminen on ainoa tapa ohittaa juuri tämä, eikä mikään muu: peli muuttaa
+laivan kullaksi yhden lauseen ajaksi vain päästäkseen oman kieltäytymisensä ohi.
+</p>
+
+<p>
+Tämän moottorin <code>U6ObjectWorld.Destroy</code> toisti laivan kieltäytymisen mitattuna
+sääntönä, ja se paljasti saman tarpeen omassa ajoneuvokoodissa: <code>U6Vehicles.TryBoard</code>
+tuhosi laivan runko-objektin suoraan kun puolue nousi kyytiin, ja uusi kieltäytyminen olisi
+jättänyt sen kartalle puolueen omaksuman ajoneuvotilan rinnalle. Korjaus on täsmälleen
+alkuperäisen omansa: tyyppi vaihtuu kullaksi juuri ennen tuhoamista. Ei neutraalia korviketta,
+ei omaa keksintöä, kulta koska alkuperäinen valitsi kullan.
+</p>
+
+<h2>Briefi oli väärässä kahdesti, samaan suuntaan</h2>
+
+<p>
+Mittaussession oma brief listasi kuusi esinevaraston kieltäytymistä suljettavaksi. Kaksi
+niistä, gazerin kuolemassa syntyvät hyönteiset ja limaolennon jakautuminen, osoittautuivat
+väärälle puolelle sijoitetuiksi: molemmat kutsuvat alkuperäisessä munangeneraattoria, joka
+kutsuu <code>AddMonster</code>:ia eikä <code>AddMapObj</code>:ia. Ne tarvitsevat uuden
+<strong>toimijan</strong>, ei karttaobjektia, ja tämä moottori pitää toimijat kokonaan
+erillään esinevarastosta. Esinevaraston kaksi uutta primitiiviä eivät voi koskea kumpaakaan,
+olivat ne miten rakennettuja tahansa. Korjaus tarkistettiin käsittelijää vasten: munangeneraattorin
+oma kommentti sanoo palauttavansa negatiivisen kun paikkaa ei ole vapaana, joten kieltäytyminen
+on todellinen, mutta toimijan 32 paikan väliaikaisessa poolissa, jota tämä projekti
+kunnioittaa jo kehitysnäppäimessä omalla, riippumattomalla mittauksellaan samaan lukuun.
+</p>
+
+<p>
+Toinen virhe oli samankaltainen eri mittakaavassa. Brief pyysi esinevaraston luontia
+kieltäytymään kun elävien objektien määrä saavuttaa alkuperäisen 2815 paikan poolin. Luku on
+oikea alkuperäiselle, mutta alkuperäisellä pooli on budjetti <strong>yhdelle ladatulle
+2x2-alueelle</strong>, ei koko pelin objektimäärälle; se on sivutuksen muistiraja, sama laji
+jonka tämä projekti on jo aiemmin jättänyt jäljittelemättä kokonaan toisesta syystä, koska
+koko 16838 objektin maailma pysyy muistissa yhtä aikaa eikä sivuta mitään. Tätä repoa vasten
+jo mitatut luvut riittivät osoittamaan ongelman: kartalla olevia objekteja on yksin 15071,
+yli viisinkertainen kattoon nähden, ennen kuin yhtäkään uutta objektia on luotu. Globaali
+portti olisi kieltänyt jokaisen kartta- tai säiliöluonnin siitä hetkestä kun oikea tallennus
+latautuu. Ei epäonnistunut testi, epäonnistunut peli.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              137 / 163
+
+U6Formats.Tests    359 / 359
+U6Export.Tests      56 / 56
+U6Engine.Tests    1850 / 1850
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Pelaajan oma hyökkäyskomento on edelleen omansa: esinevarasto osaa nyt lisätä veritekeen
+     ja köynnössegmentin ja soveltaa ammuksen kulutuksen, mutta mikään ei vielä kutsu niitä
+     oikeasta pelihetkestä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

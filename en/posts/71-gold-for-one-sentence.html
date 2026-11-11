@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gold For One Sentence | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/71-kulta-yhden-lauseen-ajaksi.html" hreflang="fi">FI</a><span>/</span><a href="71-gold-for-one-sentence.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 71</nav>
+
+<h1>Gold for one sentence</h1>
+
+<p class="lede">
+M14's slice F1: the object store earned its own create and delete primitives, which had
+existed the whole time even though two earlier slices claimed otherwise. Along the way came
+one of the original's own oddities, a ship that turns into a lump of gold for exactly as
+long as it takes to delete it, and the brief was wrong twice in the same direction: it put
+something on the wrong side instead of asking the right one.
+</p>
+
+<h2>Gold is not a guess</h2>
+
+<p>
+The party boards a ship, and the original removes the ship's own map object by calling
+<code>DeleteObj</code>. But just before that, it does something the decompiler's own comment
+can only guess at: it changes the ship's type to a lump of gold. "Why? (maybe so that
+DeleteObj doesn't handle it as a multi-tile object)". Because of the multi-part deletion, in
+other words, for creatures like the hydra or the dragon.
+</p>
+
+<p>
+The guess is clever and wrong. <code>DeleteObj</code>'s own multi-part branch is gated on
+<code>objNum &lt; 0x100</code>, the actor range; a ship's own hull is a map object above it,
+and could never reach that branch, whatever its type happened to be. The real reason sits one
+check earlier: <code>DeleteObj</code> returns outright when the thing being deleted is a
+ship, the comment says so in writing, "Ships can't be deleted." A ship never goes away as
+long as it is still a ship. Turning it into gold is the only way past exactly that, and
+nothing else: the game turns a ship into gold for one sentence purely to get past its own
+refusal.
+</p>
+
+<p>
+This engine's own <code>U6ObjectWorld.Destroy</code> reproduced the ship refusal as a
+measured rule, and that uncovered the same need in this project's own vehicle code:
+<code>U6Vehicles.TryBoard</code> destroyed the ship's hull object directly when the party
+boarded, and the new refusal would have left it sitting on the map next to the vehicle state
+the party had just adopted. The fix is exactly the original's own: the type changes to gold
+right before the delete. Not a neutral stand-in, not an invention of this project's own, gold
+because the original chose gold.
+</p>
+
+<h2>The brief was wrong twice, in the same direction</h2>
+
+<p>
+The measuring session's own brief listed six object store refusals to close. Two of them,
+the insects a dying gazer spawns and a slime splitting in two, turned out to be filed on the
+wrong side: both call the egg generator in the original, which calls
+<code>AddMonster</code>, not <code>AddMapObj</code>. They need a new <strong>actor</strong>,
+not a map object, and this engine keeps actors entirely apart from the object store. The
+store's two new primitives cannot touch either one, however they are built. The correction
+was checked against the handler itself: the egg generator's own comment says it returns a
+negative number when no slot is free, so the refusal is real, just on the actor side, in the
+32 slot temporary pool this project already honours in its own development spawn key, from
+an independent measurement landing on the same number.
+</p>
+
+<p>
+The second mistake was the same shape at a different scale. The brief asked the object
+store's own create to refuse once the live object count reaches the original's 2815 slot
+pool. The number is right for the original, but in the original that pool is a budget for
+<strong>one loaded 2x2 area</strong>, not for the whole game's object count; it is a paging
+memory limit, the same kind of thing this project had already chosen not to reproduce for an
+entirely different reason, because the whole 16838 object world stays resident at once and
+pages nothing. Numbers already measured against this very repository were enough to show the
+problem: the map alone carries 15071 objects, over five times the cap, before a single new
+one exists. A global gate would have refused every map or container create from the moment
+real save data loads. Not a failed test. A failed game.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              137 / 163
+
+U6Formats.Tests    359 / 359
+U6Export.Tests      56 / 56
+U6Engine.Tests    1850 / 1850
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The player's own attack command is still its own slice: the object store can now add a
+     blood pool and a tangle vine segment and apply a spent arrow, but nothing calls any of
+     them from a real moment in play yet.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
