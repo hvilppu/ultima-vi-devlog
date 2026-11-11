@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Boat That Never Paid For Its Own Step | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/77-vene-joka-ei-maksanut-omaa-askeltaan.html" hreflang="fi">FI</a><span>/</span><a href="77-a-boat-that-never-paid-for-its-own-step.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 77</nav>
+
+<h1>A boat that never paid for its own step</h1>
+
+<p class="lede">
+M16's slice A, and it closes a fault of its own making: the previous slice (M14's E1) replaced
+the fixed five minute step with the real turn scheduler, but a boarded vehicle's own step never
+charged for itself. The clock now only runs when nobody is eligible to act, and an Avatar that
+never spends anything is always eligible with a full share. The result: a voyage from one
+continent to another arrived at the same minute it left.
+</p>
+
+<h2>A character time never touched</h2>
+
+<p>
+The fault was not in a cost calculation, because there was none: <code>U6View.AdvanceVehicle</code>
+moved the vehicle on the map and then called the turn scheduler directly, spending nothing from
+anybody. <code>U6TurnScheduler.Advance</code> only grants a new minute and ticks the clock
+inside its own <code>while(!TrySelect)</code> loop; with the Avatar's points never falling to
+zero, that condition is false from the very first call onward, and the loop's body never once
+ran. The walking party never had this problem, because <code>Follow</code> already spends the
+Avatar's own <code>SubTerrainMov</code>; the vehicle was the one case left that never got tired.
+</p>
+
+<h2>Four branches, and the order is the measurement</h2>
+
+<p>
+<code>npctrack.c</code>'s own cost branch tests the controlled actor's type in an order where
+the first condition can fall through: a ship pays the wind table <strong>only while the wind is
+blowing</strong>; a skiff pays the current table, its flow direction read off the departure
+square's own tile number when that square is one of the eight current tiles (8 to 15, the
+direction being the tile number minus eight) and its own heading otherwise; a raft or an
+inflated balloon pay a flat five; and everything else, <strong>a becalmed ship included</strong>,
+falls through to the plain terrain cost, plus 5 on a diagonal. The fourth branch is the one a
+port easily misses: a becalmed ship does not index the wind table at all, because the test is
+on the wind blowing, not on the actor's type. The current tiles were measured against the
+owner's own export as a check: all eight are wet, impassable to a walker and carry no object, so
+the plain terrain cost there is exactly <code>Base</code>, 5.
+</p>
+
+<h2>The ship's table does not look like you would expect</h2>
+
+<p>
+The skiff's own table is cheapest with the current and dearest against it, the intuitive shape.
+The ship's own table is not that shape: its dearest entry is index zero, straight into the wind,
+and its cheapest are two and six, the wind from the side; running with the wind (index four)
+costs five, not the least. Both tables turned up in the owner's own <code>GAME.EXE</code> as one
+sixteen byte run, occurring exactly once, in the reverse order scoring zero hits, with the very
+next byte being the raft's own drift table's first row exactly as the decompilation claims. A
+port that "corrected" the ship's table to look like the skiff's would have traded a measurement
+for a guess, and the test pins all eight values individually for exactly that reason.
+</p>
+
+<h2>A regression that cannot run through the view itself</h2>
+
+<p>
+<code>U6View</code> is a <code>MonoBehaviour</code> and cannot run outside the editor, so the
+regression could not be reproduced by calling <code>AdvanceVehicle</code> directly. It was
+reproduced at the engine's own boundary instead: a test drives
+<code>U6TurnScheduler.Advance</code> repeatedly while spending nothing, and proves the clock
+stays exactly where it started, which is precisely what the unfixed view did. The same test
+spending the real cost passes; a temporary experiment that removed the spend from the loop
+knocked it back down at exactly that line. The test was written and proven to fail before the
+fix, not after.
+</p>
+
+<h2>What this does not do yet</h2>
+
+<p>
+The raft's own drift table (<code>RaftDriftDir</code>) sits right beside the two cost tables in
+the file, but it is a different behaviour: a raft drifts with the wind and the current whether
+or not the player steps, and it is not needed to close the clock. <code>WindDir</code>'s own
+random change over time (<code>UpdateWind</code>, a one in sixty four chance on every call to
+<code>PassTime</code>) is not modelled in this engine at all; the wind stays at whatever the
+save file set it to until the fan item turns it.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              142 / 168
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2031 / 2031
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The raft's own drift table and <code>WindDir</code>'s own random change over time are both
+     measured but not built; each waits on its own slice. Turn based combat still waits on the
+     owner's own decision about the F9 development key's fate.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vene joka ei maksanut omaa askeltaan | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="77-vene-joka-ei-maksanut-omaa-askeltaan.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/77-a-boat-that-never-paid-for-its-own-step.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 77</nav>
+
+<h1>Vene joka ei maksanut omaa askeltaan</h1>
+
+<p class="lede">
+M16:n viipale A, ja se korjaa oman virheen: edellinen viipale (M14:n E1) korvasi kiinteän
+viiden minuutin askeleen oikealla vuoroplanilla, mutta ajoneuvon oma askel jäi veloittamatta
+kokonaan. Kello käy nykyisin vain kun kukaan ei ole kelpoinen toimimaan, ja Avatar joka ei
+koskaan maksa mitään on aina kelpoinen täydellä osuudella. Seurauksena purjehdus mantereelta
+toiselle saapui perille samalla minuutilla jolla se lähti.
+</p>
+
+<h2>Hahmo jota aika ei koskaan koskettanut</h2>
+
+<p>
+Vika ei ole kustannuslaskussa, koska sitä ei ollut: <code>U6View.AdvanceVehicle</code> siirsi
+ajoneuvon kartalla ja kutsui sitten vuoronvalintaa suoraan, veloittamatta keneltäkään mitään.
+<code>U6TurnScheduler.Advance</code> jakaa uuden minuutin ja tikittää kelloa vain silmukassa
+<code>while(!TrySelect)</code>; kun Avatarin pisteet eivät koskaan laske nollaan, tämä ehto on
+aina epätosi ensimmäisestä kutsusta lähtien, eikä silmukan runko koskaan suorittunut.
+Kävelevä puolue ei kärsi tästä, koska <code>Follow</code> veloittaa Avatarin oman
+<code>SubTerrainMov</code>:n jo entuudestaan; ajoneuvo jäi ainoaksi tapaukseksi joka ei
+koskaan väsynyt.
+</p>
+
+<h2>Neljä haaraa, ja järjestys on se mitä mitattiin</h2>
+
+<p>
+<code>npctrack.c</code>:n oma kustannushaara testaa ohjatun toimijan tyyppiä järjestyksessä
+jossa ensimmäinen ehto voi pudota läpi: laiva maksaa tuulitaulun <strong>vain tuulen
+puhaltaessa</strong>; kaislavene maksaa virtaustaulun, virran suunta luettuna lähtöruudun
+omasta tiilinumerosta kun se on yksi kahdeksasta virtaustiilestä (8-15, suunta on
+tiilinumero miinus kahdeksan) ja muuten askelen omasta suunnasta; lautta ja täytetty
+ilmapallo maksavat kiinteän viitosen; ja kaikki muu, <strong>tyyneen jäänyt laiva mukaan
+lukien</strong>, putoaa tavalliseen maastokustannukseen, +5 diagonaalilla. Neljäs haara on
+se jonka portti helposti ohittaa: tyyni laiva ei indeksoi tuulitaulua ollenkaan, koska testi
+on tuulen puhaltamisessa, ei toimijan tyypissä. Virtaustiilet mitattiin omasta
+export-tiedostosta tarkistukseksi: kaikki kahdeksan ovat märkiä, kävelijälle
+kulkukelvottomia eivätkä kanna yhtään objektia, niin tavallinen maastokustannus niissä on
+tasan <code>Base</code>, 5.
+</p>
+
+<h2>Laivan taulu ei näytä siltä miltä odottaisi</h2>
+
+<p>
+Kaislaveneen taulu on halvin virran mukana ja kallein sitä vastaan, mikä on intuitiivinen
+muoto. Laivan oma taulu ei ole sitä muotoa: kalleimpana on indeksi nolla, suoraan tuuleen,
+ja halvimpina kaksi ja kuusi, tuuli sivulta; myötätuuleen (indeksi neljä) maksaa viisi, ei
+vähiten. Molemmat taulut löytyivät omistajan <code>GAME.EXE</code>:stä yhtenä kuudentoista
+tavun jaksona täsmälleen yhdessä paikassa, käänteisessä järjestyksessä nolla osumaa, ja
+seuraava tavu on lautan oman ajautumistaulun ensimmäinen rivi aivan kuin dekompilaatio
+väittää. Portti joka "korjaisi" laivan taulun kaislaveneen muotoiseksi olisi vaihtanut
+mittauksen arvaukseen, ja testi lukitsee kaikki kahdeksan arvoa erikseen juuri tätä varten.
+</p>
+
+<h2>Regressio joka ei voi ajaa itse näkymän läpi</h2>
+
+<p>
+<code>U6View</code> on <code>MonoBehaviour</code>, eikä sitä voi ajaa editorin ulkopuolella,
+niin regressiota ei voitu toistaa kutsumalla <code>AdvanceVehicle</code>:a suoraan. Se
+toistettiin moottorin omalla rajapinnalla sen sijaan: testi ajaa
+<code>U6TurnScheduler.Advance</code>:a toistuvasti veloittamatta mitään ja todistaa kellon
+pysyvän paikallaan, täsmälleen sen minkä korjaamaton näkymä teki. Sama testi oikealla
+kustannuksella veloitettuna läpäisee; väliaikainen kokeilu, jossa veloitus poistettiin
+silmukasta, kaatoi sen uudelleen juuri siihen kohtaan. Testi kirjoitettiin ja todistettiin
+epäonnistuvaksi ennen korjausta, ei sen jälkeen.
+</p>
+
+<h2>Mitä tämä ei vielä tee</h2>
+
+<p>
+Lautan oma ajautumistaulu (<code>RaftDriftDir</code>) istuu aivan kahden kustannustaulun
+vierellä tiedostossa, mutta se on eri käytös: lautta ajautuu tuulen ja virran mukana
+riippumatta siitä astuuko pelaaja, eikä se ole tarpeen kellon korjaamiseksi. <code>WindDir</code>:n
+oma satunnainen muutos ajan myötä (<code>UpdateWind</code>, yksi mahdollisuus 64:stä joka
+<code>PassTime</code>-kutsu) ei ole mallinnettu tässä moottorissa ollenkaan; tuuli pysyy
+tallennuksen omassa arvossa kunnes tuuliviiri kääntää sitä.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              142 / 168
+
+U6Formats.Tests    381 / 381
+U6Export.Tests      57 / 57
+U6Engine.Tests    2031 / 2031
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Lautan oma ajautumistaulu ja <code>WindDir</code>:n ajan myötä tapahtuva satunnainen
+     muutos ovat molemmat mitattu mutta rakentamatta; kumpikin odottaa omaa viipalettaan.
+     Vuoropohjainen taistelu odottaa yhä omistajan päätöstä kehitysnäppäimen F9 kohtalosta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
