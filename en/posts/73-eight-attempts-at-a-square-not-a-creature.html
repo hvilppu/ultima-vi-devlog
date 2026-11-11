@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eight Attempts At A Square, Not A Creature | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/73-kahdeksan-yritysta-ruudulle-ei-oliolle.html" hreflang="fi">FI</a><span>/</span><a href="73-eight-attempts-at-a-square-not-a-creature.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 73</nav>
+
+<h1>Eight attempts at a square, not a creature</h1>
+
+<p class="lede">
+M14's slice F3: creating an actor, the clone, and the slime's own division. The object store
+earned its own create and destroy primitives in slice F1; this slice built their sister pair
+for the actor side, and closed two refusals that last time's post had to leave named. One
+detail was the easiest to get backwards: a dividing slime does not spend its eight attempts
+looking for a chance to create a creature, it spends them looking for a passable square. A
+full creature pool next to a free square ends the whole search, and never tries the other
+seven.
+</p>
+
+<h2>The same coordinate, a different status</h2>
+
+<p>
+<code>AddMonster</code> is <code>AddMapObj</code>'s close cousin: the same coordinate wrap
+(<code>0xff</code> on a dungeon level, <code>0x3ff</code> on the surface, never validated),
+the same idea of a free slot. But the pool is a different one, and this time it actually
+refuses: the 32 temporary slots are still exactly 32 in this engine, not the whole,
+already-resident world the object side carries, which is exactly why F1 could not build the
+same gate there. And the status differs by one bit that sharing a single create between the
+two would be easy to drop: an actor gets <code>LOCAL</code> <strong>and</strong>
+<code>OWNED</code>, an object only <code>LOCAL</code>. Neither one gets any statistics: the
+create never rolls a figure, a caller fills the actor in afterward.
+</p>
+
+<h2>A clone that does not copy all of itself</h2>
+
+<p>
+A slime's own division needs a second primitive, <code>CloneObject</code>, which writes
+sixteen fields. The brief claimed eighteen, and that was a guess written in a measurement's
+own shape: the real number comes from counting the handler's own assignments, not recounting
+the brief's own text. The status, every one of the four core statistics, experience, hit
+points and seven more fields are copied straight across. But two fields are a discriminator,
+not an oversight. The shape is copied only when the source is not a slime, because a slime's
+own frame is computed from its neighbours rather than owned by the creature; the clone keeps
+whatever the create just gave it instead. And the movement points are always zeroed, never
+copied, because a fresh clone must not get a free turn in the same round it was born.
+</p>
+
+<h2>The break that is easiest to get backwards</h2>
+
+<p>
+A slime's own loop inside <code>LoseHP</code> is eight attempts, and each one draws two
+numbers before the square is ever tested for passability: the draw happens even when the
+square turns out to be blocked, and it shifts every later attempt's own draw along with it.
+But what actually decides the behaviour is where the loop breaks. It sits
+<strong>inside</strong> the passability test and <strong>outside</strong> the free-slot test:
+if the square is passable, a creation is attempted, and whether or not that succeeded, the
+loop always breaks. The eight attempts are attempts to find a passable square, not a chance
+to create a creature. A port that moved the break inside the inner test would be generous in
+exactly the one place the original is not: a full pool next to a passable square would keep
+searching, and it should not.
+</p>
+
+<h2>Two things that stay named</h2>
+
+<p>
+The <code>OWNED</code> bit is written exactly the way the original writes it, but nothing in
+this project reads it back: <code>u6.h</code>'s own comment calls it a theft rule, not a
+creation rule, and this project's own theft handling has not been traced to it yet. And a new
+actor's own drawing order on its square does not carry over: the object side's own chain keeps
+an exact record of who stands in front of whom, but the actor side's own position index just
+appends to the end of a list. Both are findings the brief named ahead of time, and measuring
+them confirmed rather than overturned either one. The second one is architectural, not an
+oversight: the original keeps actors and objects in one, position-ordered chain, and this
+project splits them into two separate structures, so there is nowhere for the two to have an
+order against each other on the same tile at all.
+</p>
+
+<h2>The third call site, the one that actually runs</h2>
+
+<p>
+The division needed three arguments (<code>world</code>, <code>random</code>,
+<code>canMoveTo</code>), and they first got wired into two of <code>U6View</code>'s three
+<code>ApplyHit</code> call sites: the player's own attack and the side bolt. The third,
+<code>ApplyFiredHit</code>, which runs a creature's own attack, was left unwired, because it
+had been written before the object store even had a create to call. But that is exactly the
+path the owner is running today: the development key's own rat attacks the party through it.
+The missing arguments meant a dead party member left no blood even though the human classes
+carry the bleeding flag, and a dead gazer-type class never dropped what it carried onto the
+ground. Wired now with the same three arguments the other two sites get, and a new test pins
+that the blood and the spill both fire together when all three are supplied, so the three
+sites cannot quietly drift apart again.
+</p>
+
+<h2>The development key stopped being a second way</h2>
+
+<p>
+The development key's own code (F9) used to write its own creation by hand: the shape, the
+position and the mode, each set directly. That was correct at the time, but it was also a
+second, diverging way to make a creature, written before the measurement existed to check it
+against. It now calls the very same <code>U6ActorCreation.Create</code> any other caller
+would, and the key's own hand is left with only the statistics and the alignment, which the
+create never touches at all.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              139 / 165
+
+U6Formats.Tests    359 / 359
+U6Export.Tests      56 / 56
+U6Engine.Tests    1909 / 1909
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Turn based combat moves on: initiative order and the hit and damage formulas from M8, and
+     the enemies' own basic AI for approaching, fleeing, shooting and casting. The egg
+     generator itself, which needs this slice's own primitive, belongs to its own, later
+     milestone.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kahdeksan yritystä ruudulle, ei oliolle | Ultima VI uudelleen</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Kieli">
+      <a href="73-kahdeksan-yritysta-ruudulle-ei-oliolle.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/73-eight-attempts-at-a-square-not-a-creature.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI uudelleen</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki postaukset</a> &middot; 73</nav>
+
+<h1>Kahdeksan yritystä ruudulle, ei oliolle</h1>
+
+<p class="lede">
+M14:n viipale F3: toimijan luonti, klooni ja limaolennon jakautuminen. Esinevarasto sai omat
+luonti- ja tuhoprimitiivinsä viipaleessa F1; tämä viipale rakensi niiden sisarparin
+hahmopuolelle, ja sulki sitä myöten kaksi viime kerralla nimettyä kieltäytymistä. Yksi
+yksityiskohta oli helpoin saada väärinpäin: limaolento ei etsi kahdeksalla yrityksellä
+mahdollisuutta luoda olio, se etsii kulkukelpoista ruutua. Täysi olentopooli vieressä olevalla
+vapaalla ruudulla päättää koko haun, ei yritä seuraavaa seitsemää.
+</p>
+
+<h2>Sama koordinaatti, eri status</h2>
+
+<p>
+<code>AddMonster</code> on <code>AddMapObj</code>:n lähiserkku: sama koordinaatin kiertymä
+(<code>0xff</code> dungeonissa, <code>0x3ff</code> pinnalla, ei validointia), sama ajatus
+vapaasta paikasta. Mutta pooli on toinen, ja tällä kertaa se kieltäytyy oikeasti: 32
+väliaikaista paikkaa on tässä moottorissa yhä tasan 32, ei esinepuolen koko muistissa pidetty
+maailma, jolle F1 osoitti ettei vastaavaa porttia voi rakentaa. Ja status eroaa yhdellä bitillä
+joka olisi helppo ohittaa yhdistämällä kaksi luontia samaan reittiin: hahmo saa
+<code>LOCAL</code>:n <strong>ja</strong> <code>OWNED</code>:n, esine vain <code>LOCAL</code>:n.
+Kumpikaan ei saa tilastoja: ne luoja ei heitä noppaa, kutsuja täyttää hahmon jälkikäteen.
+</p>
+
+<h2>Klooni, joka ei kopioi itseään kokonaan</h2>
+
+<p>
+Liejun jakautuminen tarvitsee toisen primitiivin, <code>CloneObject</code>:n, joka kirjoittaa
+kuusitoista kenttää. Briefi väitti kahdeksaatoista, ja se oli arvaus kirjoitettuna mittauksen
+muotoon: oikea luku tulee laskemalla käsittelijän omat kirjoitukset, ei briefin tekstiä
+uudelleen. Neljä perustilastoa, kokemus, osumapisteet ja seitsemän muuta kenttää kopioidaan
+suoraan. Mutta kaksi kenttää on erotin eikä vahinko. Muoto kopioidaan vain kun lähde ei ole
+lieju, koska liejun kehys lasketaan naapureista eikä se ole olion omaisuutta; klooni pitää sen
+minkä luonti sille juuri antoi. Ja liikepisteet nollataan aina, ei koskaan kopioida, koska
+tuore klooni ei saa ilmaista vuoroa samalla kierroksella kun se syntyi.
+</p>
+
+<h2>Katkaisu, joka on helpoin saada väärinpäin</h2>
+
+<p>
+Liejun oma silmukka <code>LoseHP</code>:ssä on kahdeksan yritystä, ja jokainen arpoo kaksi
+lukua ennen kuin ruutu testataan kulkukelpoiseksi: arvonta tapahtuu, vaikka ruutu osoittautuisi
+tukituksi, ja se siirtää seuraavan yrityksen arvonnan eteenpäin. Mutta se mikä ratkaisee
+käytöksen on katkaisun paikka. Se on kulkukelpoisuustestin <strong>sisällä</strong> ja
+vapaa-paikka-testin <strong>ulkopuolella</strong>: jos ruutu on kulkukelpoinen, luonti
+yritetään, ja onnistui se tai ei, silmukka katkeaa aina. Kahdeksan yritystä etsivät
+kulkukelpoista ruutua, ei mahdollisuutta luoda olio. Portti, joka siirtäisi katkaisun
+sisemmän testin sisään, olisi antelias täsmälleen siinä tilanteessa jossa alkuperäinen ei
+sitä ole: täysi pooli vieressä olevalla kulkukelpoisella ruudulla jatkaisi etsimistä, eikä
+sen pitäisi.
+</p>
+
+<h2>Kaksi asiaa jotka pysyvät nimettyinä</h2>
+
+<p>
+<code>OWNED</code>-bitti kirjoitetaan täsmälleen niin kuin alkuperäinen kirjoittaa sen, mutta
+mikään tässä projektissa ei lue sitä takaisin: <code>u6.h</code>:n oma kommentti kutsuu sitä
+varkaussäännöksi, ei luontisäännöksi, eikä tämän projektin varkaankäsittely ole jäljitetty
+siihen asti. Ja uuden hahmon piirtojärjestys omalla ruudullaan ei toistu: esineiden oma ketju
+pitää tarkan kirjan siitä kuka tulee kenen eteen, mutta hahmojen oma paikkahakemisto lisää vain
+listan loppuun. Molemmat ovat löydöksiä jotka brief nimesi etukäteen, ja mittaus vahvisti ne
+sellaisiksi eikä kumonnut niitä. Jälkimmäinen on arkkitehtuurin seuraus, ei unohdus:
+alkuperäinen pitää hahmot ja esineet yhdessä sijaintijärjestetyssä ketjussa, ja tämä projekti
+jakaa ne kahdeksi erilliseksi rakenteeksi, eikä kummallakaan ole paikkaa jossa niiden
+keskinäinen järjestys samalla ruudulla voisi asua.
+</p>
+
+<h2>Kolmas kutsupaikka, se joka oikeasti ajaa</h2>
+
+<p>
+Jakautuminen tarvitsi kolme argumenttia (<code>world</code>, <code>random</code>,
+<code>canMoveTo</code>), ja ne kytkettiin aluksi kahteen <code>U6View</code>:n kolmesta
+<code>ApplyHit</code>-kutsupaikasta: pelaajan oma hyökkäys ja sivupultti. Kolmas,
+<code>ApplyFiredHit</code>, joka ajaa toimijan oman hyökkäyksen, jäi ensin kytkemättä, koska se
+oli kirjoitettu vielä ennen kuin esinevarastolla oli luontiprimitiiviä lainkaan. Mutta se on
+täsmälleen se polku jota omistaja ajaa tänään: kehitysnäppäimen rotta hyökkää seuruetta
+vastaan juuri sitä reittiä. Puuttuvat argumentit tarkoittivat että kuollut seurueenjäsen ei
+vuotanut verta vaikka ihmisluokka kantaa vuotobittiä, ja gazer-tyyppinen kuollut luokka ei
+koskaan pudottanut kantamiaan tavaroita maahan. Kytketty nyt samalla kolmella argumentilla kuin
+toisissa kahdessa paikassa, ja uusi testi lukitsee että veriteke ja kantamien valuminen
+toimivat yhdessä kun kaikki kolme on annettu, jotta kolme kutsupaikkaa ei voi enää ajautua
+erilleen huomaamatta.
+</p>
+
+<h2>Kehitysnäppäin lakkasi olemasta toinen tapa</h2>
+
+<p>
+Kehitysnäppäimen oma koodi (F9) kirjoitti ennen luontinsa suoraan: muodon, sijainnin ja tilan
+käsin. Se oli oikein silloin, mutta se oli myös toinen, eriävä tapa tehdä olio, kirjoitettu
+ennen kuin mittaus oli olemassa. Nyt se kutsuu samaa <code>U6ActorCreation.Create</code>:a kuin
+mikä tahansa muu kutsuja, ja käsin kirjoittaminen jäi vain tilastoihin ja kohdistukseen, joita
+luonti ei koskaan aseta.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylvaita valmiina      13 / 24
+kohtia valmiina              139 / 165
+
+U6Formats.Tests    359 / 359
+U6Export.Tests      56 / 56
+U6Engine.Tests    1909 / 1909
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Vuoropohjainen taistelu etenee: aloitejärjestys sekä osuma- ja vahinkolaskenta M8:n
+     omilla kaavoilla, ja vihollisten perus-AI lähestymiselle, pakenemiselle, ampumiselle ja
+     loitsimiselle. Munageneraattori itse, joka tarvitsee tämän viipaleen primitiiviä, kuuluu
+     omalle, myöhemmälle virstanpylväälleen.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin datatiedostoja ei jaeta
+     täällä eikä repossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
