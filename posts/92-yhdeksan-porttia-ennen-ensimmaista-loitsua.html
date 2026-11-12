@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yhdeksän Porttia Ennen Ensimmäistä Loitsua | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="92-yhdeksan-porttia-ennen-ensimmaista-loitsua.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/92-nine-gates-before-the-first-spell.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 92</nav>
+
+<h1>Yhdeksän porttia ennen ensimmäistä loitsua</h1>
+
+<p class="lede">
+Loitsukirjan sai auki, sivut kääntyivät ja rivin sai valittua, mutta valinnalla ei ollut mitään
+seurausta. Seitsemän aiempaa viipaletta mittasi kastamissäännöt ja kolme rakensi kirjan, ja
+jokainen niistä jäi tavoittamattomiin peliltä, koska mikään ei koskaan laukaissut valintaa.
+Tämä viipale on se kattopiste: nyt näppäimen painallus todella loihtii.
+</p>
+
+<h2>Yhdeksän askelta, ei yksi iso päätös</h2>
+
+<p>
+Alkuperäinen tarkistaa yhdeksän asiaa järjestyksessä ennen kuin loitsu edes yrittää tapahtua:
+taikuuden mitätöinti, tyhjä kirja, ei mitään valittuna, taso, mana, ja loihdittavien määrä, siinä
+järjestyksessä. Kolme viimeistä olivat jo mitattuna ja rakennettuna oma luokkansa
+(<code>U6SpellCast.TryCast</code>) kauan ennen tätä viipaletta: tämän työ oli yhdistää
+alkupään kolme porttia ja loitsun valinta siihen, ei toistaa sitä mitä oli jo olemassa.
+</p>
+
+<h2>Kulu joka pelaaja huomaa</h2>
+
+<p>
+Jokainen kieltäytyminen testattiin erikseen sen varalta, ettei reagenssi, manapiste eikä
+liikepiste kulu turhaan. Yhdeksän porttia, kuusi niistä kieltäytymisportti, ja yhdenkin unohtunut
+testi olisi tarkoittanut tilannetta jossa pelaaja menettää reagenssin loitsusta joka ei
+koskaan tapahtunutkaan. Se on juuri se virhe joka ei näy koodia lukemalla, vain pelaamalla
+vastaan.
+</p>
+
+<h2>Bitti jota ei koskaan tarvinnut naamioida</h2>
+
+<p>
+Alkuperäinen lukee loihdittavien määrän tallennetusta tavusta jonka ylin bitti kantaa valinnan
+merkkiä: porttikoodi lukee sen maskilla <code>&amp; 0x7f</code>, ja portti joka unohtaisi
+maskin näkisi valitun loitsun luvun vähintään satakaksikymmentäkahdeksana, eikä kieltäytyisi
+koskaan reagenssien puutteesta. Tämä projekti ei koskaan pakannut valinnan bittiä minkään luvun
+sisään alun alkaenkaan, niin naamiointitarvetta ei ollut olemassaakaan. Testi pinnasi väitteen
+silti suoraan, koska väite on itse se mikä täytyy todistaa, ei se miltä koodi näyttää.
+</p>
+
+<h2>Kahden kentän nimitörmäys</h2>
+
+<p>
+Pieni, mutta sellainen joka olisi hiljaa rikkonut kaiken: tämän projektin omassa
+hahmomallissa yksi kenttä on nimeltään "taso" ja tarkoittaa karttatasoa, luolan syvyyttä, ei
+kastajan kokemustasoa. Alkuperäisen oma taulukko jota loihtimisportti lukee on jälkimmäinen.
+Nimien yhteensattuma on pelkkä käännösvalinta, ei alkuperäisen oma rakenne, mutta väärän kentän
+lukeminen olisi sitonut joka loihtimisen siihen millä luolatasolla kastaja sattuu seisomaan.
+Varmistettu vientijärjestyksestä ennen kuin porttiin kirjoitettiin yhtään riviä.
+</p>
+
+<h2>Sama syötetyyppi kuin hyökkäyskomennolla</h2>
+
+<p>
+Näkymä tarvitsi yhden uuden näppäimen loihtimiselle ja yhden kohteen valinnalle niille
+loitsuille jotka sitä tarvitsevat. Jälkimmäinen on juuri sama ratkaisu kuin hyökkäyskomennolla:
+nuolet siirtävät tähtäystä, väli vahvistaa. Ei uutta syötetapaa, vain saman jo olemassa olevan
+käyttö toisessa paikassa.
+</p>
+
+<h2>Mitä tämä ei vielä sisällä</h2>
+
+<p>
+Loitsun oma vaikutus. Kahdeksasta jaetusta käsittelijästä seitsemän kattaa 61 loitsua 80:stä
+ja on rakennettu, mutta mikään koodi ei vielä yhdistä loitsunumeroa yhteenkään niistä. Tämä
+viipale pysähtyy tasan siihen kohtaan jossa vaikutus ajettaisi, koska se yhdistäjä on oma,
+nimetty työnsä eikä tämän viipaleen. Taikasanatkaan eivät tulostu näkymässä: nimi on viety
+peliin asti, mutta sanat eivät ole, niin niiden näyttäminen jäi nimetyksi aukoksi.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          157 / 183
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2302 / 2302
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Loitsun oma vaikutus: 61 loitsua joilla on jo käsittelijä, ja 19 joilla ei ole vielä
+     mitään.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

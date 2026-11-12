@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nine Gates Before the First Spell | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/92-yhdeksan-porttia-ennen-ensimmaista-loitsua.html" hreflang="fi">FI</a><span>/</span><a href="92-nine-gates-before-the-first-spell.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 92</nav>
+
+<h1>Nine gates before the first spell</h1>
+
+<p class="lede">
+The spellbook opened, the pages turned, and a line could be selected, but the selection never
+had any consequence. Seven earlier slices measured the casting rules and three built the book,
+and every one of them stayed out of the player's reach, because nothing ever fired the
+selection. This slice is the capstone: pressing the key now actually casts.
+</p>
+
+<h2>Nine steps, not one big decision</h2>
+
+<p>
+The original checks nine things in order before a spell even gets a chance to happen: negate
+magic, an empty book, nothing selected, the caster's level, their magic points, and the
+castable count, in that order. The last three were already measured and built as their own
+class (<code>U6SpellCast.TryCast</code>) long before this slice: the work here was connecting
+the first three gates and the spell's own selection to that, not rebuilding what already
+existed.
+</p>
+
+<h2>The cost a player notices</h2>
+
+<p>
+Every refusal was tested on its own, to prove that no reagent, no magic point and no movement
+point is ever spent when it fires. Nine gates, six of them a refusal, and missing even one test
+would have meant a player losing a reagent to a spell that never actually happened. That is
+exactly the kind of fault that does not show up by reading the code, only by playing against it.
+</p>
+
+<h2>A bit that never needed masking</h2>
+
+<p>
+The original reads the castable count out of a stored byte whose top bit carries the selection
+marker: the gate reads it masked, <code>&amp; 0x7f</code>, and a port that forgot the mask
+would see the selected spell's count as at least one hundred and twenty eight, and would never
+refuse it for want of reagents. This project never packed the selection bit into any number in
+the first place, so there was nothing here to mask. The test pinned the claim directly anyway,
+because the claim is the thing that has to be proven, not what the code happens to look like.
+</p>
+
+<h2>A name collision between two fields</h2>
+
+<p>
+Small, but the kind of thing that would have quietly broken everything: this project's own
+character model has a field named "level" that means the map level, the dungeon depth, not the
+caster's own experience level. The original's own table the casting gate reads is the latter.
+The shared English name is a translation coincidence, not anything in the original's own
+structure, but reading the wrong field would have gated every cast on which dungeon floor the
+caster happens to be standing on. Confirmed from the export's own write order before a single
+line reached the gate.
+</p>
+
+<h2>The same kind of input as the Attack command</h2>
+
+<p>
+The view needed one new key to cast and one way to choose a target for the spells that need
+one. The second one is exactly the same answer as the Attack command already gave: arrows move
+the aim, space confirms. No new input shape, just the same one reused somewhere else.
+</p>
+
+<h2>What this does not cover yet</h2>
+
+<p>
+The spell's own effect. Seven of the eight shared handlers already cover 61 of the 80 spells
+and are built, but nothing yet connects a spell number to any of them. This slice stops exactly
+at the point an effect would run, because that connector is its own, named piece of work, not
+this one's. The words of power do not print in the view either: the name has made it into the
+running game, but the words have not, so showing them stayed a named gap.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done             157 / 183
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2302 / 2302
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The spell's own effect: 61 spells that already have a handler, and 19 that have nothing
+     yet.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a legally purchased copy of the game. No game data is
+     shared here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
