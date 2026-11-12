@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loki Yhden Rivin Tilalle | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="97-loki-yhden-rivin-tilalle.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/97-a-log-instead-of-one-line.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 97</nav>
+
+<h1>Loki yhden rivin tilalle</h1>
+
+<p class="lede">
+Näkymällä oli yksi tilarivi ja kuusikymmentäkaksi kutsupaikkaa jotka kirjoittivat sen päälle.
+Yksi pelaajan askel voi antaa vuoron monelle toimijalle, ja joka isku kirjoitti saman rivin:
+pelaaja näki aina sattumalta vain viimeisimmän, ja kolme mitattua kenttää ei näkynyt ollenkaan.
+Tämä viipale korvasi rivin rajatulla historialla, yhdellä propertyn setterillä eikä
+kuudellakymmenelläkahdella erillisellä tekstikorjauksella, ja löysi matkalla että yksi kolmesta
+oletetusta puutteesta ei ollutkaan puute.
+</p>
+
+<h2>Yksi setteri, ei kuusikymmentäkaksi korjausta</h2>
+
+<p>
+Brief varoitti suoraan: kuusikymmentäkaksi on yhden sijoituskuvion grepin tulos, ei
+väestönlaskenta, ja rivinsä eri tavalla rakentava kirjoittaja jäisi sen ulkopuolelle. Vastaus
+ei ole kuusikymmentäkaksi erillistä tekstikorjausta vaan yksi: <code>Status</code>-propertyn
+oma setteri liittää nyt rivin rajattuun lokiin sen sijaan että se korvaisi vanhan.
+Auto-property-kentän ohi ei pääse kirjoittamaan, niin jokainen entinen ja tuleva kutsupaikka
+kulkee saman reitin läpi rakenteellisesti, ei grepin varassa.
+</p>
+
+<h2>Kolmesta puuttuvasta kentästä kaksi oli aidosti puuttumassa</h2>
+
+<p>
+Provosointitarkistus ja sen määrä oli mitattu ja testattu kolmessa aiemmassa viipaleessa, eikä
+yksikään näkymän kolmesta osumahaarasta (hankaus, selviytynyt isku, tappo) raportoinut sitä
+koskaan. Munan kuoriutumisen varoitussuunta oli samoin mitattu kuukausia sitten, mutta näkymä
+ei lukenut kuoriutumisen paluuarvoa ollenkaan. Molemmat raportoituvat nyt mekaanisina
+numeroina, ei keksittynä proosana.
+</p>
+
+<h2>Kolmas ei ollutkaan puuttumassa</h2>
+
+<p>
+Brief nimesi myös haavan oman vakavuuden yhdeksi kolmesta näkymättömästä kentästä. Vanha koodi
+osoitti toista: tavallisen, selviytyneen iskun oletushaara kirjoitti vakavuuden jo ennen tätä
+viipaletta. "Aiemmin todennettu on väite kuin mikä tahansa muu" piti tässä paikkansa briefiä
+kohtaan, ei koodia kohtaan, ja löydös on kirjattu suunnitelmaan sellaisenaan korjaamisen
+sijaan.
+</p>
+
+<h2>Mitä tämä ei kanna</h2>
+
+<p>
+Rivit ovat numeroita ja tunnisteita, ei alkuperäisen omaa tekstiä eikä sitä jäljittelevää
+proosaa: alkuperäisen 884 merkkijonoliteraalia odottavat omaa, myöhempää viipalettaan ja omaa
+mittausmenetelmäänsä, täsmälleen samaa jota tämä projekti käyttää jo muulle julkaistulle
+tekstille.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          163 / 189
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2493 / 2493
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Alkuperäisen omien 884 merkkijonon tuonti, samalla menetelmällä jota muu julkaistu teksti
+     käyttää jo.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

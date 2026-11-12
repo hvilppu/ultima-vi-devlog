@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>13 of 24 milestones</strong> finished, and inside them
-<strong>162 of 188 work items</strong>. The second is the one that moves while a
+<strong>163 of 189 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -319,12 +319,12 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Combat and magic <span class="m-value">0 / 1 done, 45 / 49 items</span></h3>
+    <h3>Combat and magic <span class="m-value">0 / 1 done, 46 / 50 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
         <span class="m-bar"><span class="m-fill" style="width: 92%"></span></span>
-        <span class="m-value">45 / 49, in progress</span>
+        <span class="m-value">46 / 50, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done">Slice A: the attack command and <code>combat.c</code>'s tables.</li>
@@ -373,6 +373,7 @@ them up found two faults in the plan straight away that the total alone had hidd
         <li class="done">Slice F21: a spell actually happens.</li>
         <li class="done">Slice F22: a spell number into its case.</li>
         <li class="done">Slice F23: is it undead?</li>
+        <li class="done">Slice F24: a log instead of one line.</li>
         <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
         <li>Eighty spells, the reagents and mixing them, mana cost and the targeting types</li>
         <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
@@ -1186,12 +1187,20 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        and two party-ring spells could therefore never have fired; this slice gave a real
        answer from a class table that already existed, and proved the effect end to end.</p>
   </li>
+  <li>
+    <span class="n">97</span>
+    <a href="posts/97-a-log-instead-of-one-line.html">A Log Instead Of One Line</a>
+    <p>The view had one status line and sixty two call sites that each overwrote it, so the
+       player only ever saw whichever one wrote last, by accident. One property setter replaced
+       the line with a bounded log, and along the way one of three supposedly invisible fields
+       turned out not to be invisible at all.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>Nineteen own branches, each its own reading: the smallest pieces left on the dispatcher's
-     own map.</p>
+  <p>Importing the original's own 884 strings, with the same method already used for other
+     published text.</p>
 </div>
 
 <footer class="foot">

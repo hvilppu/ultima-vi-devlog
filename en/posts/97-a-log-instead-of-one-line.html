@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Log Instead Of One Line | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/97-loki-yhden-rivin-tilalle.html" hreflang="fi">FI</a><span>/</span><a href="97-a-log-instead-of-one-line.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 97</nav>
+
+<h1>A log instead of one line</h1>
+
+<p class="lede">
+The view had one status line, and sixty two call sites that each overwrote it. One player step
+can give several actors a turn, and every blow wrote the same line: the player only ever saw
+whichever one wrote last, by accident, and three measured fields never showed up at all. This
+slice replaced the line with a bounded history, through one property setter rather than sixty
+two separate text edits, and found along the way that one of the three supposed gaps was not
+actually a gap.
+</p>
+
+<h2>One setter, not sixty two fixes</h2>
+
+<p>
+The brief warned directly: sixty two is a grep's count of one assignment pattern, not a census,
+and a writer that built its line differently would fall outside it. The answer is not sixty two
+separate text edits but one: the <code>Status</code> property's own setter now appends the line
+to a bounded log instead of replacing it. Nothing can write past an auto-property's own field, so
+every call site, old or new, goes through the same path structurally rather than by luck of a
+text pattern.
+</p>
+
+<h2>Two of the three missing fields really were missing</h2>
+
+<p>
+The provoke check and its own amount had been measured and tested across three earlier slices,
+and none of the view's three hit branches (graze, a surviving hit, a kill) ever reported it. An
+egg hatching's own warning direction had likewise been measured months ago, but the view never
+read the hatch call's own return value at all. Both now report as plain, mechanical numbers,
+not invented prose.
+</p>
+
+<h2>The third one was not missing after all</h2>
+
+<p>
+The brief also named a wound's own severity as one of the three invisible fields. The old code
+said otherwise: the default branch for an ordinary, surviving hit already wrote the severity
+before this slice ever touched it. "Verified earlier is a claim like any other" held here
+against the brief, not the code, and the finding is recorded in the plan as it stands rather
+than quietly cleaned away.
+</p>
+
+<h2>What this does not carry</h2>
+
+<p>
+The lines are numbers and identifiers, not the original's own wording and nothing written to
+sound like it: the original's own 884 string literals wait for their own, later slice and their
+own measurement method, the exact one this project already uses for every other piece of
+published text.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones finished        13 / 24
+work items done           163 / 189
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2493 / 2493
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Importing the original's own 884 strings, with the same method already used for other
+     published text.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
