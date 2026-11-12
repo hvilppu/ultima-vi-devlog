@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mitä Tuulet Kysyvät Luokalta | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="102-mita-tuulet-kysyvat-luokalta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/102-what-the-winds-ask-of-a-class.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 102</nav>
+
+<h1>Mitä tuulet kysyvät luokalta</h1>
+
+<p class="lede">
+Edellinen kaksi viipaletta rakensi tuulen oman reitin ja oven vahingon tekoon ilman iskua.
+Jäljellä oli vain kolme loitsuvaikutusta joiden kummankaan ei pitäisi olla uusi mittaus: liekki,
+myrkky ja kuolema tarvitsevat kohteen oman luokan lippuja, ja sama luokkalippujen lukija oli
+jo olemassa toista tarkoitusta varten. Tehtävä ei ollut hakea mitään uutta, vaan laajentaa yksi
+olemassa oleva lukija kolmella bitillä.
+</p>
+
+<h2>Yksi lukija, ei toista sen rinnalle</h2>
+
+<p>
+<code>U6TestSpawn.ReadCombatTraits</code> palautti aiemmin kaksi lippua, epäkuollut ja
+kuolemanloitsuille immuuni, luurangon ja jättiläisrotan luokittamiseksi. Kolme uutta lippua,
+immuuni tulelle, kaksinkertainen tulivahinko ja immuuni myrkylle, olivat jo olemassa
+viedyn luokkataulukon omassa bittijoukossa; niitä ei vain oltu luettu tähän tarpeeseen. Saman
+metodin laajentaminen viidelle lipulle piti reitin yksinkertaisena: kaksi eri lukijaa samasta
+taulukosta olisi ollut juuri se korvike jonka tämä projekti on jo kerran kirjannut virheeksi.
+</p>
+
+<h2>Avoin kysymys, suljettu lukemalla alkuperäinen tarkemmin</h2>
+
+<p>
+Edellinen viipale jätti auki, vastaako kuolontuulen kautta annettu vahingon määrä (uhrin omat
+elämäpisteet) alkuperäisen omaa tappamisrutiinia. Alkuperäisen lähdekoodi antoi vastauksen
+suoraan: <code>SPELL_KillTarget</code> kutsuu vahinkorutiinia tasan uhrin omilla elämäpisteillä.
+Toteutus oli oikein jo ennen tätä viipaletta; kysymys on nyt suljettu eikä vain mittaamaton.
+</p>
+
+<h2>Tuntematon luokka ei ole immuuni kummallekaan, eri syystä</h2>
+
+<p>
+Tuli vartioi suoraan: tuntematon luokka ohittaa immuniteettitarkistuksen alkuperäisessä
+nimenomaisesti kirjoitettuna. Myrkky ei vartioi lainkaan, mikä on eri rutiini kirjoitettuna
+hiukan eri tavalla samassa tiedostossa. Tämän projektin oma lukija vastaa kuitenkin valmiiksi
+"ei" jokaiselle lipulle kun luokkaa ei löydy ollenkaan, niin kaksi eri alkuperäistä syytä
+päätyvät tässä satamassa samaan vastaukseen eikä kumpaakaan tarvinnut vartioida erikseen.
+</p>
+
+<h2>Laiska heitto: ei satunnaislukua kun vastaus on jo tiedossa</h2>
+
+<p>
+Kolme rutiinia lukevat immuniteetin ennen satunnaisheittoa, ja heitto on itse ehtolohkon
+sisällä: tunnettu, immuuni luokka ei kuluta ainoatakaan satunnaislukua liekille eikä kuolemalle.
+Myrkyn kontesti sama. Energiatuuli ainoana heittää omansa ehdoitta, koska sillä ei ole
+immuniteettihaaraa ollenkaan. Tämä todistettiin siemenvertailulla: sama luokka, sama alkutila,
+ja liekin jälkeen generaattori on tasan siinä missä tuore olisi, myrkyn jälkeen yhden heiton
+päässä siitä.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          168 / 194
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2565 / 2565
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kaikki neljä tuulta toimivat nyt oikeasti loitsukirjasta kastettuna. 80:stä loitsusta
+     maailmaa muuttavia on 14; jäljellä on 19 omaa haaraansa ja 23 ammuskaston omaa vaikutusta,
+     jokainen oma, erillinen mittauksensa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

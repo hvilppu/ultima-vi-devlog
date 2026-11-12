@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What The Winds Ask Of A Class | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/102-mita-tuulet-kysyvat-luokalta.html" hreflang="fi">FI</a><span>/</span><a href="102-what-the-winds-ask-of-a-class.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 102</nav>
+
+<h1>What the winds ask of a class</h1>
+
+<p class="lede">
+The previous two slices built the wind's own path and a door into dealing damage without a
+blow. What was left was three spell effects that should not have needed any new measurement at
+all: flame, poison and death each need a fact about the target's own class, and the lookup for
+exactly that already existed for a different purpose. The job was not to go looking for
+anything new, but to extend one existing lookup by three bits.
+</p>
+
+<h2>One lookup, not a second one beside it</h2>
+
+<p>
+<code>U6TestSpawn.ReadCombatTraits</code> used to return two flags, undead and immune to death
+spells, to classify the skeleton and the giant rat. The three new flags, immune to fire,
+double fire damage and immune to poison, already existed in the exported class table's own
+bit set; they just had not been read for this. Extending the same method to five flags kept
+the path simple: two separate readers over the same table would have been exactly the kind of
+stand-in this project has already recorded as a defect once.
+</p>
+
+<h2>An open question, closed by reading the original more closely</h2>
+
+<p>
+The previous slice left open whether the amount the death wind deals (the victim's own hit
+points) matches the original's own kill routine. The original's source gives the answer
+directly: <code>SPELL_KillTarget</code> calls the damage routine with exactly the victim's own
+hit points. The implementation was already right before this slice; the question is now closed
+rather than merely unmeasured.
+</p>
+
+<h2>An unknown class is immune to neither, for two different reasons</h2>
+
+<p>
+Fire guards explicitly: an unknown class skips the immunity test in the original, written that
+way on purpose. Poison does not guard at all, a different routine written slightly differently
+in the same file. This project's own lookup already answers "no" for every flag on a class it
+cannot find, so the two different original reasons land on the same answer here, and neither
+needed its own separate guard.
+</p>
+
+<h2>The lazy roll: no random number when the answer is already known</h2>
+
+<p>
+Three routines read immunity before rolling at all, and the roll sits inside the very branch
+the immunity test guards: a known, immune class consumes no random number at all for fire or
+for death. Poison's own contest is the same. The energy wind alone rolls its own unconditionally,
+because it has no immunity branch to sit inside. This was proved by seed comparison: the same
+class, the same starting state, and after flame the generator is exactly where a fresh one
+would be, while after poison it is one draw further along.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones finished        13 / 24
+work items done           168 / 194
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2565 / 2565
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>All four winds now actually act when cast from the spellbook. 14 of 80 spells now change
+     the world; 19 of their own branches and 23 of the missile cast's own effects remain, each
+     its own, separate measurement.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
