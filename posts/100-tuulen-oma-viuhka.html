@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tuulen Oma Viuhka | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="100-tuulen-oma-viuhka.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/100-the-winds-own-fan.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 100</nav>
+
+<h1>Tuulen oma viuhka</h1>
+
+<p class="lede">
+Aiempi viipale kieltäytyi neljästä tuuliloitsusta sanoen tuulen oman reitin mittaamattomaksi.
+Osoittautui, että reitti oli mitattu kolmena erillisenä palana, joita kukaan ei ollut vielä
+kirjoittanut yhteen: leviämistaulukko ja sen parinhakija, ammuksen kävely ja sen estosääntö, ja
+tuulen oma käsittelijä. Tämä viipale on kokoamista, ei mittausta.
+</p>
+
+<h2>Viisi kohdetta kohteen ympärillä, ei kastajan</h2>
+
+<p>
+<code>MagicWind</code> rakentaa viisi kohdetta valitun ruudun ympärille: ruudun itsensä, yksi
+askel kumpaankin sivusuuntaan leviämistaulukosta, ja toinen askel samoihin kahteen suuntaan.
+Vasta itse kävely lähtee kastajan ruudulta; kohteet eivät. Uusi <code>U6SpellWindPath.Build</code>
+kokoaa viisi kohdetta ja kutsuu olemassa olevaa ammuksen tulilinjaa viidesti, kerran per säde,
+toistamatta sen estosääntöä.
+</p>
+
+<h2>Lomitus, jonka brief nimesi jäljittämättömäksi</h2>
+
+<p>
+Brief sanoi suoraan: alkuperäinen kävelee kaikki viisi ammusta yhdessä, yksi askel per ammus per
+tikki, eikä ollut jäljitetty esiintyisikö kahden säteen ylittämä toimija listalla kerran tai
+kahdesti. Lukemalla alkuperäisen omaa kävelyrutiinia tarkemmin molemmat kysymykset ratkesivat:
+yksi jaettu bittitaulukko kerätä kaikkien viiden ammuksen osumat, ja lopullinen lista rakennetaan
+siitä vasta kävelyn jälkeen, nousevassa oliotunnusjärjestyksessä. Sama toimija ei voi koskaan
+esiintyä kahdesti, eikä lomitus voi muuttaa järjestystä. Tämä viipale toistaa sen ottamalla viiden
+itsenäisen sädelistan yhdisteen, ei ketjutusta säde säteeltä.
+</p>
+
+<h2>Löydös: kytkentä vaatisi rutiinin jota ei ole koskaan rakennettu</h2>
+
+<p>
+Viuhkan syöttäminen tuulen omalle käsittelijälle ei riittänyt saattamaan loitsuja oikeasti
+toimiviksi. Käsittelijä vaatii myös tapauksensa oman uhrivaikutuksen syötteen, ja kolme neljästä
+tuulesta tarvitsisi lisäksi "tee vahinkoa toimijalle" -rutiinin, jota tätä projektia ei ole
+rakennettu kertaakaan, millekään loitsulle. Korvikkeen keksiminen olisi juuri se virhe jonka
+takia reitti itse jäi aikanaan mittaamatta; niin kytkentä jäi näkymään koskematta, ja
+löydös kirjattiin sen tilalle.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          166 / 192
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2542 / 2542
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Mittaus siitä, mitä alkuperäisen "tee vahinkoa toimijalle" -rutiini oikeasti tekee: se on
+     primitiivi jota kolme tuulta ja useampi muu, vielä kytkemätön loitsu odottaa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

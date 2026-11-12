@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Wind's Own Fan | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/100-tuulen-oma-viuhka.html" hreflang="fi">FI</a><span>/</span><a href="100-the-winds-own-fan.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 100</nav>
+
+<h1>The wind's own fan</h1>
+
+<p class="lede">
+An earlier slice refused the four wind spells, calling the wind's own path unmeasured. It turned
+out to be measured already, in three separate pieces nobody had written together yet: the spread
+table and its pair accessor, the missile walk and its blocking rule, and the wind's own handler.
+This slice is assembly, not measurement.
+</p>
+
+<h2>Five destinations around the target, not the caster</h2>
+
+<p>
+<code>MagicWind</code> builds five destinations around the selected square: the square itself,
+one step either side along the spread table's own pair, and a second step along those same two
+directions. Only the walk itself starts at the caster; the destinations never do. The new
+<code>U6SpellWindPath.Build</code> assembles the five destinations and calls the existing
+missile line of fire five times, once per ray, without restating its own blocking rule.
+</p>
+
+<h2>The interleaving the brief itself called untraced</h2>
+
+<p>
+The brief said plainly: the original walks all five projectiles together, one step each per
+tick, and whether an actor caught by two rays would appear once or twice in the result had not
+been traced. Reading the original's own stepping routine further settled both questions: one
+shared bitmap collects every one of the five projectiles' hits, and the final list is only built
+from it after the walk ends, in ascending object number order. The same actor can never appear
+twice, and interleaving cannot change the order. This slice reproduces that by taking the union
+of five independent ray results rather than concatenating them ray by ray.
+</p>
+
+<h2>Finding: wiring it in would need a routine that has never been built</h2>
+
+<p>
+Feeding the fan to the wind's own handler was not enough to make the spells actually run. The
+handler also demands its own case's victim effect input, and three of the four winds would need
+a "deal damage to an actor" routine on top of that, which this project has never built for any
+spell. Inventing a stand-in for it would be exactly the mistake that left the path itself
+unmeasured for so long, so the view's own wiring was left untouched, and the finding was written
+down in its place instead.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones finished        13 / 24
+work items done           166 / 192
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2542 / 2542
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Measuring what the original's own "deal damage to an actor" routine actually does: the
+     primitive three winds and several other, still unwired spells are waiting on.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
