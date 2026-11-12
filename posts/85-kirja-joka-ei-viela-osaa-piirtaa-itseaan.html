@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kirja Joka Ei Vielä Osaa Piirtää Itseään | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="85-kirja-joka-ei-viela-osaa-piirtaa-itseaan.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/85-the-book-that-cannot-draw-itself-yet.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 85</nav>
+
+<h1>Kirja joka ei vielä osaa piirtää itseään</h1>
+
+<p class="lede">
+Seitsemän viipaletta mittasi koko loihtimisen säännöstön: kieltäytymiset, kulut, reagenssit,
+64 vaikutusta. Mikään niistä ei ollut tavoitettavissa, koska mitään loitsukirjaa ei ollut.
+Tämä viipale on se kirja, puoliksi: kaikki mikä on päätös, ei mikään mikä piirtää.
+</p>
+
+<h2>Jako joka pysyy testattavana</h2>
+
+<p>
+Loitsukirja on tämän projektin ensimmäinen varsinainen käyttöliittymä, ja täällä testauskuri
+on päätön: Unityn editori ei aja mitään tätä kautta. Jako on siis pakollinen, ei makuasia:
+kaikki mikä loitsukirjassa on päätös, mitä loitsuja se tietää, mikä on valittu, minkä sivun
+se näyttää, montako kertaa rivi voi loihtia, menee moottoriin ja pysyy testattavana ilman
+editoria. Piirtäminen, näppäinkäsittely ja ruutukoordinaatit ovat eri viipale, ja niiden
+tarkistus tulee aina olemaan omistajan oma Test Runner.
+</p>
+
+<p>
+Alkuperäisessä kaksi funktiota tekevät tämän: <code>SPELL_RefreshList</code> rakentaa
+kymmenen bitin maskin kahdeksalle piirille lukemalla luettujen loitsukirjojen omat
+loitsuesineet, ja <code>SPELL_RefreshPage</code> kävelee tunnetut loitsut kerran läpi
+rakentaen sivun rivit ja neljä navigointipainiketta samassa kävelyssä. Kumpikin pysyi
+erillään täälläkin.
+</p>
+
+<h2>Laatu nolla on kaksi eri asiaa</h2>
+
+<p>
+Kirjan oma laatu on valittu loitsu. Mutta "ruoan luonti" sattuu olemaan loitsu numero nolla,
+niin laatu nolla joutuu kantamaan kahta merkitystä: "ei valittu mitään vielä" ja "valittuna
+on ruoan luonti". Alkuperäinen ratkaisee tämän yhdellä ehdolla per kirja: jos laatu on nolla
+eikä kirja oikeasti sisällä loitsua nolla, laatu kirjoitetaan uusiksi ensimmäiseksi loitsuksi
+jonka skannaus löysi. Kirja jonka laatu on nolla <em>koska</em> se sisältää loitsun nolla
+pitää arvonsa koskemattomana. Molemmat suunnat ovat omat testinsä, koska ehto on
+yhdysside eikä kumpikaan puolisko riitä yksin.
+</p>
+
+<h2>Painike joka hyppää yhden ympyrän liikaa</h2>
+
+<p>
+Neljä navigointiarvoa lasketaan samassa kävelyssä kuin sivun rivit, ja yksi niistä on mitattu
+rikki. "Edellinen ympyrä" lasketaan edellisen ympyrän numerona miinus edellisen sivun
+painikkeen oma koodi, korjaus joka on tarkoitettu kompensoimaan sitä että "edellinen sivu"
+voi tarkoittaa joko oikeaa edellistä ympyrää (koodi 1) tai samaa ympyrää, aiempaa sivua
+(koodi 2). Ongelma: kun sivu alkaa kesken omaa ympyräänsä, se muuttuja jota kaava kutsuu
+"edelliseksi ympyräksi" ei olekaan edellinen, se on nykyinen, koska viimeksi ohitettu loitsu
+jakaa sivun oman ympyrän. Vähennys kahdella osuu silloin kaksi ympyrää taakse yhden sijaan.
+Dekompilaatio merkitsee tämän omalla kysymysmerkillään, ja se on toistettu tässä
+korjaamatta: sääntö pyytää alkuperäistä käyttäytymistä, ei järkevää käyttäytymistä, ja testi
+on nimetty niin että kumpikaan ei voi erehtyä kummasta on kyse.
+</p>
+
+<p>
+Reagenssien kulutuksessa on oma, näennäisesti ristiriitainen pari: apu näyttää aina yhden
+loihdittavan riippumatta kannetusta, eikä koskaan vähennä sitä, mutta kuluttaa reagenssinsa
+(joita sillä ei ole) yhtä lailla; armageddon näyttää myös yhden mutta kuluttaa molemmat,
+reagenssin ja laskurin. Tämä ei ole korjattu yhtenäiseksi. Se on alkuperäisen oma mitattu
+epäsymmetria, ja tasoittaminen olisi ollut oma mukavuusvalinta vastoin mitattua.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina            149 / 176
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      57 / 57
+U6Engine.Tests    2137 / 2137
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Loitsukirjan piirtämätön puolisko: piirtäminen, näppäinkäsittely ja ruutukoordinaatit
+     Unity-puolella. Vuoropohjainen taistelu odottaa yhä omistajan päätöstä kehitysnäppäimen
+     F9 kohtalosta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

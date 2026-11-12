@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Book That Cannot Draw Itself Yet | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/85-kirja-joka-ei-viela-osaa-piirtaa-itseaan.html" hreflang="fi">FI</a><span>/</span><a href="85-the-book-that-cannot-draw-itself-yet.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 85</nav>
+
+<h1>The book that cannot draw itself yet</h1>
+
+<p class="lede">
+Seven slices measured the whole of casting: the refusals, the costs, the reagents, 64
+effects. None of it was reachable, because there was no spellbook. This slice is that book,
+by half: everything it decides, nothing that draws it.
+</p>
+
+<h2>A split that stays testable</h2>
+
+<p>
+The spellbook is this project's first real user interface, and the test discipline here is
+headless: Unity's own editor never runs through this path. The split is therefore not a
+taste, it is a requirement: everything the spellbook decides, which spells it knows, which one
+is selected, which page it shows, how many times a line can be cast, goes into the engine and
+stays testable without the editor. Drawing, key handling and screen coordinates are a
+different slice, and their own check will always be the owner's own Test Runner.
+</p>
+
+<p>
+Two functions in the original do this: <code>SPELL_RefreshList</code> builds a ten bit mask
+for each of eight circles by reading the spell objects inside the readied spellbooks, and
+<code>SPELL_RefreshPage</code> walks the known spells once, building the page's own lines and
+its four navigation buttons in the same walk. Both stayed apart here too.
+</p>
+
+<h2>Quality zero is two different things</h2>
+
+<p>
+A spellbook's own quality is the selected spell. But "create food" happens to be spell number
+zero, so quality zero ends up carrying two meanings at once: "nothing chosen yet" and
+"create food is chosen". The original settles this with one condition per book: if the
+quality is zero and the book does not actually hold spell zero, the quality is overwritten
+with the first spell the scan found. A book whose quality is zero <em>because</em> it holds
+spell zero keeps its value untouched. Both directions are their own test, because the
+condition is a conjunction and neither half is enough alone.
+</p>
+
+<h2>A button that jumps one circle too far</h2>
+
+<p>
+Four navigation values are computed in the same walk as the page's own lines, and one of them
+is measured broken. "Previous circle" is computed as the previous circle's own number minus
+the previous page button's own code, a correction meant to compensate for "previous page"
+sometimes meaning the real previous circle (code 1) and sometimes meaning the same circle, an
+earlier page (code 2). The problem: when the page starts partway into its own circle, the
+variable the formula calls "previous circle" is not actually the previous one, it is the
+current one, because the last spell skipped shares the page's own circle. The subtraction of
+two then lands two circles back instead of one. The decompilation flags this with its own
+question mark, and it is reproduced here unfixed: the rule asks for the original's own
+behaviour, not the sensible one, and the test is named so neither can be mistaken for the
+other.
+</p>
+
+<p>
+Reagent spending carries its own, apparently contradictory pair. Help always shows exactly
+one casting regardless of what is carried, and never decrements it, but still spends its
+reagents (which it does not actually have in the real table) all the same; armageddon also
+shows one, but spends both the reagent and the count. This is not smoothed into one
+consistent rule. It is the original's own measured asymmetry, and making it consistent would
+have been a convenience choice against the measurement.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              149 / 176
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      57 / 57
+U6Engine.Tests    2137 / 2137
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The spellbook's undrawn half: drawing, key handling and screen coordinates on the Unity
+     side. Turn based combat still waits on the owner's own decision about the F9 development
+     key's fate.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
