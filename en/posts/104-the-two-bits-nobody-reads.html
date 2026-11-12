@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Two Bits Nobody Reads | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/104-kaksi-bittia-joita-kukaan-ei-lue.html" hreflang="fi">FI</a><span>/</span><a href="104-the-two-bits-nobody-reads.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 104</nav>
+
+<h1>The two bits nobody reads</h1>
+
+<p class="lede">
+Curse and protection are two of the missile switch's last four cases, and each is a one line
+effect in the original: set a bit, nothing else. Wiring them alone would have been worthless,
+because everything that gives those two bits a meaning was already built in this project and
+hardcoded off in five places, six once the count was measured again.
+</p>
+
+<h2>Four cases, one of them can fail</h2>
+
+<p>
+Curse and protection set a bit and do nothing else: no contest, no message, no halo. Paralyze
+sets a different bit and shows a hit, but has no immunity check at all, the only one of this
+switch's status spells that always lands. Invisibility alone can fail: its own gate was
+already measured and built in another slice, so this case was just a call into its own
+refusal.
+</p>
+
+<h2>The other half mattered more than the fourth case</h2>
+
+<p>
+The curse and protection formulas already existed: minus three from strength, dexterity and
+intelligence when cursed, floored at one; plus three to armour when protected. They just had
+no real caller. The attack path passed a literal "not cursed" in six places and read the
+armour past the protection formula entirely. Both fixed: the character table can now be asked
+whether it is cursed or protected, and the attack reads the answer instead of assuming it.
+</p>
+
+<h2>One bit, three names</h2>
+
+<p>
+The curse bit is the same physical bit as the egg's own "hatched" and the embryo's own
+"mutant", three names for one bit in the original's own header. Not a live collision in this
+project: the mutant flag's only reader always asks about an embryo's own number inside an
+egg, and the curse flag's six readers never ask about an egg at all. Tested both directions,
+not trusted from the name.
+</p>
+
+<h2>A cursed creature is worse at shaking off its own curse</h2>
+
+<p>
+The per minute rolls that wear these statuses off read intelligence as the curse has already
+lowered it, not the raw figure. That means a cursed creature's own test to shake off its curse
+uses exactly the intelligence the curse itself reduced: a real feedback loop in the original,
+and it falls out for free from using the right formula rather than from a separate rule.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          170 / 196
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2656 / 2656
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>19 of the family's own branches and seven of the missile cast's own effects left, each
+     its own, separate measurement.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

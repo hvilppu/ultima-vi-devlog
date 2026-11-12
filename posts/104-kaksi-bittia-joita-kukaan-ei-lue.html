@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaksi Bittiä Joita Kukaan Ei Lue | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="104-kaksi-bittia-joita-kukaan-ei-lue.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/104-the-two-bits-nobody-reads.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 104</nav>
+
+<h1>Kaksi bittiä joita kukaan ei lue</h1>
+
+<p class="lede">
+Kirous ja suojaus ovat ammuskytkimen neljästä viimeisestä haarasta kaksi, ja kumpikin on
+alkuperäisessä yhden rivin vaikutus: aseta bitti, ei muuta. Niiden kytkeminen yksin olisi
+ollut turhaa, koska kaikki se mikä antaa kahdelle bitille merkityksen oli jo rakennettu tähän
+projektiin ja kiinnitetty pois päältä viidessä paikassa, kuudessa kun laski tarkistettiin
+uudelleen.
+</p>
+
+<h2>Neljä haaraa, yksi niistä voi epäonnistua</h2>
+
+<p>
+Curse ja protection asettavat bitin eivätkä tee muuta: ei kontestia, ei viestiä, ei haloa.
+Paralyze asettaa toisen bitin ja näyttää iskun, mutta sillä ei ole immuniteettitarkistusta
+lainkaan, ainoana tämän kytkimen tilaloitsuista joka osuu aina. Invisibility yksin voi
+epäonnistua: ehto on jo mitattu ja rakennettu toisessa viipaleessa, niin tämä haara oli
+pelkkä kutsu sen omaan kieltäytymiseen.
+</p>
+
+<h2>Toinen puolisko oli tärkeämpi kuin neljäs haara</h2>
+
+<p>
+Kirouksen ja suojauksen kaavat olivat valmiina: miinus kolme voimasta, tanssitaidosta ja
+älystä kirottuna, lattia yhdessä; plus kolme panssariin suojattuna. Niillä ei vain ollut
+yhtäkään oikeaa kutsupaikkaa. Hyökkäyspolku välitti kirjaimellisen "ei kirottu" kuudessa
+paikassa ja laski panssarin ohi suojauksen kaavan kokonaan. Korjattu molemmat: hahmotaulu saa
+kysyä itseltään onko se kirottu tai suojattu, ja hyökkäys lukee vastauksen sen sijaan että
+olettaisi.
+</p>
+
+<h2>Sama bitti kolmella nimellä</h2>
+
+<p>
+Kirousbitti on sama fyysinen bitti kuin munan oma "kuoriutunut" ja embryon oma "mutantti",
+kolme nimeä yhdelle bitille alkuperäisen omassa otsikkotiedostossa. Ei elävä törmäys tässä
+projektissa: mutantin ainoa lukija kysyy aina embryon omaa numeroa munan sisällä, ja kirouksen
+kuusi lukijaa eivät koskaan kysy munaa. Testattu molempiin suuntiin, ei luotettu nimeen.
+</p>
+
+<h2>Kirottu olento on huonompi riisumaan omaa kiroustaan</h2>
+
+<p>
+Minuuttiheitot, jotka riisuvat nämä tilat pois, lukevat älyä kiron alentamana, ei raakana.
+Se tarkoittaa että kirottu olento käyttää omaa testiään varten juuri sitä älyä jonka kirous on
+jo laskenut: todellinen palautekytkentä alkuperäisessä, ja se tulee ilmaiseksi oikean kaavan
+käytöstä, ei erillisestä säännöstä.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          170 / 196
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2656 / 2656
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>19 omaa haaraansa ja seitsemän ammuskaston omaa vaikutusta jäljellä, jokainen oma,
+     erillinen mittauksensa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
