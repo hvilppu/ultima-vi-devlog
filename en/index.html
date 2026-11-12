@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>13 of 24 milestones</strong> finished, and inside them
-<strong>155 of 181 work items</strong>. The second is the one that moves while a
+<strong>157 of 183 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -319,12 +319,12 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Combat and magic <span class="m-value">0 / 1 done, 38 / 42 items</span></h3>
+    <h3>Combat and magic <span class="m-value">0 / 1 done, 40 / 44 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
-        <span class="m-bar"><span class="m-fill" style="width: 90%"></span></span>
-        <span class="m-value">38 / 42, in progress</span>
+        <span class="m-bar"><span class="m-fill" style="width: 91%"></span></span>
+        <span class="m-value">40 / 44, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done">Slice A: the attack command and <code>combat.c</code>'s tables.</li>
@@ -366,6 +366,8 @@ them up found two faults in the plan straight away that the total alone had hidd
         <li class="done">Slice F16: the spell's own name and the circle names, in the book.</li>
         <li class="done">Development key (F10): a full spellbook.</li>
         <li class="done">Slice F17: the rest of the <code>Get</code> command, karma and the alarm.</li>
+        <li class="done">Development key (F11): a loose spellbook for the get command.</li>
+        <li class="done">Slice F18: <code>Ready</code> and <code>Unready</code>.</li>
         <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
         <li>Eighty spells, the reagents and mixing them, mana cost and the targeting types</li>
         <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
@@ -1133,12 +1135,20 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        container's whole content walked the very list it was editing, and a three level test
        caught it before anybody got the chance to play into it.</p>
   </li>
+  <li>
+    <span class="n">91</span>
+    <a href="posts/91-the-slot-that-never-asks-the-type.html">The Slot That Never Asks the Type</a>
+    <p>Readying was the missing link in the spellbook's whole chain. Which slot an object
+       occupies is settled by its tile, never its type, through eight tests run in a fixed
+       order, and the one handed table's own thirty three tiles were located in the owner's
+       own game file rather than trusted from the decompilation's comment.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>The spellbook now makes it as far as the pack; readying it waits on M21. Turn based combat
-     and the alarm's own build both still wait on the owner's own decisions.</p>
+  <p>The owner can now try the whole chain: pick up the book, wear it, cast from it. The actual
+     paper doll interface still waits on M21.</p>
 </div>
 
 <footer class="foot">

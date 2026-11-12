@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paikka Jota Ei Kysytä Tyypiltä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="91-paikka-jota-ei-kysyta-tyypilta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/91-the-slot-that-never-asks-the-type.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 91</nav>
+
+<h1>Paikka jota ei kysytä tyypiltä</h1>
+
+<p class="lede">
+Loitsukirjan voi nyt poimia ja riisua. Varustaminen oli puuttuva lenkki: seitsemän aiempaa
+viipaletta mittasi kastamissäännöt, eikä yksikään niistä ollut tavoitettavissa oikealla
+kirjalla, koska mikään ei ohjannut sitä kädestä pitäen hahmon päälle. Tämä viipale sulkee
+ketjun: poimi, riisu, pue, loihdi.
+</p>
+
+<h2>Kysymys joka on ollut auki ensimmäisestä viipaleesta</h2>
+
+<p>
+Loitsukirjalla on kaksi paikkaa, kaksi kirjapaikkaa, ja syytä ei tiedetty varmasti ennen tätä.
+Vastaus osoittautui yksinkertaiseksi kun se lopulta luki dekompilaatiosta: loitsukirja
+varustetaan käteen, aivan niin kuin miekka tai keihäs. Sen tiili istuu yksikätisen esinetaulukon
+yhdestoista alkio kolmestakymmenestäkolmesta. Kaksi kättä, kaksi kirjaa, yksi taulu joka ei
+tiedä mitään loitsuista.
+</p>
+
+<h2>Tiili päättää, ei tyyppi</h2>
+
+<p>
+Mihin paikkaan esine menee, ratkeaa kahdeksalla testillä jotka kysyvät esineen <em>tiiltä</em>,
+ei sen tyyppiä: jalkoihin, sormeen, kaulaan, päähän, rintaan, kaksikätiseksi, vasempaan käteen
+tai viimeisenä yksikätisen taulun kolmeenkymmeneenkolmeen vaihtoehtoon. Tämä projekti oppi
+samantapaisen läksyn jo aseiden kohdalla kerran, ja oppi sen uudelleen tässä: tyyppi ei kerro
+mitään kädestä, tiili kertoo.
+</p>
+
+<p>
+Järjestys on osa sääntöä, eikä se ole vain muotoseikka. Gargoylivyö täsmää kahteen testiin,
+kaulaan ja rintaan, ja kaulatesti tulee ensin. Portti joka ajaisi testit toisessa järjestyksessä
+siirtäisi vyön hiljaa kaulasta rintaan, eikä mikään kertoisi siitä.
+</p>
+
+<h2>Tiili jota kukaan ei selitä</h2>
+
+<p>
+Yksi kaulatestin tiileistä on dekompiloijan omin merkinnöin kysymysmerkillä varustettu:
+<code>/*?? (ground tile)*/</code>. Se on numeroltaan yleisten animaatiotiilien alueelta, kaukana
+kaikista muista kaulan esinetiileistä. Vaihtoehtoja oli kaksi: jättää se pois hiljaisena
+siistimisenä, tai pitää se mukana ja sanoa ääneen että sen olemassaolo on selittämätön. Jälkimmäinen
+on rehellisempi vastaus, ja se on se joka päätyi koodiin.
+</p>
+
+<h2>Kymmenen ja kaksikymmentä, ei yksi luku jaettuna kahteen</h2>
+
+<p>
+Varustettu paino saa olla enintään kymmenen kertaa voima; kannettu paino kaksikymmentä. Hahmo
+kantaa siis kaksi kertaa sen minkä voi pukea päälleen. Molemmat rajat olivat jo rakennettuina
+jonkin aiemman mittauksen varalta ennen tätä viipaletta, ja tämä oli vain niiden ensimmäinen
+oikea kutsuja, mutta tarkistus siitä, että kumpikin luku todella käyttää omaa vakiotaan, kuuluu
+edelleen tähän: yhden luvun jakaminen kahden rajan kesken olisi ollut ilmeinen yksinkertaistus,
+ja juuri sellainen joka näyttää oikealta kunnes joku puetaan juuri sille rajalle.
+</p>
+
+<h2>Yksi, joka ei ole esine</h2>
+
+<p>
+Kaksikätinen ase vie oikean käden ja merkitsee vasemman "varattu"-tilaan arvolla 1, joka on
+sentinelli ja ei esineen oma tunnus. Portti joka laittaisi aseen oman tunnuksen molempiin käsiin
+näyttäisi oikealta joka testissä jossa kukaan ei kysy mitä vasemmassa kädessä oikeasti on, ja
+väärin ensimmäisenä kerralla kun joku kysyy. Tässä projektissa mitään ei tallenneta paikkaan
+ensinkään: paikka lasketaan tarpeen mukaan kaikkien puettujen esineiden tiilten yli, niin
+kysymystä "mikä esine on vasemmassa kädessä kaksikätisen aikana" ei tarvitse vastata koskaan
+väärin, koska sitä ei kysytä ollenkaan.
+</p>
+
+<h2>Taulu joka haettiin, ei lainattu</h2>
+
+<p>
+Yksikätinen taulu, kolmekymmentäkolme tiiltä, on tämän viipaleen ainoa oikea tietotaulu; kaikki
+muu on yksittäisiä rajavakioita joilla ei ole tavumuotoa jota hakea tiedostosta. Taulu haettiin
+omistajan omasta <code>GAME.EXE</code>:stä, ei luotettu dekompilaation kommenttiin: oikea
+lukutapa osuu tasan yhteen paikkaan, ja neljä tahallisesti väärää lukutapaa (väärä tavujärjestys,
+käänteinen järjestys, kaksi alkiota vaihdettuna, joka arvo yhdellä alempana) osuvat kaikki
+nollaan kertaan.
+</p>
+
+<h2>Kaksi aukkoa jotka jäivät nimetyiksi</h2>
+
+<p>
+Soihdun palauttaminen omaan pinoonsa riisuttaessa ja maailmankellon oma kirjoitus
+myrskyviitan taikavaikutukseen jäivät rakentamatta: molemmat tarvitsevat systeemin joka ei ole
+tässä mukana, ja briifi rajasi tämän viipaleen kahteen riisumissääntöön, ei kolmeen.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          157 / 183
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2287 / 2287
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Omistaja voi nyt kokeilla ketjua loppuun asti: poimi kirja, pue se, loihdi siitä. Varsinainen
+     paperinukke-käyttöliittymä odottaa edelleen M21:tä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Slot That Never Asks the Type | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/91-paikka-jota-ei-kysyta-tyypilta.html" hreflang="fi">FI</a><span>/</span><a href="91-the-slot-that-never-asks-the-type.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 91</nav>
+
+<h1>The slot that never asks the type</h1>
+
+<p class="lede">
+A spellbook can now be picked up and taken off. Readying it was the missing link: seven earlier
+slices measured the casting rules, and not one of them was reachable with a real book, because
+nothing put it on the character's hand in the first place. This slice closes the chain: drop,
+get, ready, cast.
+</p>
+
+<h2>A question open since the first slice</h2>
+
+<p>
+The spellbook has two slots, two book slots, and nobody was certain why until now. The answer
+turned out to be simple once it was finally read out of the decompilation: a spellbook readies
+into a hand, exactly like a sword or a spear. Its tile sits as the eleventh entry of a thirty
+three entry one handed table. Two hands, two books, one table that knows nothing about spells.
+</p>
+
+<h2>The tile decides, not the type</h2>
+
+<p>
+Which slot an object goes to is settled by eight tests that all ask about the object's own
+<em>tile</em>, never its type: the feet, a finger, the neck, the head, the chest, two handed, the
+left hand, or last the one handed table's own thirty three entries. This project already learned
+a version of this lesson once for weapons, and learned it again here: the type says nothing about
+which hand, the tile does.
+</p>
+
+<p>
+Order is part of the rule, and not a cosmetic detail. A gargoyle belt matches two tests, the neck
+and the chest, and the neck test runs first. A port that ran the tests in a different order would
+quietly move the belt from the neck to the chest, and nothing would say so.
+</p>
+
+<h2>A tile nobody explains</h2>
+
+<p>
+One of the neck test's own tiles carries the decompiler's own question mark:
+<code>/*?? (ground tile)*/</code>. Its number sits in the general animation tile range, far from
+every other neck tile. There were two honest choices: drop it as quiet tidying, or keep it and
+say out loud that its presence has no known reason. The second is the more honest answer, and it
+is the one that reached the code.
+</p>
+
+<h2>Ten and twenty, not one number shared</h2>
+
+<p>
+Worn weight may be at most ten times strength; carried weight, twenty. A character carries twice
+what they can wear. Both limits were already built ahead of some earlier measurement, and this
+slice was only their first real caller, but checking that each number actually uses its own
+constant still belongs here: sharing one number between the two would have been the obvious
+simplification, and exactly the kind that looks right until something gets worn right at the
+edge.
+</p>
+
+<h2>A one that is not an object</h2>
+
+<p>
+A two handed weapon takes the right hand and marks the left "taken" with the value one, a
+sentinel and not the object's own id. A port that put the weapon's own id in both hands would
+look right in every test where nobody asks what is actually in the left hand, and wrong the first
+time somebody does. Nothing here stores a slot anywhere in the first place: occupancy is folded
+over the tiles of whatever is already worn, on demand, so the question "what object is in the
+left hand during a two handed weapon" never has to be answered wrong, because it is never asked
+at all.
+</p>
+
+<h2>A table that was found, not borrowed</h2>
+
+<p>
+The one handed table, thirty three tiles, is this slice's only real data table; everything else
+is a scalar boundary with no byte shape a program file search could ever look for. The table was
+located in the owner's own <code>GAME.EXE</code> rather than trusted from the decompilation's own
+comment: the right reading hits exactly one place, and four deliberately wrong readings (the
+wrong byte order, reverse order, two entries swapped, every value one lower) all hit zero.
+</p>
+
+<h2>Two gaps left named</h2>
+
+<p>
+Returning an unlit torch to its own stack when it comes off, and the world clock's own write to
+the storm cloak's magic effect, are both left unbuilt: each needs a system that is not here yet,
+and the brief scoped this slice to two unready rules, not three.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done              13 / 24
+work items done             157 / 183
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2287 / 2287
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The owner can now try the whole chain: pick up the book, wear it, cast from it. The actual
+     paper doll interface still waits on M21.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a legally owned copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
