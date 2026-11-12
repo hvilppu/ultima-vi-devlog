@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>An Object As A Target | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/105-esine-kohteeksi.html" hreflang="fi">FI</a><span>/</span><a href="105-an-object-as-a-target.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 105</nav>
+
+<h1>An object as a target</h1>
+
+<p class="lede">
+Douse and ignite were built and tested two slices ago, but unreachable in play: the spellbook's
+own targeting could only ever select an actor, never a plain object such as a candle or a torch.
+This slice closes the gap, and did not build a new rule to do it, because the right rule already
+existed for a different command.
+</p>
+
+<h2>A square's own contents are bigger than the square</h2>
+
+<p>
+The original walks its object chain from a square's own position, and a double width or double
+height object standing one square to the right or down belongs to that square's own contents
+too, marked with a part offset for which of four parts of the tile actually draws there. The
+walk covers two rows and no more: an object two rows down never joins in, even carrying both
+flags. No second walk of the chain for this: four direct square lookups give the same set,
+because the engine already keeps every square's own front door open.
+</p>
+
+<h2>The rule already existed, for the Attack command</h2>
+
+<p>
+The target's own three step rule, a living visible actor always wins, otherwise the first
+visible thing, otherwise the first hidden one, is exactly the rule the Attack command has
+already used for two slices. So this slice did not add a second, duplicate rule class for the
+spellbook; it fed the existing one the new covering count instead of the old, exact square
+alone.
+</p>
+
+<h2>0x200 was a mystery, not any more</h2>
+
+<p>
+The original's own pointer handling takes a square when something stands there or the displayed
+tile is 0x200 or above, but what 0x200 means was never traced past that one gate. Measurement
+gave the answer: the lowest used base tile across all 1024 object types in the owner's own game
+data is exactly 512 (0x200), and every other used one sits above it. So the threshold is "the
+displayed tile is some object's own tile", a number the data itself handed over rather than a
+guess.
+</p>
+
+<h2>The kind travels with the number</h2>
+
+<p>
+In the original an actor and a plain object shared one number space, actors in the lowest 256,
+and the gate told them apart by the value of the number. In this project they are two separate
+tables, and a plain object's id is assigned by load order, unrelated to that split at all: 256 of
+the world's 16838 objects sit below the actor limit. A gate that separates them by value would
+read those as actors.
+</p>
+
+<p>
+It was first left open on the grounds that there is no measured rule for translating between two
+number spaces. The audit showed that to be the wrong question: no translation is needed at all.
+The view knows which table the answer came from and computed the kind correctly, then threw it
+away, and the gate derived it again from the number. The kind now travels with the number, and the
+number test is only the fallback for a caller with nothing better. An object whose id is 5 is lit
+correctly, and the same test asserts that the number test alone would call it an actor. The test
+was run against the old gate first and watched to fail.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          171 / 197
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2670 / 2670
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>19 of the family's own branches and seven of the missile cast's own effects left, each
+     its own, separate measurement.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Esine Kohteeksi | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="105-esine-kohteeksi.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/105-an-object-as-a-target.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 105</nav>
+
+<h1>Esine kohteeksi</h1>
+
+<p class="lede">
+Douse ja ignite olivat rakennettuja ja testattuja jo kaksi viipaletta sitten, mutta tavoittamattomia
+pelissä: loitsukirjan kohdistus osasi valita vain toimijan, ei koskaan irtoesinettä, kuten kynttilää
+tai soihtua. Tämä viipale sulkee aukon, eikä rakentanut sitä varten mitään uutta sääntöä, koska
+oikea sääntö oli jo olemassa toista komentoa varten.
+</p>
+
+<h2>Ruudun sisältö on isompi kuin ruutu</h2>
+
+<p>
+Alkuperäinen kävelee olioketjua ruudun omasta kohdasta, ja kaksinkertaisen leveyden tai korkeuden
+esine yhden ruudun oikealla tai alla kuuluu ruudun omaan sisältöön, osuuslipulla merkittynä mistä
+neljästä tilasta tiili lopulta piirtyy. Kävely kattaa kaksi riviä, ei enempää: esine kaksi riviä
+alempana ei voi koskaan osallistua, vaikka se kantaisi molemmat liput. Ei toista kävelyä ketjun
+yli tätä varten: neljä suoraa ruutuhakua antaa saman joukon, koska moottori pitää jokaisen ruudun
+oman etuoven auki valmiiksi.
+</p>
+
+<h2>Sääntö oli jo rakennettu, Attack-komentoa varten</h2>
+
+<p>
+Kohteen kolmivaiheinen sääntö, elossa oleva näkyvä toimija voittaa aina, muuten ensimmäinen
+näkyvä, muuten ensimmäinen näkymätön, on täsmälleen sama sääntö jonka Attack-komento käyttää
+jo kahdesta viipaleesta asti. Tämä viipale ei siis lisännyt toista, päällekkäistä sääntöluokkaa
+loitsukirjalle, vaan syötti sen olemassa olevalle rungolle uuden kattavuuslaskennan tuloksen
+vanhan, tasan yhden ruudun laskennan sijaan.
+</p>
+
+<h2>0x200 oli arvoitus, ei enää</h2>
+
+<p>
+Alkuperäisen osoitinkäsittely ottaa ruudun kun solussa on olio tai näytetty tiili on 0x200 tai
+enemmän, mutta mikä 0x200 merkitsee ei ole jäljitetty tätä porttia pidemmälle. Mittaus antoi
+vastauksen: omistajan oman pelidatan 1024 esinetyypistä matalin käytetty perustiili on tasan 512
+(0x200), ja kaikki muut käytetyt ovat sen yläpuolella. Kynnys on siis "näytetty tiili on jonkin
+esineen oma tiili", ei arvaus vaan luku jonka data itse antoi.
+</p>
+
+<h2>Laji kulkee numeron mukana</h2>
+
+<p>
+Alkuperäisessä toimija ja irtoesine jakoivat yhden numeroavaruuden, toimijat alimmat 256 numeroa,
+ja portti erotti ne toisistaan numeron arvolla. Tässä projektissa ne ovat kaksi erillistä
+taulukkoa, ja esineen tunnus annetaan latausjärjestyksessä joka ei liity siihen jakoon lainkaan:
+256 maailman 16838 esineestä on toimijarajan alapuolella. Arvolla erotteleva portti lukisi ne
+toimijoiksi.
+</p>
+
+<p>
+Ensin se jäi auki sillä perusteella, ettei kahden numeroavaruuden väliselle käännökselle ole
+mitattua sääntöä. Tarkistus osoitti kysymyksen olevan väärä: käännöstä ei tarvita lainkaan.
+Näkymä tietää kummasta taulukosta vastaus tuli ja laski lajin oikein, mutta heitti sen pois, ja
+portti johti sen uudelleen numerosta. Nyt laji kulkee numeron mukana, ja numerotesti on vain
+varalla sille kutsupaikalle jolla ei ole parempaa tietoa. Esine jonka tunnus on 5 sytytetään
+oikein, ja sama testi väittää että numerotesti yksin sanoisi siitä "toimija". Testi ajettiin
+ensin vanhaa porttia vastaan ja nähtiin epäonnistumassa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          171 / 197
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2670 / 2670
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>19 omaa haaraansa ja seitsemän ammuskaston omaa vaikutusta jäljellä, jokainen oma,
+     erillinen mittauksensa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
