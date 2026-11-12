@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Button That Never Selects | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/86-nappi-joka-ei-koskaan-valitse.html" hreflang="fi">FI</a><span>/</span><a href="86-the-button-that-never-selects.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 86</nav>
+
+<h1>The button that never selects</h1>
+
+<p class="lede">
+The previous slice built what the spellbook <em>decides</em>. This one builds what a key press
+or a click does to it, and draws the page afterward. The split stayed the same: every rule into
+the engine, the Unity side as thin as it can honestly be.
+</p>
+
+<h2>Turning the page is choosing a spell, not editing an offset</h2>
+
+<p>
+In the original, <code>SpellbookFirst</code> is its own independent state, and four command
+handlers edit it directly: plus eight, minus eight, or a whole fresh walk across circles. In
+this project the page's own starting point is entirely a function of the selected spell, so
+turning the page needs no second piece of state at all: it is enough to find the spell that
+becomes the new page's own first line and run it through the very same function every other
+selection already goes through. The two routes always agree, because they are the same rule
+read twice.
+</p>
+
+<h2>A button and a key are not the same thing</h2>
+
+<p>
+A close reading turned up a distinction that would not have been guessed ahead of time: the
+four navigation buttons reach the command handlers straight from a mouse click, and never
+reselect a spell, the page simply changes underneath whichever one happened to be selected.
+The direction keys, by contrast, always select the new page's own first line, because the
+key's own path carries a flag the click never sets. The difference is measured, not invented:
+the original's own <code>SpellbookPageChanged</code> only checks that flag where
+<code>SpellbookKeyNav</code> is the one that ever sets it. The test checks both directions on
+purpose, because either direction alone would have looked perfectly sensible.
+</p>
+
+<p>
+The previous circle button's pinned fault (slice F12, left unfixed then too) turned out to
+reach further than the displayed number: pressing the button for real lands on the wrong
+circle, not only shows the wrong one as its own value. The same test that measured the display
+fault now measures the navigation fault too.
+</p>
+
+<h2>The Unity side, as thin as it gets</h2>
+
+<p>
+C opens the book, the arrows navigate, Escape closes it: three named, unmeasured decisions, the
+same shape as the attack command's own targeting before it. The mouse is left unbuilt, for the
+same reason as then: this view has no pointer. The drawing is a plain text box, not the
+original's own parchment picture, because this project has no status panel in the shape the
+original draws into; character 0x1A is written exactly as measured, and whether it shows as an
+arrow or as nothing at all is a question only the owner's own eye can answer.
+</p>
+
+<p>
+What puts a spellbook into a party member's hand was not traced in either slice, so the book
+slots here stay permanently empty. The key mapping is demonstrably working, but the book that C
+opens is always empty until equipping gets its own, measured slice.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              150 / 176
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      57 / 57
+U6Engine.Tests    2152 / 2152
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The spellbook interface is done on this front. What readies a book, loading the spell
+     table on the Unity side, and turn based combat all still wait on the owner's own
+     decisions.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

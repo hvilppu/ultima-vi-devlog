@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nappi Joka Ei Koskaan Valitse | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="86-nappi-joka-ei-koskaan-valitse.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/86-the-button-that-never-selects.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 86</nav>
+
+<h1>Nappi joka ei koskaan valitse</h1>
+
+<p class="lede">
+Edellinen viipale rakensi mitä loitsukirja <em>päättää</em>. Tämä rakentaa mitä näppäimen
+painallus tai klikkaus tekee sille, ja piirtää sivun sen jälkeen. Jako pysyi samana: kaikki
+sääntö moottoriin, Unity-puoli niin ohuena kuin rehellisesti pystyy olemaan.
+</p>
+
+<h2>Sivun kääntäminen on loitsun valintaa, ei siirtymän muokkaamista</h2>
+
+<p>
+Alkuperäisessä <code>SpellbookFirst</code> on oma, itsenäinen tila jota neljä
+komentokäsittelijää muokkaa suoraan: plus kahdeksan, miinus kahdeksan, tai kokonainen uusi
+kävely piirien yli. Tässä projektissa sivun alkukohta on kokonaan valitun loitsun oma funktio,
+niin sivun kääntäminen ei tarvitse toista tilaa lainkaan: riittää löytää loitsu joka tulee
+uuden sivun ensimmäiseksi riviksi, ja ajaa se saman funktion läpi jolla jokainen muukin valinta
+jo kulkee. Kaksi reittiä täsmäävät aina, koska ne ovat sama sääntö luettuna kahdesti.
+</p>
+
+<h2>Nappi ja näppäin eivät ole sama asia</h2>
+
+<p>
+Lähiluku löysi eron jota ei olisi arvannut etukäteen: neljä navigointinappia tavoittavat
+komentokäsittelijät suoraan hiiren klikkauksesta, mutta eivät koskaan valitse loitsua
+uudelleen, sivu vain vaihtuu. Nuolinäppäimet sen sijaan aina valitsevat uuden sivun
+ensimmäisen rivin, koska näppäimen omalla reitillä on lippu jota klikkaus ei koskaan aseta.
+Ero on mitattu, ei keksitty: alkuperäisen <code>SpellbookPageChanged</code> tarkistaa lipun
+vain siellä missä <code>SpellbookKeyNav</code> sen asettaa. Testi tarkistaa molemmat suunnat
+erikseen, koska kumpi tahansa suunta yksinään olisi näyttänyt ihan järkevältä.
+</p>
+
+<p>
+Edellisen ympyrän painikkeen pinnattu virhe (viipale F12, ei korjattu silloinkaan) osoittautui
+ulottuvan tätä pidemmälle kuin näytetty numero: kun painiketta oikeasti painaa, väärä
+ympyrä on se mihin oikeasti siirrytään, ei vain se mikä näkyy napin omana arvona. Sama testi
+joka mittasi näytön virheen mittaa nyt myös navigoinnin virheen.
+</p>
+
+<h2>Unity-puoli, mahdollisimman ohuena</h2>
+
+<p>
+C avaa kirjan, nuolet navigoivat, Escape sulkee: kolme nimettyä, ei mitattua päätöstä, samalla
+kaavalla kuin hyökkäyskomennon oma kohdistus aiemmin. Hiiri jää rakentamatta, samasta syystä
+kuin silloinkin: tällä näkymällä ei ole osoitinta. Piirto on tekstilaatikko, ei alkuperäisen
+pergamenttikuva, koska projektilla ei ole statuspaneelia siihen muotoon mihin alkuperäinen
+piirtää; merkki 0x1A kirjoitetaan sellaisenaan mitattuna, ja näkyykö se nuolena vai tyhjänä
+on kysymys jonka vain omistajan oma silmä voi vastata.
+</p>
+
+<p>
+Mikä ryhtyy loitsukirjan puolueen käteen ei ole jäljitetty kummassakaan viipaleessa, niin
+kirjapaikat ovat tässä pysyvästi tyhjät. Näppäinkytkentä on todistetusti toimiva, mutta kirja
+jonka C-näppäin avaa on aina tyhjä kunnes varustaminen saa oman, mitatun viipaleensa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina            150 / 176
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      57 / 57
+U6Engine.Tests    2152 / 2152
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Loitsukirjan käyttöliittymä on tältä osin valmis. Mikä ryhtyy kirjan puolueen käteen,
+     loitsutaulukon lataus Unity-puolelle ja vuoropohjainen taistelu odottavat yhä omistajan
+     omia päätöksiä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
