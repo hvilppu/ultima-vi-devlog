@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ovi Aukeaa, Huone On Tyhjä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="94-ovi-aukeaa-huone-on-tyhja.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/94-the-door-opens-the-room-is-empty.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 94</nav>
+
+<h1>Ovi aukeaa, huone on tyhjä</h1>
+
+<p class="lede">
+Edellinen viipale avasi seitsemän ovea: loitsunumero löytää nyt oikean käsittelijäperheensä.
+Tämän viipaleen piti kutsua sitä käsittelijää ja saada loitsu näkymään maailmassa. Se kutsuu
+sitä nyt, näkymästä asti. Mutta ovi aukeaa tyhjään huoneeseen: yksikään seitsemästä perheestä
+ei tiedä, kumpi omista loitsuistaan on juuri kastettu.
+</p>
+
+<h2>Yksi numero, monta huonetta samassa talossa</h2>
+
+<p>
+Jokainen seitsemästä käsittelijästä kattaa useamman loitsun: kahdeksan kestoloitsua yhdellä
+muodolla, yhdeksän aluevaikutusta toisella, neljä tuulta, neljä kenttää, neljä
+puolueenympärivaikutusta, kaksi kutsua. Dispatcher vastaa kysymykseen "mihin perheeseen tämä
+numero kuuluu", mutta ei kysymykseen "kumpi perheen omista loitsuista tämä numero on". Jälkimmäinen
+kysymys vaatisi lukeman jokaisen käsittelijän nimeltä, loitsu kerrallaan, ja tämä projekti ei
+kanna loitsujen nimiä minnekään. Seitsemän aiempaa mittausviipaletta mittasi mitä kukin
+tapaus *tekee*, ei mitä raakaa numeroa se vastaa. Se yhteys ei ole koskaan ollut olemassa.
+</p>
+
+<h2>Mikä avautui silti</h2>
+
+<p>
+Kaksi perhettä, aluevaikutukset ja kentät, jakavat yhden alkumuodon joka ei kysy loitsun
+tapausta ollenkaan: vain koordinaatit ja kolme geometriatarkistusta joita näkymällä on jo
+hyökkäyskomentoa varten. Se muoto toimii nyt oikeasti, oikealla geometrialla, ei korvikkeella:
+tyhjään ruutuun tähdätty loitsu ja ohi mennyt ammus kieltäytyvät tasan niin kuin alkuperäinen
+kieltäytyy. Vasta kun ammus osuu, mittaus loppuu kesken. Se on pienempi voitto kuin "loitsu
+toimii", mutta se on todellinen: pelaaja näkee ensimmäistä kertaa eron tyhjän ruudun ja osutun
+ruudun välillä, vaikka osuma ei vielä tee mitään.
+</p>
+
+<h2>Kolme korviketta ei riittänyt neljänneksi</h2>
+
+<p>
+Jokaiselle viidelle muulle perheelle olisi ollut houkuttelevaa valita jokin niiden omista
+tapauksista oletukseksi ja ajaa sitä, kunnes oikea kartta löytyy. Tämä projekti on tehnyt sen
+virheen kolmesti ennen tätä viipaletta, ja kolme korviketta riitti: jokainen näytti
+vaarattomalta kirjoitushetkellä ja muuttui todelliseksi virheeksi sillä hetkellä kun joku
+oikeasti kutsui sitä. Neljättä ei tarvittu. Jokainen viidestä nimetään kokonaan kytkemättömäksi,
+tarkalla syyllä: kaksi tarvitsisi lisäksi rutiinin jota ei ole rakennettu, yksi tarvitsisi
+tiedon jota ei ole viety, yksi tarvitsisi reitin jota ei ole koskaan mitattu.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          160 / 186
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2389 / 2389
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kumpi raaka numero on kumpi loitsu, seitsemän kertaa: ensimmäinen kerta jolloin tämän
+     projektin pitää lukea dekompilaation oma switch-lohko eikä sen ympärillä olevaa muotoa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

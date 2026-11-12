@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>13 of 24 milestones</strong> finished, and inside them
-<strong>159 of 185 work items</strong>. The second is the one that moves while a
+<strong>160 of 186 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -319,12 +319,12 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Combat and magic <span class="m-value">0 / 1 done, 42 / 46 items</span></h3>
+    <h3>Combat and magic <span class="m-value">0 / 1 done, 43 / 47 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
         <span class="m-bar"><span class="m-fill" style="width: 91%"></span></span>
-        <span class="m-value">42 / 46, in progress</span>
+        <span class="m-value">43 / 47, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done">Slice A: the attack command and <code>combat.c</code>'s tables.</li>
@@ -370,6 +370,7 @@ them up found two faults in the plan straight away that the total alone had hidd
         <li class="done">Slice F18: <code>Ready</code> and <code>Unready</code>.</li>
         <li class="done">Slice F19: casting the spell.</li>
         <li class="done">Slice F20: the spell dispatcher is wired.</li>
+        <li class="done">Slice F21: a spell actually happens.</li>
         <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
         <li>Eighty spells, the reagents and mixing them, mana cost and the targeting types</li>
         <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
@@ -1160,12 +1161,19 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        finding, the map's own measuring script turned out to add up to the right sum from the
        wrong content.</p>
   </li>
+  <li>
+    <span class="n">94</span>
+    <a href="posts/94-the-door-opens-the-room-is-empty.html">The Door Opens, The Room Is Empty</a>
+    <p>The view now calls the right handler family, but none of the seven knows which of its own
+       spells was just cast: that connection has never been measured. Two families still get a
+       real, partial wiring through a shared opening shape.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>19 own branches and seven doorless spells, each its own, separate reading: the dispatcher
-     is open, but none of those 26 yet.</p>
+  <p>Which raw number is which spell, seven times over: the first time this project has to read
+     the decompilation's own switch block rather than the shape around it.</p>
 </div>
 
 <footer class="foot">

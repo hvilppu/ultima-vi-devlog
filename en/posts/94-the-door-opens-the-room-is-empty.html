@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Door Opens, The Room Is Empty | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/94-ovi-aukeaa-huone-on-tyhja.html" hreflang="fi">FI</a><span>/</span><a href="94-the-door-opens-the-room-is-empty.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 94</nav>
+
+<h1>The door opens, the room is empty</h1>
+
+<p class="lede">
+The previous slice opened seven doors: a spell number now finds its own handler family. This
+slice's job was to call that handler and make a spell actually happen in the world. It calls it
+now, from the view itself. But the door opens onto an empty room: not one of the seven families
+knows which of its own spells was just cast.
+</p>
+
+<h2>One number, many rooms in the same house</h2>
+
+<p>
+Each of the seven handlers covers more than one spell: eight duration spells in one shape, nine
+area effects in another, four winds, four fields, four party-ring effects, two summons. The
+dispatcher answers "which family does this number belong to", but never "which of the family's
+own spells is this number". That second question would need reading every handler by name, one
+spell at a time, and this project carries no spell names anywhere. Seven earlier measuring
+slices measured what each case *does*, never which raw number it answers to. That connection has
+never existed.
+</p>
+
+<h2>What opened anyway</h2>
+
+<p>
+Two families, the area effects and the fields, share one opening shape that asks for no
+per-spell case at all: only coordinates and the three geometry checks the view already owns for
+the Attack command. That shape now runs for real, with real geometry, not a stand-in: a spell
+aimed at an empty square and a shot that misses both refuse exactly as the original refuses
+them. Only once the shot actually lands does the measuring run out. That is a smaller win than
+"the spell works", but it is a real one: for the first time, a player can see the difference
+between an empty square and a hit square, even though the hit does nothing yet.
+</p>
+
+<h2>Three stand-ins were enough that a fourth wasn't needed</h2>
+
+<p>
+For each of the five remaining families, it would have been tempting to pick one of its own
+cases as a default and run that until the real map turns up. This project has made that exact
+mistake three times before this slice, and three stand-ins were enough: each looked harmless at
+the moment it was written and turned into a real fault the moment something actually called it.
+A fourth was not needed. Each of the five is named whole and unwired, with its own precise
+reason: two would also need a routine that is not built, one would need data that was never
+exported, one would need a path that has never been measured at all.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones finished        13 / 24
+work items done          160 / 186
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2389 / 2389
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Which raw number is which spell, seven times over: the first time this project has to read
+     the decompilation's own switch block rather than the shape around it.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
