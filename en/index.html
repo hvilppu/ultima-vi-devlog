@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>13 of 24 milestones</strong> finished, and inside them
-<strong>150 of 176 work items</strong>. The second is the one that moves while a
+<strong>151 of 177 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -319,12 +319,12 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Combat and magic <span class="m-value">0 / 1 done, 33 / 37 items</span></h3>
+    <h3>Combat and magic <span class="m-value">0 / 1 done, 34 / 38 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
         <span class="m-bar"><span class="m-fill" style="width: 89%"></span></span>
-        <span class="m-value">33 / 37, in progress</span>
+        <span class="m-value">34 / 38, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done">Slice A: the attack command and <code>combat.c</code>'s tables.</li>
@@ -361,6 +361,7 @@ them up found two faults in the plan straight away that the total alone had hidd
         <li class="done">Slice F8: hitting a vehicle and breaking things.</li>
         <li class="done">Slice F12: the spellbook's own model.</li>
         <li class="done">The spellbook interface's undrawn half: drawing and key handling on the Unity side</li>
+        <li class="done">Slice F14: readying the spellbook.</li>
         <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
         <li>Eighty spells, the reagents and mixing them, mana cost and the targeting types</li>
         <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
@@ -1097,6 +1098,13 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        clickable buttons, and a finding that a button and a key disagree about whether the
        selection changes. The previous circle button's pinned fault turned out to reach real
        navigation, not only the number it displays.</p>
+  </li>
+  <li>
+    <span class="n">87</span>
+    <a href="posts/87-the-second-slot-that-never-says-no.html">The Second Slot That Never Says No</a>
+    <p>What puts a spellbook into a party member's hand: two previous slices left the question
+       open, this one closes it. The original's own second book slot never guards itself
+       against a third equipped book, and that is reproduced exactly as measured.</p>
   </li>
 </ol>
 

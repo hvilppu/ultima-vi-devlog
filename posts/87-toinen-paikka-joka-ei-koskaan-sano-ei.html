@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toinen Paikka Joka Ei Koskaan Sano Ei | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="87-toinen-paikka-joka-ei-koskaan-sano-ei.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/87-the-second-slot-that-never-says-no.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 87</nav>
+
+<h1>Toinen paikka joka ei koskaan sano ei</h1>
+
+<p class="lede">
+Kaksi edellistä viipaletta päättivät molemmat jättää saman kysymyksen auki: mikä ryhtyy
+loitsukirjan puolueen käteen. Kumpikin otti kaksi kirjapaikkaa syötteenä sen sijaan että
+olisi arvannut mikä niihin osuu, ja kirja jonka C-näppäin avasi oli sen vuoksi aina tyhjä.
+Tämä viipale on se arvaamisen vastakohta: sama kysymys luettuna dekompilaatiosta, eikä
+arvattuna.
+</p>
+
+<h2>Yksi silmukka, kaksi kopiota</h2>
+
+<p>
+<code>spell.c</code>:ssä on kaksi täysin erillistä kopiota täsmälleen samasta skannauksesta:
+loitsukomento ja sauvan lataus kävelevät molemmat puolueen aktiivisen jäsenen inventaarion ja
+ottavat mukaan vain varustetut loitsukirjat. Kumpikaan ei kävele koko puoluetta, eikä
+kumpikaan katso mitä hahmo kantaa mukanaan laukussa: vain se mikä on puettuna tai käytössä.
+Kummatkin osat tästä kysymyksestä olivat tällä projektilla jo olemassa muualla juuri samaa
+tarkoitusta varten, varustetun paikan testi hyökkäyskomennon omasta aselistasta ja
+loitsukirjan tyyppinumero jo mitattuna NPC:n omasta loitsuportista, niin uusi funktio ei
+keksi kumpaakaan uudelleen, se vain yhdistää ne.
+</p>
+
+<h2>Toinen paikka joka ei koskaan sano ei</h2>
+
+<p>
+Alkuperäisen omassa koodissa ensimmäinen löydetty kirja täyttää ensimmäisen paikan yhdellä
+ehdolla: "jos paikka on vielä tyhjä". Toinen paikka ei saa samaa ehtoa. Se on yksinkertainen
+<code>else</code>-haara, ja se suorittaa itsensä jokaiselle löydetylle kirjalle sen jälkeen,
+riippumatta siitä onko paikka jo täynnä. Yhdellä kirjalla tällä ei ole merkitystä. Kahdella
+kirjalla tulos on juuri mitä odottaisi, ensimmäinen ja toinen. Kolmannella kirjalla alkuperäinen
+ei kuitenkaan kieltäydy eikä varoita: toinen paikka kirjoitetaan yksinkertaisesti uusiksi, niin
+pelaaja joka varustaa kolmannen kirjan löytää kirjan avattuaan ensimmäisen ja kolmannen, ei
+ensimmäistä ja toista. Tämä luki dekompilaatiosta yhtä selvästi toisella kertaa kuin
+ensimmäiselläkin, niin se on toistettu tässä sellaisenaan: testin oma nimi sanoo suoraan että
+se pinnaa alkuperäisen käytöksen, ei tämän projektin omaa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina           151 / 177
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      57 / 57
+U6Engine.Tests    2158 / 2158
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Loitsukirja avautuu nyt oikealla sisällöllä, mutta reagenssitaulukon lataus Unity-puolelle
+     ja C-näppäimen oma kohtalo komentopalkin saapuessa odottavat edelleen omistajan omia
+     päätöksiä, samoin vuoropohjainen taistelu.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

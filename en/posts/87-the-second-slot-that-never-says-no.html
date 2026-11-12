@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Second Slot That Never Says No | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/87-toinen-paikka-joka-ei-koskaan-sano-ei.html" hreflang="fi">FI</a><span>/</span><a href="87-the-second-slot-that-never-says-no.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 87</nav>
+
+<h1>The second slot that never says no</h1>
+
+<p class="lede">
+The two previous slices both left the same question open: what puts a spellbook into a
+party member's hand. Each took two book slots as its own input rather than guessing what
+fills them, so the book C opened was always empty. This slice is the opposite of guessing:
+the same question, read out of the decompilation instead.
+</p>
+
+<h2>One loop, two copies</h2>
+
+<p>
+<code>spell.c</code> carries two entirely separate copies of the exact same scan: the cast
+command and loading a wand's charge both walk the active party member's own inventory and
+keep only the equipped spellbooks. Neither walks the whole party, and neither looks at what
+a character is merely carrying in a pack, only what is worn or wielded. Both halves of this
+question already existed elsewhere in this project for exactly this purpose, the equipped
+slot test from the Attack command's own weapon list and the spellbook's own type number
+already measured for an NPC's spellcasting gate, so the new function invents neither one
+again, it only joins them.
+</p>
+
+<h2>The second slot that never says no</h2>
+
+<p>
+In the original's own code, the first book found fills the first slot under one condition:
+"if the slot is still empty". The second slot gets no such condition. It is a plain
+<code>else</code> branch, and it fires for every book found after the first, regardless of
+whether the slot already holds one. With one book this makes no difference. With two books
+the result is exactly what you would expect, first and second. With a third book, though,
+the original neither refuses nor warns: the second slot is simply overwritten again, so a
+player who equips a third book finds the book open on the first and the third, not the first
+and the second. This read the same way out of the decompilation the second time as the
+first, so it is reproduced here as measured: the test's own name says plainly that it pins
+the original's own behaviour, not this project's.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              151 / 177
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      57 / 57
+U6Engine.Tests    2158 / 2158
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The spellbook now opens with real content, but loading the reagent table on the Unity
+     side and the C key's own fate once the command bar arrives still wait on the owner's own
+     decisions, and so does turn based combat.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
