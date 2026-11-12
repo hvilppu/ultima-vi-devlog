@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Merkintä Joka Muokkasi Omaa Listaansa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="90-merkinta-joka-muokkasi-omaa-listaansa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/90-the-mark-that-edited-its-own-list.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 90</nav>
+
+<h1>Merkintä joka muokkasi omaa listaansa</h1>
+
+<p class="lede">
+Maailman ainoa loitsukirja makasi kartalla, eikä mikään poiminut sitä. Se oli syy miksi
+kehitysnäppäin "täysi loitsukirja" piti rakentaa ylipäätään: pöydälle ei saanut mitään muuta
+tietä. Tämä viipale lopetti sen tarpeen puolittain, rakensi varastamisen alusta loppuun ja löysi
+yhden virheen oman testinsä avulla ennen kuin kukaan ehti pelata sitä vastaan.
+</p>
+
+<h2>Osoittimen takana oleva, ja tiili joka ei ollut tarkoitettu osoitettavaksi</h2>
+
+<p>
+Alkuperäisen poimintakomento ei aina käsittele sitä mihin osoitin osuu. Jos osoitin osuu
+hahmoon, tai osoitetun esineen oma tiili on merkitty "ohita" (verkot, pensaat, tällaiset),
+komento hakee ruudun ensimmäisen muun esineen jonka tiili ei ole sellainen. Osoittaminen
+hahmoon tai pensaaseen ottaa sen alla olevan, ei kieltäydy.
+</p>
+
+<p>
+Tämän projektin ei tarvinnut kirjoittaa puoltakaan siitä hausta. Alkuperäinen numeroi hahmot ja
+esineet samasta avaruudesta, niin sen oman hakunsa pitää erikseen ohittaa ruudulla seisova hahmo
+löytääkseen sen alla olevan esineen. Tässä hahmot ja esineet ovat kaksi eri taulukkoa alusta
+asti, niin objektimaailman oma lista ei voi koskaan sisältää hahmoa ensinkään. Jäljellä oli
+vain toinen puolikas: "ohita"-tiilen tarkistus ja haku sen ohi.
+</p>
+
+<h2>Yksi karma, ei viisi</h2>
+
+<p>
+Esineen ottaminen joka ei ole merkitty otettavaksi, ja vain pinnalla, maksaa yhden karman.
+Tämä luku on helppo sekoittaa toiseen: neutraalin hahmon tappaminen maksaa viisi, ja se on eri
+sääntö kokonaan, mitattu kolmetoista viipaletta aiemmin taistelun puolelta. Kumpikin numero
+tuli samasta pelistä, mutta ne eivät ole sama asia, ja koodin pitää sanoa niin ilman että
+kumpikaan lainaa toisen vakiota vahingossa.
+</p>
+
+<p>
+Luolassa, mikä tahansa taso paitsi pinta, koko tarkistus ohitetaan: ei merkintää, ei karmaa.
+Samaa luolaesinettä voi siis ottaa uudestaan ja uudestaan maksutta, ja se on alkuperäisen omaa
+rajausta, ei tämän projektin lievennys.
+</p>
+
+<h2>Todistaja jonka kolme ehtoa on testattava erikseen</h2>
+
+<p>
+Omistamattoman esineen ottaminen pinnalla käy läpi jokaisen kiinteän hahmopaikan ja etsii
+ensimmäisen joka on kolmea asiaa samaan aikaan: neutraali, ruudulla ja hereillä. Kaksi ehtoa
+kolmesta ei riitä, ja juuri se on ansa: tavallisessa pelissä kaksi ehtoa näyttää riittävän,
+koska kolmas on useimmiten samaa mieltä niiden kanssa. Nukkuva neutraali ruudulla ei sano
+mitään. Hyvä tai kaoottinen hahmo ei sano mitään vaikka olisi hereillä ja ruudulla. Jokainen
+näistä kolmesta oli omana testinään, yksi ehto väärin kerrallaan muuten identtisessä tilanteessa.
+</p>
+
+<p>
+Tilapäiset hirviöpaikat ovat haun ulkopuolella kokonaan, samalla rajalla jota tämä projekti
+käyttää jo muualla temppojen poimintaan. Hirviö ei voi koskaan todistaa varkautta.
+</p>
+
+<h2>Hälytys jota kukaan ei soita</h2>
+
+<p>
+Todistaja löytyy ja huutaa, mutta sen jälkeen tulevaa hälytystä, vartijoiden pidätystila
+kolmenkymmenenkahden ruudun säteellä ja lähineutraalien kääntyminen vigilanteiksi, ei ole tässä
+rakennettu. Se ei ole uusi aukko: kolmetoista viipaletta sitten mitattiin
+<code>COMBAT_RaiseAlarm</code> kerran ja todettiin, että se koskee karmaa ja tekoälyn tiloja
+joita ei ollut rakennettu, ja aukko nimettiin silloin arvaamatta tilanumeroita. Mikään viipale
+sen jälkeen ei ole sulkenut sitä, ja tämäkään ei sulkenut, vaikka olisi tarvinnut sitä juuri
+tässä. Todistaja raportoidaan omana tulostyyppinään, hälytys jää nimetyksi aukoksi täsmälleen
+siihen kohtaan missä se mitattiin kolmetoista viipaletta sitten.
+</p>
+
+<h2>Lista joka muokkasi itseään kesken kävelyn</h2>
+
+<p>
+Varastetun esineen merkintä ei koske vain esinettä itseään, vaan koko sen sisältöä, minkä
+tahansa syvyyteen: varastettu arkku ei voi tulla varastetuksi toisen kerran siksi, että sen
+sisällä oleva pussi ja pussin sisällä oleva kolikko merkitään samalla kävelyllä. Ensimmäinen
+versio käveli säiliön sisällön ja merkitsi jokaisen vuorostaan, suoralla silmukalla.
+</p>
+
+<p>
+Kolmannen tason testi kaatui heti ensimmäisellä ajolla: "Collection was modified; enumeration
+operation may not execute." Syy ei ollut arvattava ennen kuin se nähtiin: objektimaailman oma
+sisältöhaku palauttaa saman listan jota se itse säilyttää sisäisesti, ei kopiota siitä. Kun
+sisimmän tason esine merkittiin, merkintä kirjoitti takaisin juuri siihen listaan jota
+keskimmäisen tason omaa silmukkaa käytiin samaan aikaan läpi, koska keskimmäisen tason esine on
+sisimmän tason omistaja ja sama lista nimeää kummankin suhteen. Korjaus oli yksi rivi: ota
+listasta kopio ennen silmukkaa, ei viittaus siihen. Täsmälleen samaa kaavaa käyttää jo toinen
+tämän projektin luokka, kuolleen hahmon kantamien esineiden pudottamiseen, samasta syystä.
+</p>
+
+<p>
+Tämä on tasan se tapaus jota kaksisuuntainen testaus on varten: positiivinen testi kolmen tason
+syvyydellä löysi virheen jota kahden tason testi ei olisi koskaan nähnyt, koska kahden tason
+kävelyssä ei ole ketään joka muokkaisi listaa jota vielä käydään läpi.
+</p>
+
+<h2>Kolme muuta, jotka olivat jo olemassa odottamassa</h2>
+
+<p>
+Liikepisteet, kolme onnistuneesta otosta, vasta kun otto juuri onnistuu eikä kieltäytymisestä.
+Kuukivi unohtaa oman kuuporttinsa sijainnin kun se poimitaan. Täytetty ilmapallo tyhjenee.
+Kaikki kolme olivat luettuja mutta rakentamattomia ennen tätä viipalettä, koska kukin tarvitsi
+oman riippuvuutensa (hahmotaulukko, kuuportit, ilmapallot) jotka kaikki rakennettiin matkan
+varrella muissa viipaleissa. Tämän viipaleen oma työ oli vain johtaa ne yhteen.
+</p>
+
+<h2>Puolet ehdosta, ei koko ehtoa</h2>
+
+<p>
+Kehitysnäppäimen oma dokumentaatio sanoi: poistuu kun pelaaja voi itse poimia ja varustaa
+loitsukirjan. Poimiminen toimii nyt. Varustaminen ei: poiminta ohjaa kirjan reppuun kuten mikä
+tahansa yksittäinen esine, eikä yleistä varustamiskomentoa ole rakennettu lainkaan, oma
+milestonsa myöhemmin. Ehto on siis puoliksi täyttynyt, ei kokonaan, ja suunnitelma sanoo nyt
+juuri niin eikä enempää. Nappi jää käyttöön vielä toiseksi.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          155 / 181
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2206 / 2206
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Loitsukirja pääsee nyt reppuun; varustaminen odottaa M21:tä. Vuoropohjainen taistelu ja
+     hälytyksen oma rakentaminen odottavat edelleen omistajan omia päätöksiä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

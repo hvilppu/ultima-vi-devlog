@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Mark That Edited Its Own List | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/90-merkinta-joka-muokkasi-omaa-listaansa.html" hreflang="fi">FI</a><span>/</span><a href="90-the-mark-that-edited-its-own-list.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 90</nav>
+
+<h1>The mark that edited its own list</h1>
+
+<p class="lede">
+The world's one spellbook lay on the map and nothing picked it up. That was the whole reason the
+"full spellbook" development key had to exist at all: there was no other way onto the table.
+This slice closed half of that need, built stealing from nothing, and found one bug through its
+own test before anybody got the chance to play into it.
+</p>
+
+<h2>What is under the pointer, and a tile that was never meant to be pointed at</h2>
+
+<p>
+The original's own pickup command does not always act on what the pointer actually names. If
+the pointer lands on an actor, or the pointed object's own tile is flagged "ignore" (webs,
+bushes, the like), the command looks instead for the first other object on that square whose
+tile is not. Pointing at a person or a bush takes what is under it, rather than refusing.
+</p>
+
+<p>
+This project did not need to write half of that search at all. The original numbers actors and
+objects from one shared space, so its own search has to step past a standing actor to find the
+object beneath it. Here actors and objects have been two separate tables from the start, so the
+object world's own list can never contain an actor in the first place. What was left was only
+the other half: the ignore-tile test, and the search past it.
+</p>
+
+<h2>One karma, not five</h2>
+
+<p>
+Taking an object that is not marked ok to take, on the surface only, costs one point of karma.
+That number is easy to confuse with a different one: killing a neutral character costs five, a
+wholly different rule measured thirteen slices earlier on the combat side. Both numbers come
+from the same game, but they are not the same thing, and the code has to say so without either
+one accidentally borrowing the other's constant.
+</p>
+
+<p>
+In a dungeon, any level but the surface, the whole check is skipped: no mark, no karma. The same
+dungeon object can be taken again and again for free, and that is the original's own boundary,
+not a loosening this project made.
+</p>
+
+<h2>A witness whose three conditions each need their own test</h2>
+
+<p>
+Taking an unowned object on the surface walks every fixed character slot looking for the first
+one that is three things at once: neutral, on screen, and awake. Two conditions out of three are
+not enough, and that is exactly the trap: in ordinary play, two conditions look like enough,
+because the third usually agrees with them anyway. A sleeping neutral on screen says nothing. A
+good or chaotic character says nothing even while awake and on screen. Each of the three got its
+own test, one condition wrong at a time in an otherwise identical situation.
+</p>
+
+<p>
+The temporary monster slots sit entirely outside the scan, the same boundary this project
+already uses elsewhere for telling a temporary creature apart. A creature can never witness a
+theft.
+</p>
+
+<h2>An alarm nobody rings</h2>
+
+<p>
+A witness is found and shouts, but the alarm that would follow it, guards within thirty two
+tiles going into arrest and nearby neutrals turning vigilante, is not built here. That is not a
+new gap: thirteen slices ago, <code>COMBAT_RaiseAlarm</code> was read once and found to reach
+into karma and AI modes nothing had built yet, and the gap was named then without guessing at
+the mode numbers. No slice since has closed it, and this one did not either, even though it
+needed exactly that call. The witness is reported as its own outcome; the alarm stays a named
+gap at precisely the spot it was measured thirteen slices ago.
+</p>
+
+<h2>The list that edited itself mid walk</h2>
+
+<p>
+Marking a stolen object does not stop at the object itself; it covers everything inside it, at
+any depth, which is why a stolen chest cannot be stolen a second time through its own contents:
+the bag inside it and the coin inside the bag get marked by the same walk. The first version of
+that walk read a container's contents and marked each one in turn, in a plain loop.
+</p>
+
+<p>
+The three-level test failed on the very first run: "Collection was modified; enumeration
+operation may not execute." The cause was not something to guess at before seeing it: the object
+world's own contents lookup hands back the very list it keeps internally, not a copy of it. When
+the innermost object was marked, that write landed in the exact list the middle level's own loop
+was walking at that moment, because the middle object is the innermost one's owner and one same
+list names both relationships. The fix was one line: take a copy of the list before the loop,
+not a reference to it. Another class in this project already uses exactly that pattern, for
+dropping what a dead character was carrying, for the identical reason.
+</p>
+
+<p>
+This is precisely the case two directions of testing exist for: a positive test three levels
+deep found a fault a two level test would never have seen, because a two level walk has nobody
+left to edit the list that is still being read.
+</p>
+
+<h2>Three more that were already there, waiting</h2>
+
+<p>
+Movement points, three for a successful pickup, charged only once the pickup is about to
+succeed and never on a refusal. A moonstone forgets its own buried moongate position when it is
+picked up. A full balloon deflates. All three were read but not built before this slice, each
+for its own missing dependency (the character table, the moongates, the balloons) that had each
+since been built in other slices along the way. This slice's own work was only wiring them
+together.
+</p>
+
+<h2>Half of a condition, not the whole of it</h2>
+
+<p>
+The development key's own documentation said it would go once the player could pick up and
+ready a spellbook for themselves. Picking one up works now. Readying one does not: the pickup
+sends the book into the pack like any other single object, and there is no general wear command
+built at all yet, its own milestone for later. The condition is now half met, not met whole, and
+the plan now says exactly that and no more. The key stays for a while longer.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              155 / 181
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2206 / 2206
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The spellbook now makes it as far as the pack; readying it waits on M21. Turn based combat
+     and the alarm's own build both still wait on the owner's own decisions.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
