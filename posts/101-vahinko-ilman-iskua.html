@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vahinko Ilman Iskua | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="101-vahinko-ilman-iskua.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/101-damage-without-a-blow.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 101</nav>
+
+<h1>Vahinko ilman iskua</h1>
+
+<p class="lede">
+Edellinen viipale löysi kytkennän todellisen esteen: kolme neljästä tuuliloitsusta tarvitsee
+rutiinin joka ottaa elämäpisteitä toimijalta, ja mikään tässä projektissa ei osannut tehdä sitä
+muuten kuin ratkaisemalla iskun sitä vastaan. Tämä ei ollut aukko mittauksessa: alkuperäinen
+vahinkorutiini oli mitattu ja rakennettu kokonaan jo aiemmin, yhden oven takana joka vaati
+iskun. Tehtävä oli avata toinen ovi samaan rutiiniin.
+</p>
+
+<h2>Sitoumus, ärsytys ja vakavuus ovat hyökkäyksen omia, ei vahingon</h2>
+
+<p>
+Alkuperäinen <code>__DoHit</code> tekee kolme asiaa järjestyksessä: kirjoittaa sitoumuksen
+(<code>Leader</code>), kutsuu vahinkorutiinia <code>LoseHP</code>, ja antaa sen palauttaman
+kokemuksen hyökkääjälle. Vasta sen jälkeen, rutiinin ulkopuolella, ajetaan ärsytystarkistus ja
+näytetään vamman vakavuus. Tuuli itse on todiste tästä jaosta: sen energiahaara kutsuu
+vahinkorutiinia ja vasta sitten, erikseen, lisää kokemuksen, näyttää vakavuuden ja ärsyttää
+vakiolla yksi. Jos ne olisivat rutiinin sisällä, haaran ei tarvitsisi tehdä niitä itse.
+</p>
+
+<h2>Ei kopio: samat yksityiset puolikkaat</h2>
+
+<p>
+Uusi julkinen sisäänkäynti ottaa vastaan toimijan ja määrän, ei iskua eikä hyökkääjää, ja sen
+runko on lyhyt: kuolemattoman luokan tarkistus, jo-kuollut-tarkistus, ja sen jälkeen täsmälleen
+samat kaksi metodia joita vanha isku-sisäänkäynti itse kutsuu tavalliselle puolustajalle.
+Kuolema, karma, kokemusportti, ruumiinmuoto, seurueesta poistuminen ja verilammikko kulkevat
+yhtä koodipolkua kahden oven takana, eivät kahta eri vastausta siihen mitä kuolema tekee.
+Kokemus myös palautetaan nyt, ei anneta: vanha rutiini antoi sen suoraan hyökkääjälle sisältä
+päin, koska hyökkääjä oli aina saatavilla; uudella ovella sitä ei ole, niin rutiini laskee ja
+palauttaa kokemuksen, ja kutsupaikka päättää itse kenelle se menee.
+</p>
+
+<h2>Kolme tuulta, ja neljäs joka ei tarvinnutkaan omaa oveaan</h2>
+
+<p>
+Kolme koostetestiä ajavat tuulen omaa käsittelijää oikealla vahinkorutiinilla, oikealla
+hahmodatalla: liekki tekee oikean vahingon, energia tappaa ja palauttaa oikean kokemuksen,
+kuolema tappaa suoraan. Kuolematuulen kohdalla oli avoin kysymys, tarvitseeko se oman erillisen
+tappamisrutiininsa. Ei tarvitse, rakenteellisesti: jo aiemmin rakennettu kuolemaloitsun
+käsittelijä kutsuu samaa vahinkorutiinia uhrin omilla elämäpisteillä vahingon määränä, ja uusi
+ovi kuolettaa aina kun elämäpisteet ovat enintään määrän verran. Avoimeksi jää, vastaako tämä
+alkuperäisen oman tappamisrutiinin todellista käytöstä; sitä ei ole jäljitetty, ei tässä eikä
+aiemmassa viipaleessa.
+</p>
+
+<h2>Mitä tämä avasi, ja mitä ei</h2>
+
+<p>
+Tuulen näkymäkytkentä ei ole lähempänä pelissä toimivaa: neljä muuta syötettä, jotka lukevat
+kohteen omia luokkalippuja, on yhä rakentamatta. Mutta jokainen loitsu joka tarvitsee vain
+"ota elämäpisteitä toimijalta" ja ei mitään muuta, voi nyt kutsua sitä suoraan; se ei ole enää
+mahdoton pyyntö.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          167 / 193
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2556 / 2556
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Tuulen loput neljä syötettä: kohteen omien luokkalippujen (tuleen, kuolemaan immuuni,
+     tulihaavoittuvainen) lukeminen <code>monsters.json</code>:sta, jotta näkymäkytkentä voisi
+     viimein viedä kaikki neljä tuulta oikeasti pelissä toimiviksi.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

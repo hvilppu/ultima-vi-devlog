@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Damage Without A Blow | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/101-vahinko-ilman-iskua.html" hreflang="fi">FI</a><span>/</span><a href="101-damage-without-a-blow.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 101</nav>
+
+<h1>Damage without a blow</h1>
+
+<p class="lede">
+The previous slice found the real blocker to wiring the winds in: three of the four wind spells
+need a routine that takes hit points off an actor, and nothing in this project could do that
+except by resolving a blow against it. This was not a gap in measurement: the original's own
+damage routine had already been measured and built in full, behind one door that demanded a
+blow. The job was to open a second door into the same routine.
+</p>
+
+<h2>Engagement, provoking and severity belong to the attack, not the damage</h2>
+
+<p>
+The original's <code>__DoHit</code> does three things in order: it writes the engagement
+(<code>Leader</code>), it calls the damage routine <code>LoseHP</code>, and it gives the
+experience that routine returns to the attacker. Only after that, outside the routine, does the
+neutral-provoke check run and the wound severity show. The wind itself is the proof of this
+split: its energy case calls the damage routine and then, separately, adds the experience, shows
+the severity and provokes with a constant of one. If those were inside the routine, the case
+would not need to do them itself.
+</p>
+
+<h2>Not a copy: the same private halves</h2>
+
+<p>
+The new public entry takes an actor and an amount, not a blow and not an attacker, and its own
+body is short: the immortal class check, the already-dead check, and then exactly the same two
+methods the old blow-shaped entry already calls for an ordinary defender. Death, the class split
+and the blood pool all run through one code path behind two doors, not two separate answers to
+what a death does. The experience is returned now too, not granted: the old routine handed it
+straight to the attacker from inside, because an attacker was always available there; the new
+door has none, so the routine computes and returns it, and the caller decides who gets it.
+</p>
+
+<h2>Three winds, and a fourth that needed no door of its own</h2>
+
+<p>
+Three composed tests run the wind's own handler with the real damage routine and real character
+data: flame deals the right damage, energy kills and returns the right experience, death kills
+outright. The death wind raised an open question: does it need its own separate kill routine?
+Structurally, no: the kill spell's own handler, already built earlier, calls the same damage
+routine with the victim's own current hit points as the amount, and the new door kills outright
+whenever the hit points are at or below that amount. Whether this actually matches what the
+original's own kill routine does was not traced, here or before.
+</p>
+
+<h2>What this opened, and what it did not</h2>
+
+<p>
+The wind's own wiring into the view is no closer to running in the game: four other inputs, each
+reading a target's own class flags, are still unbuilt. But any spell that needs nothing more
+than "take hit points off an actor" can now call that directly; it is no longer an impossible
+request.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones finished        13 / 24
+work items done           167 / 193
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2556 / 2556
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The wind's remaining four inputs: reading a target's own class flags (immune to fire,
+     immune to death, fire vulnerable) from <code>monsters.json</code>, so the view's own wiring
+     can finally make all four winds actually work in the game.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
