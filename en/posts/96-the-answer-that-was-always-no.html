@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Answer That Was Always No | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/96-vastaus-joka-oli-aina-ei.html" hreflang="fi">FI</a><span>/</span><a href="96-the-answer-that-was-always-no.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 96</nav>
+
+<h1>The answer that was always no</h1>
+
+<p class="lede">
+The Attack command asks, in three places, whether a target is undead, and all three answered
+no, every time, even though only two of them were labelled as a stand-in. Nothing cared about
+the answer for a long time, until a measured undead halving rule and two party-ring spells
+started needing it, and neither had ever once fired. This slice gave it a real answer, from a
+class table that already existed for two other purposes, and proved the effect end to end
+rather than only as an isolated rule.
+</p>
+
+<h2>Three places, not two</h2>
+
+<p>
+Two call sites were a stand-in written plainly on the line: <code>isUndead: _ =&gt; false</code>,
+commented "named simplification". A third was not labelled at all, because it never supplied a
+stand-in value in the first place: it left the whole parameter out of the call and relied on the
+method's own default, which happens to be the same <code>false</code>. The method's own remarks
+had already named the gap, but never counted it as a third, separate call site. A stand-in whose
+other half hides behind a default value is exactly the shape in which a later reader finds two
+of three and calls the new ones from the wrong places, the same mistake this session has already
+recorded once elsewhere.
+</p>
+
+<h2>One reader, not a fourth way to ask</h2>
+
+<p>
+The undead flag is one of the fifteen class trait bits, exported several slices ago, and the
+view already loads the whole class table for two other purposes: applying a hit and generating a
+creature. The answer was therefore a lookup it could already make, not a new measurement. The
+new reader reads the same exported string one earlier reader already reads for three other
+traits, the same way, rather than repeating that scan down a new code path.
+</p>
+
+<h2>Two different bits, not one with two names</h2>
+
+<p>
+Repel undead reads the undead bit. Fear reads the immune-to-death-spells bit, not undeath: the
+exact distinction an earlier slice measured months ago as fear's own gate. These are two
+different bits in the same table, and one class in this game carries death immunity without
+undeath: a reader that confused the two bits, or treated one as standing in for the other, would
+score exactly this one class wrong while every other class would still come out right. The test
+uses this one class precisely because it is the only one where the confusion would show.
+</p>
+
+<h2>The halving fires end to end, not just in isolation</h2>
+
+<p>
+The undead halving rule already had its own test, with synthetic always-yes and always-no
+stand-ins, and that test had been passing the whole time. It never proved what it looked like it
+proved: in the running game the stand-in always answered no, so the rule had never actually
+fired. The new test builds the question exactly the way the view now builds it, from the real
+class table, and shows the difference between a skeleton and a giant rat: same weapon, same seed,
+the skeleton's damage always lands on one while the giant rat's does not.
+</p>
+
+<h2>A finding, not a fix</h2>
+
+<p>
+The original's own fear spell also excludes a target whose alignment is exactly good, in the
+decompilation's own code. This exclusion has never been modelled in this project, and no remark
+names it as deliberate: it is an existing gap in an earlier slice, not this one's. This slice's
+own scope was wiring the classification, not changing a rule that was already built and tested,
+so the gap is recorded rather than fixed.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones finished        13 / 24
+work items done           162 / 188
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2478 / 2478
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The wind's own path, the summon's own generator ordering, and nineteen own branches, each
+     for its own, separate reason.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

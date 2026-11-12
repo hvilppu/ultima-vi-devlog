@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vastaus Joka Oli Aina Ei | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="96-vastaus-joka-oli-aina-ei.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/96-the-answer-that-was-always-no.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 96</nav>
+
+<h1>Vastaus joka oli aina ei</h1>
+
+<p class="lede">
+Hyökkäyskomento kysyy kolmessa paikassa onko kohde epäkuollut, ja kaikki kolme vastasivat aina
+ei, vaikka vain kaksi niistä oli nimetty korvikkeeksi. Mikään ei välittänyt vastauksesta pitkään
+aikaan, kunnes mitattu epäkuolleen puolitussääntö ja kaksi puolueenympäri-loitsua alkoivat
+tarvita sitä, eikä kumpikaan ollut koskaan laukeanut. Tämä viipale antoi oikean vastauksen,
+luokkataulusta joka oli jo olemassa kahteen muuhun tarkoitukseen, ja todisti vaikutuksen päästä
+päähän asti, ei vain eristettynä sääntönä.
+</p>
+
+<h2>Kolme paikkaa, ei kaksi</h2>
+
+<p>
+Kaksi kutsupaikkaa oli nimetty korvikkeeksi suoraan rivillä: <code>isUndead: _ =&gt; false</code>,
+kommentoituna "named simplification". Kolmas ei ollut nimetty lainkaan, koska se ei antanut
+korvikearvoa ollenkaan: se jätti koko parametrin pois kutsusta ja nojasi metodin omaan
+oletusarvoon, joka sattuu olemaan sama <code>false</code>. Metodin oma huomautus nimesi aukon
+jo aiemmin, mutta ei koskaan laskenut sitä kolmanneksi erilliseksi kutsupaikaksi. Korvike jonka
+toinen puolisko piileytyy oletusarvon taakse on se muoto jossa jälkikäteen lukeva löytää kaksi
+kolmesta ja kutsuu vääristä paikoista uusilla, täsmälleen se virhe jonka tämä sessio on jo
+kirjannut kerran muualla.
+</p>
+
+<h2>Yksi lukija, ei neljäs tapa kysyä</h2>
+
+<p>
+Epäkuollut-bitti on yksi viidestätoista hirviöluokan omasta piirrebitistä, viety ulos useita
+viipaleita aiemmin, ja näkymä lataa koko luokkataulun jo kahteen muuhun tarkoitukseen: osuman
+soveltamiseen ja olion luontiin. Vastaus oli siis haku joka pystyi tekemään jo valmiiksi, ei uusi
+mittaus. Uusi lukija lukee saman viedyn merkkijonon jonka yksi aiempi lukija jo lukee kolmelle
+muulle piirteelle, samalla tavalla, eikä toista sitä skannausta uudella koodireitillä.
+</p>
+
+<h2>Kaksi eri bittiä, ei yksi kahdella nimellä</h2>
+
+<p>
+Karkotusloitsu lukee epäkuollut-bitin. Pelkoloitsu lukee kuolemanloitsuille-immuuni-bitin, ei
+epäkuolleisuutta: tasan se ero jonka aiempi viipale mittasi kuukausia sitten pelon omaksi
+portiksi. Nämä ovat kaksi eri bittiä samassa taulukossa, ja yksi luokka tässä pelissä kantaa
+kuolemanimmuniteetin ilman epäkuolleisuutta: lukija joka sekoittaisi kaksi bittiä, tai kohtelisi
+toista toisen korvikkeena, pistäisi tasan tämän yhden luokan väärin siinä missä kaikki muut
+menisivät oikein. Testi käyttää tätä yhtä luokkaa juuri siksi, että se on ainoa jolla sekaannus
+näkyisi.
+</p>
+
+<h2>Puolitus päästä päähän, ei vain eristettynä</h2>
+
+<p>
+Epäkuolleen puolitussäännöllä oli jo oma testinsä, synteettisillä aina-kyllä- ja aina-ei
+-korvikkeilla, ja se testi kulki läpi koko ajan. Se ei koskaan todistanut mitä se näytti
+todistavan: pelaavassa pelissä korvike vastasi aina ei, niin sääntö ei ollut koskaan oikeasti
+laukeanut. Uusi testi rakentaa kysymyksen täsmälleen samalla tavalla kuin näkymä sen nyt rakentaa,
+oikeasta luokkataulusta, ja osoittaa eron luurangon ja jättiläisrotan välillä: sama ase, sama
+siemen, luurangon vahinko pysyy aina yhdessä kun jättiläisrotan ei.
+</p>
+
+<h2>Löydös jota ei korjattu</h2>
+
+<p>
+Alkuperäisen oma pelkoloitsu sulkee vaikutuksen ulkopuolelle myös tasan hyvän linjautuman
+omaavan kohteen, dekompilaation omassa koodissa. Tämä poissulku ei ole koskaan ollut mallinnettu
+tässä projektissa, eikä mikään huomautus nimeä sitä tarkoitukselliseksi: se on olemassa oleva
+aukko aiemmassa viipaleessa, ei tämän. Tämän viipaleen rajaus oli luokittelun kytkeminen, ei
+jo testatun säännön muuttaminen, niin aukko on kirjattu muistiin eikä korjattu.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          162 / 188
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2478 / 2478
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Tuulen oma reitti, kutsun generaattorijärjestys ja yhdeksäntoista omaa haaraa, jokainen
+     omalla, erillisellä syyllään.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
