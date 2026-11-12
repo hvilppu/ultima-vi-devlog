@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Käärme Joka Pinoaa Itsensä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="84-kaarme-joka-pinoaa-itsensa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/84-the-serpent-that-stacks-itself.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 84</nav>
+
+<h1>Käärme joka pinoaa itsensä</h1>
+
+<p class="lede">
+Munien oma viipale nimesi kaksi kieltäytymistä eikä rakentanut niitä, jotta se itse ei
+paisuisi lähteestä asti. Tämä viipale sulkee molemmat: hopeakäärmeen ruumiinosaketju ja
+köynnöspalon neljä köynnöstä. Kumpikaan ei tarvinnut uutta primitiiviä, ja kumpikaan ei ole
+sitä miltä se ensi lukemalla näyttää.
+</p>
+
+<h2>Neljä ruutua, ei pidempi käärme</h2>
+
+<p>
+Oletus olisi helppo: hopeakäärme on pitkä, niin sen ruumis kävelee ulospäin päästä, ruutu
+ruudulta, niin monta ruutua kuin sillä on osia. Alkuperäinen ei tee niin. Neljä offsettia
+toistuvat suhteessa <em>päähän</em>, ei edelliseen osaan: (0, +1), (-1, +1), (-1, 0) ja (0, 0),
+viimeisen ollessa pään oma ruutu. Kuusiosainen käärme ei kävele kuutta ruutua ulos vaan pinoaa
+kaksi segmenttiä kahdelle samasta neljästä ruudusta. Tämä on mitattu, ei vika korjattavaksi:
+rakentaminen ulospäin kävelevänä olisi keksinyt muodon jota alkuperäisellä ei ole, näyttänyt
+täysin järkevältä, ja ollut väärässä koko ajan.
+</p>
+
+<p>
+Kaksi muuta erottelijaa samassa haarassa olivat helpompia huomata väärin. Silmukka on mukaan
+lukien molemmissa päissä, niin määrä kaksi tekee kolme segmenttiä, ei kahta: ilmeinen luenta on
+pois-yhdestä väärään suuntaan, joka olisi tehnyt joka ikisen hopeakäärmeen pelissä yhden
+segmentin lyhyeksi huomaamatta. Ja segmentin kaksi kenttää kantavat kahta eri asiaa: sen oma
+laatu on sen oma indeksi ketjussa, sen oma määrä on <em>pään</em> oma objektinumero, ei mitään
+sen itsensä laskemiseen liittyvää. Nämä kaksi on helppo vaihtaa keskenään huomaamatta, ja
+vaihto olisi näkynyt vasta jos joku lukisi segmentin takaisin löytääkseen sen pään, jota
+mikään tässä projektissa ei mitattu tekevän.
+</p>
+
+<h2>Vastakkaiset epäonnistumiset, molemmat mitatut</h2>
+
+<p>
+Estetty segmentti ja estetty köynnös epäonnistuvat eri tavalla, ja molempien suunnat ovat
+mitattuja, ei arvattuja. Epäonnistunut segmentti päättää koko ketjun siististi: jos jokin
+aiempi osa onnistui, se muuttuu hännäksi; jos jo ensimmäinen epäonnistui, pää itse poistetaan.
+Köynnöspalon oma silmukka tekee päinvastoin: estetty köynnös ohitetaan hiljaa ja silmukka
+jatkaa seuraavaan ilmansuuntaan, niin palo yhden estetyn ruudun vierellä saa yhä omat kolme
+muuta köynnöstään.
+</p>
+
+<p>
+Kumpaakaan epäonnistumista ei tämä moottori voi tuottaa luonnostaan. Karttaolion luonti ei
+koskaan kieltäydy tässä projektissa, ihan kuten lohikäärmeen siivet tai hydran ruumiit eivät
+koskaan kieltäydy; ja köynnöksen oma kieltäytyminen vaatisi oikean pelissä toimijapaikkojen
+altaan loppumisen samalla hetkellä kun palko kuoriutuu, mikä on harvinaista mutta ei mahdotonta.
+Segmentin oma testi antaa siis oman, epäonnistuvan kantajansa yhdelle valitulle kutsulle;
+köynnöksen oma testi täyttää altaan oikeasti neljää vajaaksi ja antaa generaattorin itse
+kieltäytyä neljännelle. Kumpikaan ei ole keksitty kiertotie: molemmat ovat sama temppu jolla
+köynnöskasvin oma kasvuaskel jo mallintaa <code>AddMapObj</code>:n teoreettisen
+kieltäytymisen, jota tämä moottori ei koskaan oikeasti tuota.
+</p>
+
+<h2>Pää, jolle ei ole paikkaa kirjoittaa</h2>
+
+<p>
+Alkuperäinen kirjoittaa hopeakäärmeen pään omaksi "laaduksi" nollan, koska toimijat ja esineet
+jakavat yhden numeroavaruuden ja yhden kentän alkuperäisessä: laatu on olemassa kummalle
+tahansa, kysyykö sitä kukaan tai ei. Tällä moottorilla toimijat ja esinemaailma ovat kaksi
+täysin erillistä taulua, eikä toimijoilla ole laatukenttää ollenkaan. Tämä yksi kirjoitus ei
+siis voi tapahtua, ei koska se unohdettiin vaan koska sille ei ole kotia. Mikään mitattu ei lue
+hopeakäärmeen pään omaa laatua takaisin löytääkseen jotain, niin tämä on nimetty, rakenteellinen
+aukko eikä hiljaa unohdettu rivi.
+</p>
+
+<h2>Neljä taulua, löydettynä muotoa eikä osoitetta etsien</h2>
+
+<p>
+Ruumiinkehykset, häntäkehykset ja kaksi offset-taulua ovat neljä tavua jokainen, peräkkäin
+ohjelmassa. Omistajan omasta <code>GAME.EXE</code>:stä kuusitoista tavun jono löytyy
+<em>täsmälleen kerran</em>; molemmat mahdollisesti väärät lukutavat, ruumis ja häntä
+vaihdettuna keskenään ja kaksi offset-taulua vaihdettuna keskenään, eivät löydy ollenkaan.
+Nämä eivät istu <code>combat.c</code>:n oman, aiemmin viedyn 604 tavun lohkon vierellä: ne
+ovat mitattu 3297 tavua sen jälkeen, niin ne haettiin omana, riippumattomana hakuna sen sijaan
+että olisi oletettu etäisyys joka ei pitänyt paikkaansa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina            147 / 173
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      57 / 57
+U6Engine.Tests    2122 / 2122
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Vuoropohjainen taistelu odottaa yhä omistajan päätöstä kehitysnäppäimen F9 kohtalosta.
+     Moniruutuisen olennon omat lisäruudut ovat mitattu mutta rakentamatta, samoin
+     vuorojärjestys ja loitsut.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Serpent That Stacks Itself | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/84-kaarme-joka-pinoaa-itsensa.html" hreflang="fi">FI</a><span>/</span><a href="84-the-serpent-that-stacks-itself.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 84</nav>
+
+<h1>The serpent that stacks itself</h1>
+
+<p class="lede">
+The eggs slice named two refusals and built neither, so that slice would not grow past its own
+source. This slice closes both: the silver serpent's own segment chain and the tangle vine
+pod's four vines. Neither needed a new primitive, and neither is quite what it looks like on
+first read.
+</p>
+
+<h2>Four squares, not a longer snake</h2>
+
+<p>
+The easy assumption would be that a silver serpent is long, so its body walks outward from the
+head, one square per segment, as many squares as it has parts. The original does not do that.
+Four offsets repeat relative to the <em>head</em>, never the segment before it: (0, +1),
+(-1, +1), (-1, 0) and (0, 0), the last one being the head's own square. A six segment serpent
+does not walk six squares out; it stacks two segments twice on the same four squares. That is
+measured, not a bug to straighten out: building it as a snake walking outward would have
+invented a shape the original does not have, looked perfectly reasonable, and been wrong the
+whole time.
+</p>
+
+<p>
+Two other discriminators in the same branch were easier to get wrong without noticing. The
+loop is inclusive at both ends, so a quantity of two makes three segments, not two: the obvious
+reading is off by one in the direction that would have made every silver serpent in the game a
+segment short, unnoticed. And a segment's two fields carry two different things: its own
+quality is its own index in the chain, its own quantity is the <em>head's</em> own object
+number, nothing to do with counting itself. These two are easy to swap without noticing, and
+the swap would only have shown up if something read a segment back to find its head, which
+nothing measured here does.
+</p>
+
+<h2>Opposite failures, both measured</h2>
+
+<p>
+A blocked segment and a blocked vine fail in different shapes, and both directions are
+measured, not guessed. A failed segment ends the whole chain tidily: if an earlier part
+succeeded, it becomes a tail; if the very first one failed, the head itself is deleted. The
+tangle vine pod's own loop does the opposite: a blocked vine is skipped quietly and the loop
+continues to the next direction, so a pod against one blocked square still gets its other
+three vines.
+</p>
+
+<p>
+Neither failure happens naturally in this engine. Creating a map object never refuses here,
+exactly the way a dragon's wings or a hydra's bodies never refuse; and a vine's own refusal
+would need the real actor pool to run dry at the exact moment a pod hatches in a real game,
+rare but not impossible. So the segment's own test supplies its own failing stand-in for one
+chosen call; the vine's own test fills the pool to exactly four short and lets the generator
+itself refuse the fourth. Neither is an invented workaround: both are the same trick the
+tangle vine's own growth step already uses to model <code>AddMapObj</code>'s theoretical
+refusal, which this engine never actually produces.
+</p>
+
+<h2>A head with nowhere to write</h2>
+
+<p>
+The original writes zero into the silver serpent's head as its own "quality," because actors
+and objects share one number space and one field in the original: quality exists either way,
+whether anything ever asks for it. This engine keeps actors and the object world in two
+entirely separate tables, and actors carry no quality field at all. So this one write simply
+cannot happen, not because it was forgotten but because there is nowhere for it to land.
+Nothing measured here reads a silver serpent's head back by its own quality to find anything,
+so this is a named, structural gap rather than a line quietly dropped.
+</p>
+
+<h2>Four tables, found by shape rather than address</h2>
+
+<p>
+The body frames, the tail frames and the two offset tables are four bytes each, back to back
+in the program. The sixteen byte run occurs <em>exactly once</em> in the owner's own
+<code>GAME.EXE</code>; both plausible wrong readings, the body and tail tables swapped and the
+two offset tables swapped, occur nowhere at all. These do not sit beside the 604 byte block
+the combat work already exported: they are measured 3,297 bytes after it, so they were found
+by their own independent search rather than an assumed distance that would not have held.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              147 / 173
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      57 / 57
+U6Engine.Tests    2122 / 2122
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Turn based combat still waits on the owner's own decision about the F9 development key's
+     fate. A multi-tile creature's own extra tiles are measured but unbuilt, and so are turn
+     order and spells.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
