@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>13 of 24 milestones</strong> finished, and inside them
-<strong>163 of 189 work items</strong>. The second is the one that moves while a
+<strong>164 of 190 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -319,12 +319,12 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Combat and magic <span class="m-value">0 / 1 done, 46 / 50 items</span></h3>
+    <h3>Combat and magic <span class="m-value">0 / 1 done, 47 / 51 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
         <span class="m-bar"><span class="m-fill" style="width: 92%"></span></span>
-        <span class="m-value">46 / 50, in progress</span>
+        <span class="m-value">47 / 51, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done">Slice A: the attack command and <code>combat.c</code>'s tables.</li>
@@ -374,6 +374,7 @@ them up found two faults in the plan straight away that the total alone had hidd
         <li class="done">Slice F22: a spell number into its case.</li>
         <li class="done">Slice F23: is it undead?</li>
         <li class="done">Slice F24: a log instead of one line.</li>
+        <li class="done">Slice F25: raising the alarm.</li>
         <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
         <li>Eighty spells, the reagents and mixing them, mana cost and the targeting types</li>
         <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
@@ -1194,6 +1195,14 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        player only ever saw whichever one wrote last, by accident. One property setter replaced
        the line with a bounded log, and along the way one of three supposedly invisible fields
        turned out not to be invisible at all.</p>
+  </li>
+  <li>
+    <span class="n">98</span>
+    <a href="posts/98-a-witness-shouted-now-somebody-comes.html">A Witness Shouted, Now Somebody Comes</a>
+    <p>Theft and murder both already found a witness who shouts for help, and the shout was
+       only ever reported. This slice built what the shout actually triggers: a guard's arrest
+       within 32 tiles, a nearby neutral's vigilante or fear within 6, and the alarm's own five
+       karma, separate from the theft's own one.</p>
   </li>
 </ol>
 

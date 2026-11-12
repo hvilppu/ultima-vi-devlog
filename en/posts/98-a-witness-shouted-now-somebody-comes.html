@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Witness Shouted, Now Somebody Comes | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/98-todistaja-huusi-nyt-joku-tulee.html" hreflang="fi">FI</a><span>/</span><a href="98-a-witness-shouted-now-somebody-comes.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 98</nav>
+
+<h1>A witness shouted, now somebody comes</h1>
+
+<p class="lede">
+Theft and murder both already found a witness who shouts for help, and nothing happened after
+that: the shout was only ever reported. This slice built what the shout actually triggers, from
+two separate call sites, and found along the way that a piece that looked unbuilt had already
+been measured somewhere else.
+</p>
+
+<h2>Two routines, two different bounds</h2>
+
+<p>
+Raising the alarm walks every one of the 256 actor slots, starting at 0. The theft's own
+witness search walks from 1 up to 224 only, exclusive: it can never see slot 0, or any
+temporary monster slot. Two different routines in the same original source file, two different
+bounds, and a port that shared one bound between the two would be wrong in one direction or the
+other: either the alarm would never reach slot 0, or the witness search would start seeing
+creatures it could never see in the original.
+</p>
+
+<h2>Two distances, two karma figures, neither shared</h2>
+
+<p>
+A guard within 32 tiles of the party is arrested, and nothing else is considered for it. Every
+other neutral actor that is not immobile or motionless, not incapacitated and not dragged
+under, reacts within 6 tiles: one already on a schedule becomes a vigilante, everyone else
+becomes afraid. The alarm itself costs five karma, always, separate from the theft's own one:
+a caught theft costs six in total, as two separate subtractions, never one number tidied into
+another.
+</p>
+
+<h2>Busy is the band between two markers</h2>
+
+<p>
+The original tests first whether an actor is on the schedule side of the mode byte at all, and
+only then whether it is still looking for a path. That second test is the one that decides
+busy: a settled mode at the top of the schedule range, such as standing or sleeping, is not
+busy and gets the vigilante assignment, which is the whole point of the routine. A gate that
+skipped everything from the schedule marker upward would skip exactly that.
+</p>
+
+<h2>Human was measured, not guessed</h2>
+
+<p>
+The murder call site needs to know whether the victim is a human class, and this looked like
+an unbuilt primitive at first. It was not: an earlier slice had already found the missing
+human flag in the class table and measured fourteen of its sixty four classes as carrying it,
+the guard among them. The reader already existed before this slice; it just was not wired to
+anything yet.
+</p>
+
+<h2>What this does not cover</h2>
+
+<p>
+The murder path's full rule also flips the victim's own alignment, or sets the victim itself
+to a vigilante or an assault mode depending on whether it is scheduled or a temporary monster.
+None of that second half is built: this slice only checked the one gate that decides whether
+the alarm is called at all, not what happens to the victim afterward. A named gap, not a guess.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones finished        13 / 24
+work items done           164 / 190
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2525 / 2525
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Importing the original's own 884 strings, with the same method already used for other
+     published text.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

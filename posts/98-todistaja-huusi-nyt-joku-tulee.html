@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Todistaja Huusi, Nyt Joku Tulee | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="98-todistaja-huusi-nyt-joku-tulee.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/98-a-witness-shouted-now-somebody-comes.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 98</nav>
+
+<h1>Todistaja huusi, nyt joku tulee</h1>
+
+<p class="lede">
+Varkaus ja murha löysivät molemmat todistajan joka huutaa apua, ja sen jälkeen ei tapahtunut
+mitään: huuto vain raportoitiin. Tämä viipale rakensi sen mitä huuto varsinaisesti laukaisee,
+kahdesta erillisestä kutsupaikasta, ja löysi matkalla että yksi rakentamattomalta näyttänyt
+osa olikin jo mitattu toisaalla.
+</p>
+
+<h2>Kaksi rutiinia, kaksi eri rajaa</h2>
+
+<p>
+Hälytys käy läpi kaikki 256 toimijapaikkaa, 0:sta alkaen. Varkauden oma todistajahaku käy
+1:stä 224:ään asti, poissulkevasti: se ei voi ikinä nähdä paikkaa 0 eikä mitään tilapäistä
+hirviöpaikkaa.
+Kaksi eri rutiinia samassa alkuperäisessä lähdetiedostossa, kaksi eri rajaa, ja portti joka
+jakaisi yhden rajan näiden kesken olisi väärässä yhteen suuntaan: joko hälytys ei koskaan
+tavoittaisi paikkaa 0, tai todistajahaku alkaisi nähdä olentoja joita se ei koskaan näkisi
+alkuperäisessä.
+</p>
+
+<h2>Kaksi etäisyyttä, kaksi karmaa, eikä kumpaakaan jaettuna</h2>
+
+<p>
+Vartija 32 ruudun sisällä puolueesta pidätetään, eikä mitään muuta harkita sille. Kaikki muu
+neutraali, joka ei ole liikkumaton tai immobiili, ei toimintakyvytön eikä maan alle vedetty,
+reagoi 6 ruudun sisällä: aikataulussa olevasta tulee vigilante, muusta pelosta. Hälytys itse
+maksaa viisi karmaa, aina, erillisenä varkauden omasta yhdestä: kiinni jäänyt varkaus maksaa
+siis kuusi yhteensä, kahtena erillisenä vähennyksenä eikä yhtenä lukuna joka siistitään
+toiseksi.
+</p>
+
+<h2>Kiireinen on kahden merkin väli</h2>
+
+<p>
+Alkuperäinen testaa ensin onko toimija aikataulupuolella ollenkaan, ja vasta sitten onko se
+yhä polkua etsimässä. Jälkimmäinen testi on se joka päättää kiireisyyden: aikataulupuolen
+yläreunassa oleva asetettu tila, kuten seisominen tai nukkuminen, ei ole kiireinen ja saa
+vigilante-tilan, joka on koko rutiinin oma tarkoitus. Portti joka ohittaisi kaiken
+aikataulupuolelta ylöspäin ohittaisi juuri sen.
+</p>
+
+<h2>Mitattu ihmisyys, ei arvattu</h2>
+
+<p>
+Murhan oma kutsupaikka tarvitsee tiedon siitä onko uhri ihmisluokkaa, ja tämä näytti
+ensin rakentamattomalta primitiiviltä. Se ei ollutkaan: aiempi viipale oli jo löytänyt
+luokkataulusta puuttuneen ihmisyys-lipun ja mitannut sen neljätoista luokkaa
+kuudestakymmenestäneljästä kantavaksi, mukaan lukien vartija itse. Lukija oli siis olemassa
+jo ennen tätä viipaletta; se ei ollut vielä kytketty mihinkään.
+</p>
+
+<h2>Mitä tämä ei kata</h2>
+
+<p>
+Murhan oma koko sääntö kääntää myös uhrin itsensä alignmentin, tai asettaa uhrin
+vigilante- tai assault-tilaan riippuen onko se aikataulussa vai tilapäinen hirviö. Mitään
+tästä toisesta puoliskosta ei rakennettu: tämä viipale tarkisti vain sen portin joka päättää
+kutsutaanko hälytystä ollenkaan, ei sitä mitä uhrille itselleen sen jälkeen tapahtuu. Nimetty
+aukko, ei arvaus.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          164 / 190
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2525 / 2525
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Alkuperäisen omien 884 merkkijonon tuonti, samalla menetelmällä jota muu julkaistu teksti
+     käyttää jo.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
