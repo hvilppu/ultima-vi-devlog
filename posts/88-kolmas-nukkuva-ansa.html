@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolmas Nukkuva Ansa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="88-kolmas-nukkuva-ansa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/88-the-third-dormant-trap.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 88</nav>
+
+<h1>Kolmas nukkuva ansa</h1>
+
+<p class="lede">
+Loitsukirja näytti väärän castattavan määrän joka rivillä, eikä yhdestäkään kolmesta edellisestä
+viipaleesta puuttunut mitään. Vika oli askeleen verran kauempana: loitsutaulukko oli louhittu ja
+testattu kuukausia sitten, ja sitä ei ollut koskaan kuljetettu ajonaikaiseen peliin asti.
+</p>
+
+<h2>Harmiton, kunnes joku kutsuu sen</h2>
+
+<p>
+Loitsukirjan oma malli ottaa reagenssien kysymisen delegaattina: moottori päättää paljonko
+kastaja voi loihtia, kutsuja toimittaa vastauksen mistä reagenssit löytyvät. Se on oikea muoto.
+Mutta kaksi viipaletta sitten näkymä syötti sille kannan joka vastaa aina "ei reagensseja" --
+harmiton niin kauan kuin kirja oli tyhjä, koska mikään ei kutsunut kantaa ollenkaan. Kun
+edellinen viipale varusti kirjan oikeilla loitsuilla, kanta alkoi vastata joka riville, ja
+vastaus oli aina sama: loitsu jonka olisi pitänyt näyttää lukema näytti ei mitään.
+</p>
+
+<p>
+Tämä on kolmas kerta samassa istunnossa että täsmälleen tämä muoto kaatoi jotain: oikea,
+testattu, käyttämätön koodi muuttui vialliseksi juuri sillä hetkellä kun joku alkoi kutsua sitä.
+Kaksi muuta on jo kirjattuna ympäristön ansoina, ei pelilogiikan virheinä: lineaarinen
+hakemistopäivitys joka oli harmiton kunnes kuoriutuminen alkoi kutsua sitä silmukassa, ja
+puuttuva paikanpurku joka oli siisti puute kunnes samat olennot alkoivat oikeasti kuoriutua.
+Tämä on kolmas, ja se on kirjattu samaan listaan eikä erillisenä: muoto on nyt toistunut tarpeeksi
+monta kertaa jotta se on sääntö, ei sattuma.
+</p>
+
+<h2>Yksi tiedosto lisää, ei kahta lukijaa samasta asiasta</h2>
+
+<p>
+Loitsutaulukkoa ei mitattu uudelleen: se sama haku joka paikansi sen M8:ssa pinnasi myös
+tämän ohjelman datasegmentin kannan, niin sitä käytettiin sellaisenaan. Uusi vientitiedosto,
+<code>spells.bin</code>, kantaa vain sen mitä loitsukirja tarvitsee: loitsunumeron, reagenssimaskin
+ja kahdeksan reagenssin objektityypit. Ei nimeä, ei loihtimiskirjaimia, ei tavuja, ei piirien
+nimiä, koska mikään pelissä ei vielä piirrä loitsun nimeä eikä lausu sen sanoja; niiden
+viemistä ennen kuin jokin oikeasti tarvitsee niitä olisi vienti arvauksen varassa.
+</p>
+
+<p>
+Kanta joka vastasi aina "ei reagensseja" poistettiin kokonaan, ei jätetty oikean lukijan
+rinnalle: kanta joka selviää omasta korvaamisestaan on juuri se tapa jolla seuraava lukija
+päätyy kutsumaan väärää.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina           152 / 178
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2165 / 2165
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Loitsukirjan käyttöliittymä on tältä osin kokonaan valmis. C-näppäimen oma kohtalo
+     komentopalkin saapuessa ja vuoropohjainen taistelu odottavat edelleen omistajan omia
+     päätöksiä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Third Dormant Trap | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/88-kolmas-nukkuva-ansa.html" hreflang="fi">FI</a><span>/</span><a href="88-the-third-dormant-trap.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 88</nav>
+
+<h1>The third dormant trap</h1>
+
+<p class="lede">
+The spellbook showed a wrong castable count on every line, and none of the three slices that
+built it were missing anything. The fault sat one step further back: the spell table had been
+read out of the program and tested months ago, and it had never once been carried into the
+running game.
+</p>
+
+<h2>Harmless, until something calls it</h2>
+
+<p>
+The spellbook's own model takes asking about reagents as a delegate: the engine decides how
+much a caster can cast, the caller supplies where the reagents come from. That is the right
+shape. But two slices ago the view fed it a stand-in that always answers "no reagents", which
+was harmless for exactly as long as the book stayed empty, because nothing ever called the
+lookup at all. Once the previous slice readied the book with real spells, the stand-in started
+answering every line, and the answer was always the same: a spell that should have shown a
+number showed nothing.
+</p>
+
+<p>
+This is the third time in the same session that exactly this shape broke something: correct,
+tested, dormant code turning into a defect at the precise moment something started calling it.
+The other two are already recorded as environment traps rather than game logic bugs: a linear
+directory rebuild that was harmless until hatching started calling it in a loop, and a missing
+slot release that was a clean gap until the same creatures actually started hatching. This is
+the third, and it joins the same list rather than standing apart from it: the shape has now
+repeated often enough to be a rule, not a coincidence.
+</p>
+
+<h2>One more file, not a second reader for the same thing</h2>
+
+<p>
+The spell table itself was not re-measured: the very search that located it back in M8 also
+pinned this program's own data segment base, so that work was reused as it stood. A new export
+file, <code>spells.bin</code>, carries only what the spellbook needs: the spell number, the
+reagent mask, and the eight reagent object types. No name, no incantation, no syllables, no
+circle names, because nothing in the running game draws a spell's name or speaks its words yet;
+exporting those before anything needs them would be an export made on a guess.
+</p>
+
+<p>
+The stand-in that always answered "no reagents" was deleted outright, not left beside the real
+reader. A stand-in that survives its own replacement is exactly how a later reader ends up
+calling the wrong one.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              152 / 178
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2165 / 2165
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The spellbook interface is now fully done on this front. The C key's own fate once the
+     command bar arrives, and turn based combat, both still wait on the owner's own decisions.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
