@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eight Rooms Light Up | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/95-kahdeksan-huonetta-syttyy.html" hreflang="fi">FI</a><span>/</span><a href="95-eight-rooms-light-up.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 95</nav>
+
+<h1>Eight rooms light up</h1>
+
+<p class="lede">
+The previous slice opened a door onto an empty room: a number knows its own family, but not
+where its own case sits inside it. This slice measured that place, in numbers, then found its
+own mistake about what it was allowed to write down, and fixed it in the same session. The
+result: eight spells out of eighty now actually do something, and the remaining eleven known
+cases stay dark for two reasons that have nothing to do with what the first version claimed.
+</p>
+
+<h2>A trap that already cost once</h2>
+
+<p>
+The dispatcher's own case labels are separated by comments, so splitting on the labels treats
+every comment block as its own block and breaks a fall-through branch at each one. The first
+extraction produced twenty five cases that appeared to call nothing, which is the shape of an
+extraction fault, not a finding about the real game. The classification script, already fixed
+once before, was extended for this slice with a new part that resolves every case label to its
+own number internally and prints only numbers, never a name beside one. Run, it produced exactly
+the same tables as the ones read by hand from the decompilation's own switch block: a cross
+check passed before a line of code was written.
+</p>
+
+<h2>A rule read too widely, then fixed</h2>
+
+<p>
+This slice's own first version opened two of the five rooms and named the other three entirely
+unwired, claiming that writing their own case would be exactly the name to number tie this
+project has refused for nine slices running. <strong>That was the wrong reading, and it was
+corrected inside the same session.</strong> The rule covers the game's own published text:
+eighty display names, a spell's own word, the dialogue, the book text. It does not cover code
+identifiers, ours or the decompilation's own: this project has already used them for nine
+slices in its own documents. What was actually missing was never permission to write the tie;
+it was that none of the nine earlier slices ever had, because each read a handler one case at a
+time and described it in prose.
+</p>
+
+<p>
+After the fix, every one of the three remaining families' own case resolves straight from the
+decompilation's own numbers, cross checked against each handler's own internal branch.
+</p>
+
+<h2>Eight rooms, with real data</h2>
+
+<p>
+In the missile family the range is eight in every one of the 23 cases, a constant rather than a
+table, and the target kind splits six against seventeen. The gate now runs for real, with the
+view's own geometry, the target object read from the first actor on the chosen square, the same
+simplification the party-ring effect already uses. The world still does not change, because none
+of the twenty three effects is built, but the gate itself is now the real one.
+</p>
+
+<p>
+Of the eight duration rooms, six now write the real effect slot, straight through a raw index
+rather than by picking one of the already named values. Two rooms are named refusals rather than
+stand-ins: one would need a command that is not built, the other would need a print that is not
+built.
+</p>
+
+<p>
+Of the four party-ring rooms the fix opened up, two now run for real: one reads invisibility
+state this project already tracks and moves a worn ring to the inventory, the other uses this
+project's own fourth measured resistance formula and writes the target's own mode and alignment.
+<strong>These are the first and second time in the whole M14 spell arc that casting actually
+changes the world.</strong>
+</p>
+
+<h2>Eleven stay dark, for two unrelated reasons</h2>
+
+<p>
+The party-ring family's other two cases would each need a monster class classification (undead
+for one, immune to death spells for the other) that nothing in this engine tracks on any actor,
+independently of which raw number the case is. The wind's four cases and the summon's two are
+now known by number, but each family needs something else besides: the wind's own path has never
+been measured, and wiring the summon's own generator in would need reordering it ahead of its own
+placement draws, which would shift every later roll the shared generator makes. Supplying a
+stand-in for either was considered and rejected: this project has made that exact mistake three
+times before, and three was enough.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones finished        13 / 24
+work items done          161 / 187
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2465 / 2465
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Nineteen own branches, each its own reading: the smallest pieces left on the dispatcher's
+     own map.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

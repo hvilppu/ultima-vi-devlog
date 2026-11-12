@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kahdeksan Huonetta Syttyy | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="95-kahdeksan-huonetta-syttyy.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/95-eight-rooms-light-up.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 95</nav>
+
+<h1>Kahdeksan huonetta syttyy</h1>
+
+<p class="lede">
+Edellinen viipale avasi oven ja löysi tyhjän huoneen: numero tietää perheensä, mutta ei
+oman tapauksensa paikkaa sen sisällä. Tämä viipale mittasi sen paikan, numeroina, löysi
+sitten oman virheensä siitä mitä se sai kirjoittaa, ja korjasi sen saman istunnon aikana.
+Lopputulos: kahdeksan loitsua kahdeksastakymmenestä tekee nyt oikeasti jotain, ja loput
+yksitoista tunnettua tapausta pysyvät pimeänä kahdesta aivan eri syystä kuin mitä ensimmäinen
+versio väitti.
+</p>
+
+<h2>Ansa joka maksoi jo kerran</h2>
+
+<p>
+Dispatcherin omat case-tarrat on eroteltu kommenteilla, niin jako tarroihin kohtelee
+jokaista kommenttilohkoa omana lohkonaan ja katkaisee läpilankeavan haaran joka kommentin
+kohdalla. Ensimmäinen poiminta antoi kaksikymmentäviisi tapausta jotka näyttivät kutsuvan
+ei mitään, mikä on poimintavirheen muoto eikä löydös oikeasta pelistä. Jo kerran korjattu
+mittausskripti laajennettiin tätä viipaletta varten uudella osalla, joka ratkaisee
+jokaisen case-tarran omaksi numerokseen sisäisesti ja tulostaa vain numeroita, ei koskaan
+nimeä numeron vierellä. Ajettuna se tuotti täsmälleen samat taulukot kuin käsin luettu
+dekompilaation switch-lohko: risti tarkistus läpäisty ennen kuin rivi koodia kirjoitettiin.
+</p>
+
+<h2>Oma sääntö luettu liian laajasti, ja korjattu</h2>
+
+<p>
+Tämän viipaleen ensimmäinen versio avasi kaksi huonetta viidestä ja nimesi loput kolme
+kokonaan kytkemättömäksi, väittäen että niiden oman tapauksen kirjoittaminen olisi tasan se
+nimi-numero-sidos jota tämä projekti on kieltänyt yhdeksän viipaleen ajan. <strong>Se oli
+väärä lukutapa, ja se korjattiin samassa istunnossa.</strong> Sääntö koskee pelin omaa,
+julkaistua tekstiä: kahdeksaakymmentä näyttönimeä, loitsun omaa sanaa, keskustelua ja
+kirjojen tekstiä. Se ei koske koodin tunnisteita, ei omia eikä dekompilaation omia: tämä
+projekti on käyttänyt niitä jo yhdeksän viipaleen ajan omissa dokumenteissaan. Puuttunut
+asia ei koskaan ollut lupa kirjoittaa sidos, vaan että yksikään aiemmasta yhdeksästä
+viipaleesta ei ollut sitä koskaan kirjannut ylös, koska ne lukivat käsittelijän tapaus
+kerrallaan ja kuvasivat sen prosana.
+</p>
+
+<p>
+Korjauksen jälkeen jokaisen kolmen jäljellä olevan perheen oma tapaus ratkeaa suoraan
+dekompilaation omista numeroista, risti tarkistettuna kunkin käsittelijän omaa sisäistä
+haarautumista vasten.
+</p>
+
+<h2>Kahdeksan huonetta, oikealla datalla</h2>
+
+<p>
+Ammuskastossa kantama on kahdeksan jokaisessa 23:sta tapauksessa, vakio eikä taulukko, ja
+kohdistustyyppi jakautuu kuuteen ja seitsemääntoista. Portti ajaa nyt oikeasti näkymän
+omalla geometrialla, kohde-olio luettuna ensimmäisestä toimijasta valitulla ruudulla, samalla
+yksinkertaistuksella jota puolueenympäri-vaikutus jo käyttää. Maailma ei vielä muutu, koska
+yksikään kolmestakolmatta vaikutuksesta ei ole rakennettu, mutta portti itse on nyt oikea.
+</p>
+
+<p>
+Kahdeksasta kestohuoneesta kuusi kirjoittaa nyt oikean efektislotin, suoraan raa'alla
+indeksillä eikä valitsemalla jokin nimetyistä arvoista. Kaksi huonetta jää nimetyksi
+kieltäytymiseksi korvikkeen sijaan: yksi tarvitsisi komennon jota ei ole rakennettu, toinen
+tarvitsisi tulostuksen jota ei ole rakennettu.
+</p>
+
+<p>
+Korjauksen avaamista neljästä puolueenympäri-huoneesta kaksi toimii nyt oikeasti: yksi
+lukee jo olemassa olevaa näkymättömyystietoa ja siirtää puetun sormuksen inventaarioon,
+toinen käyttää jo mitattua, neljättä tämän projektin omaa vastustuskaavaa ja kirjoittaa
+kohteen tilan ja asenteen. <strong>Nämä kaksi ovat ensimmäinen ja toinen kerta koko M14:n
+loitsukaaren aikana kun kastaminen oikeasti muuttaa maailmaa.</strong>
+</p>
+
+<h2>Yksitoista pysyy pimeänä, kahdesta aivan eri syystä</h2>
+
+<p>
+Puolueenympärin loput kaksi tapausta tarvitsisivat hirviöluokan luokittelun (epäkuollut
+toiselle, kuolemanloitsuille immuuni toiselle), jota mikään tässä moottorissa ei seuraa
+yhdeltäkään toimijalta, riippumatta siitä kumpi raaka numero tapaus on. Tuulen neljä tapausta
+ja kutsun kaksi tunnetaan nyt numeroina, mutta kumpikin perhe tarvitsee lisäksi jotain muuta:
+tuulen oma reitti ei ole koskaan mitattu, ja kutsun oma generaattorin kytkentä vaatisi
+olion luonnin siirtämistä ennen sijoitusyrityksiä, mikä siirtäisi jaetun generaattorin
+loppuheittoja. Korvikkeen antaminen jommallekummalle harkittiin ja hylättiin: tämä projekti
+on tehnyt sen virheen kolmesti ennen tätä, ja kolme riitti.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          161 / 187
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2465 / 2465
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Yhdeksäntoista omaa haaraa, kukin oma lukemisensa: pienimmät palat jotka ovat jäljellä
+     dispatcherin omasta kartasta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
