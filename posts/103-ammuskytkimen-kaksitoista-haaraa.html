@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ammuskytkimen Kaksitoista Haaraa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="103-ammuskytkimen-kaksitoista-haaraa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/103-the-missile-switchs-twelve-cases.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 103</nav>
+
+<h1>Ammuskytkimen kaksitoista haaraa</h1>
+
+<p class="lede">
+Yksi kytkin vastaa 23:een loitsuun, ja tämä projekti vastasi kaikkiin 23:een yhdellä yleisellä
+kieltäytymisellä: "ei vielä rakennettu". Kahdestoista niistä kutsuu vaikutusta jolla on jo
+oma, testattu toteutuksensa muualla, odottamassa jotain joka kutsuisi sitä. Tämä viipale oli
+sen kutsun kirjoittamista, ei uuden säännön keksimistä.
+</p>
+
+<h2>23 kohdetta, 12 kutsupaikkaa</h2>
+
+<p>
+Lähettäjän kytkimessä on tasan kaksitoista <code>case</code>-ryhmää tälle loitsuperheelle, ei
+23: useat loitsut jakavat yhden kutsun fall-through-haaroilla. Yhdeksän hahmoa yleisellä
+tiilellä, neljä esinettä yleisellä tiilellä, kaksi hahmoa nuolitiilellä, kahdeksan omalla
+tiilellään: 9 + 4 + 2 + 8 = 23, täsmää lähettäjän oman haarataulukon lukuun. Pelkkiä
+kutsupaikkoja lukeva tulkinta olisi antanut kahdentoista, ja se oli ensimmäinen asia joka
+osoitettiin vääräksi, ei oletettu.
+</p>
+
+<h2>Kolme löydöstä jotka olisivat menneet väärin suoraviivaisella luvulla</h2>
+
+<p>
+Dispelin paluuarvo on käänteinen tämän tiedoston muuhun käytäntöön: nolla tarkoittaa että
+jotain poistettiin, yksi että ei mitään. Charmin uudelleenkäyttö vapauttaa kohteen eikä lumoa
+sitä uudelleen, ja tulos jää alkuarvoon koska alkuperäinen ei aseta sitä tässä haarassa
+mihinkään. Heal kuluttaa satunnaisheitonsa aina, myös silloin kun lopputulos asetetaan
+suoraan maksimiin ylilääkinnän sijaan; great heal ei heitä mitään koskaan. Kaikki kolme olivat
+jo oikein aiemmin rakennetuissa vaikutuksissa; tämä viipale vain sovelsi ne oikeassa
+järjestyksessä.
+</p>
+
+<h2>Yksi uusi lippu, ei toinen haku</h2>
+
+<p>
+Unen loitsu tarvitsi kuudennen luokkalipun, immuuni unelle, ja se oli sama kuvio kuin edellinen
+viipale jo käytti tulelle ja myrkylle: lisää yksi bitti samaan metodiin, ei toista lukijaa
+rinnalle. Tuulien oma kytkentä laajeni tyypiltään mukana, vaikka yksikään tuulesta ei koskaan
+lue uutta lippua.
+</p>
+
+<h2>Kaksi nimettyä aukkoa, ei kahta arvausta</h2>
+
+<p>
+Sammutettu soihtu poistuu alkuperäisessä kokonaan, ja sytytetty ruutitynnyri virittää
+sytytyslangan. Kumpikaan ei sovellu tässä kytkennässä: tällä projektilla ei ole yleistä
+esineen poisto-alkeistoimintoa, eikä sytytyslanka kuulu loitsukytkennälle vaan
+maailmankellolle. Molempien oma kehyksen kirjoitus sovelletaan silti; ainoastaan poisto ja
+langan asettaminen jäävät nimetyiksi aukoiksi. Sammutus ja sytytys eivät edes ole
+tavoitettavissa pelissä juuri nyt, koska kumpikin vaatii esineen kohteeksi, ja loitsukirjan
+oma kohdistus osaa valita vain toimijan.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          169 / 195
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2618 / 2618
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kaksitoista loitsua lisää toimii oikeasti loitsukirjasta kastettuna. 80:stä loitsusta
+     maailmaa muuttavia on nyt 26; jäljellä on 19 omaa haaraansa ja 11 ammuskaston omaa
+     vaikutusta, jokainen oma, erillinen mittauksensa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

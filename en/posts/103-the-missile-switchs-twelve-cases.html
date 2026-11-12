@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Missile Switch's Twelve Cases | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/103-ammuskytkimen-kaksitoista-haaraa.html" hreflang="fi">FI</a><span>/</span><a href="103-the-missile-switchs-twelve-cases.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 103</nav>
+
+<h1>The missile switch's twelve cases</h1>
+
+<p class="lede">
+One switch answers for 23 spells, and this project answered all 23 with a single blanket
+refusal: "not built yet". The twelfth of them calls an effect that already has its own,
+tested implementation somewhere else, waiting for something to actually call it. This slice
+was writing that call, not inventing a new rule.
+</p>
+
+<h2>23 spells, 12 call sites</h2>
+
+<p>
+The dispatcher's own switch has exactly twelve <code>case</code> groups for this family, not
+23: several spells fall through into one call. Nine actors on a generic tile, four objects on
+a generic tile, two actors on an arrow tile, eight with a tile of their own: 9 + 4 + 2 + 8 =
+23, matching the dispatcher's own family table. A reading that counted only the call sites
+would have said twelve, and that was the first thing proven wrong, not assumed.
+</p>
+
+<h2>Three findings a straightforward port would have gotten wrong</h2>
+
+<p>
+Dispel's own return is inverted against this file's usual convention: zero means something was
+cleared, one means nothing was. Recasting charm on an already charmed target frees it instead
+of charming it again, and the result is left at its default because the original never assigns
+it in that branch. Heal always consumes its random roll, even on the path that ends up setting
+the total straight to the maximum instead of adding the roll; great heal never rolls at all.
+All three were already correct in effects built earlier; this slice only had to apply them in
+the right order.
+</p>
+
+<h2>One new flag, not a second lookup</h2>
+
+<p>
+The sleep spell needed a sixth class flag, immune to sleep, and it was the same shape the
+previous slice already used for fire and poison: one more bit added to the same method, not a
+second reader beside it. The winds' own wiring widened its type to match, even though none of
+the four winds ever reads the new flag.
+</p>
+
+<h2>Two named gaps, not two guesses</h2>
+
+<p>
+A doused torch disappears entirely in the original, and an ignited powder keg arms a fuse.
+Neither fits in this wiring: this project has no general object deletion primitive yet, and
+the fuse belongs to the world clock, not to the spell wiring. Both effects' own frame write
+still applies; only the deletion and the fuse value are left as named gaps. Douse and ignite
+are not even reachable in play right now anyway, since both demand an object as a target and
+the spellbook's own targeting can only ever select an actor.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          169 / 195
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2618 / 2618
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Twelve more spells actually act when cast from the spellbook. Of 80 spells, 26 now
+     change the world; 19 still have their own branch and 11 of the missile family's own
+     effects remain, each its own separate measurement.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
