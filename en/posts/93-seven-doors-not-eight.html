@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seven Doors, Not Eight | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/93-seitseman-ovea-ei-kahdeksaa.html" hreflang="fi">FI</a><span>/</span><a href="93-seven-doors-not-eight.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 93</nav>
+
+<h1>Seven doors, not eight</h1>
+
+<p class="lede">
+The previous slice got casting to run every one of its gates, take the reagents and spend the
+mana and the movement points. Nothing happened after that: nothing ever connected the chosen
+spell number to any of the eight handlers this project had already built. This slice is that
+connection. And the moment it was built, it turned out there are seven handlers, not eight.
+</p>
+
+<h2>The map already existed, just unused</h2>
+
+<p>
+The dispatcher's own map was measured months ago: which of eight shared handlers resolves which
+spell, and which 19 spells share nothing with anyone. The map is not this slice's own work. This
+slice's work is the table that reads it and actually calls the right handler, given a spell
+number and a target-already-given flag, nothing more: no rules, no costs, no gates, because all
+of that already existed on the caller's side.
+</p>
+
+<h2>One name that never had a house</h2>
+
+<p>
+The map names eight handlers. Listing them out to build the connection, seven turned up a file,
+a class, tests, everything measured and present. The eighth turned up nothing. Not a partial
+version, not leftovers, nothing: the map knew it existed, but nobody had ever written a line for
+it. The seven spells the map points at that name are therefore their own named refusal rather
+than an eighth handler: no stand-in invented, because in this project a stand-in that looked
+harmless has three times already turned into a real fault the moment something actually called
+it.
+</p>
+
+<h2>Nineteen was right, eighty percent of the story was the wrong question</h2>
+
+<p>
+The plan and the map have always said 19 spells have their own branch, sharing no handler with
+anyone. That number is still right for its own question: how many spells never share anything
+with another. But this slice's own question is different: how many of the 80 numbers actually
+refuse today, when the dispatcher is called. The answer is 26, not 19, because the seven spells
+the map promises an eighth handler to never get one. Two different numbers for two different
+questions, and the plan's own number was not bent to match what building gave: building was
+right, and the plan's text got to say so.
+</p>
+
+<h2>A measuring tool that counted right and wrong at the same time</h2>
+
+<p>
+The map's own measuring script always said "80 cases", and that was true as a sum but wrong in
+content. One spell was missing entirely from the dispatcher's own scanned text, because the
+range ended four lines too early. Right next to it, in the same switch block, sits one case a
+player can never cast: it is only the monsters' and wands' own call point, not one of the eight
+circles of ten spells. That case happened to fill the exact slot the missing spell left empty,
+so the sum looked whole from two faults that cancelled in the count but not in the content. The
+two faults added up to a right answer while each half was wrong: exactly the situation where a
+single integer hides the thing that needed looking at.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones finished        13 / 24
+work items done          159 / 185
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2370 / 2370
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>19 own branches and seven doorless spells, each its own, separate reading: this slice
+     opened the dispatcher, not one of those 26.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

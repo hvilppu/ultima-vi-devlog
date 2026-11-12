@@ -39,7 +39,7 @@ because the only thing worth tracking is what actually runs.
 The bars are <strong>derived from the plan</strong> rather than written by hand, because a hand
 kept board drifts from what it claims to read. Two numbers, measuring different things:
 <strong>13 of 24 milestones</strong> finished, and inside them
-<strong>158 of 184 work items</strong>. The second is the one that moves while a
+<strong>159 of 185 work items</strong>. The second is the one that moves while a
 milestone is still in flight.
 </p>
 
@@ -319,12 +319,12 @@ them up found two faults in the plan straight away that the total alone had hidd
     </details>
   </div>
   <div class="area">
-    <h3>Combat and magic <span class="m-value">0 / 1 done, 41 / 45 items</span></h3>
+    <h3>Combat and magic <span class="m-value">0 / 1 done, 42 / 46 items</span></h3>
     <details class="mgroup">
       <summary class="meter is-started" title="Show the items">
         <span class="m-name">Combat and magic <span class="m-value">M14</span></span>
         <span class="m-bar"><span class="m-fill" style="width: 91%"></span></span>
-        <span class="m-value">41 / 45, in progress</span>
+        <span class="m-value">42 / 46, in progress</span>
       </summary>
       <ul class="m-items">
         <li class="done">Slice A: the attack command and <code>combat.c</code>'s tables.</li>
@@ -369,6 +369,7 @@ them up found two faults in the plan straight away that the total alone had hidd
         <li class="done">Development key (F11): a loose spellbook for the get command.</li>
         <li class="done">Slice F18: <code>Ready</code> and <code>Unready</code>.</li>
         <li class="done">Slice F19: casting the spell.</li>
+        <li class="done">Slice F20: the spell dispatcher is wired.</li>
         <li>Turn based combat, the initiative order, and hits and damage by M8's formulas</li>
         <li>Eighty spells, the reagents and mixing them, mana cost and the targeting types</li>
         <li>Basic enemy behaviour: approach, flee, shoot, cast</li>
@@ -1151,12 +1152,20 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        the spellbook now actually casts. Nine gates in exactly the measured order, six of them
        a refusal, each tested on its own to prove nothing is ever spent for nothing.</p>
   </li>
+  <li>
+    <span class="n">93</span>
+    <a href="posts/93-seven-doors-not-eight.html">Seven Doors, Not Eight</a>
+    <p>The connection between a spell number and its handler was missing entirely, and building
+       it found that the map's own eighth handler never had a house to begin with. As a side
+       finding, the map's own measuring script turned out to add up to the right sum from the
+       wrong content.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>The owner can now try the whole chain: pick up the book, wear it, cast from it. The actual
-     paper doll interface still waits on M21.</p>
+  <p>19 own branches and seven doorless spells, each its own, separate reading: the dispatcher
+     is open, but none of those 26 yet.</p>
 </div>
 
 <footer class="foot">

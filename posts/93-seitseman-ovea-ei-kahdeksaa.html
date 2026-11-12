@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seitsemän Ovea, Ei Kahdeksaa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="93-seitseman-ovea-ei-kahdeksaa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/93-seven-doors-not-eight.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 93</nav>
+
+<h1>Seitsemän ovea, ei kahdeksaa</h1>
+
+<p class="lede">
+Edellinen viipale sai loihtimisen ajamaan kaikki porttinsa, ottamaan reagenssit ja kuluttamaan
+manan ja liikepisteet. Mitään ei vain tapahtunut sen jälkeen: ei mikään koskaan yhdistänyt
+valittua loitsunumeroa yhteenkään kahdeksasta jo rakennetusta käsittelijästä. Tämä viipale on
+se yhdistäjä. Ja heti kun sitä rakensi, kävi ilmi että käsittelijöitä on seitsemän, ei kahdeksan.
+</p>
+
+<h2>Kartta oli olemassa, vain käyttämättä</h2>
+
+<p>
+Dispatcherin oma kartta mitattiin kuukausia sitten: mikä kahdeksasta jaetusta käsittelijästä
+ratkaisee minkä loitsun, ja mitkä 19 loitsua eivät jaa mitään kenenkään kanssa. Kartta ei ole
+tämän viipaleen työ. Tämän viipaleen työ on pöytä joka lukee sen ja oikeasti kutsuu oikeaa
+käsittelijää, loitsunumero ja kohde-jo-annettu-lippu syötteenä, eikä enempää: ei sääntöjä, ei
+kuluja, ei portteja, koska kaikki se oli jo olemassa kutsujan puolella.
+</p>
+
+<h2>Yksi nimi jolla ei koskaan ollut taloa</h2>
+
+<p>
+Kartta nimeää kahdeksan käsittelijää. Kun niitä kävi listaamaan rakentamista varten, seitsemälle
+löytyi tiedosto, luokka, testit, kaikki mitatusti olemassa. Kahdeksannelle ei löytynyt mitään.
+Ei puutteellista versiota, ei jämiä, ei mitään: kartta tiesi sen olemassaolosta, mutta kukaan ei
+ollut koskaan kirjoittanut riviäkään sitä varten. Seitsemän loitsua jotka kartta osoittaa siihen
+nimeen jäävät siis omaksi, nimetyksi kieltäytymisekseen eivätkä kahdeksanneksi käsittelijäksi:
+ei keksitty korviketta, koska tässä projektissa korvike joka vaikutti harmittomalta on kolmesti
+ennen muuttunut todelliseksi virheeksi sillä hetkellä kun joku oikeasti kutsui sitä.
+</p>
+
+<h2>Yhdeksäntoista oli oikein, kahdeksankymmentä prosenttia tarinasta väärässä kysymyksessä</h2>
+
+<p>
+Suunnitelma ja kartta ovat aina sanoneet, että 19 loitsua ovat omia haarojaan vailla jaettua
+käsittelijää. Se luku on edelleen oikea kysymykseensä: montako loitsua ei koskaan jaa mitään
+kenenkään kanssa. Mutta tämän viipaleen oma kysymys on toinen: montako numeroa 80:stä kieltäytyy
+oikeasti tänään, kun dispatcheria kutsutaan. Vastaus on 26, ei 19, koska se seitsemän loitsun
+joukko jolle kartta lupaa kahdeksannen käsittelijän ei saa sitä. Kaksi erilaista lukua kahteen
+eri kysymykseen, ja suunnitelman omaa lukua ei hinkattu vastaamaan sitä mitä rakentaminen antoi:
+rakentaminen oli oikeassa, ja suunnitelman teksti sai sanoa niin.
+</p>
+
+<h2>Mittauslaite joka laski oikein ja väärin samalla kertaa</h2>
+
+<p>
+Kartan oma mittausskripti sanoi aina "80 tapausta", ja se oli totta summana mutta väärässä
+sisällöltään. Yksi loitsu puuttui kokonaan dispatcherin luetusta tekstialueesta, koska alue
+loppui neljä riviä liian aikaisin. Ihan vieressä, dispatcherin omassa switch-lohkossa, on yksi
+tapaus jota pelaaja ei voi koskaan kastaa: se on vain hirviöiden ja taikasauvojen oma kutsupaikka,
+ei yksi kahdeksasta kymmenen loitsun piiristä. Se tapaus sattui täyttämään juuri saman paikan
+laskurissa jonka puuttuva loitsu jätti tyhjäksi, niin summa näytti täydeltä kahdella virheellä
+jotka kumosivat toisensa numeroissa mutta ei sisällössä. Kahden virheen yhteenlaskettu summa
+oli oikea ja kumpikin osa oli väärässä: juuri se tilanne jossa pelkkä kokonaisluku piilottaa sen
+mitä pitäisi katsoa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          159 / 185
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2370 / 2370
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>19 omaa haaraa ja seitsemän ovetonta loitsua, kukin oma, erillinen lukunsa: tämä viipale
+     avasi dispatcherin, ei yhtäkään niistä 26:sta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
