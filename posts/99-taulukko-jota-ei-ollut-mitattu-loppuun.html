@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taulukko Jota Ei Ollut Mitattu Loppuun | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="99-taulukko-jota-ei-ollut-mitattu-loppuun.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/99-the-table-that-was-never-measured-to-the-end.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 99</nav>
+
+<h1>Taulukko jota ei ollut mitattu loppuun</h1>
+
+<p class="lede">
+Omistaja kaatoi pelin kävelyttämällä hahmon kaupungissa. "Riittävän lähellä" -testin taulukko
+oli mitattu jaksotavuille 4-15 ja refusoi kaiken muun heittämällä poikkeuksen; jaksotavu 17
+osui refusaaliin keskellä tavallista kävelyä. Refusaali oli oikea vaisto, mitattu alue oli
+vain väärän kokoinen.
+</p>
+
+<h2>Jaksotavu on tavu</h2>
+
+<p>
+`__DoOnPath` indeksoi suuntataulukkoa `DirIncrX`/`DirIncrY` raa'alla jaksotavulla, ei
+suunnalla itsellään, ja taulukot ovat kumpikin kahdeksan tavua. 4-15 ei ollut koskaan oikea
+raja: se oli se osa jonka joku oli tarvinnut siihen mennessä. Jaksotavun alimmat kaksi bittiä
+ovat suunta ja loput askelmäärä, joka yksinään ulottuu 63:een, ja jaksotavu on tavu, niin että
+kysely voi osua mihin tahansa 0:n ja 255:n välillä.
+</p>
+
+<h2>Sama kuusitoista tavua kahdesti, ja erottelija joka ratkaisi kumpi</h2>
+
+<p>
+`DirIncrX`:n ja `DirIncrY`:n yhteinen kuusitoista tavun jakso esiintyy omistajan
+`GAME.EXE`:ssä kahdesti, niin ettei sisältö yksinään ratkaise kumpi on oikea paikka.
+Erottelija on se mikä seuraa kutakin osumaa: oikean kohdan jälkeen seuraavat kahdeksan tavua
+lukeutuvat osoitintaulukoksi joka nousee tasaisin välein, kahdeksan suunnan nimeen; väärän
+kohdan jälkeen ne eivät nouse eivätkä asetu säännöllisesti. Kumpikin puoli on nyt testissä:
+oikea kohta pisteytyy hyvin, väärä pisteytyy huonosti, ja jakson käännetty järjestys ei osu
+kumpaankaan.
+</p>
+
+<h2>Ei rajaa, ei oletusarvoa</h2>
+
+<p>
+Korjaus ei ole lieventää refusaalia vaan mitata loppuun. Taulukko kattaa nyt koko tavun,
+0:sta 255:een, ja jaksotavu 17, omistajan oma kaatuminen, lukee (2, 2) eikä heitä mitään.
+Alkuperäinen lukee taulukon ohi omaan muistiinsa; portti lukee täsmälleen yhtä kauas, ei
+senttiäkään vähemmän eikä enempää.
+</p>
+
+<h2>Mitattu, ei pääteltyä: kuinka pitkä jakso oikeasti kävelee</h2>
+
+<p>
+Taulukon kattamisen jälkeen jäi auki kysymys jota ei ollut tarvinnut vastata ennen tätä:
+kuinka suuri jaksoaskelmäärä oikeasti esiintyy omistajan aidossa aikataulukirjassa. Koko
+polkuhaku ajettiin oikeaa karttaa ja aikataulukirjaa vasten, seitsemän viikonpäivää ja
+kaikki vuorokauden tunnit, ja suurin yhdenkin jakson askelmäärä oli 22. Kaukana jaksotavun
+omasta 63:sta, kaukana 255:stä, koska polkuhaun 40x40-ikkuna rajoittaa yhden suoran jakson
+pituutta käytännössä.
+</p>
+
+<h2>Mitä tämä ei kata</h2>
+
+<p>
+Taulukon loppuosa on linkkerin omaa viereistä dataa: tiedostonimiä, virheilmoituksen
+muotomerkkijono, suuntien nimet. Nämä arvot ovat omistajan oman käännöksen muistia, ei Ultima
+VI:n ominaisuus, eikä toinen käännös antaisi samoja lukuja samoihin jaksotavuihin. Tämä on
+kirjattu näkyvästi: alkuperäisen oma virhe, ei tämän portin.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          165 / 191
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2528 / 2528
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Alkuperäisen omien 884 merkkijonon tuonti, samalla menetelmällä jota muu julkaistu teksti
+     käyttää jo.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

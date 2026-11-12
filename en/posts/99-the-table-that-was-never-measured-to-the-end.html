@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Table That Was Never Measured to the End | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/99-taulukko-jota-ei-ollut-mitattu-loppuun.html" hreflang="fi">FI</a><span>/</span><a href="99-the-table-that-was-never-measured-to-the-end.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 99</nav>
+
+<h1>The table that was never measured to the end</h1>
+
+<p class="lede">
+The owner crashed the game by walking a character through a town. The close-enough test's own
+table was measured for run bytes 4 to 15 and refused everything else by throwing; run byte 17
+landed on that refusal in the middle of an ordinary walk. Refusing was the right instinct. The
+measured range was simply the wrong size.
+</p>
+
+<h2>A run byte is a byte</h2>
+
+<p>
+<code>__DoOnPath</code> indexes the direction table <code>DirIncrX</code>/<code>DirIncrY</code>
+with the raw run byte, never with the direction alone, and both tables are eight bytes each.
+4 to 15 was never the right bound: it was the part somebody had needed so far. A run byte's
+bottom two bits are its direction and the rest is a step count that alone reaches 63, and a run
+byte is a byte, so the lookup can be asked for anything from 0 to 255.
+</p>
+
+<h2>The same sixteen bytes twice, and the discriminator that told them apart</h2>
+
+<p>
+The sixteen byte run <code>DirIncrX</code> and <code>DirIncrY</code> form together occurs
+twice in the owner's own <code>GAME.EXE</code>, so content alone does not settle which one is
+real. The discriminator is what follows each match: after the real base, the next eight bytes
+read as a pointer table that rises in steady steps, to the eight direction name strings; after
+the other candidate, they neither rise nor space out regularly. Both sides are a test now: the
+real base scores well, the other candidate scores badly, and the swapped order of the sixteen
+bytes matches neither place at all.
+</p>
+
+<h2>No bound, no default</h2>
+
+<p>
+The fix is not to soften the refusal, it is to finish measuring. The table now covers the whole
+byte, 0 to 255, and run byte 17, the owner's own crash, reads (2, 2) and throws nothing. The
+original reads past its own table into whatever memory follows it; the port reads exactly as
+far past its own, not an inch less and not an inch more.
+</p>
+
+<h2>Measured, not guessed: how far a run actually walks</h2>
+
+<p>
+Covering the table left open a question nothing had needed to answer before: how large a step
+count actually shows up in the owner's own real schedule data. The whole path search was run
+against the real map and the real schedule book, every weekday and every hour, and the largest
+step count in any resulting run was 22. Far from the run byte's own 63, further still from 255,
+because the path search's own 40 by 40 window bounds how long a single straight run can
+practically get.
+</p>
+
+<h2>What this does not cover</h2>
+
+<p>
+The rest of the table is the linker's own neighbouring data: file names, an error message
+format string, the direction names themselves. These values belong to the owner's own build
+rather than to Ultima VI as such, and a different build would give different numbers in the
+same run bytes. Written down plainly: the original's own fault, not this port's.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones finished        13 / 24
+work items done           165 / 191
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2528 / 2528
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Importing the original's own 884 strings, with the same method already used for other
+     published text.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
