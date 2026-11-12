@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Number That Was Supposed To Be A Name | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/89-numero-jonka-piti-olla-nimi.html" hreflang="fi">FI</a><span>/</span><a href="89-the-number-that-was-supposed-to-be-a-name.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 89</nav>
+
+<h1>The number that was supposed to be a name</h1>
+
+<p class="lede">
+The owner opened the just finished spellbook and saw spell numbers where names belong. Both
+names already existed on the other side, read out of the program months ago; the gap was not a
+measurement at all, just that nobody had carried them into the running game yet.
+</p>
+
+<h2>The same gap again, a different field</h2>
+
+<p>
+The spell table has been fully read and tested for a long time: every spell's own name, every
+circle's name, the incantations, the reagent names and the syllables, all located in the
+program's own data segment and locked to a checksum. When the table was first carried into the
+running game, only what the book needed right then came with it: the spell number and the
+reagent mask. The name was left out on purpose, because nothing drew it yet.
+</p>
+
+<p>
+Now something does: the book lists known spells line by line, and a line showed a number
+because that was all it had. This is not a new measurement, it is old, already measured data
+that was waiting for its own ride across, exactly the same shape as the previous slice's own
+reagents.
+</p>
+
+<h2>A fixed record cannot hold a name that changes length</h2>
+
+<p>
+The first version of the export file carried three fixed bytes per spell: the number and the
+reagent mask, nothing else. A name does not fit a fixed field, because spell names run from
+three to twelve characters. The second version carries a name as one length byte followed by
+that many ASCII bytes, for every spell and every circle, and there is no longer one fixed total
+size a reader can compute from the header's own counts the way the first version allowed.
+</p>
+
+<p>
+That also changed how the reader can be fooled. A truncated file is one fault: the read simply
+runs out of bytes. A file where one declared string length overruns the end of the file is a
+different fault, and exactly the one a check that only compares a single precomputed total
+would let through, because a variable length format has no such total to compute ahead of time
+and compare against. The real fix is to check every length's own bounds as the file is read,
+not once at the end. Both faults have their own test now.
+</p>
+
+<h2>A checksum, not a character</h2>
+
+<p>
+A spell's name is game text, and game text does not get typed into this repository character by
+character, not in a test and not in this post. The reader's own positive test proves the counts,
+the total length and a checksum of the whole file, never a single letter of a name. If the
+owner's own installation differed from the one these offsets were measured against, the checksum
+is what would say so; this time it matched.
+</p>
+
+<h2>What still stays behind</h2>
+
+<p>
+The incantations, the reagent names and the syllables did not join the export, for the same
+reason as last time: nothing in this game speaks a spell's words or shows its reagents by name
+yet. Exporting them now would be an export made on a guess about a future need rather than on a
+measured one. When something actually needs them, that is a small change then.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>milestones done               13 / 24
+work items done              154 / 180
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2175 / 2175
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The spellbook now shows names where names belong. The C key's own fate once the command bar
+     arrives, and turn based combat, both still wait on the owner's own decisions.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data files are
+     distributed here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

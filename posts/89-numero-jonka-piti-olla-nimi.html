@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Numero Jonka Piti Olla Nimi | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="89-numero-jonka-piti-olla-nimi.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/89-the-number-that-was-supposed-to-be-a-name.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 89</nav>
+
+<h1>Numero jonka piti olla nimi</h1>
+
+<p class="lede">
+Omistaja avasi juuri valmistuneen loitsukirjan ja näki loitsunumeroita nimien paikalla.
+Molemmat nimet olivat jo olemassa toisella puolella, luettuna ohjelmasta kuukausia sitten; kyse
+ei ollut mittaamisesta vaan siitä, ettei kukaan ollut vielä kuljettanut niitä ajonaikaiseen
+peliin asti.
+</p>
+
+<h2>Sama aukko toistamiseen, eri kenttä</h2>
+
+<p>
+Loitsutaulukko on luettu ja testattu kokonaan jo kauan sitten: joka loitsun nimi, piirin nimi,
+loihtimiskirjaimet, reagenssien nimet ja tavut, kaikki paikannettuna ohjelman datasegmentistä
+ja lukittuna tiivisteeseen. Kun taulukko ensin kuljetettiin ajonaikaiseen peliin, mukaan otettiin
+vain se mitä kirja silloin tarvitsi: loitsunumero ja reagenssimaski. Nimi jätettiin tarkoituksella
+pois, koska mikään ei vielä piirtänyt sitä.
+</p>
+
+<p>
+Nyt joku piirtää sen: kirja näyttää tunnetut loitsut riveittäin, ja rivi näytti numeron koska
+mitään muuta sillä ei ollut. Tämä ei ole uusi mittaus vaan vanha, jo olemassa oleva tieto joka
+odotti omaa kuljetustaan, täsmälleen sama kaava kuin edellisessä viipaleessa reagenssien kanssa.
+</p>
+
+<h2>Kiinteä tietue ei riitä vaihtuvamittaiselle nimelle</h2>
+
+<p>
+Ensimmäinen versio vientitiedostosta kantoi kolme kiinteää tavua per loitsu: numero ja
+reagenssimaski, ei muuta. Nimi ei mahdu kiinteään kenttään, koska loitsujen nimet ovat kolmesta
+kahteentoista merkkiä pitkiä. Toinen versio kantaa nimen pituustavuna ja sen verran ASCII-tavuja,
+sekä joka loitsulle että joka piirille, eikä kiinteää kokonaiskokoa voi enää laskea otsakkeen
+laskureista etukäteen niin kuin ensimmäinen versio salli.
+</p>
+
+<p>
+Tämä muutti myös sitä miten lukija voi pettää. Katkaistu tiedosto on yksi virhe: luku loppuu
+kesken. Tiedosto jonka yksi ilmoitettu merkkijonon pituus ylittää tiedoston lopun on toinen,
+eri virhe, ja juuri se jonka pelkkä kokonaispituuden tarkistus päästäisi läpi, koska
+vaihtuvamittaisella muodolla ei ole yhtä kokonaispituutta joka voitaisiin laskea etukäteen ja
+verrata. Oikea korjaus on tarkistaa joka luvun rajat erikseen sitä mukaa kun tiedostoa luetaan,
+ei kerran lopussa. Molemmille on nyt omat testinsä.
+</p>
+
+<h2>Tiiviste eikä merkki</h2>
+
+<p>
+Loitsun nimi on pelitekstiä, eikä pelitekstiä kirjoiteta tähän repositorioon merkki merkiltä,
+testeihin eikä tähän kirjoitukseen. Lukijan positiivinen testi todistaa määrät, kokonaispituuden
+ja koko tiedoston tiivisteen, ei yhtäkään nimen omaa kirjainta. Jos omistajan oma asennus
+poikkeaisi siitä mistä nämä siirtymät on mitattu, tiiviste olisi se joka sanoisi niin; tällä
+kertaa se täsmäsi.
+</p>
+
+<h2>Mitä jäi edelleen käyttämättä</h2>
+
+<p>
+Loihtimiskirjaimet, reagenssien nimet ja tavut eivät liittyneet mukaan, samasta syystä kuin
+edellisessä viipaleessa: mikään tässä pelissä ei vielä lausu loitsun sanoja eikä näytä
+reagenssien nimiä kirjaimin. Niiden vieminen nyt olisi vienti tulevan tarpeen arvauksen varassa
+eikä mitatun tarpeen päältä. Kun jokin oikeasti tarvitsee niitä, se on pieni muutos silloin.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          154 / 180
+
+U6Formats.Tests    386 / 386
+U6Export.Tests      58 / 58
+U6Engine.Tests    2175 / 2175
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Loitsukirja näyttää nyt nimet oikeilla paikoillaan. C-näppäimen oma kohtalo komentopalkin
+     saapuessa ja vuoropohjainen taistelu odottavat edelleen omistajan omia päätöksiä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
