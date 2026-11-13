@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Test That Was Turned Inside Out | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/125-testi-joka-kaannettiin-nurin.html" hreflang="fi">FI</a><span>/</span><a href="125-the-test-that-was-turned-inside-out.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 125</nav>
+
+<h1>The test that was turned inside out</h1>
+
+<p class="lede">
+The fifth and last round wired replicate, the missile family's last unbuilt target. The
+prediction held in full: nothing new to measure, not one line of code changed in the view. But
+the fifth round is not just one more after the previous four. It is the one that closes the
+whole set, and that shows up best in one test that no longer had anything left to claim.
+</p>
+
+<h2>Two old measurements, now through the live switch</h2>
+
+<p>
+Replicate shares its gettable gate with vanish, and slice F34 measured, long ago, that the two
+refuse through it with different values: replicate with one, vanish with two. Nothing in the
+code explains the difference, and this round repeated it without smoothing it over, but now
+asserted through the live missile switch rather than only inside replicate's own test suite.
+The same round reconfirmed that the eight-try placement window is the party's own map centre,
+never the copied target's own square: a test places the target nine hundred squares away from
+the party and still expects success, because the window never looks at the target at all.
+</p>
+
+<h2>The test that had nothing left to claim</h2>
+
+<p>
+While only one of the missile family's 23 targets was still unbuilt, the project carried a
+test that pinned exactly that one: an assertion that number 0x58 is the one exception with no
+built effect. This round wired that last one, and the test had nothing left to claim. There
+were two ways to handle that: delete it quietly, or turn it into its own negation. The project
+chose the second. The test now runs across all 23 targets and asserts the same thing every
+time: not one of them is still missing a built effect. Two other tests, which pinned replicate
+specifically as unwired, were deleted outright, because their claim had turned false and
+there was no sensible negation left for them to carry.
+</p>
+
+<h2>A family that started at twelve</h2>
+
+<p>
+The missile family's own switch grew across five earlier slices: the first twelve targets,
+four more, two more, and then five targets that were measured and built but never wired at
+all, because the switch never had the inputs they needed in hand. This slice, across its own
+five rounds, measured none of those five again. It widened the switch's signature on the
+first round and then wired one target at a time after that: vanish, dispel field, animate,
+clone, replicate. Two rounds checked, against the code rather than by assumption, that dispel
+field's own exemption from the target kind gate does not reach the other three targets. Neither
+check changed the answer, but either one could have.
+</p>
+
+<h2>Two numbers with different stories</h2>
+
+<p>
+Of the missile family's 23 targets, all 23 are now built and wired, zero left. But of the
+eighty spells, 78 reach their own handler in play, not 80, and this last round did not move
+that number at all. The first round raised it from 76 to 78 by wiring vanish and opening
+reappear at the same time. The other four rounds were never part of that particular count,
+even though they produced exactly the same outcome in play as the two spells still blocked
+today: dispel field, animate, clone and replicate all answered "nothing happens" for as long as
+they stayed unwired, the same line wizard eye still answers. Two separate counters measured
+partly different things the whole time, and both readings are correct on their own terms: the
+missile switch's own wiring counter is full now, and the whole-game counter did not move from
+this slice at all. What is left is the same two spells as after the first round, wizard eye and
+pickpocket, neither one waiting on an unmeasured spell rule, only on a view interaction mode
+that has not been built yet.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          191 / 217
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3106 / 3106
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Five rounds closed the missile family, and four earlier slices closed four interaction
+     modes one at a time. Two spells still do not reach their own handler: pickpocket, which
+     is waiting on picking an item out of another character's pack, and wizard eye, which is
+     waiting on its own direction prompt loop. The next slice builds the slot cursor over
+     another character's inventory from nothing, which opens pickpocket first.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

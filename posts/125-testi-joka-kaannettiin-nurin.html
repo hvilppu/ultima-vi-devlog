@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testi Joka Käännettiin Nurin | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="125-testi-joka-kaannettiin-nurin.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/125-the-test-that-was-turned-inside-out.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 125</nav>
+
+<h1>Testi joka käännettiin nurin</h1>
+
+<p class="lede">
+Viides ja viimeinen kierros kytki replicaten, ammuskaston viimeisen rakentamattoman kohteen.
+Ennustus piti paikkansa täydessä laajuudessaan: ei mitään uutta mitattavaa, ei yhtäkään
+koodirivin muutosta näkymässä. Mutta viides kierros ei ole vain yksi lisää neljästä
+edellisestä. Se on se joka sulkee koko joukon, ja se näkyy parhaiten yhdessä testissä, jolla ei
+ollut enää mitään väitettävää.
+</p>
+
+<h2>Kaksi vanhaa mittausta, nyt elävän kytkimen läpi</h2>
+
+<p>
+Replicate jakaa gettable-portin vanishin kanssa, ja F34 mittasi aikanaan, että ne
+kieltäytyvät sillä eri arvoilla: replicate yhdellä, vanish kahdella. Mikään koodissa ei selitä
+eroa, ja tämä kierros toisti sen tasoittamatta, mutta nyt väitettynä elävän ammuskytkimen läpi
+eikä vain replicaten omassa testisarjassa. Samalla tapaa vahvistettiin, että kahdeksan
+yrityksen sijoitusikkuna on puolueen oma karttakeskus, ei kopioitavan kohteen sijainti: testi
+asettaa kohteen yhdeksänsadan ruudun päähän puolueesta ja odottaa silti onnistumista, koska
+ikkuna ei koskaan katso kohdetta.
+</p>
+
+<h2>Testi jolla ei ollut enää mitään väitettävää</h2>
+
+<p>
+Kun ammuskaston kaksikymmentäkolmesta kohteesta vain yksi oli vielä rakentamatta, projektissa
+oli testi joka naulasi juuri sen yhden: väite, että numero 0x58 on se poikkeus jolla ei ole
+rakennettua vaikutusta. Tämä kierros kytki sen viimeisen, ja testillä ei ollut enää mitään
+väitettävää. Vaihtoehtoja oli kaksi: poistaa testi hiljaa, tai kääntää se omaksi
+negaatiokseen. Projektissa valittiin jälkimmäinen. Testi ajaa nyt läpi kaikki
+kaksikymmentäkolme kohdetta ja väittää saman asian joka kerta: ei yhdellekään niistä puutu
+rakennettua vaikutusta. Kaksi muuta testiä, jotka naulasivat replicaten nimenomaan
+kytkemättömäksi, poistettiin kokonaan, koska niiden väite oli kääntynyt valheeksi eikä
+niille löytynyt järkevää negaatiota.
+</p>
+
+<h2>Perhe joka aloitti kahdellatoista</h2>
+
+<p>
+Ammuskaston oma kytkin kasvoi viidessä aiemmassa viipaleessa: kaksitoista ensimmäistä
+kohdetta, neljä lisää, kaksi lisää, ja sitten viisi kohdetta jotka mitattiin ja rakennettiin
+mutta joita ei kytketty ollenkaan, koska kytkimellä ei ollut käsillä niitä syötteitä jotka ne
+tarvitsivat. Tämä viipale, viitenä omana kierroksenaan, ei mitannut yhtäkään näistä viidestä
+uudelleen. Se levensi kytkimen allekirjoituksen ensimmäisellä kierroksella ja kytki sen
+jälkeen yhden kohteen kerrallaan: vanish, dispel field, animate, clone, replicate. Kaksi
+kierrosta tarkisti erikseen, koodia vasten eikä olettamalla, että dispel fieldin oma vapautus
+kohdetyyppiportista ei ulotu muihin kolmeen kohteeseen. Kumpikaan tarkistus ei muuttanut
+vastausta, mutta kumpi tahansa olisi voinut.
+</p>
+
+<h2>Kaksi lukua joilla on eri tarina</h2>
+
+<p>
+Ammuskaston kaksikymmentäkolmesta kohteesta kaikki kaksikymmentäkolme ovat nyt rakennettuja ja
+kytkettyjä, nolla jäljellä. Mutta kahdeksankymmenestä loitsusta pelissä tavoittavia
+käsittelijöitä on 78, ei 80, eikä tämä viimeinen kierros liikuttanut sitä lukua lainkaan.
+Ensimmäinen kierros nosti sen 76:sta 78:aan kytkemällä vanishin ja avaamalla samalla
+reappearin. Loput neljä kierrosta eivät koskaan olleet mukana juuri tässä laskussa, vaikka ne
+tuottivat pelissä täsmälleen saman vastauksen kuin kaksi yhä jäljellä olevaa loitsua tuottavat:
+dispel field, animate, clone ja replicate antoivat kaikki "ei tapahdu mitään" niin kauan kuin
+ne olivat kytkemättä, aivan kuten wizard eye antaa yhä. Kaksi erillistä laskuria mittasivat
+osittain eri asiaa koko ajan, ja molemmat lukemat ovat oikeita omilla ehdoillaan: ammuskaston
+oma kytkentälaskuri on nyt täynnä, kokonaislaskuri ei muuttunut tästä viipaleesta ollenkaan.
+Jäljellä ovat samat kaksi kuin ensimmäisen kierroksen jälkeen, wizard eye ja taskuvarkaus,
+kumpikaan ei vaille mitattua loitsusääntöä, vain näkymän omaa vielä rakentamatonta
+vuorovaikutustilaa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        191 / 217
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3106 / 3106
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Viisi kierrosta sulkivat ammuskaston, ja neljä aiempaa viipaletta sulkivat neljä
+     vuorovaikutustilaa yksi kerrallaan. Jäljellä on kaksi loitsua jotka eivät tavoita
+     käsittelijäänsä: taskuvarkaus, jota odottaa poiminta toisen hahmon repusta, ja wizard eye,
+     jota odottaa oma suuntakehotteen silmukka. Seuraava viipale rakentaa paikkakursorin
+     toisen hahmon inventaariolle tyhjästä, mikä avaa taskuvarkauden ensimmäisenä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
