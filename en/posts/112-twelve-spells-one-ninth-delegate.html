@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Twelve Spells, One Ninth Delegate | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/112-kaksitoista-loitsua-yksi-yhdeksas-delegaatti.html" hreflang="fi">FI</a><span>/</span><a href="112-twelve-spells-one-ninth-delegate.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 112</nav>
+
+<h1>Twelve spells, one ninth delegate</h1>
+
+<p class="lede">
+Help, reappear, telekinesis, pickpocket, seance, hail storm, web, wing strike, resurrect,
+slime, tremor and insect swarm: twelve spells, each measured, built and tested in its own
+slice, and each entirely unreachable from the spellbook. The fix was not any one of the
+twelve. It was the dispatcher, which had no way to send a call outside its eight fixed
+families, and the fix is one new delegate, not nineteen.
+</p>
+
+<h2>Dormant code, the largest pile yet</h2>
+
+<p>
+Five slices in a row measured and built one more spell that shares nothing with any of the
+eight shared families: reappear, slime, tremor, wing strike, insect swarm, hail storm,
+resurrect, help, seance, telekinesis, pickpocket, web. Each slice correctly reported the same
+thing: the dispatcher that turns a spell number into the right handler carries eight fixed
+family delegates and has no slot for an own branch. Nobody invented a stand in for that
+missing slot, which was the right call every single time, but the result was twelve built,
+tested and completely unreachable handlers at once, more dormant code than this project has
+ever carried at the same time.
+</p>
+
+<p>
+Dormant code is not as harmless as it first looks. It is correct and tested today, but it
+turns into a defect the moment something starts calling it wrong, and the longer it waits the
+more certain it is that somebody will have to re-read all twelve handlers just to remember why
+they are waiting.
+</p>
+
+<h2>One delegate, not nineteen and not a table</h2>
+
+<p>
+The fix is one ninth delegate on the dispatcher, with the same signature as the other eight: a
+spell number and a flag for whether the target is already given. The dispatcher's answer is
+now one of eight families, this ninth own branch, or a refusal for a number that is not a
+spell at all.
+</p>
+
+<p>
+Two other shapes were obvious and both were rejected by name. Nineteen delegates is the shape
+the signature already suggests, and at nineteen it is absurd: every call site would carry
+nineteen parameters to say nothing new. A per-number handler table inside the engine fails on
+its inputs rather than on taste: the twelve handlers need the object world, the characters, the
+clock, the generator and the tile bank in twelve different combinations, and the table would
+have to accept the union of all of them, which is most of the game.
+</p>
+
+<p>
+One delegate is also what the original itself does. Its own dispatcher is a single switch in
+which each own branch is its own case calling its own routine, with the inputs already in
+scope right where the game state lives. In this project that place is the view, not the
+engine, so the per-number switch lives in the view. The dispatcher still resolves only a
+family, not a case, exactly the finding recorded when the dispatcher was first wired, dozens of
+slices ago, and that finding does not change here.
+</p>
+
+<h2>Twelve reachable, seven named lines</h2>
+
+<p>
+Twelve numbers now resolve to the new delegate and actually call their own, previously measured
+handler: help, reappear, telekinesis, insect swarm, pickpocket, seance, hail storm, web, wing
+strike, resurrect, slime and tremor. Seven spells remain with no handler measured at all:
+create food, wind change, x-ray, enchant, gate travel, wizard eye and armageddon. None of them
+was guessed at, not even the ones whose name suggests an obvious behaviour, because several of
+this project's own measured findings so far have been exactly where the obvious behaviour was
+wrong. Each of the seven is its own named line, so the slice that measures and builds one of
+them deletes exactly that line and touches none of the other six.
+</p>
+
+<h2>Three of the twelve cannot yet succeed</h2>
+
+<p>
+An honesty this post does not want to skip: three of the twelve callable spells cannot yet
+succeed in play, because the view is missing some input the measured handler demands. Neither
+is a stub, and neither had its behaviour changed during the build: the real handler runs for
+real and takes its own, already measured refusal.
+</p>
+
+<p>
+Telekinesis never asks for a push direction, because the view has no direction prompt
+sub-mode. The crank, the lever and the weightless object's refusal all work regardless, since
+none of them needs a direction. Pickpocket's second selection, the one where the player picks
+an item out of the victim's own inventory, is always absent, because there is no sub-mode for
+it in the view, so the spell always takes its own measured refusal for that state. And
+reappear's own memory is always empty, because vanish, the spell whose job is to fill it, is
+not itself reachable through the missile wiring. Reappear therefore always asks an honestly
+empty memory, rather than hiding the gap.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          178 / 204
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2941 / 2941
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Seven own branches remain, and not one of them has been measured yet.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

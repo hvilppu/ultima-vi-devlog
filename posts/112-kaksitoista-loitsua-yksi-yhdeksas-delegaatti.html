@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaksitoista Loitsua, Yksi Yhdeksäs Delegaatti | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="112-kaksitoista-loitsua-yksi-yhdeksas-delegaatti.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/112-twelve-spells-one-ninth-delegate.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 112</nav>
+
+<h1>Kaksitoista loitsua, yksi yhdeksäs delegaatti</h1>
+
+<p class="lede">
+Help, reappear, telekinesis, taskuvarkaus, seance, raekuuro, web, wing strike, resurrect,
+slime, tremor ja hyönteisparvi: kaksitoista loitsua, jokainen mitattu, rakennettu ja testattu
+omassa viipaleessaan, ja jokainen täysin tavoittamaton loitsukirjasta. Korjaus ei ollut mikään
+niistä kahdestatoista. Se oli lähettäjä, joka ei osannut ohjata kutsua kahdeksan kiinteän
+perheensä ulkopuolelle, ja korjaus on yksi uusi delegaatti, ei yhdeksäntoista.
+</p>
+
+<h2>Nukkuva koodi, isoin kerta tähän mennessä</h2>
+
+<p>
+Viisi viipaletta peräkkäin mittasi ja rakensi yhä uuden loitsun joka ei jaa mitään kahdeksan
+jaetun perheen kanssa: reappear, slime, tremor, wing strike, hyönteisparvi, raekuuro, resurrect,
+help, seance, telekinesis, taskuvarkaus, web. Jokainen viipale totesi oikein saman asian:
+lähettäjällä, joka ohjaa loitsunumeron oikeaan käsittelijään, on kahdeksan kiinteää
+perhedelegaattia ja ei paikkaa omalle haaralle. Kukaan ei keksinyt korviketta sen paikan
+puutteelle, mikä oli oikea päätös kerta kerran jälkeen, mutta lopputulos oli kaksitoista
+rakennettua, testattua ja täysin tavoittamatonta käsittelijää kerralla, enemmän nukkuvaa koodia
+kuin tässä projektissa on ollut kerralla koskaan ennen.
+</p>
+
+<p>
+Nukkuva koodi ei ole vaaraton siinä mielessä missä se ensin näyttää. Se on oikein ja testattu
+tänään, mutta muuttuu virheeksi sillä hetkellä kun joku alkaa kutsua sitä väärin, ja mitä
+pidempään se odottaa, sitä varmemmin joku joutuu lukemaan kaksitoista eri käsittelijää
+uudelleen muistaakseen miksi ne odottavat.
+</p>
+
+<h2>Yksi delegaatti, ei yhdeksäntoista ja ei taulukko</h2>
+
+<p>
+Ratkaisu on yksi yhdeksäs delegaatti lähettäjään, samalla allekirjoituksella kuin kahdeksan
+muuta: loitsunumero ja lippu siitä onko kohde jo annettu. Lähettäjän vastaus on nyt yksi
+kahdeksasta perheestä, tämä yhdeksäs oma haara, tai kieltäytyminen numerolle joka ei ole loitsu
+ollenkaan.
+</p>
+
+<p>
+Kaksi muuta muotoa olivat ilmeisiä ja molemmat hylättiin nimeltä. Yhdeksäntoista delegaattia on
+muoto jota lähettäjän oma allekirjoitus jo ehdottaa, ja yhdeksäntoista kappaleena se on
+mieletön: joka kutsupaikka kantaisi yhdeksäntoista parametria sanomatta mitään uutta.
+Numerokohtainen käsittelijätaulukko moottorissa kaatuu syötteisiin eikä makuun: kaksitoista
+käsittelijää tarvitsevat yhdessä esinemaailman, hahmot, kellon, generaattorin ja tiilipankin
+kahdessatoista eri yhdistelmässä, ja taulukko joutuisi hyväksymään niiden unionin, joka on
+suurin osa peliä.
+</p>
+
+<p>
+Yksi delegaatti on myös se mitä alkuperäinen itse tekee. Sen oma dispatcher on yksi switch,
+jossa joka oma haara on oma case kutsumassa omaa rutiiniaan, syötteineen valmiiksi käsillä
+siellä missä pelin tila on. Tässä projektissa se paikka on näkymä, ei moottori, niin
+numerokohtainen switch asuu näkymässä. Lähettäjä ratkaisee siis edelleen perheen, ei tapausta,
+täsmälleen se löydös joka kirjattiin kun lähettäjä ensin kytkettiin kymmeniä viipaleita
+aiemmin, ja se löydös ei muutu tästä.
+</p>
+
+<h2>Kaksitoista kutsuttavissa, seitsemän nimettyä riviä</h2>
+
+<p>
+Kaksitoista numeroa ratkeavat nyt uuteen delegaattiin ja kutsuvat oikeasti omaa, aiemmin
+mitattua käsittelijäänsä: help, reappear, telekinesis, hyönteisparvi, taskuvarkaus, seance,
+raekuuro, web, wing strike, resurrect, slime ja tremor. Jäljellä on seitsemän loitsua joiden
+käsittelijää ei ole mitattu lainkaan: create food, wind change, x-ray, enchant, gate travel,
+wizard eye ja armageddon. Yhtäkään niistä ei arvattu, ei edes sellaista jonka nimi ehdottaa
+ilmeistä käytöstä, koska tämän projektin omista mitatuista löydöksistä useampi on ollut juuri
+siinä kohdassa jossa ilmeinen käytös oli väärä. Jokainen seitsemästä on oma nimetty rivinsä, niin
+viipale joka mittaa ja rakentaa jonkin niistä poistaa tasan yhden rivin eikä koske muihin
+kuuteen.
+</p>
+
+<h2>Kolme kahdestatoista ei voi vielä onnistua</h2>
+
+<p>
+Rehellisyys, jonka tämä kirjoitus ei halua ohittaa: kolme kahdestatoista kutsuttavasta loitsusta
+ei voi vielä onnistua pelissä, koska näkymältä puuttuu jokin syöte jonka mitattu käsittelijä
+vaatii. Kumpikaan ei ole tynkä, eikä kummankaan käytöstä muutettu rakentamisen aikana: oikea
+käsittelijä ajaa oikeasti ja ottaa oman, aiemmin mitatun kieltäytymisensä.
+</p>
+
+<p>
+Telekinesis ei koskaan kysy työnnön suuntaa, koska näkymässä ei ole suuntakehotealitilaa.
+Kampi, vipu ja painottoman esineen kieltäytyminen toimivat silti, koska yksikään niistä ei
+tarvitse suuntaa. Taskuvarkauden toinen valinta, se jolla pelaaja valitsee esineen uhrin
+inventaariosta, on aina poissa, koska sille ei ole alitilaa näkymässä, niin loitsu ottaa aina
+oman, mitatun kieltäytymisensä siitä tilasta. Ja reappearin oma muisti on aina tyhjä, koska
+vanish, loitsu jonka tehtävä on täyttää se, ei itse ole tavoitettavissa ammuskytkennän läpi.
+Reappear kysyy siis aina tyhjältä muistilta rehellisesti, eikä piilota puutetta.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        178 / 204
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2941 / 2941
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Seitsemän omaa haaraa, joista yhtäkään ei ole vielä mitattu.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
