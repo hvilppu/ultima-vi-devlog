@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What the Pair Does Not Share | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/124-se-mita-pari-ei-jaa.html" hreflang="fi">FI</a><span>/</span><a href="124-what-the-pair-does-not-share.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 124</nav>
+
+<h1>What the pair does not share</h1>
+
+<p class="lede">
+The fourth of five rounds that open the missile family's last cases wired clone. The previous
+round predicted one new input, a passability delegate, and the prediction held. But clone and
+animate are a pair whose other half was wired on the very last round, and the other half of a
+pair like that is not a risk of forgetting something. It is a risk that whatever gets copied
+from next door brings along the part that does not belong to this half.
+</p>
+
+<h2>The closure was found where it already lived</h2>
+
+<p>
+The passability test was not a new idea. The view already carries the same closure, and hands
+it to two other call sites already: applying a fired hit, and the wind's own damage, both of
+which hand it onward to a slime's own division. This round did not invent a new passability
+rule; it threaded that same closure one family further, exactly the way the first three rounds
+threaded the tile bank, the base tile table and the creature class table.
+</p>
+
+<h2>What must not be inherited from the neighbour</h2>
+
+<p>
+Animate and clone are exactly the same shape with different sources, and this project measured
+them against each other long before this round: clone takes the <strong>target's</strong> own
+alignment and copies the <strong>target's</strong> own behaviour, where animate takes the
+caster's alignment and forces it into assault. The nearest model was therefore the round that
+had just been wired, and copying it directly would have been the easiest mistake available
+here: clone needs a passability test that animate never asked for, and clone never reads the
+base tile table at all, because its target is already an actor rather than an object whose
+type has to be read off a display tile. Three differences, all measured ahead of time, nothing
+new in this round, and every one of them would have disappeared if the wiring had been written
+by reading only the previous case.
+</p>
+
+<p>
+This round also checked something it was not entitled to assume: the coordinating session
+never claimed clone was exempt from the same target kind gate dispel field is, but this round
+did not read that silence as an exemption either. It read clone's own remarks directly. They
+name no exemption, exactly as animate's own remarks named none the round before.
+</p>
+
+<h2>A line that fell behind a second time</h2>
+
+<p>
+The view's own comment on the missile switch's wiring still claimed twenty of 23 targets, even
+though the previous round had already raised the count to 21. This is the same shape reappear's
+own memory left behind two rounds earlier: the code is correct, but its own explanation does not
+travel with it. Fixed in this round, not left for the next.
+</p>
+
+<h2>One round left</h2>
+
+<p>
+Of the missile family's 23 targets, 22 are now built and wired, not 21. Replicate is the last
+one, and in number order it also gets the last round.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          190 / 216
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3103 / 3103
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The fifth and last round: replicate's own wire, which the brief predicts needs no new
+     input at all, and the last place where one of the missile family's 23 targets is still
+     only built, not wired.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

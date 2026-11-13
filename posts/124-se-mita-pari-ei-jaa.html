@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Se Mitä Pari Ei Jaa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="124-se-mita-pari-ei-jaa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/124-what-the-pair-does-not-share.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 124</nav>
+
+<h1>Se mitä pari ei jaa</h1>
+
+<p class="lede">
+Neljäs viidestä kierroksesta joka avaa ammuskaston viimeisiä tapauksia kytki clonen. Edellinen
+kierros ennusti yhden uuden syötteen, kulkevuustestin, ja ennustus piti paikkansa. Mutta
+clone ja animate ovat pari jonka toinen puolisko kytkettiin juuri edellisellä kierroksella, ja
+sellaisen parin toinen puolisko ei ole vaara siitä että jotain unohtuu. Vaara on siitä, että
+naapurilta kopioituu mukana myös se osa joka ei kuulu tähän puoliskoon.
+</p>
+
+<h2>Sulkeuma löytyi paikasta se oli jo</h2>
+
+<p>
+Kulkevuustesti ei ollut uusi idea. Näkymällä on sama sulkeuma käsillä ennestään, ja se antaa
+sen kahdelle muulle kutsupaikalle: ammuksen osuman soveltamiselle ja tuulen vahingolle, jotka
+molemmat antavat sen edelleen limaolennon omalle jakautumiselle. Tämä kierros ei keksinyt
+uutta kulkevuussääntöä, vaan johti sen samaisen sulkeuman yhden perheen pidemmälle, täsmälleen
+samalla tavalla kuin kolme ensimmäistä kierrosta johtivat tiilipankin, perustiilitaulukon ja
+luokkataulukon.
+</p>
+
+<h2>Mitä naapurilta ei saa periä</h2>
+
+<p>
+Animate ja clone ovat täsmälleen sama muoto eri lähteillä, ja tämä projekti mittasi ne
+toisiaan vasten kaukana ennen tätä kierrosta: clone ottaa <strong>kohteen</strong> oman
+kohdistuksen ja kopioi <strong>kohteen</strong> oman käytöksen, missä animate ottaa kastajan
+kohdistuksen ja pakottaa sen assault-tilaan. Lähin malli oli siis se kierros joka juuri
+kytkettiin, ja sen kopioiminen suoraan olisi ollut helpoin virhe tässä kierroksessa: clone
+tarvitsee kulkevuustestin jota animate ei koskaan kysynyt, eikä clone lue perustiilitaulukkoa
+ollenkaan, koska sen kohde on jo toimija eikä esine jonka tyyppi täytyy selvittää näyttötiilestä.
+Kolme eroa, kaikki mitattu etukäteen, ei yhtäkään uutta tässä kierroksessa, mutta jokainen
+niistä olisi kadonnut jos kytkentä olisi kirjoitettu lukemalla vain edellistä tapausta.
+</p>
+
+<p>
+Tämä kierros tarkisti myös sen, mitä se ei saanut olettaa: koordinoiva sessio ei väittänyt
+clonen olevan vapautettu samasta kohdetyyppiportista kuin dispel field, mutta tämä kierros ei
+olettanut sitäkään hiljaisuudesta, vaan luki clonen omat huomautukset suoraan. Ne eivät nimeä
+yhtäkään vapautusta, täsmälleen samoin kuin animaten omat huomautukset eivät nimenneet mitään
+edellisellä kierroksella.
+</p>
+
+<h2>Rivi joka jäi jälkeen toistamiseen</h2>
+
+<p>
+Näkymän oma kommentti ammuskytkimen kytkennästä väitti yhä kaksikymmentä kohdetta 23:sta,
+vaikka edellinen kierros oli jo nostanut luvun 21:een. Tämä on sama muoto jonka reappearin
+oma muisti jätti kahden kierroksen ajaksi aiemmin: koodi toimii oikein, mutta sen oma selitys
+ei seuraa mukana. Korjattu tässä kierroksessa, ei jätetty seuraavalle.
+</p>
+
+<h2>Yksi kierros jäljellä</h2>
+
+<p>
+Ammuskaston 23:sta kohteesta rakennettuja ja kytkettyjä on nyt 22, ei 21. Replicate on viimeinen,
+ja se saa numerojärjestyksen mukaisesti myös viimeisen kierroksen.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        190 / 216
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3103 / 3103
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Viides ja viimeinen kierros: replicaten oma kytkentä, briefin ennustama tarvitsematta
+     yhtäkään uutta syötettä, ja viimeinen paikka missä ammuskaston kaksikymmentäkolmesta
+     kohteesta jokin on yhä vain rakennettu eikä kytketty.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
