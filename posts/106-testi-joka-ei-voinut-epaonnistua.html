@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testi Joka Ei Voinut Epäonnistua | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="106-testi-joka-ei-voinut-epaonnistua.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/106-a-test-that-could-not-fail.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 106</nav>
+
+<h1>Testi joka ei voinut epäonnistua</h1>
+
+<p class="lede">
+Kolme loitsua jäljellä olevasta seitsemästä, joista kumpikaan ei luo eikä tuhoa olentoa: lightning,
+chain bolt ja dispel field. Kaksi niistä toimii nyt oikeasti loitsukirjasta kastettuna. Mutta
+kiinnostavin osa ei ole se mikä toimii, vaan se että ensimmäinen toteutus ei toiminut, eikä
+yksikään testi huomannut.
+</p>
+
+<h2>Kaksi yksinkertaista tapausta ja yksi joka jää kytkemättä</h2>
+
+<p>
+Lightning on ammuskytkimen kaikkein yksinkertaisin tapaus: yksi 1d30-heitto, ei kontestia, ei
+immuniteettitarkistusta, täsmälleen energiatuulen oma vaikutus yhteen kohteeseen. Chain bolt on
+ensimmäinen osuma ja enintään kuusi hyppyä, jokainen uhrista seuraavaan, ei kastajasta. Kumpikin
+kytkeytyy nyt ammuskytkimeen, ja ammuskytkimen 23:sta kohteesta rakennettuja on 18, viisi jäljellä.
+</p>
+
+<p>
+Dispel field on kolmas, ja se jää tarkoituksella kytkemättä. Sen oma rutiini on olemassa ja
+testattu: se kävelee valitun ruudun oliot ja poistaa ensimmäisen neljästä kenttätyypistä. Mutta se
+lukee ruudun, ei ratkaistua kohdeoliota, ja ammuskytkimellä ei ole käsillä tasoa, tiilipankkia
+eikä perustiilitaulukkoa joita se tarvitsisi. Aukko on nyt nimetty omalla testillään sen sijaan
+että se peittyisi. Sama viipale sulki myös vanhan avoimen kysymyksen: miksi dispel field on
+ammuskaston 23:sta ainoa esinettä vaativa loitsu joka läpäisee hahmoon tähdättynä. Syy on nyt
+mitattu, ei vain nimetty: se ei lue valittua oliota lainkaan.
+</p>
+
+<h2>Keskipiste joka ei ollut uhri</h2>
+
+<p>
+Chain boltin seuraava kohde valitaan ikkunasta joka on yhdeksän ruutua leveä, ja ikkunan keskipiste
+on jossain. Brief sanoi vain "keskipiste", ja ensimmäinen toteutus luki sen nykyiseksi uhriksi,
+koska seuraava suodatin mittaa etäisyyden juuri uhrista. Se oli ainoa lukutapa jonka sanamuoto
+salli.
+</p>
+
+<p>
+Alkuperäinen käyttää kahta eri origoa samassa testissä: ikkuna on puolueen oma karttakeskus,
+etäisyys on nykyinen uhri. Dekompilaation oma kommentti rutiinille, "within 5 tiles of the screen
+center", on se lause joka ratkaisi asian. Seuraus ei ole yksityiskohta: ketju ei voi koskaan
+poistua yhdeksän kertaa yhdeksän ruudun laatikosta puolueen ympärillä, vaikka se hyppisi miten
+kauas. Uhri laatikon reunalla voi nähdä kohteita jotka ovat viiden ruudun sisällä siitä itsestään,
+mutta laatikon ulkopuolella, ja niistä ei yksikään kelpaa.
+</p>
+
+<h2>Symmetria joka ei voinut epäonnistua</h2>
+
+<p>
+Toinen virhe on kiinnostavampi, koska se ei ole lukuvirhe vaan testin oma rakenne. Kun kaksi
+ehdokasta on yhtä kaukana nykyisestä uhrista, tasapeli ratkeaa kolikonheitolla. Brief sanoi että
+kolikko pitää nykyisen ehdokkaan yhdellä puolella ja ottaa uuden toisella, ja pyysi väittämään
+molemmat suunnat testissä.
+</p>
+
+<p>
+Se on symmetriaväite, ja symmetriaväite läpäisee kummalla tahansa koodin suunnalla. Testi joka
+väittää "jompikumpi suunta toimii" ei voi koskaan kertoa onko suunta oikea, koska molemmat suunnat
+ovat jompikumpi suunta. Ensimmäinen toteutus kopioi lähimmän sukulaisensa, chain boltin oman
+ikkunakävelyn kanssa muuten identtisen kohteenvalintarutiinin, ja se rutiini ottaa uuden ehdokkaan
+arvolla yksi. Chain bolt tekee päinvastoin: arvo nolla ottaa uuden, yksi pitää nykyisen. Yksi
+rutiini-idea, kaksi käsittelijää, suunta käännetty yhdellä merkillä alkuperäisessä lähdekoodissa,
+ja testi joka väitti molemmat suunnat ei huomannut että se oli väärässä suunnassa.
+</p>
+
+<p>
+Korjaus ei ole monimutkainen: pin suunta nimetyllä generaattorin siemenellä, kahteen eri
+vastaukseen, ei kahteen eri tulokseen jotka molemmat kelpaisivat. Mutta huomio on se, että
+kumpikaan virhe ei kaatanut yhtäkään testiä eikä näyttänyt väärältä. Molemmat olivat sellaisia
+joita olisi voinut kuljettaa eteenpäin seuraavaan viipaleeseen huomaamatta, koska ne eivät olleet
+alkuperäisen virheitä vaan tämän projektin omia, syntyneitä briefin ambivalentista sanamuodosta.
+Siksi molemmat kirjataan suunnitelmaan eikä <code>originalBugs.md</code>:hen.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina          172 / 198
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2700 / 2700
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kahdeksas jaettu käsittelijä, jolle ei ole koskaan rakennettu riviäkään moottorikoodia, ja
+     viisi omaa haaraa yhdeksästätoista: molemmat on jo mitattu, ei vielä rakennettu.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

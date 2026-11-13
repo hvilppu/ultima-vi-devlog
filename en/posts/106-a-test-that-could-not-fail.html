@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Test That Could Not Fail | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/106-testi-joka-ei-voinut-epaonnistua.html" hreflang="fi">FI</a><span>/</span><a href="106-a-test-that-could-not-fail.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 106</nav>
+
+<h1>A test that could not fail</h1>
+
+<p class="lede">
+Three of the seven spells left in the missile switch, neither of which creates or destroys a
+creature: lightning, chain bolt and dispel field. Two of them now actually act when cast from the
+spellbook. But the interesting part is not what works. It is that the first attempt did not, and
+no test noticed.
+</p>
+
+<h2>Two simple cases and one that stays unwired</h2>
+
+<p>
+Lightning is the simplest case in the whole switch: one 1d30 roll, no contest, no immunity check,
+exactly the energy wind's own effect on a single target. Chain bolt is a first hit followed by up
+to six hops, each one from the current victim to the next, never from the caster. Both are now
+wired, bringing the missile switch's built count to 18 of 23, five left.
+</p>
+
+<p>
+Dispel field is the third, and it stays unwired on purpose. Its own routine exists and is tested:
+it walks the selected square's objects and deletes the first of four field types. But it reads the
+square, not a resolved target object, and the missile switch has no level, tile bank or base tile
+table on hand to give it. The gap is now named by its own test rather than papered over. The same
+slice also closed an old open question: why dispel field is the one object-demanding spell in the
+missile switch's 23 that is allowed to pass through aimed at an actor. The reason is now measured,
+not just named: it never reads the selected object at all.
+</p>
+
+<h2>The centre that was not the victim</h2>
+
+<p>
+Chain bolt's next target is picked from a window nine squares wide, centred on something. The
+brief said only "the centre", and the first implementation read that as the current victim's own
+square, because the next filter measures distance from exactly that victim. It was the only
+reading the wording allowed.
+</p>
+
+<p>
+The original uses two different origins in the same test: the window is the party's own screen
+centre, the distance is the current victim. The decompilation's own comment for the routine,
+"within 5 tiles of the screen center", is the sentence that settled it. The consequence is not a
+detail: the chain can never leave the nine by nine box around the party, however far it hops. A
+victim at the edge of that box can see targets within five squares of itself that sit outside the
+box, and none of them qualifies.
+</p>
+
+<h2>A symmetry that could not fail</h2>
+
+<p>
+The second defect is more interesting, because it is not a reading mistake but a flaw in the test
+itself. When two candidates are exactly as far from the current victim, a tie is broken by a coin
+flip. The brief said the flip keeps the incumbent one way and takes the new candidate the other,
+and asked for both directions to be asserted in the test.
+</p>
+
+<p>
+That is a symmetry assertion, and a symmetry assertion passes whichever way the code has it. A
+test that claims "one direction or the other works" can never tell you which direction is correct,
+because both directions are one direction or the other. The first implementation copied its
+nearest relative, the target picking routine that otherwise shares chain bolt's whole window walk,
+and that routine takes the new candidate on one. Chain bolt does the opposite: nought takes the new
+candidate, one keeps the incumbent. One idiom, two handlers, the direction inverted by one
+character of source in the original, and a test that asserted both directions never noticed it
+was pointed the wrong way.
+</p>
+
+<p>
+The fix is not complicated: pin the direction with a named generator seed, to two named answers,
+not two outcomes that would both have been accepted. The point worth keeping is that neither defect
+failed a single test or looked wrong. Both were the kind of thing that could have carried straight
+through to the next slice unnoticed, because neither was the original's own mistake. Both were this
+project's, born from a brief's ambivalent wording, so both are recorded in the plan and not in
+<code>originalBugs.md</code>.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          172 / 198
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2700 / 2700
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The eighth shared handler, which has never had a single line of engine code, and five of
+     nineteen own branches: both already measured, neither built yet.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
