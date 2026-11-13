@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arvo Jota Kukaan Ei Omista | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="115-arvo-jota-kukaan-ei-omista.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/115-a-value-nobody-owns.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 115</nav>
+
+<h1>Arvo jota kukaan ei omista</h1>
+
+<p class="lede">
+Kahdeksalla loitsulla oli jäljellä yksi ja sama puuttuva pala: suuntakehote, näppäin joka
+kysyy mihin päin. Se ei ole loitsu, ei ollut koskaan ollutkaan, ja se sai siksi oman
+tiedostonsa. Sen takana paljastui yksi jaettu arvo jota mikään tässä pelissä ei omista
+kokonaan: loitsu joka lukee sen ei kirjoita sitä, kehote joka kysyy sen ei pidä siitä
+kiinni.
+</p>
+
+<h2>Kahdeksan näppäintä, myötäpäivään pohjoisesta</h2>
+
+<p>
+Kahdeksan nuolinäppäintä, kahdeksan numeroa: pohjoinen on nolla, ja numerot kiertävät
+myötäpäivään siitä. Alkuperäisen omat näppäilykoodit on kirjattu rinnalle jäljitettävyyden
+vuoksi, siltä varalta että joku joskus haluaa tarkistaa mistä fyysisestä näppäimestä mikä
+numero tuli, mutta niitä ei käytetä: Unity ei toimita näppäimiä samassa muodossa kuin
+alkuperäinen kone, niin tämä projekti keksii omat tunnisteensa kahdeksalle näppäimelle.
+</p>
+
+<p>
+Numerointi ei ole arvailu. Tällä projektilla on jo toinen taulukko, mitattu aivan eri
+loitsua varten: telekinesiksen työntösäännön omat askeleet, sarake ja rivi joka kahdeksalle
+suunnalle. Kaksi taulukkoa, mitattuina eri kohdista dekompilaatiota eri syistä, ja ne
+täsmäävät: suunta nolla on askel ylös, suunta kaksi askel oikealle, ja niin edelleen ympäri.
+Testi väittää tämän täsmäyksen suoraan, ei oleta sitä, ja kääntää numeroinnin vastapäivään
+nähdäkseen että väärä lukutapa todella eroaa samasta taulukosta.
+</p>
+
+<h2>Arvo jota kukaan ei omista</h2>
+
+<p>
+Tässä on se löydös jota koko viipale kantoi: suunta ei kulje argumenttina kehotteelle,
+vaan jaetun arvon kautta, yhden koko pelille, ei yhden per kysymys. Syötekerros on sen
+ainoa kirjoittaja. Mikään ei tyhjennä sitä kehotteen alussa eikä lopussa, eikä yksikään
+kutsuja aseta sitä suoraan.
+</p>
+
+<p>
+Seuraus: kehote joka kysyy suuntaa ja saa vastaukseksi jotain muuta jättää edellisen
+vastauksen paikalleen. Kutsuja joka lukee arvon siitä huolimatta lukee sen mihin suuntaan
+pelaaja viimeksi ohjasi, missä tahansa komennossa, vaikka minuutteja aiemmin. Tämä on
+täsmälleen tuulenvaihtoloitsun oma poikkeama, kirjattu jo aiemmin mutta ei tavoitettavissa
+ennen tätä: loitsu asettaa tuulen vanhentuneeseen arvoon vaikka pelaaja kieltäytyisi
+antamasta suuntaa ollenkaan, koska sijoitus on haaran jälkeen eikä sen sisällä.
+</p>
+
+<p>
+Siistimpi rakenne olisi antanut suunnan argumenttina joka kehotteelle. Se olisi myös
+poistanut koko poikkeaman mahdollisuuden: argumentilla ei olisi mitään vanhentunutta
+jäätäväksi jäljelle. Se on tapa tunnistaa että jaettu arvo on tässä oikea muoto eikä
+sattuma: malli jonka pitäisi olla siistimpi olisi piilottanut juuri sen virheen joka tässä
+on tarkoitus jäljitellä.
+</p>
+
+<h2>Silmukkaa ei rakenneta, listaa ei lueta</h2>
+
+<p>
+Sama komento voi tulla hiirestä, ja sillä on oma sääntönsä: se kirjoittaa jaetun arvon
+paitsi kun toistonesto on voimassa, kolmen ehdon yhdistelmä joka estää yhden klikkauksen
+lukemista monta kertaa. Tällä projektilla ei ole mallia osoittimelle ollenkaan, niin
+mitään siitä ei voida rakentaa. Se on nimetty eikä tekaistu: yksi testi käy koko moottorin
+läpi reflektiolla ja väittää, ettei yhtäkään kenttää ole olemassa toistonestolipulle,
+niin myöhempi viipale löytää aidon tyhjiön eikä teeskentelyä jonka se luulisi valmiiksi
+oikeaksi.
+</p>
+
+<h2>Tuuli kääntyy, mutta ei koskaan oikeaan suuntaan</h2>
+
+<p>
+Tuulenvaihto on nyt kytketty oikeaan käsittelijäänsä ensimmäistä kertaa. Mutta näkymällä
+ei vielä ole alitilaa joka lukisi näppäimen juuri tätä kehotetta varten, niin suunta on
+siellä aina poissa: loitsu ottaa aina "ei suunta" -haaransa, ja tuuli päätyy aina jaetun
+arvon oletukseen, näppäimestä riippumatta. Pelaaja näkee "Done." -rivin "Nothing happens."
+-rivin sijaan, mikä on todellinen muutos, mutta tuuli ei koskaan käänny siihen suuntaan
+jota hän todella painoi.
+</p>
+
+<p>
+Se on lause joka kannattaa sanoa tarkasti: loitsu on tavoitettavissa ja sen normaalitapaus
+ei ole. Ei "loitsu toimii nyt". Kahdeksankymmenestä loitsusta käsittelijänsä oikeasti
+pelissä tavoittavia on nyt 74, ei 73, ja kuusi odottaa yhä yhtä kolmesta jäljellä olevasta
+nimetystä vuorovaikutustilasta.
+</p>
+
+<h2>Työntö odottaa yhä</h2>
+
+<p>
+Telekinesiksen työntö ei vapautunut tästä viipaleesta, ja syy ei ole enää suuntakehote.
+Tämän projektin työntösääntö kysyy kahdesti onko kohteen vierellä tukea, ja tällä
+projektilla ei ole vastausta siihen kysymykseen, ei testiä eikä mittausta. Arvaaminen
+tässä olisi ollut juuri sitä vastaan mitä koko projekti kieltää: aukko on nimetty omana
+puuttuvana osanaan, ei täytetty lambdalla joka heittäisi poikkeuksen jos joku joskus
+kysyisi siltä mitä se ei tiedä, mikä on juuri sitä mitä se tekee tänään.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        181 / 207
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    3018 / 3018
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kolme nimettyä vuorovaikutustilaa jäljellä: kirjoitettu rivi, poiminta toisen repusta,
+     poiminta loitsukirjan sivulta. Ja yksi aukko joka ei ole vuorovaikutustila ollenkaan:
+     tällä projektilla ei ole tapaa siirtää koko puoluetta kerralla, vain yhden hahmon.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

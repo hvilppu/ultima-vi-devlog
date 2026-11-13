@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Value Nobody Owns | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/115-arvo-jota-kukaan-ei-omista.html" hreflang="fi">FI</a><span>/</span><a href="115-a-value-nobody-owns.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 115</nav>
+
+<h1>A value nobody owns</h1>
+
+<p class="lede">
+Eight spells were still waiting on one and the same missing piece: a direction prompt, a
+key that asks which way. It is not a spell, never was, and it earned its own document
+because of that. Behind it sat one shared value that nothing in this game fully owns: the
+spell that reads it does not write it, and the prompt that asks for it does not hold on to
+it.
+</p>
+
+<h2>Eight keys, clockwise from north</h2>
+
+<p>
+Eight arrow keys, eight numbers: north is zero, and the numbers run clockwise from there.
+The original's own key codes are recorded alongside, for traceability, in case anyone ever
+wants to check which physical key gave which number, but they are not used: Unity does not
+deliver keys in the same shape the original machine did, so this project invents its own
+identifiers for the eight.
+</p>
+
+<p>
+The numbering is not a guess. This project already had a second table, measured for an
+entirely different spell: telekinesis' own push rule, the column and row step for each of
+eight directions. Two tables, measured from different parts of the decompilation for
+different reasons, and they agree: direction zero is a step up, direction two a step
+right, and so on around. A test asserts that agreement directly rather than assuming it,
+and reverses the numbering counter-clockwise to confirm that a wrong reading really does
+disagree with the same table.
+</p>
+
+<h2>A value nobody owns</h2>
+
+<p>
+This is the finding the whole slice carried: the direction does not travel as an argument
+to the prompt. It travels through a shared value, one for the whole game, not one per
+question. The input layer is its only writer. Nothing clears it at the start or the end
+of a prompt, and no caller ever sets it directly.
+</p>
+
+<p>
+The consequence: a prompt that asks for a direction and gets answered with something else
+leaves the previous answer sitting there. A caller that reads the value anyway reads
+whatever direction the player last steered with, in any command, possibly minutes
+earlier. This is exactly the wind change spell's own anomaly, recorded before but
+unreachable until now: the spell sets the wind to a stale value even when the player
+refuses to give a direction at all, because the assignment sits after the branch rather
+than inside it.
+</p>
+
+<p>
+A tidier design would have passed the direction as an argument to every prompt. It would
+also have erased the anomaly entirely: an argument would leave no stale value behind to
+read. That is how you tell the shared value is the right shape here and not an accident:
+the design that looks cleaner would have hidden the exact bug this project exists to
+reproduce.
+</p>
+
+<h2>No loop is built, no list is read</h2>
+
+<p>
+The same command can come from the mouse, and it carries its own rule: it writes the
+shared value unless a repeat suppressor is in force, a combination of three conditions
+that stops one click from being read over and over. This project has no model for a
+pointer at all, so none of that can be built yet. It is named rather than faked: one test
+walks the whole engine by reflection and asserts that no field anywhere models a repeat
+suppressor, so a later slice finds an honest gap instead of a stand in it would mistake
+for the real thing.
+</p>
+
+<h2>The wind turns, but never the right way</h2>
+
+<p>
+Wind change is now wired to its real handler for the first time. But the view still has
+no sub-mode that reads a key for this particular prompt, so the direction is always
+absent there: the spell always takes its "not a direction" branch, and the wind always
+ends up at the shared value's default, whatever key the player presses. The player sees
+"Done." instead of "Nothing happens.", which is a real change, but the wind never turns
+to the direction they actually pressed.
+</p>
+
+<p>
+That is a sentence worth saying precisely: the spell is reachable and its normal case is
+not. Not "the spell works now." Of the eighty spells, 74 now actually reach their handler
+in play, not 73, and six are still waiting on one of three remaining named interaction
+modes.
+</p>
+
+<h2>The push still waits</h2>
+
+<p>
+Telekinesis' push did not come free of this slice, and the reason is no longer the
+direction prompt. This project's own push rule asks twice whether a square has support,
+and this project has no answer to that question, no test and no measurement. Guessing
+here would have been exactly what the whole project refuses to do: the gap is named as
+its own missing piece, not filled with a lambda that throws an exception if anyone ever
+asks it something it does not know, which is precisely what it does today.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          181 / 207
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    3018 / 3018
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Three named interaction modes remain: a typed line, a pick from another's pack, a
+     pick from the spellbook page. And one gap that is not an interaction mode at all:
+     this project has no way to move the whole party at once, only a single character.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
