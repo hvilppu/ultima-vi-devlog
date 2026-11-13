@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neljä Joka Muuttaa Yhden Asian | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="113-nelja-joka-muuttaa-yhden-asian.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/113-four-that-change-one-thing.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 113</nav>
+
+<h1>Neljä joka muuttaa yhden asian</h1>
+
+<p class="lede">
+Create food, wind change, x-ray ja armageddon: neljä loitsua jotka eivät jaa mitään
+keskenään paitsi muodon, koska jokainen muuttaa täsmälleen yhden asian ja pysähtyy siihen.
+Kolme niistä on nyt kutsuttavissa loitsukirjasta. Neljäs on mitattu ja rakennettu, ja jää
+silti kieltäytymään, koska sen käsittelijä kysyy kysymyksen jota tässä pelissä ei ole vielä
+kenelläkään ollut tapaa kysyä.
+</p>
+
+<h2>Tuuli jota ei voi kieltää muuttumasta</h2>
+
+<p>
+Wind change kysyy pelaajalta suunnan. Jos näppäin on suunta, sen nimi tulostetaan; jos ei,
+toinen rivi tulostetaan sen sijaan. Molemmat tiet kuitenkin johtavat samaan kohtaan
+seuraavaksi, ja siellä, haaran ulkopuolella, tuulen oma suunta kirjoitetaan uusiksi
+ehdoitta. Alkuperäinen ei vartioi tätä sijoitusta millään testillä siitä onko suunta
+ylipäätään tiedossa.
+</p>
+
+<p>
+Seuraus on täsmälleen se minkä nimi lupaa olevan mahdotonta: pelaaja voi kastaa wind
+change, vastata kehotteeseen näppäimellä joka ei ole mikään suunta, saada rivin joka sanoo
+sen suoraan, ja tuuli kääntyy silti. Ei siihen suuntaan jonka pelaaja juuri painoi, koska
+sitä ei ole, vaan siihen jonka joku muu suuntakehote koko pelissä sattui viimeksi
+onnistuneesti lukemaan. Tuuli ei siis kysy suostumusta omalta loitsultaan ollenkaan; se
+lukee arvon joka sattuu olemaan paikalla silloin kun loitsu katsoo.
+</p>
+
+<p>
+Kirjattu <code>originalBugs.md</code>:hen vahvistettuna alkuperäisen omana poikkeamana,
+jäljiteltynä sellaisenaan. Portti joka sijoittaisi tuulen vain onnistuneen suunnan jälkeen
+näyttäisi huolellisemmalta eikä olisi tämä peli.
+</p>
+
+<h2>Silmukka joka pysähtyy yhtä paikkaa liian aikaisin</h2>
+
+<p>
+Armageddon poistaa jokaisen hahmopaikan pelistä, paitsi kaksi joiden se jättää nimeltä
+rauhaan (avatar ja Lord British), ja asettaa puoluekoon yhteen. "Jokainen" osoittautui
+tarkemmin luettuna "jokainen paitsi viimeinen": silmukka pysähtyy yhtä paikkaa ennen
+hahmotaulun ylintä paikkaa, ei sen kohdalla eikä sen jälkeen. Se ei ole pyöristysvirhe
+tässä projektissa, vaan alkuperäisen omasta silmukasta mitattu raja, ja se jää nyt
+mitattuna rajana molempiin suuntiin: koodi käyttää lukua 0xFF nimettynä arvona, ei
+hahmotaulun kokoa laskettuna lukuna, ja testi väittää sekä mitä poistuu että mitä jää.
+</p>
+
+<p>
+Mitä tarkalleen jää siihen paikkaan, on toinen kysymys, ja tämä viipale ei vastaa siihen:
+paikat niin korkealla kuuluvat alkuperäisen omaan tilapäishirviöiden pooliin, ja onko
+sillä hetkellä mitään varattuna siellä kun joku kastaa armageddonin, riippuu pelin
+tilasta. Kirjattu avoimeksi kysymykseksi täsmälleen sillä rajalla kuin se on mitattu, ei
+arvattuna kumpaan suuntaan tahansa.
+</p>
+
+<p>
+Sama loitsu teki vielä yhden asian näkyväksi: armageddon-lippu on luettu tässä
+projektissa kaksi viipaletta sitten, resurrect-loitsun omana kieltäytymisenä, mutta
+siihen asti ei ollut mitään tapaa saada lippu ensin asetetuksi. Nyt on, ja yksi testi ajaa
+molemmat peräkkäin: kasta armageddon, sitten löydä että resurrect kieltäytyy. Mittaus joka
+odotti kaksi viipaletta tilaisuutta tulla ajetuksi.
+</p>
+
+<h2>Mitä jäi kytkemättä, ja miksi</h2>
+
+<p>
+Wind change on mitattu ja rakennettu täsmälleen edellä kuvatulla tavalla, mutta se ei ole
+kutsuttavissa loitsukirjasta. Käsittelijä tarvitsee alkuperäisen jaetun, koko pelin
+laajuisen "viimeisin annettu suunta" -arvon: yhden muuttujan, jota joka ikinen "kysy
+suunta" -kehote koko pelissä lukee ja kirjoittaa, ei vain tämän loitsun oma. Tässä
+projektissa ei ole sitä arvoa eikä yhtäkään suuntakehotetta ollenkaan, niin korvikkeen
+keksiminen olisi vääristänyt juuri sen poikkeaman jota loitsu on olemassa kantamaan.
+Rehellisempi vastaus on nimetty kieltäytyminen, joka sanoo suoraan mitä puuttuu, eikä
+koodi joka näyttäisi oikealta ja olisi arvaus.
+</p>
+
+<p>
+Aukko ei ole vain tämän yhden loitsun. Se estää kolme mitattua asiaa yhtä aikaa: tämän
+loitsun oman kytkennän, telekinesiksen työnnön suunnan (mitattu kolme viipaletta sitten,
+tavoittamattomissa täsmälleen samasta syystä), ja itse poikkeaman näkymisen oikeassa
+pelissä kenenkään nähtävissä. Kaikki kolme odottavat samaa yhtä puuttuvaa palaa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        179 / 205
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2959 / 2959
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kolme omaa haaraa jäljellä, ei yhtäkään mitattua: wizard eye, gate travel, enchant.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

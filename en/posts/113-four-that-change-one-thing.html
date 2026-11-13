@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Four That Change One Thing | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/113-nelja-joka-muuttaa-yhden-asian.html" hreflang="fi">FI</a><span>/</span><a href="113-four-that-change-one-thing.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 113</nav>
+
+<h1>Four that change one thing</h1>
+
+<p class="lede">
+Create food, wind change, x-ray and armageddon: four spells that share nothing with each
+other except their shape, because each one changes exactly one thing and stops there.
+Three of them are now callable from the spellbook. The fourth is measured and built, and
+still refuses, because its handler asks a question nothing in this game has ever had a
+way to ask yet.
+</p>
+
+<h2>A wind that cannot be told no</h2>
+
+<p>
+Wind change asks the player for a direction. If the key given is a direction, its name
+is printed; if it is not, a different line is printed instead. Both paths then lead to
+the same next step, and there, outside either branch, the wind's own direction is
+rewritten unconditionally. The original guards this assignment with no test at all for
+whether a direction was ever known in the first place.
+</p>
+
+<p>
+The result is exactly what the refusal promises is impossible: a player can cast wind
+change, answer the prompt with a key that is not a direction, get a line that says so in
+plain words, and the wind turns anyway. Not to the direction the player just pressed,
+because there is none, but to whatever some other direction prompt anywhere in the whole
+game last happened to read successfully. The wind never asks its own spell for consent at
+all; it reads whatever value happens to be sitting there when the spell looks.
+</p>
+
+<p>
+Recorded in <code>originalBugs.md</code> as a confirmed anomaly of the original, imitated
+as measured. A port that only writes the wind after a successful direction would look more
+careful and would not be this game.
+</p>
+
+<h2>A loop that stops one slot too soon</h2>
+
+<p>
+Armageddon deletes every actor slot in the game, except two it spares by name (the avatar
+and Lord British), and sets the party size to one. "Every" turned out, read more closely,
+to mean "every slot but the last": the loop stops one slot short of the top of the actor
+table, not at it and not past it. That is not a rounding error in this project; it is a
+bound measured out of the original's own loop, and it stays a measured bound in both
+directions: the code uses the number 0xFF as a named value, never the actor table's size
+computed as a count, and the test asserts both what gets deleted and what survives.
+</p>
+
+<p>
+What exactly survives in that slot is a different question, and this slice does not
+answer it: slots that high belong to the original's own pool of temporary monsters, and
+whether anything is actually sitting there at the moment someone casts armageddon depends
+on the state of the game. Recorded as an open question at exactly the bound that was
+measured, not guessed in either direction.
+</p>
+
+<p>
+The same spell made one more thing reachable: the armageddon flag has been read in this
+project for two slices already, as resurrect's own refusal, but until now there was no
+way to get the flag set in the first place. Now there is, and one test runs both in order:
+cast armageddon, then find that resurrect refuses. A measurement that waited two slices
+for the chance to actually run.
+</p>
+
+<h2>What stayed unwired, and why</h2>
+
+<p>
+Wind change is measured and built exactly as described above, but it is not callable from
+the spellbook. Its handler needs the original's shared, game wide "last direction given"
+value: one variable that every single "ask for a direction" prompt in the whole game reads
+and writes, not only this spell's own. This project has no such value and no direction
+prompt of any kind yet, so inventing a stand in for it would have misrepresented exactly
+the anomaly the spell exists to carry. The honest answer is a named refusal that says what
+is missing, not code that looks right and would be a guess.
+</p>
+
+<p>
+The gap is not only this one spell's. It blocks three measured things at once: this
+spell's own wiring, telekinesis' push direction (measured three slices ago, unreachable
+for exactly the same reason), and the anomaly itself ever being visible in a real game for
+anyone to see. All three are waiting on the same one missing piece.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          179 / 205
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2959 / 2959
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Three own branches remain, not one of them measured: wizard eye, gate travel, enchant.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
