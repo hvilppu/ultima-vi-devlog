@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Slices That Never Met | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/117-kolme-viipaletta-jotka-eivat-tavanneet.html" hreflang="fi">FI</a><span>/</span><a href="117-three-slices-that-never-met.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 117</nav>
+
+<h1>Three slices that never met</h1>
+
+<p class="lede">
+Gate travel is made of three pieces: parsing a typed number, teleporting the whole party, and
+a line that collects keystrokes for the parser to read. Each was measured in its own slice,
+months apart, and not one of the three showed anything working on its own. Only the third
+actually got the spell cast.
+</p>
+
+<h2>Four keys, no loop at all</h2>
+
+<p>
+This engine has no key source, so the line prompt does not read a keyboard or loop at all: it
+is a pure decision over one key at a time, the same way the wizard eye's own movement loop
+already reads its keys. A caller feeds in the line as it stood and which key the player
+pressed; the answer reports the line's new state and whether the prompt is finished.
+</p>
+
+<p>
+There are four keys. Enter finishes the line and clears a shared abort flag. Escape empties
+the line and sets the flag. Backspace removes one character, or does nothing at all at zero
+length, no refusal and no sound. Everything else is kept only if it is a printable character
+and the line is still under the limit; otherwise it vanishes silently, and a control character
+never counts toward the limit either way. The limit itself is reached, not exceeded: a fifth
+key on a four character line changes nothing, and refuses nothing.
+</p>
+
+<h2>A return value nobody reads today</h2>
+
+<p>
+The routine's own comment says it returns the line's length. On escape it always returns
+minus one, whatever was typed, including nothing at all. The original's own erase loop tests
+and decrements the same variable, so it runs through every character and takes one more step
+below zero before the test finally fails. With three characters typed: three, two, one, and
+the next decrement leaves minus one. With an empty line: zero fails the test immediately and
+leaves the same minus one, not zero.
+</p>
+
+<p>
+This is the second time this project has found a comment and the code's own bound disagreeing,
+the same shape as the wizard eye's own forty against forty one. Here it would be especially
+easy to miss, because this slice's own caller never reads the return value at all: gate travel
+takes the line and the abort flag, never a length. The value is still measured and recorded
+exactly, not rounded to zero, because some future caller might read it, and that mistake would
+not show up in any test written so far.
+</p>
+
+<h2>Same reasoning, same conclusion</h2>
+
+<p>
+The wizard eye's own bound was deliberately kept out of the bug file, because the compiled game
+behaves exactly the same every time: the conflict sits between the comment and the code, not in
+play. The same reasoning applies here, with the same conclusion. Escape always returns exactly
+minus one, regardless of what the player typed; it is not an anomaly of the original game, it
+is a trap the decompilation's own comment leaves for anyone who copies it without reading the
+code. One difference is still worth recording: this value is protected from detection twice
+over, not once, because no caller this slice built ever reads it. "Nobody reads it today" and
+"it is undetectable always" are different claims, and only the first one is measured.
+</p>
+
+<h2>Three slices, one spell</h2>
+
+<p>
+Gate travel's own parse was measured months ago, before this project had any way to collect a
+line for it to read. The whole party teleport was built in the slice after that, because the
+help spell needed it first. Neither showed the player anything on its own. The line prompt is
+the third piece, and only with it does the view's own switch open a real interaction mode for
+number 0x64: it closes the spellbook, reads the line one key at a time, and once it finishes
+runs the measured parse and, on success, the whole party teleport. Cast from the spellbook, the
+spell now actually asks for a number, and the right answer carries the party to that moonstone's
+own stored location.
+</p>
+
+<p>
+The count of spells that actually reach their handler in play climbs from 74 to 75 of 80. Two
+of the four originally named interaction modes remain entirely unbuilt: a pick from another
+character's own pack, which pickpocket's second selection needs, and a pick from the spellbook
+page, which enchant's second prompt needs. Telekinesis' own push waits on neither of those; it
+waits on a separate missing primitive, an answer to whether a square has support.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          183 / 209
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    3055 / 3055
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Two named interaction modes remain, neither built as any structure yet: a pick from
+     another character's pack for pickpocket, and a pick from the spellbook page for
+     enchant.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

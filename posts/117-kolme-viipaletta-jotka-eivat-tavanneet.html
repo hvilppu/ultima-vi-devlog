@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolme Viipaletta Jotka Eivät Tavanneet | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="117-kolme-viipaletta-jotka-eivat-tavanneet.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/117-three-slices-that-never-met.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 117</nav>
+
+<h1>Kolme viipaletta jotka eivät tavanneet</h1>
+
+<p class="lede">
+Gate travel koostuu kolmesta osasta: kirjoitetun numeron jäsennyksestä, koko puolueen
+teleportista, ja rivistä joka kerää näppäimet jäsennykselle annettavaksi. Kukin mitattiin omassa
+viipaleessaan, kuukausien välein, eikä yksikään niistä kolmesta näyttänyt mitään toimivalta
+yksinään. Vasta kolmas sai loitsun oikeasti kastetuksi.
+</p>
+
+<h2>Neljä näppäintä, ei yhtään silmukkaa</h2>
+
+<p>
+Tällä moottorilla ei ole näppäinlähdettä, niin rivikehote ei lue näppäimistöä eikä silmukoi
+ollenkaan: se on puhdas päätös yhdestä näppäimestä kerrallaan, samaan tapaan kuin wizard eyen
+oma liikesilmukka jo lukee näppäimensä. Kutsuja syöttää rivin sellaisena kuin se oli ja minkä
+näppäimen pelaaja painoi; vastaus kertoo rivin uuden tilan ja oliko kehote valmis.
+</p>
+
+<p>
+Näppäimiä on neljä. Enter päättää rivin ja tyhjentää jaetun perumislipun. Escape tyhjentää
+rivin ja asettaa lipun. Backspace poistaa yhden merkin, tai ei tee mitään ollenkaan nollan
+pituudella, ei kieltäytymistä eikä äänimerkkiä. Kaikki muu säilyy vain jos se on tulostettava
+merkki ja rivi on yhä rajan alapuolella; muuten se katoaa äänettömästi, eikä ohjausmerkki
+koskaan kuluta rajaa. Raja itse saavutetaan, ei ylitetä: viides näppäin nelimerkkisellä rivillä
+ei muuta mitään, ei kieltäydy mistään.
+</p>
+
+<h2>Palautusarvo jonka kukaan ei lue tänään</h2>
+
+<p>
+Rutiinin oma kommentti sanoo sen palauttavan rivin pituuden. Escapella se palauttaa aina
+miinus yhden, mitä tahansa oli kirjoitettu, mukaan lukien ei mitään. Alkuperäisen omassa
+pyyhintäsilmukassa sama muuttuja testataan ja vähennetään, niin se juoksee joka merkin läpi ja
+ottaa yhden askelen nollan ali ennen kuin testi vihdoin epäonnistuu. Kolmella kirjoitetulla
+merkillä: kolme, kaksi, yksi, ja seuraava vähennys antaa miinus yhden. Tyhjällä rivillä: nolla
+epäonnistuu testistä välittömästi ja jättää saman miinus yhden, ei nollaa.
+</p>
+
+<p>
+Tämä on toinen kerta kun tämä projekti löytää kommentin ja koodin rajan erimielisyyden, sama
+muoto kuin wizard eyen oma neljäkymmentä vastaan neljäkymmentäyksi. Täällä se olisi erityisen
+helppo huomaamatta ohittaa, koska tämän viipaleen oma kutsuja ei lue palautusarvoa ollenkaan:
+gate travel ottaa rivin ja perumislipun, ei pituutta. Arvo mitataan ja kirjataan täsmälleen
+silti, ei pyöristettynä nollaan, koska jokin tuleva kutsuja voisi lukea sen, ja sitä virhettä ei
+näkisi mikään tähän mennessä kirjoitettu testi.
+</p>
+
+<h2>Sama päättely, sama johtopäätös</h2>
+
+<p>
+Wizard eyen oma raja jätettiin tarkoituksella pois bugitiedostosta, koska käännetty peli
+käyttäytyy täsmälleen samoin joka kerta: ristiriita on kommentin ja koodin välissä, ei
+pelattavassa käytöksessä. Sama päättely pätee tähän samalla johtopäätöksellä. Escape palauttaa
+aina täsmälleen miinus yhden, riippumatta siitä mitä pelaaja kirjoitti; se ei ole alkuperäisen
+pelin poikkeama, se on ansa jonka dekompilaation oma kommentti jättää kenelle tahansa joka
+kopioi sen lukematta koodia. Yksi ero on silti syytä kirjata: tämä arvo on kahdesti suojattu
+havaitsemattomuudelta, ei vain kerran, koska mikään tämän viipaleen kutsuja ei lue sitä. "Kukaan
+ei lue sitä tänään" ja "se on havaitsematon aina" ovat eri väitteitä, ja vain ensimmäinen on
+mitattu.
+</p>
+
+<h2>Kolme viipaletta, yksi loitsu</h2>
+
+<p>
+Gate travelin jäsennys mitattiin kuukausia sitten, ennen kuin tällä projektilla oli mitään
+tapaa kerätä sille rivi. Koko puolueen teleportti rakennettiin sitä seuraavassa viipaleessa,
+koska help-loitsu tarvitsi sen ensin. Kumpikaan ei yksinään näyttänyt pelaajalle mitään.
+Rivikehote on kolmas pala, ja vasta sen myötä näkymän oma switch avaa oikean vuorovaikutustilan
+numerolle 0x64: se sulkee loitsukirjan, lukee rivin näppäin kerrallaan, ja valmistuessaan ajaa
+mitatun jäsennyksen ja onnistuessaan koko puolueen teleportin. Loitsukirjasta kastettuna loitsu
+kysyy nyt oikeasti numeroa, ja oikea vastaus kuljettaa puolueen kuukiven tallennettuun
+sijaintiin.
+</p>
+
+<p>
+Loitsujen kokonaismäärä pelissä tavoittavista käsittelijöistä nousee 74:stä 75:een
+kahdeksastakymmenestä. Jäljellä on kaksi alun perin nimetystä neljästä vuorovaikutustilasta
+joita ei ole rakennettu ollenkaan: poiminta toisen hahmon repusta, jota taskuvarkauden toinen
+valinta tarvitsee, ja poiminta loitsukirjan sivulta, jota enchantin toinen kehote tarvitsee.
+Telekinesiksen työntö ei odota kumpaakaan näistä, vaan erillistä puuttuvaa primitiiviä, vastausta
+kysymykseen onko ruudulla tukea.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        183 / 209
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    3055 / 3055
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kaksi nimettyä vuorovaikutustilaa jäljellä, kumpikaan ei vielä minkäänlaisena
+     rakenteena: poiminta toisen hahmon repusta taskuvarkaudelle, ja poiminta loitsukirjan
+     sivulta enchantille.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
