@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ruutu Joka Ei Liiku | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="116-ruutu-joka-ei-liiku.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/116-the-square-that-does-not-move.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 116</nav>
+
+<h1>Ruutu joka ei liiku</h1>
+
+<p class="lede">
+Tällä projektilla ei ollut tapaa siirtää koko puoluetta kerralla, vain yhden hahmon. Nyt on:
+kokoaminen, teleportti ja hajaantuminen, yhtenä rutiinikolmikkona jota kaksi loitsua
+tarvitsee. Mittaus itse meni putkeen. Sen takana ollut brief ei, ja virhe löytyi vasta
+siitä, että joku yritti rakentaa sen päälle.
+</p>
+
+<h2>Kokoaminen on kohteliaisuus, ei portti</h2>
+
+<p>
+Kokoaminen kerää koko puolueen yhdelle ruudulle ja vie sen kartalta pois, enintään
+kolmellakymmenellä kierroksella. Joka kierros herättää kaikki, nukkuvat tai ei, ja palauttaa
+kaikkien liikepisteet, pystyivätkö he liikkumaan sillä kierroksella ollenkaan. Jumissa oleva
+jäsen hyppää suoraan kohteeseen kun matkaa on alle kaksi ruutua, tai ottaa yhden satunnaisen
+suoran askelen, ei koskaan diagonaalin.
+</p>
+
+<p>
+Mutta kierrokset ovat vain esitystä. Kun ne loppuvat, viimeinen pyyhkäisy vie kirjaimellisesti
+kaikki jäljellä olevat jäsenet pois kartalta sillä hetkellä, oli kuka tahansa nukkumassa,
+lamautunut, väärällä tasolla tai yksinkertaisesti vielä kesken matkaa. Animaatio on
+kohteliaisuus pelaajalle, ei ehto puolueen siirtymiselle: puolue menee aina, joka kerta.
+</p>
+
+<h2>Lippu jolla on kolme arvoa</h2>
+
+<p>
+Kutsuja kertoo kokoamiselle ja hajaantumiselle, näytetäänkö mitään, kolmella arvolla eikä
+kahdella: nolla on välitön, yksi piirtää häivytykset jäsenen kadotessa ja ilmestyessä, kaksi
+animoi kävelyn ilman niitä. Totuusarvo olisi hukannut kolmannen tapauksen. Mikään tässä
+viipaleessa ei kutsu sitä vielä, mutta tason vaihdon oma polku tekee sen myöhemmin, ja sitä
+varten arvon kolmas tapaus on kirjattu nyt eikä lisätty jälkikäteen.
+</p>
+
+<h2>Ruutu joka ei liiku</h2>
+
+<p>
+Brief, josta tämä rakennettiin, sanoi läpi tekstinsä "johtajan ruutu": kokoaminen kerää
+puolueen sinne mihin johtaja seisoo. Se on totta tavallisessa pelissä, koska johtaja
+tavallisesti seisoo juuri siinä missä kartan omakin keskipiste on. Mutta se ei ole se mitä
+alkuperäinen koodi lukee. Jokainen testi kokoamisen sisällä, saapumisen testi, siirron
+kohde, etäisyys, tasovertailu, vertaa kartan keskipisteen omia kolmea koordinaattia, ei
+johtajan tietuetta.
+</p>
+
+<p>
+Ero tulee näkyväksi juuri sillä hetkellä kun joku kirjoittaa koodin kirjaimellisesti briefin
+mukaan. Johtaja kulkee saman silmukan läpi kuin kaikki muut jäsenet, eli hänet myös viedään
+pois kartalta ensimmäisellä kierroksella kun hän seisoo omalla ruudullaan. Jos kohde
+luetaan johtajan omasta tietueesta joka kierros, toisesta kierroksesta eteenpäin johtaja on
+kartalta poisviedyllä tasolla, ja jokainen vertailu "oletko johtajan tasolla" epäonnistuu
+jokaiselle jäljellä olevalle jäsenelle, ikuisesti. Rutiini ei kokoaisi ketään enää sen
+jälkeen, ei vain hitaasti vaan ei koskaan. Se ei näkyisi yhdessäkään testissä joka kastaisi
+loitsun kerran ja katsoisi lopputulosta, koska johtaja itse päätyy oikein. Se näkyisi vain
+jos puolueessa on ketään muuta.
+</p>
+
+<p>
+Korjaus on yksinkertainen kerran mitattuna: keskipisteen kolme koordinaattia luetaan
+kerran, ennen ensimmäistä kierrosta, ja koko kierrossilmukka vertaa siihen kiinnitettyyn
+arvoon eikä johtajan liikkuvaan tietueeseen. Sen rakentanut viipale löysi tämän ajamalla
+koodin kiinni ja kirjasi sen "valinnaksi". Se ei ole valinta. Se on se mitä alkuperäinen
+koodi tekee, ja brief oli väärässä kohdasta joka näytti kaikkein vähiten tärkeältä: yksi
+substantiivi, joka osuu oikein lähes aina ja väärin täsmälleen siinä kohdassa missä koko
+rutiini muuten hajoaisi hiljaa.
+</p>
+
+<h2>Mitä tämä kytki</h2>
+
+<p>
+Help-loitsu herättää kuolleet ja on kantanut kohteen, minne puolue siirtyisi, siitä asti kun
+se mitattiin kuukausia sitten. Nyt se myös oikeasti siirtää puolueen sinne: näkymän oma
+käsittelijä kutsuu uutta teleporttia suoraan loitsun jo valmiiksi kantamilla koordinaateilla.
+Pelaaja näkee ensimmäistä kertaa koko puolueen ilmestyvän linnaan kokoamis- ja
+hajaantumiseleineen, ei vain tekstirivin siitä mihin se olisi mennyt.
+</p>
+
+<p>
+Gate travel ei muutu pelissä yhtään, mutta sen oma nimetty kieltäytyminen kapeni tarkaksi:
+primitiivi jota se odotti on nyt olemassa, ja jäljellä on yksi asia, kirjoitetun numeron
+kehote. Kaksi muuta lause saman asian eri suunnasta: loitsujen kokonaismäärä pelissä
+tavoittavista käsittelijöistä pysyy 74:ssä 80:stä, ei nouse. Help tavoitti käsittelijänsä jo
+ennen tätä viipaletta; tämä muutti sen, mitä käsittelijä oikeasti tekee, ei sitä kuinka moni
+loitsu tavoittaa yhtään mitään.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        182 / 208
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    3035 / 3035
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kolme nimettyä vuorovaikutustilaa jäljellä, ja mikään niistä ei ole enää koko puolueen
+     siirto: kirjoitettu rivi tekstiä, poiminta toisen hahmon repusta, ja poiminta
+     loitsukirjan sivulta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

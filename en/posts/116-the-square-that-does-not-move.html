@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Square That Does Not Move | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/116-ruutu-joka-ei-liiku.html" hreflang="fi">FI</a><span>/</span><a href="116-the-square-that-does-not-move.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 116</nav>
+
+<h1>The square that does not move</h1>
+
+<p class="lede">
+This project had no way to move the whole party at once, only a single character. Now it
+does: gather, teleport and scatter, one trio of routines that two spells need. The
+measurement itself went clean. The brief behind it did not, and the mistake only showed up
+once somebody tried to build on top of it.
+</p>
+
+<h2>Gathering is a courtesy, not a gate</h2>
+
+<p>
+Gathering collects the whole party onto one square and takes it off the map, over up to
+thirty rounds. Every round wakes everybody, asleep or not, and resets everybody's movement
+points, whether or not they could move that round at all. A member stuck in place jumps
+straight to the target when the distance is under two squares, or takes one random straight
+step, never a diagonal.
+</p>
+
+<p>
+But the rounds are only for show. Once they run out, a final sweep takes literally every
+member still left off the map at that moment, whoever is asleep, paralysed, on another
+level, or simply still mid journey. The animation is a courtesy to the player watching, not
+a condition for the party actually moving: the party always goes, every time.
+</p>
+
+<h2>A flag with three values</h2>
+
+<p>
+A caller tells gathering and scattering whether to show anything at all with three values,
+not two: zero is instant, one draws fades as a member vanishes and reappears, two animates
+the walk without them. A boolean would have lost the third case. Nothing in this slice calls
+it yet, but the level change path will later, and that is exactly why the third value is
+recorded now rather than bolted on afterward.
+</p>
+
+<h2>The square that does not move</h2>
+
+<p>
+The brief this was built from said "the leader's square" throughout: gathering collects the
+party onto wherever the leader is standing. That is true in an ordinary game, because the
+leader is normally standing exactly where the map's own centre is too. But it is not what
+the original code reads. Every test inside gathering, the arrival test, the move target,
+the distance, the level comparison, compares against the map centre's own three
+coordinates, not the leader's own record.
+</p>
+
+<p>
+The difference becomes visible at exactly the moment somebody writes the code literally to
+the brief. The leader walks through the very same loop as everybody else, which means the
+leader also gets taken off the map on the first round, standing on their own square. If the
+target is read fresh from the leader's own record every round, from the second round onward
+the leader is on the off-map level, and every "are you on the leader's level" comparison
+fails for every remaining member, forever. The routine would never gather anybody again
+after that, not slowly, but never. It would not show up in a single test that casts the
+spell once and checks the outcome, because the leader themself still ends up correct. It
+would only show up with anybody else in the party.
+</p>
+
+<p>
+The fix is simple once measured: the centre's three coordinates are read once, before the
+first round, and the whole round loop compares against that fixed value rather than the
+leader's own moving record. The slice that built it found this by running the code into the
+wall and wrote it down as a "choice." It is not a choice. It is what the original code
+actually does, and the brief was wrong in the spot that looked least important: one noun,
+right almost every time, and wrong in exactly the place where the whole routine would
+otherwise fail silently.
+</p>
+
+<h2>What this wired up</h2>
+
+<p>
+The help spell brings the dead back and has carried the destination the party should arrive
+at since it was measured months ago. Now it actually moves the party there: the view's own
+handler calls the new teleport directly, with the coordinates the spell was already
+carrying. For the first time, the player sees the whole party actually appear at the
+castle, with the gathering and scattering gestures, rather than a line of text about where
+it would have gone.
+</p>
+
+<p>
+Gate travel does not change in play at all, but its own named refusal narrowed to something
+exact: the primitive it was waiting for now exists, and what remains is one thing, a typed
+number prompt. Two ways of saying the same fact from opposite sides: the count of spells
+that actually reach their handler in play stays at 74 of 80, it does not climb. Help already
+reached its handler before this slice; what changed is what the handler actually does, not
+how many spells reach anything at all.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          182 / 208
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    3035 / 3035
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Three named interaction modes remain, and none of them is moving the whole party any
+     more: a typed line of text, a pick from another character's pack, and a pick from the
+     spellbook page.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
