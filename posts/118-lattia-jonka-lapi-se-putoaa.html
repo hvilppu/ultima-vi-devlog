@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lattia Jonka Läpi Se Putoaa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="118-lattia-jonka-lapi-se-putoaa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/118-a-floor-it-can-fall-through.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 118</nav>
+
+<h1>Lattia jonka läpi se putoaa</h1>
+
+<p class="lede">
+Varustenäkymällä on kursori jota tämä projekti ei ole koskaan tarvinnut ennen: ei inventaarion
+ruudukko, vaan koko näkymän oma kursori, seitsemän sarakkeen levyinen, josta pakki on neljä ja
+paperinukke kolme. Se on taskuvarkauden toisen valinnan odottama viimeinen palanen, ja sen
+mittaaminen löysi kaksi asiaa jotka näyttävät virheiltä ja yhden jonka on.
+</p>
+
+<h2>Vartalo joka ei ole paikka</h2>
+
+<p>
+Paperinuken keskimmäinen ruutu, sarake yksi, rivi yksi, ei ole paikka ollenkaan. Liike joka
+pysähtyisi siihen soveltaa saman askelen toisen kerran ja jatkaa matkaa siihen suuntaan jossa se
+oli jo menossa. Suoralla suunnalla kursori laskeutuu yhden ruudun pidemmälle; diagonaalilla
+kaksi ruutua pitkin samaa diagonaalia. Vartalo on aina mukavasti laatikon keskellä, niin tämä
+toinen askel ei itse koskaan osu laatikon ulkopuolelle: mikään ei tarvitse ajaa reunalogiikkaa
+uudelleen ohituksen jälkeen.
+</p>
+
+<h2>Kaksi sääntöä kolme riviä toisistaan, eivät samaa muotoa</h2>
+
+<p>
+Pakin reunalla on kaksi tapaa poistua, ja ne eivät ole symmetrisiä. Alas poistuminen vierittää
+pakkia alaspäin, mutta vain kun painettu suunta on tasan alas: testi vertaa suuntanumeroa suoraan
+etelän omaan arvoon. Ylös poistuminen vierittää ylöspäin eikä testaa suuntaa ollenkaan, vaan
+ainoastaan sitä onko mitään jo vieritetty. Pelaaja joka pitää kursoria pakin alareunalla ja
+painaa diagonaalia alas ei saa mitään; pelaaja joka tekee täsmälleen saman yläreunalla saa
+vierityksen. Kaksi ehtoa, kolme riviä toisistaan alkuperäisessä, ja jälkimmäinen on
+yksinkertaisesti lyhyempi kuin edellinen eikä symmetrinen sen kanssa.
+</p>
+
+<p>
+Tämä on eri tilanne kuin tämän projektin aiemmat kommentin ja koodin erimielisyydet, wizard eyen
+40 vastaan 41 ja rivikehotteen escape-arvo. Niissä käännetty peli käyttäytyy täsmälleen samoin
+joka kerta, ja ristiriita istuu dekompiloijan kommentin ja koodin välissä, jonne pelaaja ei
+koskaan katso. Tässä on kaksi oikeaa, pelattavaa polkua joilla on eri lopputulos yhdellä
+näppäimenpainalluksella, ja ero on alkuperäisen omassa koodissa kahden testin välillä.
+Havaittavissa ruudulta, ei vain lähdekoodista: tämän tiedoston oma rajaus sanoo että se kuuluu
+havaittujen bugien joukkoon, niin se on kirjattu.
+</p>
+
+<h2>Lattia jonka läpi se putoaa, katto jota se ei läpäise</h2>
+
+<p>
+Reunatapausten ulompi portti lukee kirjaimellisesti: tapauksia kokeillaan kun uusi sarake on
+pakin omalla välillä, tai uusi rivi on alareunan alapuolella. Toinen puolisko ei kanna
+sarakerajoitusta ollenkaan. Seuraus: suoraan alas poistuminen puetusta sarakkeesta tavoittaa
+vierityksen ja nappirivin täsmälleen niin kuin pakin sarakkeesta poistuminen tekisi, koska
+alareunan testi ei kysy mistä sarakkeesta liike tuli. Suoraan ylös poistuminen puetusta
+sarakkeesta ei tavoita mitään, koska vain pakin omat sarakkeet täyttävät portin ensimmäisen
+puoliskon. Puetulla puolella on siis lattia jonka läpi se voi pudota ja katto jota se ei voi
+läpäistä, ja se on alkuperäisen oma testi, ei tämän projektin tulkinta sanamuodosta: mittaus
+vahvisti saman epäsymmetrian omasta koodista jälkikäteen.
+</p>
+
+<h2>Yksi lippu, kaksi porttia auki ja kaksi kiinni</h2>
+
+<p>
+Taskuvarkauden omaa lippua varten neljästä reunatapauksesta kaksi on portitettu ja kaksi ei.
+Toisen hahmon pakkia poimiessa kursori ei tavoita säiliöpaikkaa eikä näkymän omaa nappiriviä,
+mutta vierittää pakin yhä molempiin suuntiin. Uhrin pakin vierittäminen on sallittua; hänen
+säiliöönsä tai näkymän nappeihin koskeminen ei ole. Sääntö, ei järjestyksen sivuvaikutus:
+vierityssäännöt kokeillaan ennen säiliö- ja nappirivisääntöjä, ja lippu testataan vasta
+jälkimmäisissä.
+</p>
+
+<h2>Yhä nimetty, ei vielä kytketty</h2>
+
+<p>
+Kursori on olemassa ja mitattu, mutta mikään näkymän osa ei kutsu sitä vielä. Taskuvarkauden
+toinen valinta ottaa yhä aina kieltäytymisen, koska uhrin pakin näyttävä alitila, osumatesti joka
+kääntää sarakkeen ja rivin esineeksi, sarkain-liima kartan tähtäämisen ja tämän kursorin välillä,
+ja kursorin aloituspaikka ovat kaikki jäljellä. Loitsujen kokonaismäärä pelissä tavoittavista
+käsittelijöistä ei muutu tämän viipaleen myötä.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        184 / 210
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    3068 / 3068
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Voiman sanojen vienti. Loitsukirjan sivun oma poiminta, jota enchantin toinen kehote
+     tarvitsee, ei voi olla olemassa ennen sitä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

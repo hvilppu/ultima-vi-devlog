@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Floor It Can Fall Through | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/118-lattia-jonka-lapi-se-putoaa.html" hreflang="fi">FI</a><span>/</span><a href="118-a-floor-it-can-fall-through.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 118</nav>
+
+<h1>A floor it can fall through</h1>
+
+<p class="lede">
+The equipment view has a cursor this project has never needed before: not the inventory grid,
+but the view's own cursor, seven columns wide, of which the pack is four and the paper doll
+three. It is the last piece pickpocket's second selection has been waiting on, and measuring it
+found two things that look like bugs and one that is.
+</p>
+
+<h2>A body that is not a slot</h2>
+
+<p>
+The paper doll's middle square, column one, row one, is not a slot at all. A move that would
+stop there applies the same step a second time and carries on in the direction it was already
+going. On a straight direction the cursor lands one square further; on a diagonal, two squares
+along the same diagonal. The body always sits comfortably inside the middle of the box, so this
+second step never itself lands outside it: nothing has to re-run the edge logic after the skip.
+</p>
+
+<h2>Two rules three lines apart, not the same shape</h2>
+
+<p>
+The pack's own edge has two ways to leave it, and they are not symmetrical. Leaving past the
+bottom scrolls the pack down, but only when the pressed direction is exactly down: the test
+compares the direction number straight against due south's own value. Leaving past the top
+scrolls up and does not test the direction at all, only whether anything is already scrolled
+past. A player holding the cursor at the pack's bottom edge and pressing a diagonal down gets
+nothing; a player doing exactly the same at the top edge gets the scroll. Two conditions, three
+lines apart in the original, and the second is simply shorter than the first rather than its
+mirror.
+</p>
+
+<p>
+This is a different situation from this project's earlier comment-versus-code disagreements,
+the wizard eye's own forty against forty one and the typed line's escape value. There, the
+compiled game behaves exactly the same every time, and the conflict sits between the
+decompiler's own comment and the code, somewhere the player never looks. Here there are two
+real, playable paths with different outcomes from one key press, and the difference sits in the
+original's own code between two tests. Observable from the screen, not only from the source:
+this project's own bug file draws its line exactly where that observable behavior sits, so it is
+recorded there.
+</p>
+
+<h2>A floor it can fall through, a ceiling it cannot</h2>
+
+<p>
+The outer gate for the edge cases reads literally: the cases are tried when the new column is
+in the pack's own range, or the new row is past the bottom. The second half of that carries no
+column restriction at all. The consequence: leaving straight down from a worn side column
+reaches the scroll and the buttons row exactly as leaving from a pack column would, because the
+bottom test never asks which column the move came from. Leaving straight up from a worn side
+column reaches nothing, because only the pack's own columns satisfy the gate's first half. The
+worn side has a floor it can fall through and a ceiling it cannot, and that is the original's
+own test, not this project's reading of the wording: measuring it afterward confirmed the same
+asymmetry straight out of the code.
+</p>
+
+<h2>One flag, two gates open and two closed</h2>
+
+<p>
+For pickpocket's own flag, two of the four edge cases are gated and two are not. Walking another
+character's pack, the cursor cannot reach the container slot or the view's own buttons row, but
+can still scroll the pack in both directions. Scrolling a victim's pack is allowed; touching
+their container or the view's buttons is not. A rule, not a side effect of ordering: the scroll
+cases are tried before the container and buttons cases, and the flag is only tested in the
+latter two.
+</p>
+
+<h2>Still named, not yet wired</h2>
+
+<p>
+The cursor exists and is measured, but no part of the view calls it yet. Pickpocket's second
+selection still takes the refusal every time, because the sub-mode that shows a victim's pack,
+the hit test that turns a column and a row into an object, the tab glue between aiming at the
+map and this cursor, and where the cursor starts are all still missing. The count of spells that
+actually reach their handler in play does not move with this slice.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          184 / 210
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    3068 / 3068
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Exporting the words of power. The spellbook page's own pick, which enchant's second prompt
+     needs, cannot exist before it.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
