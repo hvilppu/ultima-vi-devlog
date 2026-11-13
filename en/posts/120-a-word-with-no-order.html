@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Word With No Order | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/120-sana-jolla-ei-ole-jarjestysta.html" hreflang="fi">FI</a><span>/</span><a href="120-a-word-with-no-order.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 120</nav>
+
+<h1>A word with no order</h1>
+
+<p class="lede">
+The fourth and last of the missing interaction modes landed, and with it one spell got its
+second prompt and finally runs all the way through for the first time. But the real finding in
+this slice was two corrections pulling in opposite directions: one showed that this project's
+own earlier note was wrong, and the other that it had been right in much too narrow a way.
+</p>
+
+<h2>Three ways, not two</h2>
+
+<p>
+Two slices ago this project recorded that choosing a spell from the spellbook happens in
+exactly two ways: clicking a line, or typing the spell's own letters. From that followed a rule
+this project has repeated more than once: never invent an arrow and enter confirmation,
+because nothing of the kind has been measured.
+</p>
+
+<p>
+Half of that was right, and the conclusion drawn from it was wrong. The arrows really do
+confirm nothing: they move the highlight across the lines and never return a command. But enter
+pressed with nothing typed takes whichever line the arrows have already highlighted, read
+straight out of the spellbook's own stored state. So there are three ways, not two, and the
+third is the exact key this project warned against inventing. The rule that survives is
+narrower but still true: the arrows do not confirm, enter does, and enter on nothing typed is
+its own measured path, not a convenience this slice added on its own.
+</p>
+
+<h2>The code was already right</h2>
+
+<p>
+The other half of this finding runs the opposite direction, and it is rarer and less
+satisfying to write down: the ordinary casting path's own enter key already took whichever line
+the arrows had selected, before this slice ever touched it. What was wrong was this project's
+own note about that behaviour, not the code that carried it out. Most of what this project has
+found before went the other way, the code wrong and the note only catching up to it, and that
+is exactly why this direction is worth saying out loud. Not every surprise is a fault in the
+implementation. Some of them are faults in how an earlier pass read its own work.
+</p>
+
+<h2>A word with no order</h2>
+
+<p>
+When letters are typed after all, they never form a line at all. Each letter sets one bit, and
+the match compares the whole bit set against the same kind of set built from a spell's own
+letters. The consequence is one almost nobody would guess correctly on a first attempt: the same
+letters in any order give the same spell, and a letter typed twice counts exactly once. An
+incantation is a set, not a sequence, even though every word it stands for in the game reads
+left to right like a sentence.
+</p>
+
+<p>
+The cap is four letters, and a fifth is swallowed in complete silence: no refusal, no sound.
+This limit is not a round number somebody picked by feel. Counted directly from the owner's own
+exported game data, forty two of the eighty incantations are two letters long, thirty five are
+three, and three are four. Four is exactly the longest incantation in the whole game, not one
+more and not one less. A gate that allowed five would never have noticed the difference; a gate
+that allowed three would have quietly broken three spells.
+</p>
+
+<h2>A dismissed observation, not a fault</h2>
+
+<p>
+A set that forgets order could in principle confuse two spells whose letters are the same in a
+different order. This was measured directly: all eighty incantations build mutually distinct
+letter sets, counted without ever printing a single letter at any point. The confusion is
+possible in the shape of the rule and impossible in the owner's own data, and that distinction
+is recorded on purpose exactly as it is, so nobody later reports it as a bug or assumes it was a
+designed safeguard.
+</p>
+
+<h2>All four now exist</h2>
+
+<p>
+Many slices ago this project named four missing ways of feeding information into the game: a
+direction, a typed line, a position in the equipment view's own grid, and the spellbook page's
+own pick. With this slice all four are measured and built. Two of them are wired end to end, one
+exists without a caller yet, and the last one, this slice's own, wired a spell's second prompt
+for the first time. The count of spells that reach their own handler in play climbs from
+seventy five to seventy six of eighty.
+</p>
+
+<p>
+Four spells still do not reach their handler, each for its own, different reason: one has the
+structure but no caller, one has a cursor but no view that uses it, and two have a reason that
+has nothing to do with any of these four interaction modes at all, but a wholly separate, already
+recorded gap in how one other spell is wired.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          186 / 212
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3089 / 3089
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Pickpocket's own pick: the cursor already exists from the previous slice, and what is left
+     is the view's own sub-mode that would show the victim's pack through it. And the support
+     test telekinesis' own push has been waiting on, separate from either of the four
+     interaction modes.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

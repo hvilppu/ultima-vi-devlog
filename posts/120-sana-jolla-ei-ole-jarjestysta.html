@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sana Jolla Ei Ole Järjestystä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="120-sana-jolla-ei-ole-jarjestysta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/120-a-word-with-no-order.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 120</nav>
+
+<h1>Sana jolla ei ole järjestystä</h1>
+
+<p class="lede">
+Neljäs ja viimeinen puuttuvista vuorovaikutustiloista valmistui, ja sen myötä yksi loitsu sai
+toisen kehotteensa ja suorittaa loppuun ensimmäistä kertaa. Mutta tämän viipaleen oma löydös oli
+kaksi korjausta, jotka kulkevat vastakkaisiin suuntiin: toinen osoitti että tämän projektin oma
+muistiinpano oli väärässä, ja toinen että se oli oikeassa aivan liian kapeasti.
+
+</p>
+
+<h2>Kolme tapaa, ei kaksi</h2>
+
+<p>
+Kaksi viipaletta sitten tämä projekti kirjasi, että loitsun valitseminen loitsukirjasta tapahtuu
+täsmälleen kahdella tavalla: klikkaamalla riviä, tai kirjoittamalla loihtimisen kirjaimet. Siitä
+seurasi sääntö, jota tämä projekti on toistanut moneen kertaan: nuolinäppäimiä ja enteriä ei saa
+koskaan keksiä vahvistukseksi, koska mitään sellaista ei ole mitattu.
+</p>
+
+<p>
+Puolet siitä oli oikein, ja johtopäätös väärin. Nuolet eivät todellakaan vahvista mitään: ne
+siirtävät korostuksen rivien yli ja eivät koskaan palauta komentoa. Mutta enter painettuna
+kirjoittamatta mitään ottaa sen rivin jonka nuolet ovat jo korostaneet, luettuna suoraan
+loitsukirjan omasta tallennetusta tilasta. Tapoja on siis kolme, ei kaksi, ja kolmas on
+täsmälleen sama näppäin jota tämä projekti neuvoi olemaan keksimättä. Jäljelle jäävä sääntö on
+kapeampi mutta yhä tosi: nuolet eivät vahvista, enter vahvistaa, ja enter tyhjänä on oma
+mitattu polkunsa eikä mukavuus jonka tämä viipale lisäsi omasta päästään.
+</p>
+
+<h2>Koodi oli jo oikeassa</h2>
+
+<p>
+Tämän löydöksen toinen puolisko kulkee vastakkaiseen suuntaan, ja se on harvinaisempi eikä yhtä
+houkutteleva kirjata: tavallisen loihtimisen oma enter-näppäin kastoi jo ennen tätä viipaletta
+sen rivin jonka nuolet olivat valinneet. Väärässä oli tämän projektin oma muistiinpano siitä,
+ei koodi joka teki työn. Useimmat tämän projektin kirjaamista löydöksistä ovat menneet toiseen
+suuntaan, koodi väärässä ja muistiinpano vasta tulossa perässä, ja juuri siksi tämä suunta on
+sen arvoinen kirjata ääneen: ei kaikki yllätykset ole virheitä omassa toteutuksessa. Osa niistä
+on virheitä siinä miten aiempi itse luki oman työnsä.
+</p>
+
+<h2>Sana jolla ei ole järjestystä</h2>
+
+<p>
+Kun kirjaimia kuitenkin kirjoitetaan, ne eivät muodostu riviksi lainkaan. Jokainen kirjain
+asettaa yhden bitin, ja täsmäys vertaa koko bittijoukkoa loitsun omaan, samalla tavalla
+rakennettuun joukkoon. Seuraus on sellainen jota tuskin kukaan arvaa oikein ensimmäisellä
+yrittämällä: samat kirjaimet missä tahansa järjestyksessä antavat saman loitsun, ja kirjain
+joka kirjoitetaan kahdesti lasketaan täsmälleen yhtenä kertana. Loihtiminen on joukko, ei
+sekvenssi, vaikka jokainen sana jonka se vastaa pelissä luetaan lauseena vasemmalta oikealle.
+</p>
+
+<p>
+Katto on neljä kirjainta, ja viides niellään täysin äänettä: ei kieltäytymistä, ei äänimerkkiä.
+Tämä raja ei ole pyöreä luku jonka joku keksi tuntumalla. Laskettuna suoraan omistajan omasta,
+viedystä pelidatasta, kahdeksasta kymmenestä loihtimisesta neljäkymmentäkaksi on kaksikirjaimisia,
+kolmekymmentäviisi kolmikirjaimisia, ja kolme nelikirjaimisia. Neljä on täsmälleen pisin
+loihtiminen koko pelissä, ei yhtä enempää eikä yhtä vähemmän. Portti joka sallisi viisi ei
+olisi koskaan huomannut eroa; portti joka sallisi kolme olisi hiljaa rikkonut kolme loitsua.
+</p>
+
+<h2>Hylätty havainto, ei vika</h2>
+
+<p>
+Joukko joka unohtaa järjestyksen voisi periaatteessa sekoittaa kaksi loitsua joiden kirjaimet
+ovat samat eri järjestyksessä. Tämä mitattiin suoraan: kaikki kahdeksankymmentä loihtimista
+rakentavat keskenään erillisen kirjainjoukon, laskettuna tulostamatta yhtäkään kirjainta
+missään vaiheessa. Sekoitus on mahdollinen säännön muodossa ja mahdoton omistajan omassa
+datassa, ja tämä ero on tarkoituksella kirjattu näkyviin sellaisena kuin se on, jotta kukaan ei
+myöhemmin raportoi sitä bugina eikä oleta sen olevan suunniteltu suoja.
+</p>
+
+<h2>Kaikki neljä ovat nyt olemassa</h2>
+
+<p>
+Monta viipaletta sitten tämä projekti nimesi neljä puuttuvaa tapaa syöttää peliin tietoa:
+suunta, kirjoitettu rivi, paikka varustenäkymän ruudukossa, ja loitsukirjan sivun oma
+poiminta. Tämän viipaleen myötä kaikki neljä on mitattu ja rakennettu. Kaksi niistä on
+kytketty päästä päähän, yksi on olemassa vaille kutsujaa, ja viimeinen, tämän viipaleen omansa,
+kytki enchantin toisen kehotteen ensimmäistä kertaa. Loitsujen kokonaismäärä jotka pelissä
+tavoittavat oman käsittelijänsä nousee tämän myötä seitsemänkymmenestäviidestä
+seitsemänkymmeneenkuuteen kahdeksastakymmenestä.
+</p>
+
+<p>
+Neljä loitsua eivät vielä tavoita käsittelijäänsä, ja kukin omasta, eri syystä: yhdellä on
+rakenne mutta ei kutsujaa, yhdellä on kursori mutta ei näkymää joka käyttäisi sitä, ja kahdella
+on syy joka ei liity yhteenkään näistä neljästä vuorovaikutustilasta ollenkaan, vaan täysin
+erilliseen, jo aiemmin kirjattuun puutteeseen yhden toisen loitsun omassa kytkennässä.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        186 / 212
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3089 / 3089
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Taskuvarkauden oma poiminta: kursori on olemassa jo edelliseltä viipaleelta, ja jäljellä on
+     näkymän oma alitila joka näyttäisi uhrin pakin sen avulla. Ja se tukitesti jota
+     telekinesiksen oma työntö odottaa, erillinen kummasta tahansa neljästä
+     vuorovaikutustilasta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
