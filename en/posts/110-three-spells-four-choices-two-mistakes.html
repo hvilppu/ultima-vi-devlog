@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Spells, Four Choices, Two Mistakes | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/110-kolme-loitsua-nelja-valintaa-kaksi-virhetta.html" hreflang="fi">FI</a><span>/</span><a href="110-three-spells-four-choices-two-mistakes.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 110</nav>
+
+<h1>Three spells, four choices, two mistakes</h1>
+
+<p class="lede">
+Resurrect, help and seance bring the dead back, in two different ways and one that brings nobody
+back at all. The first pass named four choices as open instead of guessing, and when the measuring
+session measured all four afterward, two of them turned out to be things the implementation had
+put in the code that the original does not do. This is the fourth time in a row, and that pattern
+is this post's own subject.
+</p>
+
+<h2>Three spells, one shared routine</h2>
+
+<p>
+Resurrect revives one chosen corpse. Help revives the whole party with the same routine, at once,
+and asks nothing while doing it. Seance revives nobody: it reads the same four corpse types
+resurrect does, but opens a conversation with the character behind one of them instead of
+reviving them. None of the three is reachable from the spellbook, for the same reason as the
+previous post's five sweeps: the dispatcher carries eight fixed family delegates and has no slot
+for an own branch.
+</p>
+
+<p>
+The link between a corpse and the character it was is simple once measured: the corpse's own
+quality field carries the character's number, verbatim, in all three spells. Less simple is where
+the corpse actually is. The original walks the containment chain up to whatever sits on the map:
+a corpse carried in a pack revives at the carrier's own square, one inside a chest at the chest's.
+A contained object's own stored coordinates are not a map position at all, and a port that skipped
+the walk would place the character somewhere meaningless that happens to be some object's own
+internal bookkeeping.
+</p>
+
+<p>
+A revived character gets exactly one hit point, never the maximum, but full magic. And if karma
+is below 98, the experience is scaled to karma percent as a 32 bit multiply and an integer divide
+by 100, so it truncates: karma 97 leaves behind a smaller number than the exact division would,
+and karma 98 leaves experience untouched entirely.
+</p>
+
+<h2>A ring nobody would write by hand</h2>
+
+<p>
+When a revived character cannot stay on its own corpse's square, the original searches four
+increasingly wide rings for a free one. On the first ring the squares are offered in this order,
+counted from the centre: two opposite corners first, then the four edge midpoints, then the other
+two corners. Not clockwise, not row by row, nothing anyone would write from a blank page. And
+every corner is offered twice, because the row pass and the column pass both cover the whole span
+and share their endpoints.
+</p>
+
+<p>
+The repeat never changes an answer, because the first free square always wins the search: a
+corner's second offer can only re-confirm what its first offer already decided. But the order
+itself is the entire discriminator. A port that walked the ring clockwise, or row by row, would
+differ from this at the very first choice, whenever more than one square is free at once. Built
+literally as the original's own loop, repeat included, and the repeat was never cleaned up as a
+bug it is not.
+</p>
+
+<h2>The Avatar, wrong twice</h2>
+
+<p>
+In the party-wide help spell the Avatar is its own special case: revived in place, magic from
+intelligence rather than from maximum magic, no ring search. The brief said so, but said it as
+"skips the placement," and the first pass read that as excluding only the ring search while
+leaving party rejoining untouched. The measuring session measured it afterward: rejoining lives
+in the same shared routine as the ring search, and the Avatar's own branch never calls it at all.
+The original never asks whether the Avatar joins the party here, because the Avatar is already in
+it. Fixed by removing the join from the Avatar's own path entirely.
+</p>
+
+<p>
+The second mistake was subtler. The help routine sets the active member to "none" at the start of
+its own loop, and the first pass stopped there and modelled no end state at all, because this
+project carries no "none" value past a single field. The measuring session read to the end: a
+party-mode call near the close of the spell sets the active member back to party slot 0, which
+also re-centres the map on that member. "None" is only a transient state inside the spell, not
+what the spell leaves behind, and the end state is now carried as an outcome field instead of
+carrying only what could not be modelled.
+</p>
+
+<p>
+Both mistakes passed the whole test suite before the fix, and both came from the same shape: the
+brief said the right thing but in one wording that also allowed the wrong reading, and the first
+pass picked it, and neither test asked exactly the question that would have told right from
+wrong.
+</p>
+
+<h2>The one that could never happen</h2>
+
+<p>
+The brief suspected one more thing: that help would fail to revive a dead party member whose
+corpse was a gargoyle or a cyclops, because help's own body search covers only two of the four
+corpse types, not all four the way resurrect and seance do. This never became a third mistake,
+because it was refuted outright before anything was built.
+</p>
+
+<p>
+Player control is granted in exactly one place a script can reach, the join instruction, and
+every one of the owner's 199 shipped scripts' 13 join calls passes the pseudo-number for "the
+character being spoken to" and no other number. Gargoyle and cyclops typed character slots carry
+no join call in their own scripts at all, so none of them can ever join the party by any path the
+game provides. The state the brief suspected cannot occur. The two extra types in resurrect and
+seance exist for a different, genuinely reachable case: a gargoyle or cyclops the player kills,
+one that was never in the party to begin with.
+</p>
+
+<p>
+And one finding that is not a mistake of this project's own at all, but the original's own
+behaviour: resurrect has three refusal paths, and two of them print a message and play a failure
+sound. The third, when the corpse's quality is exactly zero, prints its own line and stays silent
+both ways, no sound and no result written. A player who tries to revive a genuinely too-old corpse
+does not hear what every other failed cast would. Reproduced as is.
+</p>
+
+<h2>A fourth time in a row</h2>
+
+<p>
+This is the fourth slice in the same run where the first pass refused to guess and named a choice
+as open instead. Three of the four have since turned up a real mistake that the whole test suite
+had accepted as is: one in the vanish and reappear slice, three in the five sweeps slice, and now
+two in this one. The one exception, the eighth shared handler's own slice, turned up none, because
+its one named open question stayed unmeasured as reachable or not and never flipped either way.
+</p>
+
+<p>
+None of these six mistakes looked wrong at the moment it was written, and no test caught any of
+them, because the test meant to pin the choice was written to accept either answer. What naming a
+choice as open buys is not the right answer immediately, it is the chance to find the wrong one
+later. A guess picked quietly never offers that chance at all.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          176 / 202
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2892 / 2892
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Three spells that reach out and take: telekinesis, pickpocket and web.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

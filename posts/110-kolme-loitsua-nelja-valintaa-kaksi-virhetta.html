@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolme Loitsua, Neljä Valintaa, Kaksi Virhettä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="110-kolme-loitsua-nelja-valintaa-kaksi-virhetta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/110-three-spells-four-choices-two-mistakes.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 110</nav>
+
+<h1>Kolme loitsua, neljä valintaa, kaksi virhettä</h1>
+
+<p class="lede">
+Resurrect, help ja seance tuovat kuolleet takaisin, kahdella eri tavalla ja yhdellä joka ei tuo
+ketään takaisin ollenkaan. Ensimmäinen toteutus nimesi neljä valintaa avoimiksi sen sijaan että
+olisi arvannut, ja kun mittaava sessio mittasi kaikki neljä jälkikäteen, kaksi niistä paljastuivat
+asioiksi joita toteutus oli pannut koodiin ja joita alkuperäinen ei tee. Tämä on neljäs kerta
+peräkkäin, ja juuri se on tämän kirjoituksen oma aihe.
+</p>
+
+<h2>Kolme loitsua, yksi jaettu rutiini</h2>
+
+<p>
+Resurrect herättää yhden valitun ruumiin. Help herättää koko puolueen samalla rutiinilla, kerralla,
+eikä kysy mitään tehdessään sen. Seance ei herätä ketään: se lukee samat neljä ruumistyyppiä kuin
+resurrect, mutta avaa niiden takana olleen hahmon kanssa keskustelun sen sijaan että herättäisi
+hänet. Yksikään näistä kolmesta ei ole tavoitettavissa loitsukirjasta, samasta syystä kuin
+edellisen kirjoituksen viisi pyyhkäisyä: lähettäjä kantaa kahdeksan kiinteää perhedelegaattia eikä
+paikkaa omalle haaralle.
+</p>
+
+<p>
+Linkki ruumiin ja sen olleen hahmon välillä on yksinkertainen kerran se on mitattu: ruumiin oma
+laatukenttä kantaa hahmon numeroa, sellaisenaan, kaikissa kolmessa loitsussa. Vähemmän
+yksinkertainen on se missä ruumis oikeasti on. Alkuperäinen kävelee säiliöketjua ylös siihen asti
+mikä on kartalla: laukussa kannettu ruumis herää kantajan omalla ruudulla, arkussa oleva arkun
+omalla. Ruumiin oma tallennettu koordinaatti ei ole karttasijainti ollenkaan säiliön sisällä, ja
+portti joka ohittaisi kävelyn sijoittaisi hahmon merkityksettömään paikkaan joka sattuu olemaan
+jonkin esineen oma sisäinen kirjanpito.
+</p>
+
+<p>
+Herätetty hahmo saa tasan yhden osumapisteen, ei maksimia, mutta manan täyteen. Ja jos karma on
+alle 98, kokemus skaalataan karman prosenttiin 32-bittisenä kertolaskuna ja kokonaislukujakona
+sadalla, joten se typistyy: karma 97 jättää jälkeensä pienemmän luvun kuin se jonka oikea
+jako antaisi, ja karma 98 ei koske kokemukseen ollenkaan.
+</p>
+
+<h2>Rengas jota kukaan ei kirjoittaisi käsin</h2>
+
+<p>
+Kun herätetty hahmo ei voi jäädä ruumiinsa ruudulle, alkuperäinen hakee vapaata ruutua neljästä
+yhä kauemmasta renkaasta. Ensimmäisellä renkaalla ruudut tarjotaan tässä järjestyksessä,
+keskipisteestä laskettuna: kaksi vastakkaista kulmaa ensin, sitten neljä reunan keskikohtaa, sitten
+kaksi muuta kulmaa. Ei myötäpäivään, ei rivi riviltä, ei mitään jonka kukaan kirjoittaisi
+puhtaalta pöydältä. Ja joka kulma tarjotaan kahdesti, koska rivikierros ja sarakekierros kattavat
+molemmat koko välin ja jakavat päätepisteensä.
+</p>
+
+<p>
+Toisto ei muuta yhtäkään vastausta, koska ensimmäinen vapaa ruutu voittaa haun aina: kulman
+toinen tarjoilu voi vain vahvistaa sen mitä ensimmäinen tarjoilu jo päätti. Mutta järjestys itse
+on koko diskriminantti. Portti joka kävelisi rengasta myötäpäivään tai rivi riviltä eroaisi tästä
+tasan ensimmäisessä valinnassa, aina kun useampi ruutu on vapaa samaan aikaan. Rakennettu
+kirjaimellisesti alkuperäisen silmukkana, toisto mukana, eikä toistoa siivottu pois bugina jota
+se ei ole.
+</p>
+
+<h2>Avatar kahdesti väärin</h2>
+
+<p>
+Puolueenlaajuisessa help-loitsussa Avatar on oma erikoistapauksensa: herätetty paikoillaan, mana
+älykkyydestä eikä maksimimanasta, ei rengashakua. Briefi sanoi tämän, mutta sanoi sen muodossa
+"ei käy sijoituksen läpi", ja ensimmäinen toteutus luki sen niin että se sulkisi pois vain
+rengashaun ja jättäisi puolueeseen liittymisen koskemattomaksi. Mittaava sessio mittasi
+jälkikäteen: liittyminen asuu samassa jaetussa rutiinissa kuin rengashaku, ja Avatarin oma
+haara ei kutsu sitä ollenkaan. Alkuperäinen ei koskaan kysy liittyykö Avatar puolueeseen tässä
+kohdassa, koska Avatar on jo siinä. Korjattu poistamalla liittyminen Avatarin polulta kokonaan.
+</p>
+
+<p>
+Toinen virhe oli hienovaraisempi. Help-rutiini asettaa aktiivisen jäsenen "ei kukaan" -tilaan
+omansa silmukan alussa, ja ensimmäinen toteutus pysähtyi siihen eikä mallintanut mitään
+loppu-tilaa, koska tämä projekti ei kanna "ei kukaan" -arvoa yhtäkään kenttää pidemmälle.
+Mittaava sessio luki loppuun asti: puoluetila-kutsu loitsun lopussa asettaa aktiivisen jäsenen
+takaisin puolueen paikkaan 0, mikä myös keskittää kartan sille jäsenelle. "Ei kukaan" on siis
+ohimenevä tila loitsun sisällä, ei se mitä loitsu jättää jälkeensä, ja loppu-tila on nyt kannettu
+tulosarvona sen sijaan että kannettaisiin vain se mitä ei voitu mallintaa.
+</p>
+
+<p>
+Kumpikin virhe läpäisi koko testisarjan ennen korjausta, ja kumpikin syntyi samasta tavasta: brief
+sanoi oikean asian mutta yhdellä sanamuodolla joka salli myös väärän lukutavan, ja ensimmäinen
+toteutus valitsi sen eikä kumpikaan testi kysynyt juuri sitä kysymystä joka olisi erottanut
+oikean väärästä.
+</p>
+
+<h2>Se joka ei voinut koskaan tapahtua</h2>
+
+<p>
+Briefi epäili vielä yhtä asiaa: että help jättäisi herättämättä kuolleen puolueenjäsenen jonka
+ruumis olisi gargoyle tai kyklooppi, koska helpin oma ruumishaku kattaa vain kaksi neljästä
+tyypistä, ei kaikkea neljää niin kuin resurrect ja seance. Tämä ei päätynyt kolmanneksi virheeksi,
+koska se refutoitiin kokonaan ennen rakentamista.
+</p>
+
+<p>
+Pelaajan ohjaus annetaan tasan yhdessä paikassa jota skripti voi ylipäätään tavoittaa,
+liittymiskomennon kautta, ja jokainen omistajan 199 toimitetun skriptin 13 liittymiskutsusta
+käyttää pseudonumeroa "puhuttavana oleva hahmo" eikä mitään muuta numeroa. Gargoyle- ja
+kyklooppi-tyyppisillä hahmopaikoilla ei ole yhtäkään liittymiskomentoa omissa skripteissään, niin
+mikään niistä ei voi liittyä puolueeseen millään polulla jonka peli tarjoaa. Tila jota briefi
+epäili ei voi syntyä. Kaksi ylimääräistä tyyppiä resurrectissa ja seancessa ovat olemassa
+toista, oikeasti tavoitettavaa tapausta varten: pelaajan tappama gargoyle tai kyklooppi, joka ei
+koskaan kuulunut puolueeseen mihinkään.
+</p>
+
+<p>
+Ja yksi havainto, joka ei ole meidän virheemme ollenkaan, vaan alkuperäisen omaa käytöstä:
+resurrectilla on kolme kieltäytymispolkua, ja kaksi niistä tulostavat viestin ja soittavat
+epäonnistumisäänen. Kolmas, ruumiin laadun ollessa tasan nolla, tulostaa oman rivinsä ja on
+hiljaa molemmin puolin, ei ääntä eikä kirjoitettua tulosta. Pelaaja joka yrittää herättää aidosti
+liian vanhan ruumiin ei kuule mitä joka muu epäonnistunut kasto kuulisi. Jäljitelty sellaisenaan.
+</p>
+
+<h2>Neljäs kerta peräkkäin</h2>
+
+<p>
+Tämä on neljäs viipale samassa sarjassa jossa ensimmäinen toteutus kieltäytyi arvaamasta ja
+nimesi valinnan avoimeksi sen sijaan. Kolme neljästä on sittemmin paljastanut todellisen virheen,
+jonka koko testisarja oli hyväksynyt sellaisenaan: yhden vanishin ja reappearin viipaleessa,
+kolme viiden pyyhkäisyn viipaleessa, ja nyt kaksi tässä. Yksi ainoa, kahdeksannen jaetun
+käsittelijän viipale, ei paljastanut yhtäkään, koska sen ainoa nimetty avoin kysymys jäi
+mittaamatta tavoitettavaksi tai tavoittamattomaksi eikä muuttunut kumpaankaan suuntaan.
+</p>
+
+<p>
+Mikään näistä kuudesta virheestä ei näyttänyt väärältä kirjoitushetkellään, eikä yksikään
+testi niitä huomannut, koska testi jonka piti vangita valinta oli kirjoitettu lukemaan molemmat
+vastaukset oikeiksi. Se minkä nimeäminen avoimeksi kysymykseksi antaa ei ole oikea vastaus
+heti, vaan mahdollisuus löytää väärä vastaus jälkikäteen. Hiljaa valittu arvaus ei anna sitä
+mahdollisuutta ollenkaan.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        176 / 202
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2892 / 2892
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kolme loitsua jotka ulottuvat ja ottavat: telekinesis, taskuvarkaus ja web.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
