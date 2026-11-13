@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Round That Needed Nothing | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/123-kierros-joka-ei-tarvinnut-mitaan.html" hreflang="fi">FI</a><span>/</span><a href="123-the-round-that-needed-nothing.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 123</nav>
+
+<h1>The round that needed nothing</h1>
+
+<p class="lede">
+The third of five rounds that open the missile family's last cases wired animate. The previous
+round predicted this one would need no new input beyond what the first two rounds had already
+widened the switch with, and the prediction held. That has nothing to add by itself, and that
+is exactly this post's own subject.
+</p>
+
+<h2>No widening, because the widening was done right the first time</h2>
+
+<p>
+The view has carried the creature class table since the first round, even though no wired case
+read it back then: it was appended to the missile switch's signature ahead of time, specifically
+for this round. By the time this round arrived, the table was already in place. The only change
+to the view's own file is in its comments; the line that forwards the table had existed for two
+rounds before any case needed it. The switch gained one new arm, for 0x30, calling the routine
+measured and built in F34, unchanged.
+</p>
+
+<h2>What the round did instead of trusting the hint</h2>
+
+<p>
+The coordinating session's own brief noted that animate is not exempt from the gate that
+separates an actor from an object the way dispel field is. This round did not take that on
+trust; it read animate's own remarks instead, and they name no such exemption, unlike dispel
+field's own routine, which names its own directly. The hint turned out to be correct, but
+checked, not believed. This is the second round running in which a hint from the coordinating
+session was verified against the code rather than taken as given.
+</p>
+
+<p>
+Wiring it also turned up one small gap on the side: the switch's own exception lists, which
+name which missing input can throw, never mentioned the creature class table, even though the
+first round had already appended it to the signature alongside the other inputs. The list was
+incomplete before this round began, not merely stale during it, and it was fixed in the same
+pass.
+</p>
+
+<h2>Two rounds left</h2>
+
+<p>
+Of the missile family's 23 targets, 21 are now built and wired, not 20. Clone and replicate are
+still behind the wall, each getting its own round, in number order.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          189 / 215
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3100 / 3100
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The fourth of five rounds: clone's own wire, for which the brief names one missing input,
+     a passability delegate, that neither of the previous three rounds needed.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
