@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seitsemän Loitsua, Nolla Riviä Koodia | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="108-seitseman-loitsua-nolla-rivia-koodia.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/108-seven-spells-zero-lines-of-code.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 108</nav>
+
+<h1>Seitsemän loitsua, nolla riviä koodia</h1>
+
+<p class="lede">
+Loitsujen lähettäjä ratkaisee kahdeksan jaettua käsittelijäperhettä. Seitsemällä niistä oli
+koodi tässä projektissa kuukausien ajan. Kahdeksannella, <code>SPELL_CastOnObject</code>,
+ei ollut: ei tiedostoa, ei luokkaa, ei riviäkään. Sen seitsemän loitsua olivat olemassa vain
+nimettynä kieltäytymisenä. Tämä viipale rakensi käsittelijän, kytki sen, ja laski uudelleen
+mitä se muutti.
+</p>
+
+<h2>Perhe jolla ei ollut mitään</h2>
+
+<p>
+Viisi aiempaa viipaletta rakensi ammuskaston, aluevaikutukset, kentät, tuulet,
+puolueenympäri-loitsut ja kutsut: seitsemän perhettä, kaikki koodattuina ennen tätä.
+Kahdeksas nimi lähettäjän omassa kartassa, <code>SPELL_CastOnObject</code>, oli jäänyt
+kokonaan rakentamatta edellisessä kytkentäviipaleessa, ja se kirjattiin rehellisesti nimettynä
+kieltäytymisenä seitsemälle loitsulle: detect magic, detect trap, trap, unlock magic, untrap,
+lock ja disable. Kaikki seitsemän tarvitsemat alkeistoiminnot, ovien ja arkkujen käsittely,
+olion luonti ja tuho, suora vahinko, olivat jo tässä projektissa jostain muusta syystä
+rakennettuina. Käsittelijä itse puuttui silti kokonaan.
+</p>
+
+<p>
+Kun käsittelijä nyt rakennettiin ja kytkettiin, kolme lukua liikkui samalla kertaa, ja kaikki
+kolme liikkuivat koska aukko sulkeutui, ei koska mikään vanha luku oli väärin. Kahdeksan
+jaetun perheen käsittelijöistä rakennettuja: seitsemästä kahdeksaan. Loitsukirjan läpi
+tavoitettavissa olevia loitsuja 80:stä: 61, joista seitsemän ratkesi aiemmin kieltäytymiseen.
+Lähettäjän oma käytännön kieltäytymismäärä: 26:sta 19:ään.
+</p>
+
+<h2>Yksi arvo kahdella haaralla</h2>
+
+<p>
+Lock-loitsu lukitsee oven tai auki olevan arkun taikalukolla. Alkuperäinen jättää
+tulosmuuttujan eri arvoon kummassakin haarassa: ovi jää nollaan, joka tulostaa
+onnistumisviestin, arkku saa arvon joka ei tulosta mitään. Yksi sijoitus kahdessa paikassa,
+ei yhteinen sääntö. Ovihaara ei myöskään testaa oven kehystä ollenkaan ennen kutsuaan, niin
+jo auki olevan oven lukitseminen raportoi onnistumisen muuttamatta mitään. Molemmat ovat
+alkuperäisen omia, toistettuja poikkeamia, ei tämän projektin virheitä.
+</p>
+
+<h2>Testi joka näkee vähemmän kuin poisto</h2>
+
+<p>
+Untrap-loitsu testaa ensin, kantaako kohde suoraan ansaefektin, ja käyttää tähän suppeaa
+hakua, vain suorat sisällöt. Kun testi läpäisee, poisto ei käytä samaa hakua uudelleen: se
+kävelee koko alipuun ja poistaa ensimmäisen osuman mistä tahansa syvyydeltä. Arkku, joka
+kantaa oman ansansa suoraan ja lisäksi pussin jonka sisällä on toinen ansa, läpäisee testin
+omansa ansiosta mutta menettää poistossa pussin sisäisen, koska kävely laskeutuu pussiin
+ennen seuraavaa suoraa lasta. Testi ja poisto ovat kaksi eri hakua, ja se eroaa huomaamatta
+vasta kun säiliöllä on useampi kuin yksi ansa eri syvyyksillä.
+</p>
+
+<h2>78 numeroa, yksi paikka</h2>
+
+<p>
+Detect magic ei testaa esineen tyyppiä, vaan sen näyttötiiltä: tyypin perustiili plus kehys,
+verrattuna 78 tiilinumeron listaan. Lista löytyi omistajan omasta pelitiedostosta tasan
+yhdestä paikasta: kaksi tahallisesti väärää lukutapaa, toinen tavujärjestyksen vaihtamalla ja
+toinen viimeisen alkion yhdellä rikkomalla, eivät osuneet mihinkään kohtaan koko tiedostossa.
+53 niistä 78:sta vastaa myös esinetyyppiä, ja näille 53:lle perustiili plus kehys täsmää
+riippumattomasti omistajan oman taulukkoviennin lukuihin. Luku on vahvistettu kahdesti,
+ohjelmasta ja datasta, kahdella lukutavalla jotka eivät jaa mitään. Testi väittää lukumäärän
+ja summan, 78 ja 67849: transkriptio joka pudottaa tai kaksintaa yhden merkinnän epäonnistuu
+tähän väitteeseen eikä mihinkään muuhun.
+</p>
+
+<h2>Mitä seitsemästä kukin oikeasti tekee</h2>
+
+<p>
+Kaikkia seitsemää kutsutaan samalla kantamalla, kahdeksan ruutua, mutta kuusi niistä on
+vapautettu kantamakiellosta: ainoastaan disable voi koskaan kieltäytyä kohteesta liian
+kaukana olevana. Kaksi detect-loitsua eivät voi koskaan raportoida onnistumista,
+epäonnistumista eikä tehottomuutta, ne päättyvät hiljaiseen tulokseen joka polulla. Ja
+riippumaton tarkistus hyökkäsi väitettä vastaan, jonka mukaan näitä kahta voisi loihtia
+kohteeseen jolla ei ole karttakoordinaattia: poikkeus on koodissa yksiselitteinen, mutta
+mikään tunnettu valintapolku ei tuota sitä tilaa. Viipale väittää käsittelijän oman vastauksen
+eikä mitään pelistä, ja jättää tavoitettavuuden avoimeksi kysymykseksi.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        174 / 200
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2768 / 2768
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Viisi omaa haaraa jotka jakavat yhden muodon loitsujen 19:stä jäljellä olevasta: alue
+     pyyhkäistään ja jokainen uhri siinä käsitellään paikallaan. Slime, tremor, wing strike,
+     hyönteisparvi ja raekuuro.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

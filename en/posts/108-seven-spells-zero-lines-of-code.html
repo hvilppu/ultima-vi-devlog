@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seven Spells, Zero Lines Of Code | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/108-seitseman-loitsua-nolla-rivia-koodia.html" hreflang="fi">FI</a><span>/</span><a href="108-seven-spells-zero-lines-of-code.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 108</nav>
+
+<h1>Seven spells, zero lines of code</h1>
+
+<p class="lede">
+The spell dispatcher resolves eight shared handler families. Seven of them had code in this
+project for months. The eighth, <code>SPELL_CastOnObject</code>, did not: no file, no class, not
+one line. Its seven spells existed only as a named refusal. This slice built the handler, wired
+it in, and recounted what that actually changed.
+</p>
+
+<h2>The family that had nothing</h2>
+
+<p>
+Five earlier slices built the missile switch, the area effects, the fields, the winds, the
+party-surround spells and the summons: seven families, all coded before this one. The eighth
+name in the dispatcher's own map, <code>SPELL_CastOnObject</code>, had been left entirely
+unbuilt in the previous wiring slice, and that was honestly recorded as a named refusal for
+seven spells: detect magic, detect trap, trap, unlock magic, untrap, lock and disable. Every
+primitive the seven of them need, handling doors and chests, creating and destroying an object,
+dealing direct damage, already existed in this project for some other reason. The handler itself
+was simply missing.
+</p>
+
+<p>
+Once the handler was built and wired, three numbers moved at once, and all three moved because a
+gap closed, not because an old number was wrong. Shared families with a built handler: seven to
+eight. Spells reachable through the spellbook, out of 80: 61, seven of which used to resolve to
+a refusal. The dispatcher's own practical refusal count: 26 down to 19.
+</p>
+
+<h2>One value, two branches</h2>
+
+<p>
+Lock magically locks a door or an open chest. The original leaves the result variable at a
+different value on each branch: the door branch leaves it at zero, which prints a success
+message; the chest branch sets a value that prints nothing. One assignment in two places, not
+one shared rule. The door branch also never tests the door's own frame before its call, so
+locking a door that is already open reports success while changing nothing. Both are the
+original's own, reproduced anomalies, not mistakes of this project's own.
+</p>
+
+<h2>A test that sees less than the delete</h2>
+
+<p>
+Untrap first tests whether the target directly carries a trap effect, using a narrow search,
+direct contents only. Once that test passes, the delete does not reuse the same search: it walks
+the whole subtree and removes the first match at any depth. A chest that directly carries its
+own trap, plus a bag that holds a second one, passes the test because of its own trap but loses
+the one inside the bag on delete, because the walk descends into the bag before trying the
+chest's next direct child. The test and the delete are two different searches, and the
+difference only shows once a container holds more than one trap at different depths.
+</p>
+
+<h2>78 numbers, one place</h2>
+
+<p>
+Detect magic does not test an object's type, it tests its display tile: the type's base tile
+plus its frame, against a list of 78 tile numbers. The list was found in the owner's own game
+file at exactly one place: two deliberately wrong readings, one with the byte order swapped and
+one with the last entry off by one, fit nowhere else in the whole file. 53 of the 78 also
+correspond to an object type, and for those 53 the base tile plus frame independently matches
+the owner's own table export. The number is confirmed twice, from the program and from the data,
+by two readings that share nothing. A test asserts the count and the sum, 78 and 67849: a
+transcription that drops or doubles one entry fails that assertion and nothing else.
+</p>
+
+<h2>What the seven actually do</h2>
+
+<p>
+All seven are called with the same range, eight squares, but six of them are exempt from the
+range refusal: only disable can ever refuse a target for being too far. The two detect spells
+can never report success, failure or no effect; they end on the silent result on every path. And
+an independent check attacked the claim that these two could be cast on a target with no map
+coordinate: the exemption is unambiguous in the code, but no known selection path produces that
+state. The slice asserts the handler's own answer, not anything about play, and leaves the
+reachability as an open question.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          174 / 200
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2768 / 2768
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Five of the remaining own branches that share one shape nothing else does: an area is swept
+     and every victim in it is dealt with in place. Slime, tremor, wing strike, insect swarm and
+     hail storm.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
