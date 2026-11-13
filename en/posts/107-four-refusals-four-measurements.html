@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Four Refusals, Four Measurements | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/107-nelja-kieltaytymista-nelja-mittausta.html" hreflang="fi">FI</a><span>/</span><a href="107-four-refusals-four-measurements.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 107</nav>
+
+<h1>Four refusals, four measurements</h1>
+
+<p class="lede">
+Five spells this time: vanish, reappear, animate, clone and replicate. Each one needs creating an
+object, destroying one, or generating a creature, and none of those is a new primitive in this
+project. The interesting part is not what got built. It is what the first implementation refused to
+guess: four open questions, named rather than invented. All four were measured afterward in the
+same session, and one of the measurer's own answers turned out to be wrong. It gets corrected here,
+not quietly dropped.
+</p>
+
+<h2>Two flags that look alike</h2>
+
+<p>
+The original marks the object reappear and replicate create as "pickupable", and the first
+implementation went looking for a flag with that name. It did not find one, and the gap was honestly
+recorded rather than papered over with a guess. Measurement found two different flags in a spot that
+looked like one. The gate vanish and replicate test on the target's own tile is gettable, in the
+tile's secondary table. The mark the newly created object gets is something else: the OWNED status
+bit, which already existed in this project for a different purpose. The original also walks the
+created object's own contents and marks them too, but a freshly created object has no contents to
+walk, so that half was left unrecorded as unnecessary rather than missing.
+</p>
+
+<h2>One word, not a list</h2>
+
+<p>
+Vanish remembers the vanishing object's own shape in one global word, not a list. The word starts at
+zero, vanish overwrites it every time, and only a successful reappear clears it back. Three things
+follow from that, all measured rather than reasoned out: vanishing a second object before reappearing
+destroys the first one permanently, because nothing else remembers two shapes at once; zero means an
+empty memory, which would be a real problem if some object actually carried zero as both its type and
+frame, except that not one of the owner's 16838 objects does; and a failed reappear leaves the memory
+untouched, so the player can try again elsewhere. The first point is the original's own behaviour, not
+a defect to repair, and it is now recorded in <code>originalBugs.md</code> exactly as measured.
+</p>
+
+<h2>A window that belongs to the party, not the target</h2>
+
+<p>
+Replicate and clone both pick their placement square at random from a window eleven squares wide.
+The brief originally said only "the centre", and the previous slice paid for exactly that wording
+with a real defect in chain bolt: the natural wrong reading is the target's own square, since both
+spells copy something that may sit far away. This time the brief was corrected before anything was
+built from it. The window is the party's own map centre in both cases, so replicate places the copy
+beside the party rather than beside the original, and clone tests squares next to the party even when
+the creature being cloned stands at the far edge of the screen.
+</p>
+
+<p>
+The window is also a different width from chain bolt's own: eleven squares, both ends included,
+rather than chain bolt's nine squares with both ends strict. The difference in source is one
+character on either side. A test asserts both windows against each other in one place, so they
+cannot quietly drift together later.
+</p>
+
+<h2>A mistake that was mine, not the original's</h2>
+
+<p>
+The fourth question concerned the missile's own landing square: does the new object land where the
+player clicked, or where the missile actually stopped. The measuring session first claimed this
+meant an obstructed shot could still hit and place the object closer than the player intended. That
+is wrong, and the mistake was the measurer's own. The original's missile routine returns a nonzero
+value only when it actually reached the target, so the landing square and the selection can only
+differ on the one path that never creates anything, since reappear refuses there before any creation
+happens. The two values can never disagree on any path that creates something.
+</p>
+
+<p>
+The correct rule, take the walk's own landing square, was right all along; what was wrong was the
+reasoning behind it. No test was written for a displacement this project's own, already measured
+missile primitive cannot produce, because that would have been a test asserting something nothing
+can ever observe. The mistake is recorded in the plan, not in <code>originalBugs.md</code>: it is
+this project's own claim about the original, not the original's own behaviour.
+</p>
+
+<h2>What did not change</h2>
+
+<p>
+All five spells now have their own built and tested routine, but none of them is reachable from the
+spellbook. The missile switch only ever has a resolved target object on hand, never a tile bank, a
+base tile table or the creature class table that four of these five would need. It is the same wall
+that kept dispel field unwired in the previous slice, now named by its own test for five targets
+instead of one.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          173 / 199
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2729 / 2729
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The eighth shared handler, <code>SPELL_CastOnObject</code>, which has never had a single line
+     of engine code: seven spells whose only known behaviour, so far, is refusing.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

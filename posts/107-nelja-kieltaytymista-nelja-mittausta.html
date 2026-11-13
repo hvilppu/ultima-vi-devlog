@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neljä Kieltäytymistä, Neljä Mittausta | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="107-nelja-kieltaytymista-nelja-mittausta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/107-four-refusals-four-measurements.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 107</nav>
+
+<h1>Neljä kieltäytymistä, neljä mittausta</h1>
+
+<p class="lede">
+Viisi loitsua tällä kertaa: vanish, reappear, animate, clone ja replicate. Jokainen tarvitsee olion
+luonnin, tuhoamisen tai hirviön generoinnin, eikä yhtäkään niistä ole uusi alkeistoiminto tässä
+projektissa. Mielenkiintoisin osa ei ole se mitä rakennettiin, vaan se mitä ensimmäinen toteutus
+kieltäytyi arvaamasta: neljä avointa kysymystä, nimettyinä eikä keksittyinä. Kaikki neljä mitattiin
+jälkikäteen samassa sessiossa, ja yksi mittaajan omista vastauksista osoittautui vääräksi. Se
+korjataan tässä, ei pudoteta hiljaa pois.
+</p>
+
+<h2>Kaksi lippua jotka muistuttavat toisiaan</h2>
+
+<p>
+Alkuperäinen merkitsee reappearin ja replicaten luoman olion "poimittavaksi", ja ensimmäinen
+toteutus etsi tälle nimeä: lippua joka viittaisi poimittavuuteen. Sitä ei löytynyt, ja aukko
+kirjattiin rehellisesti sen sijaan että yksi olisi keksitty. Mittaus löysi kaksi eri lippua paikasta
+joka näytti yhdeltä. Portti jota vanish ja replicate testaavat kohteen omalla tiilellä on gettable,
+tiilen toissijaisessa taulukossa. Merkki jonka luotu olio saa on jotain muuta: OWNED-tilabitti, joka
+tässä projektissa oli jo olemassa toista tarkoitusta varten. Alkuperäinen kävelee luodun olion
+sisällön läpi ja merkitsee sen myös, mutta vastaluodulla oliolla ei ole sisältöä kävellä, niin se
+puoli jäi kirjaamatta tarpeettomana.
+</p>
+
+<h2>Yksi sana, ei lista</h2>
+
+<p>
+Vanish muistaa katoavan olion muodon yhteen globaaliin sanaan, ei listaan. Sana alkaa nollasta,
+vanish ylikirjoittaa sen aina, ja ainoastaan onnistunut reappear tyhjentää sen takaisin. Tästä
+seuraa kolme asiaa, jotka kaikki mitattiin eikä päätelty: toisen olion vanishaaminen ennen
+reappearia tuhoaa ensimmäisen pysyvästi, koska mikään muu ei muista kahta muotoa samaan aikaan;
+nolla tarkoittaa tyhjää muistia, mikä olisi todellinen ongelma jos jokin olio kantaisi nollan
+tyyppinä ja kehyksenä, paitsi ettei yksikään omistajan 16838 oliosta tee niin; ja epäonnistunut
+reappear jättää muistin koskemattomaksi, niin pelaaja voi yrittää uudelleen muualla. Ensimmäinen
+kohta on alkuperäisen oma käytös, ei korjattava puute, ja se on nyt kirjattu
+<code>originalBugs.md</code>:hen sellaisenaan.
+</p>
+
+<h2>Ikkuna joka on puolueen, ei kohteen</h2>
+
+<p>
+Replicate ja clone valitsevat sijoituspaikkansa satunnaisesti yksitoista ruutua leveästä ikkunasta.
+Brief sanoi alun perin vain "keskipiste", ja edellinen viipale maksoi täsmälleen tästä sanamuodosta
+oikean bugin chain boltissa: luonnollinen väärä lukutapa on kopioitavan kohteen oma sijainti, koska
+kumpikin loitsu kopioi jotain joka voi olla kaukana. Tällä kertaa brief korjattiin ennen
+rakentamista. Ikkuna on puolueen oma karttakeskus molemmissa tapauksissa, niin replicate asettaa
+kopion puolueen viereen eikä alkuperäisen viereen, ja clone testaa ruutuja puolueen vierestä vaikka
+kloonattava hirviö olisi näytön kaukaisimmassa kulmassa.
+</p>
+
+<p>
+Ikkuna on myös eri levyinen kuin chain boltin: yksitoista ruutua, molemmat päät mukaan luettuna, ei
+chain boltin yhdeksän ruutua molemmilta päistä tiukoin ehdoin. Ero lähdekoodissa on yksi merkki
+kummalla puolella. Testi väittää molemmat ikkunat toisiaan vasten yhdessä paikassa, niin ne eivät
+voi ajautua samaan huomaamatta myöhemmin.
+</p>
+
+<h2>Virhe joka oli oma, ei alkuperäisen</h2>
+
+<p>
+Neljäs kysymys koski ammuksen pysähtymiskohtaa: sijoitetaanko luotu olio sinne minne pelaaja
+klikkasi, vai sinne minne ammus oikeasti pysähtyi. Mittaava sessio väitti ensin, että tämä
+tarkoittaisi, että estynyt laukaus voisi silti osua ja sijoittaa olion lähemmäs kuin pelaaja
+tarkoitti. Se on väärin, ja virhe oli mittaajan oma. Alkuperäisen ammusrutiini palauttaa nollasta
+poikkeavan arvon vain kun se saavutti kohteen asti, niin pysähtymiskohta ja valinta voivat erota
+toisistaan ainoastaan sillä polulla joka ei koskaan luo mitään, koska reappear kieltäytyy siinä
+ennen luontia. Kaksi arvoa eivät voi erota toisistaan millään polulla jolla jotain luodaan.
+</p>
+
+<p>
+Oikea sääntö, ota kävelyn oma pysähtymiskohta, pysyi oikeana koko ajan; väärä oli perustelu sen
+takana. Testiä ei kirjoitettu siirtymälle jota tämän projektin jo mitattu ammusalkeistoiminto ei
+voi tuottaa, koska siitä olisi tullut testi joka väittäisi jotain mitä mikään ei voi havaita. Virhe
+on kirjattu suunnitelmaan, ei <code>originalBugs.md</code>:hen: kyse on tämän projektin omasta
+väitteestä alkuperäisestä, ei alkuperäisen käytöksestä.
+</p>
+
+<h2>Mikä ei muuttunut</h2>
+
+<p>
+Kaikilla viidellä loitsulla on nyt oma, rakennettu ja testattu rutiininsa, mutta yksikään ei ole
+tavoitettavissa loitsukirjasta. Ammuskytkimellä on käsillä vain ratkaistu kohdeolio, ei tiilipankkia,
+perustiilitaulukkoa eikä hirviöluokkataulukkoa, joita neljä näistä viidestä tarvitsisi. Se on sama
+muuri joka piti dispel fieldin kytkemättä edellisessä viipaleessa, ja se on nimetty omana testinään
+viidelle kohteelle yhden sijaan.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina         173 / 199
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2729 / 2729
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kahdeksas jaettu käsittelijä, <code>SPELL_CastOnObject</code>, jolle ei ole koskaan rakennettu
+     riviäkään moottorikoodia: seitsemän loitsua joiden kieltäytyminen on toistaiseksi ainoa
+     niiden tunnettu käytös.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
