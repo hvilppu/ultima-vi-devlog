@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Shortcut That Would Have Been Wrong | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/122-oikotie-joka-olisi-ollut-vaara.html" hreflang="fi">FI</a><span>/</span><a href="122-the-shortcut-that-would-have-been-wrong.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 122</nav>
+
+<h1>The shortcut that would have been wrong</h1>
+
+<p class="lede">
+The second of five rounds that open the missile family's last cases wired dispel field. The
+previous round predicted the wire would need one more input; it needed three, and one way to
+avoid one of them would have been wrong for exactly this spell, even though it would have
+worked for every other one.
+</p>
+
+<h2>One input predicted, three needed</h2>
+
+<p>
+The previous round's own brief named one missing input for dispel field ahead of time: the
+selected square's own level. That was half right. The level really was missing, but so were
+the square's own column and row, because this spell never reads the resolved target object at
+all; it walks the selected square's own contents and deletes the first field it finds. The
+column and row already existed one layer up in the switch, where the selection is resolved,
+but had never travelled from there down to the layer that calls the spell's own routine. All
+three, column, row and level, were appended to the switch's signature the same way the
+previous round's three tables were.
+</p>
+
+<h2>A shortcut that would have worked nineteen other times</h2>
+
+<p>
+The square could have been found a different way: by reading the resolved target object's own
+position straight out of the object world, instead of threading column, row and level through
+the switch as their own inputs. That would have saved three new parameters for one lookup, and
+it would have worked exactly as well in every other missile case, because the resolved target
+in all of them is always the object world's own number.
+</p>
+
+<p>
+Dispel field is not one of them. The reason, measured two slices back, is exact: this spell is
+deliberately exempt from the gate that elsewhere separates an actor from an object. That means
+the resolved target can, in this one case, be a character's own number rather than the object
+world's own number, whenever someone happens to be standing on the selected square. Had the
+shortcut been taken, that number would have indexed the wrong table, quietly and only
+sometimes, exactly when the square held someone. The round did not take it, and let the column,
+row and level travel as their own inputs the whole way, precisely because this one spell is the
+exception rather than the rule.
+</p>
+
+<h2>Three rounds left</h2>
+
+<p>
+Of the missile family's 23 targets, 20 are now built and wired, not 19. Animate, clone and
+replicate are still behind the wall, each getting its own round in number order.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          188 / 214
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3097 / 3097
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The third of five rounds: animate's own wire, for which the brief predicts no new input
+     beyond what these two rounds have already carried.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

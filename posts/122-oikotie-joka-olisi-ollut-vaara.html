@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oikotie Joka Olisi Ollut Väärä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="122-oikotie-joka-olisi-ollut-vaara.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/122-the-shortcut-that-would-have-been-wrong.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 122</nav>
+
+<h1>Oikotie joka olisi ollut väärä</h1>
+
+<p class="lede">
+Toinen viidestä kierroksesta joka avaa ammuskaston viimeisiä tapauksia kytki dispel fieldin.
+Edellinen kierros ennusti kytkennän tarvitsevan yhden lisäsyötteen; se tarvitsi kolme, ja yksi
+mahdollinen tapa välttää yksi niistä olisi ollut väärä juuri tälle loitsulle, vaikka se olisi
+toiminut jokaiselle muulle.
+</p>
+
+<h2>Yksi ennustettu syöte, kolme tarvittua</h2>
+
+<p>
+Edellisen kierroksen oma brief nimesi etukäteen yhden puuttuvan syötteen dispel fieldille:
+valitun ruudun tason. Se oli puolittain oikea. Taso puuttui todella, mutta niin puuttuivat
+ruudun oma sarake ja rivi, koska tämä loitsu ei lue ratkaistua kohdeoliota lainkaan, vaan
+kävelee valitun ruudun sisällön läpi ja poistaa ensimmäisen löytämänsä kentän. Sarake ja rivi
+olivat jo olemassa kytkimen ylemmässä kerroksessa, jossa valinta ratkaistaan, mutta eivät
+olleet koskaan kulkeneet sieltä sille kerrokselle, joka kutsuu loitsun omaa rutiinia. Kaikki
+kolme, sarake, rivi ja taso, liitettiin kytkimen allekirjoitukseen samalla tavalla kuin
+edellisen kierroksen kolme taulukkoa.
+</p>
+
+<h2>Oikotie joka olisi toiminut yhdeksässätoista muussa tapauksessa</h2>
+
+<p>
+Ruudun olisi voinut hakea toisin: lukea ratkaistun kohdeolion oma sijainti suoraan
+olio-maailmasta, sen sijaan että sarake, rivi ja taso kulkisivat kytkimen läpi omina
+syötteinään. Se olisi säästänyt kolme uutta parametria yhdellä haulla, ja se olisi toiminut
+täsmälleen yhtä hyvin jokaisessa muussa ammuskaston tapauksessa, koska ratkaistu kohde on
+niissä kaikissa aina olion maailman oma numero.
+</p>
+
+<p>
+Dispel field ei ole yksi niistä. Toisessa viipaleessa mitattu syy on tarkka: tämä loitsu on
+tarkoituksella vapautettu portista joka muualla erottaa toimijan oliosta. Se tarkoittaa, että
+ratkaistu kohde voi tässä yhdessä tapauksessa olla hahmon oma numero eikä olion maailman
+numero, aina kun joku seisoo valitulla ruudulla. Jos oikotie olisi otettu, tämä numero olisi
+indeksoinut väärää taulukkoa, hiljaa ja satunnaisesti, vain silloin kun ruudulla sattuu
+olemaan joku. Kierros ei ottanut sitä, vaan antoi sarakkeen, rivin ja tason kulkea omina
+syötteinään koko matkan, täsmälleen siksi että tämä yksi loitsu on poikkeus eikä sääntö.
+</p>
+
+<h2>Kolme kierrosta jäljellä</h2>
+
+<p>
+Ammuskaston 23:sta kohteesta rakennettuja ja kytkettyjä on nyt 20, ei 19. Animate, clone ja
+replicate ovat yhä muurin takana, kukin saamassa oman kierroksensa numerojärjestyksessä.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        188 / 214
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3097 / 3097
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kolmas viidestä kierroksesta: animaten oma kytkentä, jolle briefi ei ennusta yhtään
+     uutta syötettä näiden kierrosten jo tuomien lisäksi.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
