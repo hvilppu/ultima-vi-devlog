@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muuri Joka Avautui Yhdelle | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="121-muuri-joka-avautui-yhdelle.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/121-the-wall-that-opened-for-one.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 121</nav>
+
+<h1>Muuri joka avautui yhdelle</h1>
+
+<p class="lede">
+Viisi loitsua on odottanut kolmea puuttuvaa syötettä ammuskaston omassa kytkimessä, jokainen
+mitattu ja rakennettu mutta tavoittamaton loitsukirjasta. Tämä on ensimmäinen viidestä
+kierroksesta joka avaa muurin yksi kohde kerrallaan, ja ensimmäinen kierros löysi jotain muuta
+kuin sitä mitä se etsi.
+</p>
+
+<h2>Kolme syötettä, viisi lukkoa</h2>
+
+<p>
+Ammuskaston oma vaikutuskytkin on rakennettu ottamaan lisäsyötteitä valinnaisina parametreina
+sitä mukaa kuin uudet loitsut ovat niitä tarvinneet, ja viisi aiempaa loitsua on jo liitetty
+samaan allekirjoitukseen tällä tavalla. Viisi jäljellä olevaa kohdetta tarvitsee kolme asiaa
+jotka näkymä on kantanut koko ajan mutta jotka eivät ole koskaan ulottuneet kytkimeen asti:
+tiilipankki, perustiilitaulukko ja luokkataulukko. Kun kaikki kolme liitettiin kytkimen
+allekirjoitukseen samalla tavalla kuin aiemmat viisi, polku avautui kaikille viidelle
+kerralla. Mikä ei avautunut, on itse kytkentä: se tehdään yksi kohde kerrallaan, viidessä
+omassa kierroksessaan, jotta yksi virhe jää yhteen paikkaan.
+</p>
+
+<h2>Vanish ensimmäisenä, koska toinen loitsu odottaa sitä</h2>
+
+<p>
+Viidestä kohteesta vanish menee ensin, ja syy ei ole sen numero. Reappear-loitsu on ollut
+olemassa ja testattu moottorissa jo kahden viipaleen ajan, mutta se ei ole koskaan voinut
+onnistua pelissä: se lukee jaetun muistisanan jonka vanish kirjoittaa, ja koska vanishilla ei
+ollut polkua dispatcherista omaan rutiiniinsa, se muisti oli aina tyhjä. Yksi liitos avasi
+siis kaksi loitsua. Testi ajaa parin päästä päähän ensimmäistä kertaa, vanish sitten
+reappear, elävän dispatcherin läpi, eikä kumpaakaan nimettynä kieltäytymisenä.
+</p>
+
+<h2>Löydös joka ei liittynyt tähän kierrokseen ollenkaan</h2>
+
+<p>
+Kytkentää tehdessä löytyi jotain tätä kierrosta aiempaa: näkymä ei ollut koskaan antanut
+näkyvyystestiä ammuskytkimelle, vaikka chain boltin oma haara sitä vaatii. Chain bolt on ollut
+kytketty ja toiminnassa jo kahden viipaleen ajan. Käytännössä se tarkoitti, että loitsukirjasta
+kastettu chain bolt kaatui poikkeukseen sen sijaan että olisi loihtinut, jokaisella kerralla.
+Virhe ei ole tämän kierroksen tekemä, vain tämän kierroksen löytämä, eri asiaa tehdessä, ja se
+on ollut pelaajan tavoitettavissa koko sen ajan.
+</p>
+
+<p>
+Syy miksi mikään testi ei huomannut sitä on yksinkertainen: moottoripuolen testit kutsuivat
+kytkimen sisäistä metodia suoraan, nimetyillä argumenteilla, eivätkä sitä kautta minkä näkymä
+oikeasti antaisi. Kahden puolen testi ja todellinen käyttö olivat siis mitattu kahdella eri
+reitillä, ja juuri se toinen reitti kaatui.
+</p>
+
+<h2>Korjaus, ja testi joka olisi löytänyt sen etukäteen</h2>
+
+<p>
+Korjaus itse on yksi rivi: näkymän oma kutsupaikka antaa nyt näkyvyystestin chain boltin
+haaralle. Sen vierelle rakennettiin testi joka ajaa kaikki yhdeksäntoista tähän asti
+rakennettua tapausta läpi näkymän omalla, täydellä syötejoukolla ja väittää, ettei yksikään
+heitä poikkeusta puuttuvan argumentin takia. Testi todistettiin oikeaksi tavalla jota tämä
+projekti vaatii aina kun mahdollista: se ajettiin ensin korjauksen edestä, ja se kaatui
+täsmälleen siihen yhteen haaraan, 0x60:een, eikä mihinkään muuhun. Loput kahdeksantoista
+sulkeumaa käytiin läpi samalla testillä, eikä yhdelläkään muulla ollut samaa aukkoa.
+</p>
+
+<p>
+Virhe on tämän projektin oma, ei alkuperäisen, ja se kirjataan sellaisena: suunnittelu- ja
+kytkentävirhe, ei alkuperäisen käytöksen jäljitelmä.
+</p>
+
+<h2>Neljä kierrosta jäljellä</h2>
+
+<p>
+Ammuskaston 23:sta kohteesta rakennettuja ja kytkettyjä on nyt 19, ei 18. Dispel field,
+animate, clone ja replicate ovat yhä muurin takana, kukin saamassa oman kierroksensa, yksi
+kerrallaan, numerojärjestyksessä tästä eteenpäin koska mikään niistä ei odota toista samalla
+tavalla kuin reappear odotti vanishia.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        187 / 213
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3094 / 3094
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Toinen viidestä kierroksesta: dispel fieldin oma kytkentä, jolle kolme uutta syötettä
+     riittää yksinään, ei tarvitse mitään toista loitsua avukseen.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

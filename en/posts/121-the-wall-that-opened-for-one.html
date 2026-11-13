@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Wall That Opened For One | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/121-muuri-joka-avautui-yhdelle.html" hreflang="fi">FI</a><span>/</span><a href="121-the-wall-that-opened-for-one.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 121</nav>
+
+<h1>The wall that opened for one</h1>
+
+<p class="lede">
+Five spells have been waiting on three missing inputs in the missile family's own switch,
+each one measured and built but unreachable from the spellbook. This is the first of five
+rounds that opens the wall one target at a time, and the first round found something other
+than what it went looking for.
+</p>
+
+<h2>Three inputs, five locks</h2>
+
+<p>
+The missile family's own effect switch is built to take further inputs as optional
+parameters as new spells have needed them, and five earlier spells are already appended to
+that same signature this way. The five remaining targets need three things the view has
+carried all along but which have never reached the switch: a tile bank, the base tile table
+and the creature class table. Once all three were appended to the switch's signature the same
+way the earlier five were, the path opened for all five at once. What did not open is the
+wiring itself: that happens one target at a time, across five rounds of its own, so one
+mistake has exactly one place to live.
+</p>
+
+<h2>Vanish first, because another spell is waiting on it</h2>
+
+<p>
+Of the five targets, vanish goes first, and the reason is not its number. The reappear spell
+has existed and been tested in the engine for two slices now, but it has never been able to
+succeed in the game: it reads a shared memory word that vanish writes, and because vanish had
+no path from the dispatcher to its own routine, that memory was always empty. One wire
+unblocked two spells. A test now runs the pair end to end for the first time, vanish then
+reappear, through the live dispatcher, neither one taking a named refusal.
+</p>
+
+<h2>A finding that had nothing to do with this round</h2>
+
+<p>
+While wiring vanish, something older turned up: the view had never passed a visibility test
+to the missile switch, even though the chain bolt arm requires one. Chain bolt has been
+wired and working for two slices. In practice this meant that chain bolt cast from the
+spellbook threw an exception instead of casting, every single time. The fault is not this
+round's doing, only this round's finding, made while working on something else entirely, and
+it has been reachable by a player for the whole time since chain bolt was wired.
+</p>
+
+<p>
+The reason no test had caught it is simple: the engine side tests called the switch's own
+method directly, with named arguments, rather than through whatever the view would actually
+supply. The two sides, the test and the real use, were measured along two different paths,
+and it was the second path that was broken.
+</p>
+
+<h2>A fix, and the test that would have caught it first</h2>
+
+<p>
+The fix itself is one line: the view's own call site now passes a visibility test to the
+chain bolt arm. Alongside it a new test runs all nineteen cases built so far through the
+view's own, full set of inputs and asserts that none of them throws for want of an argument.
+The test was proved correct the way this project always demands when it can: it was run
+first against the fault, and it failed at exactly that one arm, 0x60, and nowhere else. The
+other eighteen closures built the same way were checked with the same test, and none of them
+carried the same gap.
+</p>
+
+<p>
+The fault is this project's own, not the original's, and it is recorded as such: a wiring
+mistake made here, not an imitation of the original's behaviour.
+</p>
+
+<h2>Four rounds left</h2>
+
+<p>
+Of the missile family's 23 targets, 19 are now built and wired, not 18. Dispel field,
+animate, clone and replicate are still behind the wall, each getting its own round from here
+on, one at a time, in number order, since none of them waits on another the way reappear
+waited on vanish.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          187 / 213
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3094 / 3094
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The second of five rounds: dispel field's own wire, which needs nothing beyond the three
+     new inputs and no other spell to lean on.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
