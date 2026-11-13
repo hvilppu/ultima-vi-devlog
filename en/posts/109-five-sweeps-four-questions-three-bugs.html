@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Five Sweeps, Four Questions, Three Bugs | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/109-viisi-pyyhkaisya-nelja-kysymysta-kolme-bugia.html" hreflang="fi">FI</a><span>/</span><a href="109-five-sweeps-four-questions-three-bugs.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 109</nav>
+
+<h1>Five sweeps, four questions, three bugs</h1>
+
+<p class="lede">
+Five spells share one shape nothing else in the spellbook uses: an area is swept and every
+victim in it is dealt with in place. The first pass refused to guess four times and named an
+open question instead. When the measuring session measured all four afterward, three of them
+turned out to be mistakes of its own that the whole 2768 test suite had already accepted.
+</p>
+
+<h2>One shape, five spells</h2>
+
+<p>
+Slime, tremor, wing strike, insect swarm and hail storm do not share a dispatcher family: each
+is its own branch. But reading all five in one sitting surfaced a shape nothing else in the
+spellbook uses. Four of them sweep the party's own surroundings in an eleven by eleven window;
+the fifth, hail storm, sweeps the area around a chosen square with entirely different
+arithmetic. All five deal with every victim they find exactly where it stands, rather than
+collecting a list first.
+</p>
+
+<p>
+None of the five is reachable from the spellbook. The dispatcher carries eight fixed family
+delegates and has no slot for an own branch, so wiring these five would mean widening two
+signatures by five more parameters each. That is a decision, not an oversight: the existing
+test that names every remaining own branch as a refusal still passes, and still names these
+five.
+</p>
+
+<h2>Four questions nobody guessed at</h2>
+
+<p>
+The first reading pass found four spots where the measured brief was ambivalent or silent:
+which frame pair belongs to which direction in wing strike, which way a tie breaks when the
+victim stands exactly on the party's own column, whether hail storm's pixel to square
+conversion should be a division or something else, and why wing strike's no-foes line had no
+message index at all. At every one of those spots the implementation named the question
+instead of picking one reading and moving on.
+</p>
+
+<p>
+The measuring session measured all four afterward. One really was only a naming gap: the
+missing message index on wing strike's own refusal is not a table lookup with a missing
+number, it is one of the original's own inline literals, which never went through the message
+table at all. But the other three were directions where the first pass had chosen wrong, and
+each one was written so that the test meant to catch it could never tell right from wrong.
+</p>
+
+<h2>A tie that could never break</h2>
+
+<p>
+Wing strike draws a dragon with two objects and picks its flight direction by whichever window
+edge sits farther from the victim, so the dragon always flies across it. The original's own
+choice is the distance to the left edge <strong>strictly greater</strong> than the distance to
+the right, which means a victim standing exactly on the party's own column fails that test and
+takes the other direction. The first pass wrote the test as a symmetric assertion, a strict
+inequality on both sides, which could never tell a tie apart from either direction: any answer
+would pass it. The correct test is not strict on both sides, it is strict on one and loose on
+the other, and that difference is exactly what says which way the tie falls.
+</p>
+
+<p>
+The same gap let the frame pairs be freely swapped with each other at first: the brief measured
+"two frame pairs, two directions" without ever saying the table that ties them together out
+loud. The original's own direction table is <code>{1, -1}</code>, and both frame tables are
+indexed by that same choice, so a pair belongs to its own direction and is not a free choice
+between two equivalent ones. Each mistake looked entirely correct until someone asked exactly
+the one case where the two readings disagree.
+</p>
+
+<h2>The edge nobody would have looked at</h2>
+
+<p>
+Hail storm's impact point is not a square choice, it is pixels: for each axis, two rolls of one
+to thirty are added to the selected square's own pixel origin and 23 is subtracted, and only
+then converted back down to a square. The original does that last conversion by shifting four
+bits to the right. The first pass wrote it as a division by sixteen, because a square is
+sixteen pixels and division feels like the obvious choice.
+</p>
+
+<p>
+A bit shift rounds towards negative infinity. C#'s integer division truncates towards zero.
+The two give exactly the same answer for every non-negative pixel value and a different answer
+for every single negative one. And a negative pixel is reachable in perfectly ordinary play: a
+selection at column 0 can roll an impact pixel as low as -21, which the shift puts in square -2
+and the division puts in square -1. The whole test suite, including hail storm's own tests as
+the first pass wrote them, was green with this mistake in place, because none of them happened
+to land on the map's own edge. The difference shows up exactly where nobody would have looked,
+which is why it is this round's best example of why "measured once" is not enough: it had to
+be measured at precisely the point where the two readings disagree, not at any point where they
+happen to agree.
+</p>
+
+<h2>And two findings that were never questions</h2>
+
+<p>
+The same reading pass turned up two things that had never been logged as open questions at
+all, because neither one felt uncertain, only odd. Hail storm totals the experience from every
+hit it deals and throws the sum away: the spell's own branch calls a routine that returns the
+experience earned, but never reads that return value. The file calls the same routine in
+exactly two places, and the other one does read the return value and use it, so this is not a
+convention of the whole file, it is one exception out of two. A player who casts hail storm
+earns no experience at all, no matter how many enemies the storm hits.
+</p>
+
+<p>
+Slime and tremor, in turn, look at only the first thing on each square of the sweep, not
+everything standing there. The original always inserts a newly arrived object at the front of
+the list, never the back, so a creature that walks onto a square already holding an object
+goes in front of it and takes the hit normally. But an object that arrives <em>after</em> the
+creature, dropped there or cast as a field onto an occupied square, spares that creature from
+both spells entirely. Both findings are the original's own behaviour, not a mistake of this
+project's own, and both are reproduced.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          175 / 201
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2836 / 2836
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Three spells that bring the dead back.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

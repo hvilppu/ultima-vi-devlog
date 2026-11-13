@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Viisi Pyyhkäisyä, Neljä Kysymystä, Kolme Bugia | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="109-viisi-pyyhkaisya-nelja-kysymysta-kolme-bugia.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/109-five-sweeps-four-questions-three-bugs.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 109</nav>
+
+<h1>Viisi pyyhkäisyä, neljä kysymystä, kolme bugia</h1>
+
+<p class="lede">
+Viisi loitsua jakaa yhden muodon eikä mikään muu loitsukirjassa: alue pyyhkäistään ja jokainen
+uhri siinä käsitellään paikallaan. Ensimmäinen toteutus kieltäytyi arvaamasta neljä kertaa ja
+nimesi avoimen kysymyksen sen sijaan. Kun mittaava sessio mittasi kaikki neljä jälkikäteen,
+kolme niistä olivat omia virheitä, jotka koko 2768 testin sarja oli jo hyväksynyt.
+</p>
+
+<h2>Yksi muoto, viisi loitsua</h2>
+
+<p>
+Slime, tremor, wing strike, hyönteisparvi ja raekuuro eivät jaa yhtäkään jaettua käsittelijää
+lähettäjän kartassa: kukin on oma haaransa. Mutta lukemalla kaikki viisi samassa istunnossa
+paljastui yhteinen muoto, jota mikään muu loitsu ei käytä. Neljä pyyhkii puolueen omaa
+ympäristöä yksitoista kertaa yksitoista -ikkunassa; viides, raekuuro, pyyhkii valitun ruudun
+ympäristöä kokonaan eri aritmetiikalla. Kaikki viisi käsittelevät jokaisen löytämänsä uhrin
+siinä missä se seisoo, ei kerää niitä listaksi ensin.
+</p>
+
+<p>
+Yksikään näistä viidestä ei ole tavoitettavissa loitsukirjasta. Lähettäjä kantaa kahdeksan
+kiinteää perhedelegaattia eikä paikkaa omalle haaralle, niin kytkeminen tarkoittaisi kahden
+allekirjoituksen laajentamista viidellä parametrilla lisää. Se on päätös, ei unohdus: vanha
+testi, joka nimeää kaikki jäljellä olevat omat haarat nimettynä kieltäytymisenä, pysyy voimassa
+ja nimeää edelleen myös nämä viisi.
+</p>
+
+<h2>Neljä kysymystä joita ei arvattu</h2>
+
+<p>
+Ensimmäinen lukukierros löysi neljä kohtaa, joissa mitattu brief oli ambivalentti tai hiljainen:
+kumpi kehyspari kuuluu kummalle suunnalle wing strikessä, mihin suuntaan tasapeli kaatuu kun
+uhri seisoo tasan puolueen omalla sarakkeella, pitäisikö raekuuron pikseli-ruutumuunnos olla
+jakolasku vai jotain muuta, ja miksi wing strikeltä puuttuu viesti-indeksi epäonnistumiselle.
+Jokaisessa kohdassa toteutus kirjasi kysymyksen auki sen sijaan että olisi valinnut jommankumman
+lukutavan ja jatkanut.
+</p>
+
+<p>
+Mittaava sessio mittasi kaikki neljä jälkikäteen. Yksi oli todella vain nimeämisen puute:
+wing strikeltä puuttuva viesti-indeksi ei ole taulukkohaku jolle numero puuttuisi, se on
+alkuperäisen oma suora tekstikirjoitus, joka ei koskaan kulkenut viestitaulun läpi. Mutta
+kolme muuta olivat suuntia, joissa ensimmäinen toteutus oli valinnut väärin, ja jokainen
+kolmesta oli kirjoitettu niin, että testi, jonka piti vangita se, ei voinut koskaan erottaa
+oikeaa väärästä.
+</p>
+
+<h2>Tasapeli joka ei voinut koskaan hajota</h2>
+
+<p>
+Wing strike piirtää lohikäärmeen kahdella oliolla ja valitsee lennon suunnan sen mukaan kumpi
+ikkunan reuna on kauempana uhrista, niin lohikäärme lentää aina uhrin ylitse. Alkuperäisen oma
+valinta on etäisyys vasempaan reunaan <strong>tiukasti suurempi</strong> kuin etäisyys oikeaan,
+mikä tarkoittaa, että uhri tasan puolueen omalla sarakkeella epäonnistuu tässä testissä ja saa
+toisen suunnan. Ensimmäinen toteutus kirjoitti testin symmetrisenä väitteenä, tiukka
+epäyhtälö molempiin suuntiin, joka ei voinut koskaan erottaa tasapeliä kummastakaan suunnasta:
+mikä tahansa vastaus läpäisi sen. Oikea testi ei ole tiukka molemmilla puolilla, vaan tiukka
+yhdellä ja väljä toisella, ja ero on juuri se mikä sanoo mihin suuntaan tasapeli kaatuu.
+</p>
+
+<p>
+Samasta syystä kehysparit olivat alun perin vapaasti vaihdettavissa keskenään: brief mittasi
+"kaksi kehysparia, kaksi suuntaa" eikä sanonut yhdistävää suuntataulua ääneen. Alkuperäisen
+oma suuntataulu on <code>{1, -1}</code>, ja molemmat kehystaulut indeksoidaan samalla valinnalla,
+niin pari kuuluu suunnalleen eikä ole vapaasti valittavissa. Kumpikin virhe oli sellainen, joka
+näyttäisi täysin oikealta, kunnes joku kysyisi juuri sitä yhtä tapausta jossa kaksi lukutapaa
+eroavat.
+</p>
+
+<h2>Reuna jota kukaan ei katsoisi</h2>
+
+<p>
+Raekuuron iskukohta ei ole ruutuvalinta, se on pikseliä: joka akselille kaksi heittoa yhdestä
+kolmeenkymmeneen lisätään valitun ruudun omaan pikselialkuperään ja 23 vähennetään, ja vasta
+sitten muunnetaan takaisin ruuduksi. Alkuperäinen tekee tämän viimeisen muunnoksen siirtämällä
+neljä bittiä oikealle. Ensimmäinen toteutus kirjoitti sen jakolaskuna kuudellatoista, koska
+yksi ruutu on kuusitoista pikseliä ja jako tuntuu ilmeiseltä valinnalta.
+</p>
+
+<p>
+Bittien siirto pyöristää kohti miinus ääretöntä. C#:n kokonaislukujako typistää kohti nollaa.
+Nämä kaksi antavat täysin saman vastauksen joka ei-negatiiviselle pikseliarvolle ja eri
+vastauksen joka ainoalle negatiiviselle. Ja negatiivinen pikseli on tavoitettavissa ihan
+tavallisesti: valinta sarakkeessa 0 voi tuottaa iskupikselin niin alhaalta kuin -21, jonka
+siirto sijoittaa ruutuun -2 ja jako ruutuun -1. Koko testisarja, mukaan lukien raekuuron omat
+testit sellaisina kuin ensimmäinen kierros kirjoitti ne, oli vihreä tämän virheen kanssa,
+koska yksikään niistä ei sattunut osumaan kartan reunalle. Ero näkyy tasan siellä missä kukaan
+ei olisi katsonut, ja juuri siksi se on tämän kierroksen paras esimerkki siitä miksi "mitattu
+kerran" ei riitä: se piti mitata juuri siinä kohdassa jossa kaksi lukutapaa eroavat, ei missä
+tahansa kohdassa jossa ne sattuvat olemaan samaa mieltä.
+</p>
+
+<h2>Ja kaksi havaintoa jotka eivät olleet kysymyksiä</h2>
+
+<p>
+Samalla lukukierroksella löytyi kaksi asiaa, joita ei ollut kirjattu avoimiksi kysymyksiksi
+ollenkaan, koska kumpikaan ei tuntunut epäselvältä, vasta oudolta. Raekuuro laskee yhteen
+kokemuksen jokaisesta osumasta jonka se tekee ja heittää summan pois: loitsun oma haara kutsuu
+rutiinia, joka palauttaa ansaitun kokemuksen, mutta ei lue paluuarvoa mihinkään. Tiedosto
+kutsuu samaa rutiinia tasan kahdessa paikassa, ja toinen niistä lukee paluuarvon ja käyttää
+sen, niin kyse ei ole koko tiedoston käytännöstä, vaan yhdestä poikkeuksesta kahdesta. Pelaaja
+joka loihtii raekuuron ei saa yhtäkään kokemuspistettä, riippumatta siitä montako vihollista
+myrsky osuu.
+</p>
+
+<p>
+Slime ja tremor puolestaan katsovat vain ensimmäistä asiaa jokaisella ruudulla pyyhkäisyssä,
+ei kaikkea mitä ruudulla on. Alkuperäinen lisää uuden olion aina listan eteen, ei loppuun,
+joten olento joka kävelee esineen päällä olevalle ruudulle menee sen eteen ja saa osuman
+normaalisti. Mutta esine joka saapuu olennon <em>jälkeen</em>, pudotettuna tai kenttäloitsuna
+kastettuna miehitetylle ruudulle, säästää olennon kokonaan molemmilta loitsuilta. Kumpikin
+havainto on alkuperäisen omaa käytöstä, ei tämän projektin virhe, ja molemmat jäljitellään.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        175 / 201
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2836 / 2836
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kolme loitsua jotka tuovat kuolleet takaisin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
