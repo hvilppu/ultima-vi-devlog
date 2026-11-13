@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolme Loitsua, Kolmetoista Valintaa, Kaksi Virhettä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="111-kolme-loitsua-kolmetoista-valintaa-kaksi-virhetta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/111-three-spells-thirteen-choices-two-mistakes.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 111</nav>
+
+<h1>Kolme loitsua, kolmetoista valintaa, kaksi virhettä</h1>
+
+<p class="lede">
+Telekinesis, taskuvarkaus ja web ulottuvat kohteeseensa ennen kuin ne vaikuttavat siihen.
+Ensimmäinen toteutus nimesi kolmetoista kohtaa joita se ei arvannut, enemmän kuin yksikään
+viipale tähän mennessä, ja kun mittaava sessio mittasi kaikki kolmetoista jälkikäteen, kaksi
+niistä olivat virheitä. Yksi niistä on tämän kirjoituksen oma aihe: tavu, joka on osa osoitinta,
+luettu suunnaksi, ja taulukko jota ei löytynyt osoitteesta mutta löytyi muodosta.
+</p>
+
+<h2>Kolme loitsua, yksi muoto</h2>
+
+<p>
+Telekinesis liikuttaa esinettä koskemattakaan sitä. Taskuvarkaus ottaa jotain joltain toiselta.
+Web peittää ruudun verkolla. Kolme täysin eri loitsua, mutta kaikki kolme jakavat yhden muodon
+jota mikään muu tiedostossa ei jaa: kehote, valinta, kastajan oma halo, ammuksen kävely
+kohteeseen, ja vasta sitten vaikutus. Telekinesis vaatii kohteekseen esineen, taskuvarkaus
+hahmon, web ei kumpaakaan vaan ruudun, ja se ero on suurin osa siitä mikä erottaa kolme loitsua
+toisistaan.
+</p>
+
+<p>
+Yksikään kolmesta ei ole tavoitettavissa loitsukirjasta, samasta syystä kuin jokainen omaa
+haaraansa ennen tätä: lähettäjä kantaa kahdeksan kiinteää perhedelegaattia eikä paikkaa omalle
+haaralle. Mukana tulee myös oma löytönsä: työntösääntö, jota telekinesis tarvitsee ja jolla ei
+ollut ennen tätä toista kutsujaa, rakennettu törmäyssääntöjen vierelle eikä loitsun sisälle.
+</p>
+
+<p>
+Ja yksi järjestys joka näyttää virheeltä eikä ole sellainen: telekinesis ja taskuvarkaus
+ampuvat ammuksensa heti kun koordinaatit ovat läsnä, ja tarkistavat valitun kohteen lajin vasta
+sen jälkeen. Väärän lajin kohteeseen kastaminen piirtää siis ammuksen ja antaa sen osua, ja
+kieltäytyminen tulee vasta perässä, hiljaa siitä mitä pelaaja juuri näki.
+</p>
+
+<h2>Telekinesis: neljä loitsua yhdessä</h2>
+
+<p>
+Kun ammus saavuttaa valitun esineen, sen oma tyyppi ratkaisee minkä neljästä polusta loitsu
+ottaa. Kampi käännetään ja loitsu palaa. Vipu käännetään ja loitsu palaa. Molemmat täysin
+hiljaa: ei viestiä, ei ääntä. Painoton esine kieltäytyy omalla kirjaimellisella rivillään, testi
+on esineen oman tyypin paino tasan nolla. Ja kaikki muu työnnetään yhden ruudun: kohteen oma
+halo, kysytään suunta, ja jos suunta ei ole tukittu, esine siirtyy ja kanuunan oma kehys
+kirjoitetaan uudelleen suunnasta.
+</p>
+
+<p>
+Niin kaksi neljästä polusta on täysin hiljaista, ja juuri ne kaksi muuttavat maailmaa: kampi ja
+vipu tekevät jotain näkymätöntä pelaajalle paitsi sen seurauksena, ja työnnön onnistuminen tai
+epäonnistuminen puhuu mutta ei muuta mitään jos se epäonnistuu.
+</p>
+
+<h2>Taskuvarkaus: ainoa loitsu joka maksaa karman</h2>
+
+<p>
+Taskuvarkaus on tiedoston ainoa loitsu jolla on hinta onnistumisesta: karma laskee viidellä, ja
+vain onnistuessaan. Matkalla sinne on neljä eri tapaa epäonnistua, ja ne kaikki käyttäytyvät eri
+tavalla. Väärän lajin tai puuttuvan kohteen kieltäytyminen puhuu, viestillä ja äänellä. Toinen
+valinta, uhrin omasta inventaariosta, voi epäonnistua kolmella tavalla, ja yksi niistä on se
+jonka portti unohtaisi: esine joka lojuu kartalla uhrin kannettavana olemisen sijaan.
+Ei-valmis-testi, se joka tarkistaa onko esine juuri nyt käytettävissä, päättää loitsun täysin
+hiljaa: ei viestiä, ei ääntä, ei karmaa. Painotesti puhuu omalla rivillään kun varastettava
+esine veisi kastajan yli oman kantokyvyn.
+</p>
+
+<p>
+Ja kun kaikki neljä porttia läpäistään, onnistuminen itse ei soita yhtäkään ääntä, mikä on
+poikkeus tiedoston omaan tapaan soittaa onnistumisääni lähes aina. Taskuvarkaus on siis
+samanaikaisesti ainoa loitsu jolla on hinta ja ainoa jonka onnistuminen on hiljainen.
+</p>
+
+<h2>Web: yhdeksän ammusta tai ei yhtään</h2>
+
+<p>
+Web ei kysy mitään valitusta esineestä, koska sillä ei ole yhtäkään: sen kieltäytyminen tarkistaa
+vain koordinaattien läsnäolon. Mutta sen oma kävely on omanlaisensa: yhdeksän ammusta yhdessä
+kutsussa, kahdeksan ruutua valinnan ympäriltä ja valinta itse viimeisenä, kantamalla 7 missä
+telekinesis ja taskuvarkaus käyttävät 8:aa. Ja se kutsu ilmoittaa onnistumisen vain kun kaikki
+yhdeksän saavuttivat kohteensa: yksi tukkeutunut ruutu missä tahansa renkaassa estää koko
+loitsun eikä laita yhtäkään verkkoa.
+</p>
+
+<p>
+Onnistuessa kolme kertaa kolme -lohko kävellään, ja joka ruudulle verkko luodaan ensin
+dummy-sijaintiin ja testataan vasta sitten: jos sijoitus onnistuu, verkko siirtyy paikalleen, ja
+jos ei, se tuhotaan. Tämä paljasti toisen kahdesta virheestä: yhdeksän ammuksen oma järjestys
+kävelee keskuksen viimeisenä, mutta kolme kertaa kolme -lohko kävelee sarakkeen ulompana ja
+rivin sisempänä silmukkana, niin keskus on yhdeksästä viides eikä viimeinen. Kaksi eri
+järjestystä samassa loitsussa, ja ensimmäinen toteutus oli olettanut yhden riittävän molempiin.
+</p>
+
+<h2>Kolmekymmentäkahdeksan</h2>
+
+<p>
+Toinen virhe on tämän kirjoituksen oma tarina, ja se löytyi telekinesiksen omasta
+työntösäännöstä: kun esine työnnetään, suora suunta riittää yhteen testiin, mutta diagonaali
+testaa lisäksi kaksi sivuttaisruutua, suunnat valitun suunnan molemmin puolin, jotta esine ei
+pääse puristumaan raon läpi jonka molemmin puolin on kiinteää maata. Testi indeksoi kahta
+kahdeksan tavun suuntataulukkoa valitusta suunnasta yhden verran kumpaan tahansa, ja
+luode on kahdeksasta suunnasta se yksi ainoa jonka yläpuolinen sivuttaissuunta putoaa
+taulukon alun yli.
+</p>
+
+<p>
+Siinä kohdassa alkuperäinen ei kierrä eikä erikoiskäsittele mitään: se lukee yhden tavun
+kummankin taulukon pään yli, sellaisenaan. Ensimmäisen taulukon yhdeksäs tavu on toisen
+taulukon ensimmäinen, -1. Toisen taulukon yhdeksäs tavu on sitä seuraava tavu, suuntien nimiä
+osoittavan taulukon ensimmäisen osoittimen matala tavu. Se tavu on 38.
+</p>
+
+<p>
+Niin luoteen työntö testaa toisena sivuttaisruutunaan ruudun joka on kolmekymmentäkahdeksan
+riviä kauempana, valittu tavusta joka on osa osoitinta eikä suuntatietoa. Onko se ruutu
+kulkukelpoinen riippuu siitä mitä sattuu olemaan sillä rivillä, ei työnnöstä mitenkään.
+Ensimmäinen toteutus oli lukenut tämän kierrona, mod kahdeksalla, mikä olisi kysynyt pohjoista
+naapuria ja olisi ollut oikeassa sattumalta noin puolet ajasta.
+</p>
+
+<p>
+Taulukkoparin omat osoitteet eivät pidä omistajan käännöksessä, niin mittaus ei voinut etsiä
+niitä osoitteesta. Se etsi niitä muodosta: taulukkoparin kuusitoista tavua esiintyy tiedostossa
+kahdesti, ja oikea paikka ratkesi erottelijalla eikä valinnalla. Yhdessä paikassa sitä seuraava
+sana on tasan 0x0226, dekompilaation oma luku suuntien nimien ensimmäiselle osoittimelle; toisessa
+se ei ole. Samat kuusitoista tavua taulukot keskenään vaihdettuna, tahallaan väärä lukutapa, ei
+esiinny missään paikassa ollenkaan. Kaksi riippumatonta täsmäystä samasta luvusta, ja sama
+taulukkopari oli mitattu aiemmin toisen kutsupaikan läpi: nyt mittaus vahvistaa saman paikan
+toista kertaa, eri reitiltä.
+</p>
+
+<p>
+Rakennettu mitattuna: luoteen työntö kysyy 38:aa, nimettynä sellaisenaan, ei kierrontana.
+Kirjattu <code>originalBugs.md</code>:hen vahvistettuna alkuperäisen omana bugina, jäljiteltynä.
+</p>
+
+<h2>Kolmetoista valintaa, kaksi virhettä</h2>
+
+<p>
+Ensimmäinen toteutus nimesi kolmetoista kohtaa joita se oli valinnut mittaamatta, enemmän kuin
+yksikään viipale tähän mennessä. Yksitoista niistä osoittautui oikeiksi sellaisenaan:
+taskuvarkauden painotesti ei katso varastetun esineen sisään, koska alkuperäisen oma
+painorutiini on esineen oma paino eikä sen sisällön; webin uuden verkon dummy-sijainti on
+(0,&nbsp;0); ja kaikki äänivalinnat olivat oikein jo ensimmäisellä kierroksella. Kaksi oli
+virheitä, molemmat sellaisia jotka kukaan testi ei olisi huomannut, koska kumpikin testi oli
+kirjoitettu lukemaan molemmat vastaukset oikeiksi.
+</p>
+
+<p>
+Tämä on jo useamman viipaleen oma kaava: nimeä valinta avoimeksi, mittaa se jälkikäteen, ja
+osa vastauksista osoittautuu koodiin pannuiksi virheiksi joita koko testisarja oli hyväksynyt.
+Se minkä nimeäminen avoimeksi kysymykseksi antaa ei ole oikea vastaus heti, vaan mahdollisuus
+löytää väärä vastaus jälkikäteen. Hiljaa valittu arvaus, kuten mod kahdeksalla olisi ollut, ei
+anna sitä mahdollisuutta ollenkaan.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        177 / 203
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2940 / 2940
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Seitsemän omaa haaraa jäljellä, eikä yksikään niistä jaa mitään toisen loitsun kanssa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Spells, Thirteen Choices, Two Mistakes | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/111-kolme-loitsua-kolmetoista-valintaa-kaksi-virhetta.html" hreflang="fi">FI</a><span>/</span><a href="111-three-spells-thirteen-choices-two-mistakes.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 111</nav>
+
+<h1>Three spells, thirteen choices, two mistakes</h1>
+
+<p class="lede">
+Telekinesis, pickpocket and web reach their target before they affect it. The first pass named
+thirteen points it did not guess, more than any slice so far, and when the measuring session
+measured all thirteen afterward, two of them were mistakes. One of them is this post's own
+story: a byte that is part of a pointer, read as a direction, and a table that could not be
+found by its address but was found by its shape.
+</p>
+
+<h2>Three spells, one shape</h2>
+
+<p>
+Telekinesis moves an object without touching it. Pickpocket takes something from someone.
+Web covers a square in webbing. Three entirely different spells, but all three share one shape
+nothing else in the file shares: a prompt, a selection, the caster's own halo, a missile walk to
+the target, and only then an effect. Telekinesis demands an object, pickpocket demands a
+character, web demands neither, only a square, and that difference is most of what separates
+the three.
+</p>
+
+<p>
+None of the three is reachable from the spellbook, for the same reason as every own branch
+before this one: the dispatcher carries eight fixed family delegates and has no slot for an own
+branch. The slice also brought its own find along the way: a push rule telekinesis needs and
+which had no other caller here, built beside the collision rules rather than inside the spell.
+</p>
+
+<p>
+And one order that looks like a mistake and is not: telekinesis and pickpocket fire their
+missile the moment coordinates are present, and check the selected target's kind only
+afterward. A cast at the wrong kind of target still draws the missile and lets it land, and the
+refusal that follows is silent about what the player just watched happen.
+</p>
+
+<h2>Telekinesis: four spells in one</h2>
+
+<p>
+When the missile reaches the selected object, its own type decides which of four paths the
+spell takes. A crank is turned and the spell returns. A lever is turned and the spell returns.
+Both entirely silent: no message, no sound. A weightless object refuses with its own literal
+line, the test being the object's own type weight equal to zero. And everything else is pushed
+one square: the target's own halo, a direction is asked for, and if the direction is not
+blocked, the object moves and a cannon's own frame is rewritten from the direction.
+</p>
+
+<p>
+So two of the four paths are completely silent, and those are exactly the two that change the
+world: the crank and the lever do something invisible to the player except through its
+consequence, and the push speaks but changes nothing when it fails.
+</p>
+
+<h2>Pickpocket: the only spell that costs karma</h2>
+
+<p>
+Pickpocket is the only spell in the file with a price for success: karma falls by five, and only
+on success. Getting there has four ways to fail, and all four behave differently. The wrong kind
+or a missing target refuses out loud, with a message and a sound. A second selection, from the
+victim's own inventory, can fail in three ways, and one of them is the one a port would forget:
+an object lying on the map instead of the victim actually carrying it. The unready check, the
+one that asks whether the object is usable right now, ends the spell in complete silence: no
+message, no sound, no karma. The weight check speaks its own line when the stolen object would
+push the caster over their own carrying capacity.
+</p>
+
+<p>
+And once all four gates are passed, success itself plays no sound at all, which is the exception
+to the file's own habit of playing a success sound almost everywhere. Pickpocket is thus
+simultaneously the only spell with a price and the only one whose success is silent.
+</p>
+
+<h2>Web: nine missiles or none</h2>
+
+<p>
+Web never asks about a selected object, because it has none: its refusal checks only whether
+the coordinates are present. But its own walk is its own kind: nine missiles in one call, the
+eight squares around the selection plus the selection itself last, at a range of 7 where
+telekinesis and pickpocket use 8. And that call reports success only when all nine reached their
+destination: one blocked square anywhere in the ring stops the whole spell and lays no web at
+all.
+</p>
+
+<p>
+On success a three by three block is walked, and for each square a web is created first at a
+dummy position and tested only afterward: if placement succeeds the web moves there, and if not
+it is deleted. This is where the second of the two mistakes turned up: the nine missiles walk
+the centre last, but the three by three block walks the column on the outside and the row on
+the inside, so the centre is the fifth of nine, not the last. Two different orders in the same
+spell, and the first pass had assumed one would do for both.
+</p>
+
+<h2>Thirty eight</h2>
+
+<p>
+The second mistake is this post's own story, and it turned up in telekinesis's own push rule:
+when an object is pushed, a straight direction needs one test, but a diagonal also tests two
+flanking squares, the directions either side of the chosen one, so an object cannot squeeze
+through a gap with solid ground on both sides. The test indexes two eight byte direction tables
+from the chosen direction by one in either direction, and northwest is the one direction out of
+eight whose upper flanking direction falls off the start of the table.
+</p>
+
+<p>
+Right there the original neither wraps nor special cases anything: it reads one byte past the
+end of each table, exactly as it sits in memory. The first table's ninth byte is the second
+table's first, which is -1. The second table's ninth byte is the byte right after it, the low
+byte of the first pointer in the table of direction name pointers. That byte is 38.
+</p>
+
+<p>
+So a northwest push tests, as its second flanking square, the square thirty eight rows away,
+chosen by a byte that is part of a pointer rather than direction data. Whether that square is
+passable depends on whatever happens to sit on that row, and has nothing to do with the push.
+The first pass had read this as a wraparound, modulo eight, which would have asked for the
+northern neighbour instead and would have been right by accident about half the time.
+</p>
+
+<p>
+The table pair's own addresses do not hold in the owner's build, so the measurement could not
+search for them by address. It searched by shape instead: the table pair's sixteen bytes occur
+in the file twice, and the right place was settled by a discriminator rather than a choice. At
+one of them the word right after the tables is exactly 0x0226, the decompilation's own offset
+for the first direction name pointer; at the other it is not. The same sixteen bytes with the
+two tables swapped, a deliberately wrong reading, occur nowhere at all. Two independent matches
+to the same number, and this same table pair had been measured once before through a different
+call site: the measurement now confirms the same place a second time, by a different road.
+</p>
+
+<p>
+Built as measured: the northwest push asks for 38, named as what it is, not as a wraparound.
+Recorded in <code>originalBugs.md</code> as a confirmed bug of the original, reproduced.
+</p>
+
+<h2>Thirteen choices, two mistakes</h2>
+
+<p>
+The first pass named thirteen points it had chosen without measuring, more than any slice so
+far. Eleven of them turned out to be right as written: pickpocket's weight test does not look
+inside the stolen object, because the original's own weight routine is the weight of an object
+and not of its contents; the dummy position for a new web is (0, 0); and every sound choice was
+right on the first pass. Two were mistakes, and both were the kind no test would have caught,
+because each test had been written to accept either answer.
+</p>
+
+<p>
+This is by now a pattern across several slices: name a choice as open, measure it afterward, and
+some of the answers turn out to be mistakes already in the code that the whole test suite had
+accepted. What naming a choice as open buys is not the right answer immediately, it is the
+chance to find the wrong one later. A guess picked quietly, like modulo eight would have been,
+never offers that chance at all.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          177 / 203
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    2940 / 2940
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Seven own branches remain, and none of them shares anything with another spell.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
