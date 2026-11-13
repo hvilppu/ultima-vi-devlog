@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolme Jotka Avaavat Oman Tilansa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="114-kolme-jotka-avaavat-oman-tilansa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/114-three-that-open-a-mode-of-their-own.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 114</nav>
+
+<h1>Kolme jotka avaavat oman tilansa</h1>
+
+<p class="lede">
+Enchant, gate travel ja wizard eye olivat viimeiset kolme loitsua koko pelistä joita ei
+ollut mitattu. Niiden myötä kaikilla kahdeksallakymmenellä loitsulla on nyt mitattu
+käsittelijä, ensimmäistä kertaa tämän projektin historiassa. Se luku on syytä sanoa
+tarkasti, koska seitsemän niistä ei silti tavoita pelissä yhtään mitään.
+</p>
+
+<h2>Vartija joka ei voi koskaan laueta</h2>
+
+<p>
+Enchant kirjoittaa toisen loitsun latauksen sauvaan. Se valitsee kohteen ja törmää heti
+vartijaan jonka pitäisi hylätä kaikki paitsi kannettu esine: kohde on poissa, <strong>ja</strong>
+kohde on esine, <strong>ja</strong> kohde ei ole maassa kartalla. Ensimmäinen ja toinen
+ehto eivät voi olla tosia yhtä aikaa, poissa oleva kohde ei voi samalla olla esine, niin
+koko vartija on kuollut koodia. Dekompilaation oma kommentti arvailee kirjoittajan
+tarkoittaneen "tai"-ehtoa "ja":n sijaan.
+</p>
+
+<p>
+Seuraus: ainoa testi joka koskaan ajaa on vartijan jälkeinen tyyppiehto, kohteen tyypin
+on oltava sauvan. Loitsu lumoo siis minkä tahansa sauvan riippumatta siitä makaako se
+kartalla vai onko se jonkun repussa, kun tarkoitus oli selvästi estää kartalla makaavan
+sauvan lumoaminen. Kirjattu <code>originalBugs.md</code>:hen vahvistettuna poikkeamana ja
+jäljitelty sellaisenaan: tämä projekti ei lue esineen kannettu-tilaa ollenkaan tässä
+kohdassa, täsmälleen siksi että alkuperäinen vartija ei koskaan pääse siihen tarkistukseen.
+</p>
+
+<p>
+Sama loitsu kätkee toisen tarkan rajan: sauvan sisältö kieltäytyy <strong>tasan
+kymmenessä</strong> esineessä, ei kymmenessä tai enemmässä. Sauva joka jo pitää sisällään
+yksitoista mitä tahansa läpäisee portin joka oli tarkoitettu pysäyttämään se kymmeneen.
+</p>
+
+<h2>Kieltäytyminen jota ei kuule näkemättä</h2>
+
+<p>
+Gate travel kysyy kirjoitetun numeron ja teleportoi puolueen sen kuukiven sijaintiin.
+Viidestä kieltäytymisehdosta jokainen, väärä merkki, tyhjä rivi, nolla, yli kahdeksan tai
+sijoittamaton kuukivi, tekee täsmälleen saman asian: soittaa äänen ja tulostaa ei mitään.
+Se on koko loitsutiedoston ainoa kieltäytyminen joka on hiljainen tekstissä ja äänekäs
+äänessä. Pelaaja joka ei tunnista sitä äänimerkkiä ei saa mitään muuta vihjettä siitä
+miksi matka ei alkanut.
+</p>
+
+<p>
+Tämä loitsu nimesi myös oman aukkonsa: tällä projektilla ei ole tapaa siirtää koko
+puoluetta kerralla, yhtä hahmoa kyllä. Käsittelijä kertoo siis minne puolue saapuisi eikä
+siirrä ketään, rehellisesti, koska korvikkeen keksiminen puolueen omalle
+uudelleenryhmittelylle olisi ollut arvaus siinä kohdassa jossa mittaus ei vastaa.
+</p>
+
+<h2>Neljäkymmentä, joita on neljäkymmentäyksi</h2>
+
+<p>
+Wizard eye avaa roamaavan silmän jota pelaaja ohjaa suunnilla, näkee läpi seinien
+missä se on, ja sulkeutuu kun liikkeet loppuvat. Dekompilaation oma kommentti sanoo
+liikkeitä olevan neljäkymmentä. Koodi sanoo toista: laskuri alkaa neljästäkymmenestä ja
+silmukka jatkuu niin kauan kuin se on <strong>nolla tai enemmän</strong>, niin liike joka
+otetaan laskurin ollessa nolla on jo neljäskymmenesensimmäinen, ennen kuin seuraava
+vähennys vasta viepi laskurin negatiiviseksi.
+</p>
+
+<p>
+Tämä ei ole alkuperäisen pelin bugi, eikä se ole kirjattu <code>originalBugs.md</code>:hen
+sellaisena: peli itse käyttäytyy täsmälleen samoin joka ainoalla kastolla, 41 liikettä,
+oli kukaan koskaan lukenut sitä kommenttia tai ei. Ristiriita on kommentin ja koodin
+välissä, ei alkuperäisen käytöksessä, ja se on juuri se muoto josta tämä projekti on
+jäänyt kiinni ennenkin: proosaluku jonka vierellä on rajan oma koodi eri lukemalla, ja
+proosa on se jonka portti kopioi suoraan testaamatta. 41 on nyt mitattu ja väitetty omana
+testinään, ja 42. liike kieltäytyy siinä samassa testissä.
+</p>
+
+<p>
+Pieni lisähuomio samasta silmukasta: näppäin joka ei ole suunta ei kuluta yhtään
+liikettä, se vain luetaan ja ohitetaan. Pelaaja joka painaa mitä tahansa muuta kuin
+suuntaa voi siis pitää silmän auki niin kauan kuin haluaa.
+</p>
+
+<h2>Kahdeksankymmentä, sanottuna tarkasti</h2>
+
+<p>
+Näiden kolmen myötä kaikilla kahdeksallakymmenellä loitsulla pelissä on mitattu
+käsittelijä: 61 jaetun perheensä kautta, 12 yhdeksännen delegaatin kautta ja nämä
+viimeiset kolme omina luokkinaan. Se on rivi joka kannattaa sanoa ja sanoa oikein.
+</p>
+
+<p>
+Se ei tarkoita että kaikki kahdeksankymmentä olisivat pelaajan tavoitettavissa.
+<strong>73 tavoittaa käsittelijänsä oikeasti pelissä, ja 7 ei tavoita mitään</strong>,
+kukin odottaen yhtä neljästä nimetystä puuttuvasta vuorovaikutustilasta: suuntakehote ja
+sen jaettu "viimeisin suunta" -arvo (tuulenvaihto, telekinesiksen työntö, wizard eyen
+oma silmukka), kirjoitettu rivi tekstiä (gate travel), poiminta toisen hahmon repusta
+(taskuvarkauden toinen valinta) ja poiminta loitsukirjan sivulta (enchantin toinen
+kehote). Ei yksikään niistä ole mittaamatta oleva sääntö. Kaikki ovat mitattuja ja
+rakennettuja käsittelijöitä jotka odottavat näppäimistöä jota tällä pelillä ei ole vielä
+kenelläkään ollut tapaa tarjota.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        180 / 206
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    3003 / 3003
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Ei yhtään mittaamatta olevaa loitsua. Jäljellä neljä nimettyä vuorovaikutustilaa:
+     suuntakehote ja sen jaettu arvo, kirjoitettu rivi, poiminta toisen repusta, poiminta
+     loitsukirjan sivulta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

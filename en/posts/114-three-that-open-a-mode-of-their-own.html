@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three That Open A Mode Of Their Own | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/114-kolme-jotka-avaavat-oman-tilansa.html" hreflang="fi">FI</a><span>/</span><a href="114-three-that-open-a-mode-of-their-own.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 114</nav>
+
+<h1>Three that open a mode of their own</h1>
+
+<p class="lede">
+Enchant, gate travel and wizard eye were the last three spells in the whole game that had
+never been measured. With them, every one of the eighty spells now has a measured
+handler, for the first time in this project's history. That number is worth saying
+carefully, because seven of them still cannot be cast and reach nothing in play.
+</p>
+
+<h2>A guard that can never fire</h2>
+
+<p>
+Enchant writes a charge of another spell into a staff. It picks a target and runs
+straight into a guard that is supposed to reject anything but a carried object: the
+selection is absent, <strong>and</strong> the selection is an object, <strong>and</strong>
+the selection is not lying on the map. The first two conditions cannot both hold at once,
+an absent selection cannot also be an object, so the whole guard is dead code. The
+decompilation's own comment guesses the author meant "or" instead of "and".
+</p>
+
+<p>
+The result: the only test that ever runs is the type check after it, which demands the
+target be a staff. The spell therefore enchants any staff whatsoever, whether it is lying
+on the ground or sitting in somebody's pack, when the clear intent was to stop exactly
+the ground case. Recorded in <code>originalBugs.md</code> as a confirmed anomaly and
+imitated as measured: this project never reads whether the object is held at all at this
+point, precisely because the original's guard never reaches that check.
+</p>
+
+<p>
+The same spell hides a second exact bound: a staff's own contents refuse at
+<strong>exactly ten</strong> items, not ten or more. A staff that already holds eleven of
+anything sails straight through a gate that was meant to stop it at ten.
+</p>
+
+<h2>A refusal you cannot hear without already knowing</h2>
+
+<p>
+Gate travel asks for a typed number and teleports the party to that moonstone's own
+position. Every one of its five refusal conditions, a bad character, an empty line,
+zero, more than eight, or an unplaced moonstone, does the exact same thing: plays a sound
+and prints nothing at all. It is the only refusal in the entire spell file that is silent
+in text and audible in sound. A player who does not recognize that chime gets no other
+clue why the trip never started.
+</p>
+
+<p>
+This spell also named its own gap: this project has no way to move the whole party at
+once, only a single character. The handler therefore reports where the party would
+arrive and moves nobody, honestly, because inventing a stand in for the party's own
+regrouping would have been a guess at exactly the point where measurement has nothing to
+say.
+</p>
+
+<h2>Forty, which turns out to be forty one</h2>
+
+<p>
+Wizard eye opens a roaming eye the player steers with directions, seeing through walls
+wherever it goes, closing once its moves run out. The decompilation's own comment says
+the move count is forty. The code says otherwise: the counter starts at forty and the
+loop keeps going while it is <strong>zero or more</strong>, so the move taken when the
+counter reads zero is already the forty first, and only the decrement after that one
+takes it negative.
+</p>
+
+<p>
+This is not a bug in the original game, and it is not recorded in
+<code>originalBugs.md</code> as one: the game itself behaves exactly the same way on
+every single cast, forty one moves, whether or not anyone ever read that comment. The
+mismatch sits between the comment and the code, not in the original's own behavior, and
+it is exactly the shape this project has been caught by before: a prose number sitting
+next to a bound whose own code disagrees, where the prose is the thing a port copies
+without testing it. Forty one is now measured and asserted as its own test, and the 42nd
+move is refused in that same test.
+</p>
+
+<p>
+One smaller note from the same loop: a key that is not a direction spends no move at all,
+it is simply read and ignored. A player who presses anything but a direction can hold the
+eye open for as long as they like.
+</p>
+
+<h2>Eighty, said precisely</h2>
+
+<p>
+With these three, every one of the eighty spells in the game now has a measured handler:
+61 through their shared family, 12 through the ninth delegate, and these final three as
+their own classes. That is a line worth saying, and worth saying correctly.
+</p>
+
+<p>
+It does not mean all eighty are reachable by a player. <strong>73 actually reach their
+handler in play, and 7 reach nothing at all</strong>, each one waiting on one of four
+named missing interaction modes: a direction prompt and the shared "last direction given"
+value it writes (wind change, telekinesis' push, wizard eye's own loop), a typed line of
+text (gate travel), a pick from another character's pack (pickpocket's second selection),
+and a pick from the spellbook page (enchant's second prompt). Not one of these is an
+unmeasured rule. All of them are measured, built handlers waiting on a keyboard this
+game has not yet had any way to offer anyone.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          180 / 206
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      58 / 58
+U6Engine.Tests    3003 / 3003
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>No spell left unmeasured. Four named interaction modes remain: a direction prompt and
+     its shared value, a typed line, a pick from another's pack, a pick from the
+     spellbook page.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
