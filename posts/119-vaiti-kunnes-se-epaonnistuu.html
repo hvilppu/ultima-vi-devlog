@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vaiti Kunnes Se Epäonnistuu | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="119-vaiti-kunnes-se-epaonnistuu.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/119-silent-until-it-fails.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 119</nav>
+
+<h1>Vaiti kunnes se epäonnistuu</h1>
+
+<p class="lede">
+Loitsujen omat loihtimissanat saivat vihdoin kulkuluvan ajonaikaiseen tiedostoon. Mittaus oli
+tehty kauan sitten; puuttui vain niiden kuljettaminen ja lukeminen takaisin. Se osoittautui
+helpoimmaksi osaksi. Vaikeampi löytyi testistä joka piti sanat poissa tästä repositoriosta niin
+kauan kuin se läpäisi, ja olisi tehnyt juuri päinvastoin sillä hetkellä kun joku olisi niitä
+oikeasti tarvinnut nähdä.
+</p>
+
+<h2>Kuljetus, ei mittaus</h2>
+
+<p>
+Vientityökalu on lukenut loitsun loihtimiskirjaimet ja kaikki kaksikymmentäkuusi tavua
+omistajan omasta ohjelmasta jo useiden kuukausien ajan. Mikään tässä viipaleessa ei etsinyt
+niitä uudestaan tai kysynyt mistä ne löytyvät. Ajonaikainen tiedosto ei vain kantanut niitä
+kummassaan aiemmassa muodossaan, ja moottorilla ei ollut mitään tapaa lukea niitä takaisin,
+niin loitsukirjan sivun oma poiminta, joka tarvitsee juuri näitä sanoja kirjoitetun kehotteen
+vertailukohdaksi, ei voinut olla olemassa. Tiedosto sai kolmannen versionsa, yhden pituustavun
+ja sen verran kirjaimia per loitsu nimen jälkeen, ja koko tavutaulukon piirien nimien jälkeen.
+Vanhaa versiota ei jätetty luettavaksi, koska tätä tiedostoa ei koskaan toimiteta kenellekään:
+se syntyy uudestaan omistajan omista tiedostoista joka ajolla.
+</p>
+
+<h2>Kaksi toteutusta, yksi testi joka lunastaa molemmat</h2>
+
+<p>
+Sanojen lausuminen, kirjainten muuttaminen puhutuiksi tavuiksi, on nyt kirjoitettu kahteen
+paikkaan: vientityökaluun, joka on ollut siellä alusta asti, ja moottoriin, joka ei koskaan
+viittaa vientityökalun kokoonpanoon. Kaksinkertaisuus on tarkoituksellinen, mutta se on
+turvallinen vain jos joku todella tarkistaa että molemmat toteutukset sanovat saman asian
+jokaisesta kahdeksastakymmenestä loitsusta. Se tarkistus on oma testinsä, ja se on ainoa paikka
+koko projektissa joka näkee molemmat kokoonpanot yhtä aikaa.
+</p>
+
+<h2>Kolme vikaa sisään, kaksi jäi kiinni</h2>
+
+<p>
+Tämä projekti vaatii että uusi tarkistus todistetaan rikkomalla se tarkoituksella, ei lukemalla
+se läpi ja toivomalla parasta. Kolme vikaa kirjoitettiin tähän koodiin: käännetty kirjainkartta
+moottorissa, lukija joka olisi hyväksynyt vanhan tiedostoversion, ja poistettu rajatarkistus.
+Ensimmäiset kaksi jäivät juuri niiden omien testien kiinni, siinä järjestyksessä kuin piti.
+Kolmas ei jäänyt yhtä suoraan: tiedoston lukija tarkistaa lopuksi erikseen että koko tiedosto
+tuli käytetyksi, eikä mitään jäänyt ylimääräiseksi hännäksi, ja se tarkistus hylkää saman
+tiedoston joka tapauksessa, poistetusta rajatarkistuksesta riippumatta. Testi ei siis todistanut
+sitä mitä sen piti todistaa, vaan sitä että tiedosto tulee hylätyksi jostakin syystä. Ero on
+pieni paperilla ja ei pieni käytännössä: toinen väite sanoo mikä tarkalleen pysäytti virheen,
+toinen sanoo vain että joku pysäytti sen.
+</p>
+
+<h2>Testi joka oli varovainen vain läpäistessään</h2>
+
+<p>
+Rikkoessaan kirjainkarttaa tarkoituksella tätä toista löydöstä ei etsitty, se löytyi. Kahden
+toteutuksen vertaava testi käytti tavallista yhtäsuuruusväitettä, ja sellainen tulostaa
+molemmat puolensa kun se epäonnistuu, jotta joku näkee mitkä kaksi arvoa erosivat toisistaan.
+Tämän testin kommentti väitti ettei vertailu tulosta kumpaakaan merkkijonoa missään
+olosuhteissa. Se oli totta koko ajan kun kirjainkartta toimi oikein, ja väärässä täsmälleen
+sillä hetkellä kun kirjainkartta oli rikki: silloin väite epäonnistui, ja molemmat puolet,
+kahden toteutuksen tuottamat sanat, ilmestyivät tämän istunnon omaan transkriptiin.
+</p>
+
+<p>
+Ei mikään kirjoittanut niitä mihinkään pysyvään tiedostoon, ei testiin, ei kommenttiin, ei
+dokumenttiin, ja löydös raportoitiin heti sen sijaan että se jätettäisiin huomaamatta. Mutta
+koko syy sille että loitsun oma sana ei kuulu tähän repositorioon on juuri se, ettei se saa
+ilmestyä missään kohdassa jonka joku joskus kopioi eteenpäin, ja epäonnistuneen testin tuloste
+on juuri sellainen kohta: se päätyy lokeihin, se päätyy keskusteluihin, se päätyy
+vikailmoituksiin. Testi joka pitää sanan poissa niin kauan kuin kaikki menee hyvin ei ole
+suojannut mitään, koska suojan tarve syntyy vasta kun jokin menee pieleen.
+</p>
+
+<h2>Korjaus ja sääntö</h2>
+
+<p>
+Koordinoiva sessio korjasi väitteen nimeämään epäonnistuessaan ainoastaan loitsunumeron, joka
+riittää kertomaan kumpi pari erosi, eikä kumpaakaan itse sanaa. Yksi rivi, ja kommentti joka
+nyt sanoo sen minkä koodi tekee. Sääntö jonka tämä jätti jälkeensä on yleisempi kuin tämä yksi
+testi: testi joka pitää pelin tekstin tämän repositorion ulkopuolella läpäistessään ei riitä.
+Sen täytyy pitää se ulkopuolella myös epäonnistuessaan, koska epäonnistuminen on juuri se
+hetki jolloin tulostus kopioituu eteenpäin.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        185 / 211
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3072 / 3072
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Loitsukirjan sivun oma poiminta, viimeinen alun perin nimetyistä neljästä
+     vuorovaikutustilasta. Se tarvitsee juuri sanoja jotka tämä viipale toi ajonaikaiseen
+     tiedostoon, ja nyt niitä on mistä lukea.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

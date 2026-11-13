@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Silent Until It Fails | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/119-vaiti-kunnes-se-epaonnistuu.html" hreflang="fi">FI</a><span>/</span><a href="119-silent-until-it-fails.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 119</nav>
+
+<h1>Silent until it fails</h1>
+
+<p class="lede">
+A spell's own words of power finally got a ticket into the runtime file. The measurement was
+done a long time ago; what was missing was carrying them across and reading them back. That
+turned out to be the easy part. The harder thing showed up in a test that kept those words out
+of this repository for as long as it passed, and would have done the exact opposite at the one
+moment somebody actually needed to see them.
+</p>
+
+<h2>Carrying, not measuring</h2>
+
+<p>
+The export tooling has read a spell's own incantation letters and all twenty six syllables out
+of the owner's own program for months already. Nothing in this slice went looking for them
+again or asked where they live. The runtime file simply never carried them in either of its
+earlier shapes, and the engine had no way to read them back, so the spellbook page's own pick,
+which needs exactly these words as something to compare a typed prompt against, could not
+exist yet. The file picked up a third version: one length byte and that many letters per spell
+right after its name, and the whole syllable table right after the circle names. The old
+version was not left readable, because this file is never shipped to anyone: it is born again
+from the owner's own files on every run.
+</p>
+
+<h2>Two implementations, one test that earns both</h2>
+
+<p>
+Speaking the words, turning letters into spoken syllables, is now written in two places: the
+export tooling, where it has lived from the start, and the engine, which never references the
+export tooling's own assembly. The duplication is deliberate, but it is only safe if something
+actually checks that both implementations say the same thing for every one of the eighty
+spells. That check is its own test, and it is the only place in the whole project that sees
+both assemblies at once.
+</p>
+
+<h2>Three faults in, two caught</h2>
+
+<p>
+This project requires a new check to be proven by breaking it on purpose, not by reading it and
+hoping. Three faults were written into this code: a reversed letter mapping in the engine, a
+reader that would have accepted the old file version, and a removed bounds check. The first two
+were caught by exactly the tests meant to catch them, in the order they should be. The third was
+not caught quite so directly: the reader has its own separate check at the end that the whole
+file actually got consumed, with nothing left over as an unexplained tail, and that check
+refuses the same file regardless of the missing bounds check. So the test did not prove what it
+set out to prove, only that the file gets refused for some reason. The difference is small on
+paper and not small in practice: one assertion says exactly what stopped the fault, the other
+only says something did.
+</p>
+
+<h2>A test that was careful only while it passed</h2>
+
+<p>
+This second finding was not something the slice went looking for while breaking the letter
+mapping on purpose; it simply turned up. The test comparing the two implementations used an
+ordinary equality assertion, and that kind of assertion prints both of its sides when it fails,
+so whoever reads the failure can see which two values disagreed. This test's own comment
+claimed the comparison never printed either string under any circumstance. That was true the
+whole time the mapping worked correctly, and false at the exact moment the mapping was broken:
+the assertion failed, and both sides, the words each implementation produced, showed up in this
+session's own transcript.
+</p>
+
+<p>
+Nothing wrote them into any file that stays around, not a test, not a comment, not a document,
+and the finding was reported the moment it was seen rather than quietly passed over. But the
+entire reason a spell's own word does not belong in this repository is that it must not show up
+anywhere somebody might later copy forward, and a failing test's own output is exactly such a
+place: it ends up in logs, it ends up in conversations, it ends up in bug reports. A test that
+keeps a word out as long as everything goes well has not protected anything, because the need
+for protection only begins once something goes wrong.
+</p>
+
+<h2>The fix, and the rule</h2>
+
+<p>
+The coordinating session corrected the assertion to name only the spell number on failure,
+which is enough to say which pair disagreed, and neither word itself. One line, and a comment
+that now says what the code actually does. The rule this left behind reaches further than this
+one test: a test that keeps game text out of this repository while it passes is not enough. It
+has to keep it out when it fails too, because failing is exactly the moment the output gets
+copied onward.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          185 / 211
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3072 / 3072
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The spellbook page's own pick, the last of the four originally named interaction modes.
+     It needs exactly the words this slice carried into the runtime file, and now there is
+     something to read them from.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
