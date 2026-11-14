@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolme Väitettä Nolla Ajoa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="126-kolme-vaitetta-nolla-ajoa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/126-three-claims-zero-runs.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 126</nav>
+
+<h1>Kolme väitettä, nolla ajoa</h1>
+
+<p class="lede">
+Ensimmäinen kahdesta viimeisestä kierroksesta kytki wizard eyen: loitsu joka avasi näkymän
+oman alitilan, syötti sille näppäimen kerrallaan ja sulki sen kun käsittelijä ilmoitti lopun.
+Käsittelijä ei muuttunut lainkaan, koska sitä ei rakennettu tätä kierrosta varten vaan
+kaksi viipaletta aikaisemmin, juuri niin että joku pystyisi ajamaan sitä. Tämä kierros oli se
+joku.
+</p>
+
+<h2>Käsittelijä joka oli rakennettu ajettavaksi</h2>
+
+<p>
+Wizard eyen oma sääntö, 41 liikettä, näppäin joka ei kuluta mitään, pysähtyminen
+tiilikynnykseen tai escapeen, kartan keskipisteen tallennus ja palautus, mitattiin ja
+testattiin kokonaan slice F41:ssä, kolme viipaletta sitten. Sen rakenne, alku, askel ja loppu
+omina metodeinaan, ei ollut sattumaa: se oli rakennettu etukäteen juuri siihen muotoon josta
+näkymä voisi lukea sitä yhdellä näppäimellä kerrallaan, kun jokin viipale vihdoin rakentaisi
+sen lukijan. Tämä kierros oli se rakentaminen, eikä enää mitään. Dispatcherin oma rivi, joka
+oli kirjaimellinen "Nothing happens.", avaa nyt alitilan; näkymän oma karttakeskus seuraa
+käsittelijän ilmoittamaa ruutua; alitila sulkeutuu kun käsittelijä sanoo lopun. Käsittelijää
+itseään ei kosketettu rivinkään verran.
+</p>
+
+<h2>Kolmas kerta samaa kuviota, yksi oikea ero</h2>
+
+<p>
+Näkymä on rakentanut tämän muodon kahdesti aiemmin: gate travelin oma kirjoitettu rivi
+ja enchantin oma loitsukirjan poiminta. Tämän kierroksen pitäisi lukea kuin näiden kahden
+sisarus, eikä kuin jotain uutta, ja suurimmaksi osaksi se lukeekin niin. Yksi kohta eroaa,
+ja sen piti erota: gate travel ja enchant ohittavat hiljaa jokaisen näppäimen oman pienen
+listansa ulkopuolelta, mutta wizard eyen käsittelijällä on kolmas käytös, jota kummallakaan
+edellisellä ei ole. Näppäin joka ei ole suunta eikä escape luetaan silti ja ei kuluta
+yhtäkään liikettä, mitattuna ja testattuna juuri sitä varten F41:ssä. Jos tämän kierroksen
+ajuri olisi kopioinut edeltäjiensä ohituksen suoraan, se olisi nielaissut tuon näppäimen,
+ja käsittelijän oma, valmiiksi mitattu sääntö olisi jäänyt tavoittamattomiin juuri siitä
+syystä. Niin ajuri syöttää sen näppäimen käsittelijälle sellaisenaan, suunnan paikalla
+tyhjänä, ja antaa käsittelijän oman säännön ratkaista.
+</p>
+
+<h2>Kolme väitettä, ei yhtäkään ajettua</h2>
+
+<p>
+Tälle kierrokselle on kolme diskriminanttia, ja kaikki kolme ovat ajurista, ei
+käsittelijästä: loitsu avaa alitilan ja dispatcherin rivi ei ole enää kieltäytyminen; näkymän
+keskipiste seuraa silmää ja palautuu kastoa edeltäneeseen arvoon; näppäin joka ei ole suunta
+kulkee läpi kuluttamatta liikettä. Yksikään näistä kolmesta ei ole ajettavissa headless-
+tilassa, koska kaikki kolme kuvaavat käytöstä joka asuu kokonaan näkymässä, ja moottorin
+testiprojekti sulkee näkymän tarkoituksella pois, koska se kiinnittäisi Unity-olion oman
+geometrian. Niille ei kirjoitettu yhtäkään uutta testiä: ne ovat kolmen
+Unity-tarkistusprojektin kääntämiä lähdekoodina, eivät minkään ajon todistamia, eikä Unityn
+oma Test Runner ajanut tätä kierrosta. Tämä kirjataan tässä sellaisenaan eikä peitellä: se ei
+ole tämän kierroksen puute vaan sen rehellinen tila, täsmälleen samaan tapaan kuin kolmen
+Unity-tarkistusprojektin ja Unity-editorin oman Test Runnerin ero on kirjattu koko tämän
+projektin ajalta. Käsittelijän omat säännöt näiden kolmen takana pysyvät F41:n mittaamina ja
+testaamina, muuttumattomina.
+</p>
+
+<h2>Kommentti joka ajautui neljän viipaleen ajan</h2>
+
+<p>
+Matkalla löytyi myös vanha, hiljaa väärentynyt kommentti. Yksi testitiedosto nimesi seitsemän
+loitsunumeroa, joiden näkymä kantoi nimettyinä kieltäytymisinä, ja kommentti jatkoi niiden
+seitsemän nimeämistä sellaisenaan samaan aikaan kun kolme aiempaa viipaletta kytki ne pois
+yksi kerrallaan ja tämä kierros kytkee viimeisen. Kommentin oma luku ei seurannut mukana
+yhtäkään näistä kerroista. Koordinoiva sessio kirjoitti kommentin uudelleen lopettamaan luvun
+toistamisen, joka asuu jossain muualla: se väittää nyt vain sen jonka oma testi pystyy
+tarkistamaan, kaikki yhdeksäntoista omaa haaraa ratkeavat yhdeksänneksi perheeksi, eikä nimeä
+enää sitä lukua joka asuu oikeasti näkymän omassa kytkimessä.
+</p>
+
+<h2>78:sta 79:ään</h2>
+
+<p>
+Kahdeksankymmenestä loitsusta pelissä tavoittavia käsittelijöitä oli 78 ennen tätä kierrosta.
+Luku ei tule laskemalla aiempia lisäyksiä yhteen, vaan lukemalla näkymän oman kytkimen
+tämänkertaisen tilan: kaikki yhdeksäntoista omaa haaraa ratkeavat nyt oikeaan rutiiniinsa,
+eikä yksikään enää palauta nimetyn kieltäytymisen riviä suoraan. Wizard eye oli viimeinen
+joka teki niin, ja tämä kierros kytki sen, nostaen luvun **79:ään**. Jäljellä on yksi:
+taskuvarkaus, jonka toinen valinta on näkymässä yhä kiinteästi poissa, niin sen käsittelijä
+ottaa aina saman, mitatun kieltäytymisensä. Se ei odota mittaamatta jäänyttä loitsusääntöä,
+vain näkymän omaa, vielä rakentamatonta paikkakursoria uhrin pakin ruudukkoon. Toinen kierros
+rakentaa juuri sen.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        191 / 217
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3106 / 3106
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Jäljellä on yksi loitsu joka ei vielä tavoita käsittelijäänsä kunnolla: taskuvarkaus,
+     jonka toinen valinta, uhrin pakista poimittava esine, on yhä kiinteästi poissa.
+     Seuraava kierros mittaa miten kursorin paikka pakin ruudukossa muuttuu esineeksi ja
+     kytkee sen, millä taskuvarkaus suorittaa loppuun ensimmäistä kertaa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

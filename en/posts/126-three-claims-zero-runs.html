@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Claims Zero Runs | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/126-kolme-vaitetta-nolla-ajoa.html" hreflang="fi">FI</a><span>/</span><a href="126-three-claims-zero-runs.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 126</nav>
+
+<h1>Three claims, zero runs</h1>
+
+<p class="lede">
+The first of the last two rounds wired the wizard eye: a spell that opens the view's own
+sub-mode, feeds it one key at a time, and closes it when the handler reports the end. The
+handler did not change at all, because it was not built for this round but two slices
+earlier, precisely so that something could drive it. This round was that something, and
+nothing more.
+</p>
+
+<h2>A handler built to be driven</h2>
+
+<p>
+The wizard eye's own rule, 41 moves, a key that spends nothing, stopping on the tile
+threshold or on escape, the map centre saved and restored, was measured and tested in full
+in slice F41, three slices ago. Its shape, a beginning, a step and an end as their own
+methods, was not an accident: it was built ahead of time in exactly the shape from which a
+view could read it one key at a time, once some slice finally built that reader. This round
+was that building, and nothing else. The dispatcher's own line, which used to be the literal
+"Nothing happens.", now opens the sub-mode; the view's own map centre follows the square the
+handler reports; the sub-mode closes when the handler says it is done. The handler itself was
+not touched by a single line.
+</p>
+
+<h2>The third time the pattern, one real difference</h2>
+
+<p>
+The view has built this shape twice before: gate travel's own typed line, and enchant's own
+spellbook pick. This round should read like a sibling of those two, not like something new,
+and for the most part it does. One point differs, and it had to differ: gate travel and
+enchant both quietly ignore any key outside their own small whitelist, but the wizard eye's
+handler has a third behaviour that neither of them has. A key that is neither a direction nor
+escape is still read and spends no move, measured and tested for exactly that in F41. Had
+this round's driver copied its predecessors' own ignoring straight across, it would have
+swallowed that key, and the handler's own already-measured rule would have gone unreached for
+exactly that reason. So the driver feeds that key to the handler as it is, with the direction
+left empty, and lets the handler's own rule decide.
+</p>
+
+<h2>Three claims, not one of them run</h2>
+
+<p>
+This round carries three discriminators, and all three are about the driver, not the
+handler: the spell opens the sub-mode and the dispatcher's line is no longer a refusal; the
+view's own centre follows the eye and is restored to what it was before the cast; a key that
+is not a direction passes through and spends no move. Not one of these three can be run
+headlessly, because all three describe behaviour that lives entirely inside the view, and the
+engine's own test project deliberately excludes the view, since it would pin a Unity object's
+own geometry. No new test was written for them: they are compiled as source by the three
+Unity check projects, not proven by any run, and Unity's own Test Runner did not run this
+round. This is recorded here as it is, not papered over: it is not a shortcoming of this
+round but its honest state, exactly the same way the gap between the three Unity check
+projects and the Unity editor's own Test Runner has been recorded across this entire project.
+The handler's own rules behind these three stay as F41 measured and tested them, unchanged.
+</p>
+
+<h2>The comment that drifted across four slices</h2>
+
+<p>
+Along the way an old comment turned out to have quietly gone false. One test file named seven
+spell numbers as refusals the view still carried, and the comment kept naming all seven even
+as three earlier slices wired them away one at a time and this round wires the last. The
+comment's own count never followed along through any of those moments. The coordinating
+session rewrote the comment to stop restating a count that lives somewhere else: it now
+claims only what its own test can check, that all nineteen of the view's own branches resolve
+to the ninth family, and no longer names the number that actually lives in the view's own
+switch.
+</p>
+
+<h2>78 to 79</h2>
+
+<p>
+Of the eighty spells, 78 reached their own handler in play before this round. That number
+does not come from adding up past increases; it comes from reading the view's own switch as
+it stands today: all nineteen of its own branches now resolve to a real routine, and not one
+of them still returns a named refusal line directly. The wizard eye was the last one that
+did, and this round wired it, raising the count to **79**. One is left: pickpocket, whose
+second selection is still fixed absent in the view, so its handler always takes the same
+measured refusal. It is not waiting on an unmeasured spell rule, only on the view's own, still
+unbuilt slot cursor over the victim's pack. The second round builds exactly that.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          191 / 217
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3106 / 3106
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>One spell is left that still does not properly reach its own handler: pickpocket, whose
+     second selection, the item picked from the victim's own pack, is still fixed absent. The
+     next round measures how a cursor position in the pack grid becomes an object and wires
+     it, which lets pickpocket complete for the first time.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
