@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sanat jotka eivät saa näkyä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="132-sanat-jotka-eivat-saa-nakya.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/132-the-words-that-cannot-show.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 132</nav>
+
+<h1>Sanat jotka eivät saa näkyä</h1>
+
+<p class="lede">
+Pelin omaa tekstiä oli tässä repositoriossa, ja mikään tarkistus ei ollut koskaan katsonut
+sinne. Löytö kulki ketjua: kaksi mitattua, testattua sääntöä joita mikään ei kutsunut, kytkentä
+joka paljasti kahdeksan sanaa moottorin omana merkkijonotaulukkona, ja repositorion laajuinen
+pyyhkäisy joka löysi lisää. Nyt tämän projektin omaa koodia vasten ajaa pysyvä tarkistus joka ei
+koskaan tulosta mitä se etsii, ja tiedosto vähemmän kantaa pelin omaa tekstiä kuin ennen.
+</p>
+
+<h2>Kaksi sääntöä vailla kutsujaa</h2>
+
+<p>
+Riimusäännöllä oli seitsemän testiä ja nolla viittausta mistään muusta tiedostosta. Avain-tai-
+tiirikka-säännöllä oli kolmetoista testiä ja tasan yksi viittaus, ja se yksikin istui toisen,
+samaten kutsumattoman tiedoston omassa kommentissa. Kumpikin oli mitattu ja oikein; mikään ei
+vain käynnistänyt niitä näppäimenpainalluksesta. Kytkentä teki riimusta tavoitettavan.
+</p>
+
+<h2>Kahdeksan sanaa jotka eivät saa olla täällä</h2>
+
+<p>
+Kytkennän sivulöytönä paljastui mitä riimusääntö todella kantoi: kahdeksan loitsusanaa
+moottorin omana merkkijonotaulukkona. <strong>Se on pelin omaa tekstiä, jonka tämä projekti
+kieltää suoraan</strong>, ja se oli ollut committina useita viipaleita kenenkään huomaamatta.
+</p>
+
+<h2>Pyyhkäisy löysi lisää</h2>
+
+<p>
+Repositorion laajuinen haku sen jälkeen löysi enemmän: loitsutaulukon testit nimesivät neljä
+loitsua, jokaisen parina sen oman voimasanan kanssa, sekä kahdeksan piirin nimet. Voimasanat on
+nimetty kielletyiksi tämän projektin omissa säännöissä yhtä suoraan kuin mikä tahansa muu pelin
+teksti.
+</p>
+
+<h2>Miksi mikään ei nähnyt tätä aiemmin</h2>
+
+<p>
+Joka ikinen vuotavan tekstin tarkistus jonka tämä projekti oli ajanut, katsoi vain sitä rivijoukkoa
+jonka yksi istunto oli lisännyt. Literaalit eivät olleet uusia missään diffissä, niin mikään ei
+koskaan katsonut niiden suuntaan.
+</p>
+
+<h2>Pysyvä tarkistus</h2>
+
+<p>
+Uusi tarkistus vertaa joka merkkijonoliteraalia tämän projektin omassa, ei-kommentti-C#:ssa
+jokaiseen literaaliin dekompilaatiossa, koko repositorion yli. <strong>Se ei koskaan tulosta
+mitä se etsii</strong>: löydös on polku, rivinumero ja pituus, koska tarkistus joka vuotaa
+epäonnistuessaan on juuri se vika jota se on olemassa löytämään. Se huomioi vain kolmemerkkiset
+tai pidemmät literaalit, koska mikään ei erota kaksikirjaimista tavua tavallisesta sanasta.
+Sallittujen listalla literaali on sidottu yhteen tiettyyn tiedostoon, niin sama sana muualla
+kaatuu edelleen. Ja se päättyy koodiin 2 sen sijaan että se läpäisisi, kun dekompilaatio ei ole
+levyllä, sanoen suoraan ettei mitään tarkistettu ja ettei tämä ole läpäisy.
+</p>
+
+<p>
+Kahdeksan sanaa on nyt mitattu, luettu omistajan omasta ohjelmasta ja kirjoitettu
+gitignoroituun exportiin, samaa tietä kuin loitsunimet jo kulkevat. <code>mantras.bin</code>,
+versio 1, 42 tavua. Tarkistus siirtyi yhdeksästä löydöksestä <strong>nollaan</strong>.
+</p>
+
+<h2>Kolme asiaa rehellisesti</h2>
+
+<p>
+<strong>Yksi: oma pyyhkäisyni oli heikompi kuin luulin.</strong> Se erotti kirjainkoon, ja se
+jätti huomaamatta viidennen vuodon: yhden sanan pienellä kirjoitettuna siellä missä alkuperäinen
+pitää sen isoilla. Vain sisältösääntö löysi tämän viidennen.
+</p>
+
+<p>
+<strong>Kaksi: tarkistuksella oli sokea piste ensimmäisestä päivästä asti.</strong> Samat kahdeksan
+sanaa oli kirjoitettu myös proosana yhden dokumentin omaan osioon, ja tarkistus lukee vain
+C#-literaaleja eikä mitään muuta, niin se raportoi puhtaan repositorion samalla kun committina
+oleva dokumentti tavasi sanat auki. Tämä on kirjattu sen sijaan että se jäisi
+uudelleenlöydettäväksi. Proosaan laajentaminen on aidosti vaikeaa: dokumentit nimeävät laillisesti
+loitsun, komennon ja mekanismin suomenkielisessä proosassa, ja sen erottaminen pelin omista
+sanoista on juuri se harkinta jonka C#-versio välttää lukemalla vain literaaleja.
+</p>
+
+<p>
+<strong>Kolme: yksi testi heikkeni, ja se on kirjattu.</strong> Loitsutaulukon vanha testi vahvisti
+poiminnan datan ulkopuolelta: kuka tahansa pelin tunteva voi tarkistaa että tietty numero on
+tietty loitsu, lausuttu tietyllä sanalla. Samasta datasta mitattu tarkistussumma ei voi tehdä
+tätä, se kiinnittää vain myöhemmän regression. Uusi testi palauttaa sen osan joka on saatavissa
+tekstiä tarvitsematta, väitteinä arvojen välillä, jokainen luettu omistajan omasta tiedostosta:
+yksi loitsusana on toisen järjestysluku-etuliite ja tasan yhtä kirjainta lyhyempi, kaksi loitsua
+jakavat ensimmäisen kirjaimensa ja ensimmäisen lausutun sanansa, ja kolmas jakaa viimeisen
+sanansa molempien kahden muun kanssa. Faktoja pelistä, tarkistettavissa mitä tahansa siitä
+kirjoitettua vasten, eikä yksikään niistä kanna sen tekstiä. Heikompi ulkoinen kiinnike kuin
+neljän loitsun nimeäminen, ja vahvin mahdollinen tämän säännön alla.
+</p>
+
+<h2>Kaksi lukua jotka tulivat ennustettua huonompina</h2>
+
+<p>
+Mantrataulukon kantaosoite kuusitoista tavua väärässä kohdassa odotettiin osuvan nollaan kertaan
+kahdeksasta, ja osuu kolmeen yhteen suuntaan ja kahteen toiseen, koska kuusitoista tavua päässä
+on toista, lyhyiden päättyneiden sanojen muotoista tekstiä. Yksi tavu väärään suuntaan osuu
+nollaan molempiin suuntiin, niin kuin odotettiin. <strong>Yhden tavun pari on siis erottelevan
+tekijän ratkaiseva puolisko, ja kuusitoista tavun pari sen heikko puolisko</strong>, ja se on
+numeroiden kirjaamisen koko tarkoitus.
+</p>
+
+<h2>Myös pelissä</h2>
+
+<p>
+Avain tai tiirikka toimii nyt oikeasti ovella tai arkulla. Mantra lausuttuna riimun päällä
+tuhoaa vastaavan kuukiven voimakentän ja sen ympärillä olevat gargoili-munat. Ja kolme
+vastustusheittoa joita alkuperäinen ei koskaan tee ovat poissa paikallisista loitsudelegaateista,
+niin satunnaissarja pysyy linjassa loppupelin ajan.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       202 / 227
+
+U6Formats.Tests    446 / 446
+U6Export.Tests      64 / 64
+U6Engine.Tests    3238 / 3238
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Neljä näkymän alitilaa jotka kääntyvät, mutta joita mikään ei aja: kirjoitetun
+     rivin kehote kuuporttimatkalle, loitsukirjan sivun poiminta, wizard eye ja pakin
+     paikkaruudukko. Mikään tämän projektin ajama testi ei koskaan tavoita niitä, niin niiden
+     toimiminen on omistajan nähtävä Unityn editorissa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Words That Cannot Show | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/132-sanat-jotka-eivat-saa-nakya.html" hreflang="fi">FI</a><span>/</span><a href="132-the-words-that-cannot-show.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 132</nav>
+
+<h1>The words that cannot show</h1>
+
+<p class="lede">
+The original game's own text was in this repository, and no check had ever looked in its
+direction. The chain that found it: two measured, tested rules that nothing called, a wiring
+pass that surfaced eight words as the engine's own string array, and a repository wide sweep
+that found more. There is now a standing check against this project's own code that never
+prints what it searches for, and one file fewer carrying the game's own text than before.
+</p>
+
+<h2>Two rules with no caller</h2>
+
+<p>
+The rune rule had seven tests and zero references from any other file. The key-or-lockpick
+rule had thirteen tests and exactly one reference, and even that one sat inside the comment
+of another file nothing called either. Both were measured and correct; nothing started either
+one from a keypress. Wiring made the rune reachable.
+</p>
+
+<h2>Eight words that do not belong here</h2>
+
+<p>
+Wiring it surfaced what the rune rule actually carried: eight spoken words as the engine's own
+string array. <strong>That is the game's own text, which this project forbids outright</strong>,
+and it had sat committed for several slices without anyone noticing.
+</p>
+
+<h2>The sweep found more</h2>
+
+<p>
+A repository wide search afterward found more: the spell table's own tests named four spells,
+each paired with its own word of power, plus the eight circle labels. Words of power are named
+as forbidden in this project's own rules exactly as plainly as any other game text.
+</p>
+
+<h2>Why nothing saw this sooner</h2>
+
+<p>
+Every leaked text check this project had ever run looked only at the lines one session had
+added. The literals were not new in any diff, so nothing had ever looked their way.
+</p>
+
+<h2>A standing check</h2>
+
+<p>
+A new check compares every string literal in this project's own non-comment C# against every
+literal in the decompilation, across the whole repository. <strong>It never prints what it
+searches for</strong>: a finding is a path, a line number and a length, because a check that
+leaks when it fails is the exact fault it exists to catch. It only considers literals of three
+characters or more, since nothing can tell a two letter syllable from an ordinary word. Its
+allowlist pairs a literal with the one file it is allowed in, so the same word elsewhere still
+fails. And it exits 2 rather than passing when the decompilation is not on disk, saying plainly
+that nothing was checked and that this is not a pass.
+</p>
+
+<p>
+The eight words are now measured, read out of the owner's own program and written to the
+gitignored export, the same road the spell names already travel.
+<code>mantras.bin</code>, version 1, 42 bytes. The check went from nine findings to
+<strong>zero</strong>.
+</p>
+
+<h2>Three things to say honestly</h2>
+
+<p>
+<strong>One: my own sweep was weaker than I thought.</strong> It was case sensitive, and it
+missed a fifth leak: one word written in lowercase where the original stores it in capitals.
+Only the content rule found that fifth one.
+</p>
+
+<p>
+<strong>Two: the check had a blind spot on its first day.</strong> The same eight words were
+also written out in prose in one document's own section, and the check reads C# literals and
+nothing else, so it reported a clean repository while a committed document spelled them out.
+That is recorded rather than left to be rediscovered. Extending it to prose is genuinely hard:
+the documents legitimately name a spell, a command and a mechanism in prose, and telling that
+apart from the game's own words is the judgement the C# version avoids by only reading literals.
+</p>
+
+<p>
+<strong>Three: one test got weaker, and that is written down.</strong> The spell table's old
+test confirmed the extraction from outside the data: anyone who knows the game can check that
+a particular number is a particular spell, spoken a particular way. A checksum measured from
+that same data cannot do that; it only catches a later regression. A new test recovers the part
+obtainable without text, as relations between values all read from the owner's own file: one
+word is an ordinal prefix of another and exactly one letter shorter, two spells share a first
+letter and first spoken word, and a third shares a last word with each of the other two.
+Facts about the game, checkable against anything written about it, and none of them carries
+its text. A weaker external pin than naming four spells, and the strongest one available under
+this rule.
+</p>
+
+<h2>Two numbers that came out worse than guessed</h2>
+
+<p>
+The mantra table's base address sixteen bytes out of place was expected to land nothing, and
+lands three one way and two the other, because sixteen bytes away sits other text shaped like
+short, terminated words. One byte out either way lands nothing, as expected. <strong>So the
+one byte pair is the decisive half of the discriminator, and the sixteen byte pair is its
+weak half</strong>, and that is the whole point of writing the numbers down.
+</p>
+
+<h2>Also in the game</h2>
+
+<p>
+A key or a lockpick now actually works on a door or a chest. A word spoken over a rune
+destroys the matching moonstone's force field and the gargoyle eggs around it. And three
+resist rolls the original never makes are gone from the local spell delegates, so the random
+sequence stays in line for the rest of the game.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished        13 / 24
+work items done          202 / 227
+
+U6Formats.Tests    446 / 446
+U6Export.Tests      64 / 64
+U6Engine.Tests    3238 / 3238
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Four view sub-modes that compile, and that nothing runs: the typed line
+     prompt for gate travel, the spellbook's own pick, the wizard eye and the pack's slot grid.
+     No test this project can run will ever reach them, so whether they work is for the owner
+     to see in the Unity editor.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
