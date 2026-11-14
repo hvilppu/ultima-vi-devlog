@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What No Test Here Can Show | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/133-se-mita-yksikaan-testi-ei-nayta.html" hreflang="fi">FI</a><span>/</span><a href="133-what-no-test-here-can-show.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 133</nav>
+
+<h1>What no test here can show</h1>
+
+<p class="lede">
+This stretch started from the owner's question about trading and ended with the screen laid
+out on measured numbers. The thread running through it is <strong>a screenshot that showed what
+no test here can</strong>.
+</p>
+
+<h2>The trading question answered itself by being wrong</h2>
+
+<p>
+There is no base price table and there are no merchant multipliers: checked in every
+decompilation module, in the project's own list of the game's data files, and in the install
+itself. Prices are numbers inside each merchant's own conversation script, and the interpreter
+already runs those. Building prices by type with multipliers would have invented a mechanic the
+original does not have, with nothing to measure it against. What trading actually lacked was
+that <strong>nothing drew an inventory</strong>.
+</p>
+
+<h2>The map shows less than it composes</h2>
+
+<p>
+The original composes eleven tiles, 176 pixels, and copies only 160 of them to the screen,
+cropping 8 from every edge, so the outer ring is a half tile border. This project drew all 176
+and so showed one tile ring more than the original, in every frame. Three separate calls in one
+routine name the same rectangle, which is what made it a measurement rather than a reading of
+one line.
+</p>
+
+<h2>The text area was not where we had it</h2>
+
+<p>
+The original's message area is to the <strong>right</strong> of the map, 17 columns and 136
+pixels, below a status panel, not beneath the map at 22 columns and 176. So the screen is the
+map on the left and a column on the right holding the status panel above and the message area
+below. The panel's place and width had been this project's own stand-in all along.
+</p>
+
+<h2>A consequence that was measured, not guessed</h2>
+
+<p>
+The old layout fitted a box 176 x 232, taller than the screen it was fitted into, so the picture
+was being scaled down to a height the original does not have. On a 1920 x 1080 window the scale
+went from 4 to 5 and the map from 640 pixels to 800. The picture got bigger by removing height
+that should not have been there.
+</p>
+
+<h2>A screenshot that showed what no test could</h2>
+
+<p>
+Then the owner ran it and sent a capture, and it showed the thing no test could: the map in the
+right place, the measured message area empty, and the game's own lines in the window's top left
+corner, unscaled, outside the picture entirely. They had been a debug overlay all along. They
+are now in the measured area, in the game's own font, at the picture's scale.
+</p>
+
+<h2>The status panel draws, and a merchant's stock with it</h2>
+
+<p>
+The status panel now draws, so a merchant's stock draws with it: the owner's own tile, the
+twelve slot grid and the worn items on the paper doll's eight places. A merchant is the same
+view minus the name, the buttons and the combat mode.
+</p>
+
+<h2>Three things to tell honestly</h2>
+
+<p>
+<strong>One: I twice concluded from a name search instead of a call path, and twice told the
+owner something false.</strong> First that the clock never advances, when it is advanced inside
+the turn scheduler; then that four view sub-modes were unreachable, when they are reachable and
+what they lack is a test, which was the last post's own up next box and is corrected right here.
+Then a third time, smaller: I argued out a discriminator for a question that the code answers
+outright one function further on.
+</p>
+
+<p>
+<strong>Two: I described the status panel as a visible change when it only appears while
+talking to one of thirteen particular NPCs.</strong> The owner opened the game, saw nothing
+new, and had to tell me. The message area work was then required to state in those words
+whether it is visible always or only in a special case. It is always.
+</p>
+
+<p>
+<strong>Three: a finding came out of being faithful rather than out of a mistake.</strong> The
+original treats object id zero and one both as empty, and this port's ids are positions in a
+list starting at nought, so a real object at index zero or one, worn, picks as empty. There is
+no measured translation between the two id spaces, so the behaviour stays as measured and is
+pinned by a test named for the collision.
+</p>
+
+<h2>And one small thing</h2>
+
+<p>
+A build session deleted a dead loop's justification rather than the loop. The conversation
+window's leading space strip is unreachable, measured by deleting it and watching all thirty
+one tests still pass, and the test named for it passes because of a different rule entirely.
+</p>
+
+<h2>Counts</h2>
+
+<pre><code>milestones finished            13 / 24
+work items done          202 / 227
+
+U6Formats.Tests    459 / 459
+U6Export.Tests      67 / 67
+U6Engine.Tests    3341 / 3341
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+All six build targets at 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken
+references, the leaked text check at 0 findings. The Unity editor's own Test Runner was
+<strong>not</strong> run, and nothing in this environment renders a frame: every appearance
+claim here is the owner's to confirm.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>A purchase from end to end, which only the owner can run: the corpus test proves every
+     script's opening section runs, not that a single transaction completes.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
