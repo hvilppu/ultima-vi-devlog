@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaksikymmentäkolme Tiedostonimeä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="129-kaksikymmentakolme-tiedostonimea.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/129-twenty-three-file-names.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 129</nav>
+
+<h1>Kaksikymmentäkolme tiedostonimeä</h1>
+
+<p class="lede">
+Edellinen kierros mittasi alkuperäisen omia merkkijonoliteraaleja uudelleen ja korjasi
+kirjatun luvun 884:stä 893:een. Tämä kierros vei ne 893 ajonaikaiseen tiedostoon, ei
+yhtäkään merkkijonoa itseään, ja luokitteli kunkin sen mukaan mikä sitä ympäröi. Luokittelu
+löysi jotain joka ei näy pelkästä lukumäärästä: kirjattu luku oli väärässä paitsi määrältä,
+myös siitä mitä se laski.
+</p>
+
+<h2>893 ei ole 893 viestiä</h2>
+
+<p>
+Tämän projektin oma dokumentaatio on kutsunut kaikkia 893 literaalia viesteiksi. Luokittelu
+lukee literaalin ympärillä olevan rakenteen, koskaan sen omaa sisältöä, ja jakaa ne neljään
+laatuun: tulostuskutsun läpi tavoitettuja on 520, alustuslistan jäseniä, eli hakutauluja, on
+285, tiedostonimiä tai käyttöjärjestelmäkutsun avaimia on 23, ja kaikkea muuta on 65. Noin
+520 on siis todella viesti. 285 on hakutauluja, ja niistä yksi lähdemoduuli jakaa osansa
+jo olemassa olevan loitsutaulukon kanssa, nimet ja sanat päällekkäin saman tiedon kahdella
+puolella.
+</p>
+
+<h2>Kaksikymmentäkolme tiedostonimeä</h2>
+
+<p>
+Terävin kärki on 23. Ne eivät ole hakutauluja eivätkä viestejä: ne ovat tiedostonimiä tai
+jäsentimen avaimia, jotka ohjelma antaa käyttöjärjestelmälle, eikä yksikään niistä näy
+koskaan pelaajalle. Luku joka laskisi tiedostonimen viestiksi olisi antanut ajonaikaisen
+tekstijärjestelmän tarjota pelaajalle tiedostonimen keskustelun tai taikuuden sijaan, jos
+se luku olisi koskaan päätynyt kuluttajalle sellaisenaan. Sitä ei tapahtunut, koska kukaan
+ei ollut vielä kirjoittanut kuluttajaa; mutta luku olisi ollut valmis tuottamaan juuri sen
+virheen.
+</p>
+
+<h2>Luokittelu joka ei kattanut itseään</h2>
+
+<p>
+Ensimmäinen luokittelukierros summasi 863:een 893:sta, kolmekymmentä selittämättä. Se on
+tämän projektin oman nimetyn virheen peilikuva: luokittelu jonka osat eivät peitä
+kokonaisuutta ei ole mittaus sekään, täsmälleen samalla tavalla kuin raja joka löystyy
+kunnes testi läpäisee ei ole mittaus. Koordinoiva sessio viimeisteli luokittelun
+yhdeksäntoista lajiin, jotka summautuvat 893:een 893:sta, ja neljä niistä riittää
+kertomaan koko tarinan.
+</p>
+
+<h2>Luku joka ei taipunut</h2>
+
+<p>
+Viety luokittelija mittasi 285 alustuslistan jäsentä ja 65 muuta briefin omien lukujen,
+284 ja 66, sijaan. Se ei korjannut omaa lukuaan vastaamaan briefiä, vaan sanoi eron ääneen
+ja kysyi päätöstä. Se oli oikea vaisto: luku joka taipuu auktoriteetin mukaiseksi on samaa
+lajia virhe kuin raja joka löystyy kunnes testi läpäisee, ja brief ei ole todiste.
+</p>
+
+<p>
+Yhden kohdan ero ei osoittautunut puuttuvaksi literaaliksi vaan kahdeksi eri mittaukseksi.
+Briefin oma passi on puhtaasti syntaktinen: literaali on alustuslistan jäsen jos sitä
+edeltää pilkku tai aaltosulku, eikä muuta katsota. Viety luokittelija on semanttinen: se
+kysyy mihin ympäröivä taulukko käytetään muualla dekompilaatiossa, ja kutsuu sitä
+hakutauluksi vain kun se joskus kulkee tulostuskutsuun. Data kantaa semanttisen lukeman,
+koska se kertoo enemmän kuin mikä merkki edelsi literaalia, ja syntaktisen passin luvut
+jäävät kirjatuiksi sellaisinaan. Kumpaakaan ei korjattu toisekseen. Kaksi passia ovat
+täysin samaa mieltä siinä missä se merkitsee enemmän: 520 tulostuskutsun läpi ja 23
+käyttöjärjestelmäkutsuun.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        196 / 221
+
+U6Formats.Tests    427 / 427
+U6Export.Tests      62 / 62
+U6Engine.Tests    3128 / 3128
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p><code>messages.bin</code> kantaa nyt kaikki 893 literaalia moduulina, offsettina,
+     pituutena ja lajina, eikä yhtäkään merkkijonoa itseään. Kolmas ja viimeinen kierros
+     täyttää seitsemän aiemman viipaleen jättämät viesti-indeksit, kukin omalla literaalin
+     identiteetillään, ja loitsutyön viimeinen tunnettu aukko sulkeutuu.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

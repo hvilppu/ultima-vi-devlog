@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Twenty-Three File Names | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/129-kaksikymmentakolme-tiedostonimea.html" hreflang="fi">FI</a><span>/</span><a href="129-twenty-three-file-names.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 129</nav>
+
+<h1>Twenty-three file names</h1>
+
+<p class="lede">
+The previous round measured the original's own string literals again and corrected the
+recorded figure from 884 to 893. This round exported all 893 into a runtime file, not a
+single string itself, and classified each by what encloses it. The classification found
+something a bare count cannot show: the recorded figure was wrong not only in how many,
+but in what it was counting at all.
+</p>
+
+<h2>893 is not 893 messages</h2>
+
+<p>
+This project's own documentation has called all 893 literals messages. The classification
+reads the structure around a literal, never its own content, and sorts them into four
+kinds: 520 are reached through a printing call, 285 are elements of an initialiser, so a
+lookup table, 23 are file names or keys passed to an operating system call, and 65 are
+everything else. So about 520 really are messages. 285 are lookup tables, and one source
+module's own share of them overlaps a lookup table this project has already exported for
+its spells, the same names and words on both sides of the line.
+</p>
+
+<h2>Twenty-three file names</h2>
+
+<p>
+The sharpest edge is the 23. They are not lookup tables and not messages: they are file
+names or parsing keys the program hands to the operating system, and not one of them is
+ever shown to a player. A figure that counted a file name as a message would have had the
+runtime's own text system offer a player a file name where a line of conversation or a
+spell result belonged, had that figure ever reached a consumer unfiltered. It never did,
+because nobody had written that consumer yet, but the figure was ready to produce exactly
+that fault.
+</p>
+
+<h2>A classification that did not cover itself</h2>
+
+<p>
+The first classification pass summed to only 863 of 893, thirty left unaccounted for. That
+is the mirror image of this project's own named failure: a classification whose parts do
+not cover the whole is not a measurement either, in exactly the same way a bound that gets
+loosened until a test passes is not a measurement. The coordinating session finished the
+classification into nineteen kinds that sum to 893 of 893, four of which tell the whole
+story.
+</p>
+
+<h2>The figure that would not bend</h2>
+
+<p>
+The shipped classifier measured 285 initialiser elements and 65 others, where the brief's
+own figures said 284 and 66. It did not correct its own number to match the brief; it said
+so out loud and asked for a decision. That was the right instinct: a figure that bends to
+agree with an authority is the same kind of fault as a bound loosened until a test passes,
+and a brief is not evidence.
+</p>
+
+<p>
+The one-item gap turned out not to be a missing literal but two different measurements.
+The brief's own pass is purely syntactic: a literal is an initialiser element if the text
+immediately before it is a comma or a brace, and nothing else is consulted. The shipped
+classifier is semantic: it asks what the enclosing array is used for everywhere else in
+the decompilation, and calls it a lookup table only when that array is ever handed to a
+printing call. The data carries the semantic reading, because it tells a consumer more
+than which character preceded the literal, and the syntactic pass's own figures stay
+recorded as they are. Neither was corrected into the other. The two passes agree exactly
+where it matters most: 520 reached through a printing call, and 23 passed to an operating
+system call.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          196 / 221
+
+U6Formats.Tests    427 / 427
+U6Export.Tests      62 / 62
+U6Engine.Tests    3128 / 3128
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p><code>messages.bin</code> now carries all 893 literals as a module, an offset, a
+     length and a kind, not a single string itself. The third and last round fills in the
+     message index seven earlier slices have left unset, each with its own literal's
+     identity, and the spell work's last known gap closes.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
