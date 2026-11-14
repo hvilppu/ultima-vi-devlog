@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Säännöt joita mikään ei kutsunut | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="131-saannot-joita-mikaan-ei-kutsunut.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/131-the-rules-nothing-called.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 131</nav>
+
+<h1>Säännöt joita mikään ei kutsunut</h1>
+
+<p class="lede">
+Kaksi viipaletta tällä kierroksella, F51 ja F53, ja yksi tarina molempien takana: ero
+rakennetun ja toimivan välillä. Kumpaakin varten oli jo olemassa sääntö, mitattu ja
+testattu, ja kumpaakaan ei kutsunut mikään. Yksi kytkettiin huomaamalla asia
+katselmoinnissa; toinen rakennettiin kokoavaksi kutsupisteeksi vasta tällä kierroksella.
+Tämä on pisin aikaa pelaajalle näkyvin muutospari.
+</p>
+
+<h2>Provosointi: väärä lause viidessä paikassa</h2>
+
+<p>
+Mittaus kaatoi lauseen jonka tämä projekti oli kirjoittanut viiteen paikkaan: uhrin
+linjausta ei käännetä omasta arvostaan, se <strong>asetetaan hyökkääjän omasta</strong>.
+Hyvä hyökkääjä (0x40) tekee uhrista kaoottisen (0x60); paha (0x20), kaoottinen ja
+neutraali hyökkääjä tekevät kaikki uhrista <strong>hyvän</strong>. Yksi vastaus kolmea
+vastaan, ja pelkkä hyvä hyökkääjä ei erota oikeaa lukemaa väärästä, mikä on juuri syy
+miksi käännös-lukema selvisi näin pitkään huomaamatta.
+</p>
+
+<p>
+Aikataulussa oleva uhri muuttuu vigilantiksi ja rutiini <strong>palaa ennen</strong>
+linjauksen asettamista, niin sen linjaus ei muutu koskaan; tilapäinen hirviö saa
+assaultin linjauksen asettamisen <strong>jälkeen samassa polussa</strong>, ei
+vaihtoehtona sille. Väärä lause istui kahdessa kohdassa suunnitelmaa ja kolmessa
+kohdassa koodia. Ensimmäinen pyyhkäisy löysi kaksi, toinen kolme lisää, koska
+suunnitelma kirjoittaa väitteen yhdyssanana ja koodi substantiivina. Kaikki viisi on
+korjattu, mukaan lukien julkaistu devlog-postaus 98, joka oli väärässä jo
+kirjoitushetkellä.
+</p>
+
+<p>
+Ja rakennussessio jätti tuloksen kytkemättä mihinkään. Se olisi tehnyt provosoinnista
+viidennen asian tässä projektissa joka on oikein, testattu, ja minkään tavoittamatta;
+se kytkettiin katselmoinnin yhteydessä. <strong>Tämä on ensimmäinen kerta kun neutraalin
+kaupunkilaisen lyöminen tekee kaupunkilaiselle mitään.</strong>
+</p>
+
+<h2>Minuutti joka vihdoin kuluu</h2>
+
+<p>
+Kello eteni jo: yksi minuutti joka myönnetty kierros. Mutta mikään ei kuluttanut sitä
+minuuttia, niin kolme valmista, testattua sääntöä, seitsemän statusheittoa, loitsujen
+kestoajan laskenta ja tunneittainen manan palautus, olivat olemassa vailla kutsujaa.
+<strong>Joka tila jonka loitsu asetti oli pysyvä, ja joka kesto oli ikuinen</strong>, ei
+koska sääntö puuttui vaan koska mikään ei ajanut sitä.
+</p>
+
+<p>
+Nyt koko maailmankellon rutiini ajaa: aikapysäytys joka palaa ennen kaikkea muuta,
+kuusitoista vaikutuslaskuria, yksi purkausheitto joka kutsulla (mukaan lukien nollan
+minuutin päivitys), jokainen pelaajan hallitsema hahmo kerran kutsua kohti soihtuineen
+ja kolmine kuluvine varusteineen, seitsemän statusheiton silmukka minuutti kerrallaan,
+kalenterin oma siirtymä tuntirajan yli mana- ja tasopalautuksineen, ja valaistus lukuna
+nollasta seitsemään aamunkoiton ja hämärän rampeineen.
+</p>
+
+<p>
+<strong>Mitä pelaaja näkee:</strong> näkymättömyys, suojaus, kirous, lumous, halvaus,
+uni ja myrkky päättyvät omilla, mitatuilla todennäköisyyksillään. Loitsija palauttaa
+manaa tunneittain. Soihtu palaa loppuun ja kolme puettua esinettä voivat kadota omilla
+vartijoillaan.
+</p>
+
+<h2>Kolme korjausta, koska ne ovat postauksen ydin</h2>
+
+<p>
+<strong>Yksi: väitin aiemmin että kello ei koskaan etene, ja se oli väärin.</strong>
+Väite syntyi hakemalla yksi metodin nimi ja löytämällä vain käynnistyskutsu ja
+keskiyön hyppy; kello etenee vuoronvaihtajan sisällä, ja mittaus vahvistaa että
+alkuperäinen tekee täsmälleen samoin, yhden minuutin per kierros. Johtopäätös nimihausta
+kutsupolun sijaan.
+</p>
+
+<p>
+<strong>Kaksi: siistitty alkuperäisen virhe piti palauttaa.</strong>
+"Käyttää näkymättömyyssormusta"-lippu julistetaan kerran koko rutiinille ja tyhjennetään
+vain pelaajan hallitsemassa haarassa, niin yhden puolueen jäsenen sormus vaimentaa
+seuraavan ei-järjestyksessä olevan hahmon oman heiton palautua näkyväksi. Tila on
+saavutettavissa, niin se jäljitellään, ei korjata. Sen testin siemen <strong>löytyi
+etsimällä, ei valittu</strong>: mikään siemen alle noin 2000:n ei saa tukahdutettua
+heittoa toteen, mikä on satunnaislukugeneraattorin oma, dokumentoitu heikkous, että
+ensimmäiset arvot pienen siemenen jälkeen ovat huonoja.
+</p>
+
+<p>
+<strong>Kolme: tarkistus löysi jotain mitä <code>dotnet test</code> ei löytänyt.</strong>
+Ryhmitelty väite jonka testiajuri hyväksyy ei ole olemassa Unityn omassa NUnit-versiossa,
+niin yksi projekti raportoi virheen samalla kun testit olivat vihreät. Neljäs kerta kun
+tämä projekti kohtaa eron kahden välillä, ja ensimmäinen kerta kun tarkistus löysi sen
+ennen omistajaa.
+</p>
+
+<h2>Rehellinen raja</h2>
+
+<p>
+Itse kytkennällä ei ole testiä eikä voi olla, koska moottorin testiprojekti jättää
+Unity-kokoonpanon ulos tarkoituksella. Säännöillä sen takana on <strong>17</strong> ja
+<strong>39</strong> testiä; toimiiko kytkentä on omistajan nähtävä Unityn editorissa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       199 / 224
+
+U6Formats.Tests    432 / 432
+U6Export.Tests      62 / 62
+U6Engine.Tests    3198 / 3198
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kolme paikallista delegaattia joilla puolueen ympärillä laukeavat loitsut, pelon
+     ja hämmennyksen ja epäkuolleiden karkotuksen vastustusheitot, laskevat kukin oman
+     vastustusheittonsa <strong>ennen</strong> ehtoa joka olisi ohittanut sen kokonaan.
+     Joka kohde joka ei täytä ehtoa maksaa yhden noston jota alkuperäinen ei koskaan
+     tee, ja se nosto siirtää kaikkea mitä generaattori tuottaa sen jälkeen lopun peliä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

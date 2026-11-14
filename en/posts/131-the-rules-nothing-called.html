@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Rules Nothing Called | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/131-saannot-joita-mikaan-ei-kutsunut.html" hreflang="fi">FI</a><span>/</span><a href="131-the-rules-nothing-called.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 131</nav>
+
+<h1>The rules nothing called</h1>
+
+<p class="lede">
+Two slices this round, F51 and F53, and one story behind both: the difference between
+built and working. For each one a rule already existed, measured and tested, and
+nothing called it. One got wired by noticing it in review; the other got a single
+collecting entry point built for it this round. This is the most player visible pair
+of changes in a long while.
+</p>
+
+<h2>Provoke: a wrong sentence in five places</h2>
+
+<p>
+The measurement overturned a sentence this project had written in five places: the
+victim's alignment is not flipped from its own value, it is <strong>set from the
+attacker's own</strong>. A good attacker (0x40) makes the victim chaotic (0x60); an
+evil (0x20), chaotic or neutral attacker all make it <strong>good</strong>. One answer
+against three, and a good attacker alone cannot tell the right reading from the wrong
+one, which is exactly why the flipped reading survived this long unnoticed.
+</p>
+
+<p>
+A scheduled victim becomes a vigilante and the routine <strong>returns before</strong>
+the alignment is set, so its alignment never changes; a temporary monster gets the
+assault behaviour <strong>after the alignment set, in the same path</strong>, not
+instead of it. The wrong sentence sat in two places in the plan and three in the code.
+The first sweep found two, the second found three more, because the plan writes the
+claim as one compound word and the code writes it as a noun. All five are corrected,
+including published devlog post 98, which was wrong when it was written.
+</p>
+
+<p>
+And the build pass left the result with no caller at all. That would have made
+provoke the fifth thing in this project that is correct, tested, and reached by
+nothing; it was wired during review. <strong>This is the first time hitting a
+neutral townsperson does anything to the townsperson.</strong>
+</p>
+
+<h2>The minute that finally spends</h2>
+
+<p>
+The clock already advanced: one minute per granted round. But nothing spent that
+minute, so three rules that were measured, built and tested, the seven status rolls,
+the spell duration countdown, and the magic regained per hour, all had no caller.
+<strong>Every status a spell applied was permanent and every duration was
+forever</strong>, not because a rule was missing but because nothing ran it.
+</p>
+
+<p>
+Now the whole world clock routine runs: the time stop that returns before everything
+else, the sixteen effect counters, one eruption draw on every call (including a
+zero minute refresh), every player controlled character once per call with its torch
+and three worn items, the seven status rolls once per minute, the calendar's own
+carry across the hour boundary with magic and level regained, and the ambient light
+as a number from zero to seven with dawn and dusk ramps.
+</p>
+
+<p>
+<strong>What a player sees:</strong> invisibility, protection, curses, charm,
+paralysis, sleep and poison now end on their own, measured odds. A caster regains
+magic every hour. A torch burns down and three worn items can vanish on their own
+sentinels.
+</p>
+
+<h2>Three corrections, because they are the point of this post</h2>
+
+<p>
+<strong>One: I claimed the clock never advances, and that was wrong.</strong> The
+claim came from searching for one method name and finding only a startup call and a
+midnight jump; the clock is advanced inside the turn scheduler, and the measurement
+confirms the original does exactly the same, one minute per round. A conclusion from
+a name search instead of a call path.
+</p>
+
+<p>
+<strong>Two: a fault of the original's own, tidied away, had to be put back.</strong>
+The "wears an invisibility ring" flag is declared once for the whole routine and
+cleared only in the player controlled branch, so a party member's ring suppresses the
+next unordered actor's own roll to become visible again. The state is reachable, so
+it is reproduced, not fixed. Its test's seed was <strong>found by scanning, not
+picked</strong>: no seed below about 2000 makes the unsuppressed roll land, which is
+the random generator's own documented wart that the first values after a small seed
+are poor.
+</p>
+
+<p>
+<strong>Three: the check caught something <code>dotnet test</code> did not.</strong>
+A grouped assertion the test runner accepts does not exist in the NUnit Unity ships,
+so one project reported an error while the tests were green. Fourth time this project
+has met a difference between the two, and the first time the check found it before the
+owner did.
+</p>
+
+<h2>The honest limit</h2>
+
+<p>
+The wiring itself has no test and cannot have one, because the engine's test project
+excludes the Unity assembly on purpose. The rules behind it have <strong>17</strong>
+and <strong>39</strong> tests; whether the wiring works is for the owner to see in the
+Unity editor.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished        13 / 24
+work items done          199 / 224
+
+U6Formats.Tests    432 / 432
+U6Export.Tests      62 / 62
+U6Engine.Tests    3198 / 3198
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Three local delegates for spells cast around the party, fear, confuse and repel
+     undead's resist rolls, each compute their own resist roll <strong>before</strong>
+     the condition that would have skipped it entirely. Every target that does not
+     qualify costs one draw the original never makes, and that draw shifts everything
+     the generator produces for the rest of the game.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
