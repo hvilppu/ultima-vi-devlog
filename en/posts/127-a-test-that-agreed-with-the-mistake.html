@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Test That Agreed With The Mistake | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/127-testi-joka-oli-virheen-kanssa-samaa-mielta.html" hreflang="fi">FI</a><span>/</span><a href="127-a-test-that-agreed-with-the-mistake.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 127</nav>
+
+<h1>A test that agreed with the mistake</h1>
+
+<p class="lede">
+The second and last of the last two rounds wired pickpocket's own second selection: a spell
+that opens the victim's pack as a grid, reads the cursor's position, and carries it to a
+handler that has been waiting for exactly this input the whole time. Along the way the grid
+found its own defect before anything ever called it: the same mix-up between direct contents
+and a flattened subtree this project had already measured once before, fifteen slices
+earlier, in a different spell. This is the last spell that could not do this before.
+</p>
+
+<h2>Twelve slots, four to a row</h2>
+
+<p>
+The pack grid is three clean steps on the engine side: walk the victim's own items and keep
+only what is in inventory or a container, correct the scrolled-past count before the fill,
+and turn the cursor's position into an object, or nothing. All three are tested in full
+headlessly, including the exact boundary where the scroll snaps back so the last row is
+never left empty as the pack shrinks mid-view, which is exactly what pickpocket does to its
+own victim. The view's own side, a new sub-mode that feeds one key at a time, compiles but is
+not run by any headless test, the fourth time this shape has been built, after gate travel's
+typed line, enchant's spellbook pick, and the wizard eye's own loop. Neither handler, the
+cursor nor the actual spell handler, changed: both are called exactly as earlier rounds
+measured their own rules.
+</p>
+
+<h2>Direct contents, not a flattened subtree</h2>
+
+<p>
+The grid was first built from the method that flattens a victim's whole carried subtree, so
+a bag sitting in the pack would have contributed its own slot and a slot for everything
+inside it. The original walks only direct contents: a bag in the pack is one slot, and what
+is inside it is none. This was not a new measurement. This project had already measured that
+exact distinction once before, while building the untrap spell: its own test sees only direct
+contents, but its own removal takes the first hit anywhere in the subtree, two deliberately
+different searches. The same distinction, direct contents against a flattened subtree,
+arrived again fifteen slices later, in a different object, in a different spell, and neither
+earlier measurement called it out directly. It was only found by reading the grid's first
+version back against the original. The fix is one new, direct lookup table read with no walk
+at all, sitting beside the existing flattening one.
+</p>
+
+<h2>A test that agreed with the mistake</h2>
+
+<p>
+The fix also turned up an old test that had never been written against the measurement, only
+against the wrong implementation. It asserted that a bag sitting in the pack <strong>and</strong>
+its contents both qualified, two slots for one bag. The test failed the moment the rule was
+asserted correctly: a bag is one slot, its contents are none. This is exactly the situation
+worth fearing most: the test never failed before this, because it agreed with the very defect
+it should have been watching for. Fixed by leaving the old assertion on the record as wrong,
+not quietly green.
+</p>
+
+<h2>79 to 80</h2>
+
+<p>
+Of the eighty spells, 79 reached their own handler in play before this round. Pickpocket was
+the last one that could still fall short, and this round wired it: all nineteen of the view's
+own branches now resolve to the right routine, and not one of them still returns a named
+refusal line directly. <strong>Of the eighty spells, the number reaching their own handler in
+play is now 80.</strong> This is the last spell that could not do this before, and the spell
+work closes with this round.
+</p>
+
+<p>
+"Reaches its own handler" is the dispatcher's own switch, not a claim of full fidelity to the
+original, and it is worth saying out loud exactly when the number finally fills. Four
+interaction modes, the direction prompt, the typed line, the slot cursor and the spellbook
+pick, are built and wired to at least one spell apiece, but telekinesis' push and wind
+change still never read a direction through the direction prompt: direction stays empty for
+both, which each handler's own measured rule turns into a real, reachable branch of its own
+rather than a crash. Resurrect's armageddon flag is always false, gate travel borrows help's
+own facing verbatim, and enchant's letter capitalisation is the view's own choice, not a
+measurement. All of this is recorded honestly, not hidden behind the number.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          194 / 219
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3118 / 3118
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The spell work is finished: all eighty spells now reach their own handler. Next in the
+     queue is the original's own message text, 884 separate string literals in the source
+     rather than a table, whose absence has left seven earlier slices without a message
+     index set for exactly that reason. The next slice measures and imports that text into
+     this project's own, separate file.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

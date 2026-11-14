@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testi Joka Oli Virheen Kanssa Samaa Mieltä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="127-testi-joka-oli-virheen-kanssa-samaa-mielta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/127-a-test-that-agreed-with-the-mistake.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 127</nav>
+
+<h1>Testi joka oli virheen kanssa samaa mieltä</h1>
+
+<p class="lede">
+Toinen ja viimeinen kahdesta viimeisestä kierroksesta kytki taskuvarkauden toisen valinnan:
+loitsu joka avaa uhrin pakin ruudukkona, lukee kursorin paikan ja vie sen käsittelijälle joka
+on kaiken aikaa odottanut juuri tätä syötettä. Matkalla ruudukko löysi oman virheensä ennen
+kuin kukaan ehti kutsua sitä: sama sekaannus suorien sisältöjen ja litistetyn alipuun välillä
+jonka tämä projekti oli mitannut kerran aiemmin, viisitoista viipaletta sitten, eri loitsussa.
+Tämä loitsu on viimeinen joka ei pystynyt tätä ennen.
+</p>
+
+<h2>Kaksitoista paikkaa, neljä riviin</h2>
+
+<p>
+Pakin ruudukko on moottoripuolella kolme puhdasta askelta: kävele uhrin omat esineet ja
+pidätä vain se mikä on inventaariossa tai säiliössä, korjaa vieritetty määrä ennen täyttöä
+ja käännä kursorin paikka olioksi, tai ei yhtäkään. Kaikki kolme ovat testattuja kokonaan
+headless-tilassa, mukaan lukien tarkka raja missä vieritys palaa taaksepäin niin ettei
+viimeinen rivi jää tyhjäksi pakin pienentyessä kesken katselun, juuri sitä mitä varkaus
+uhrilleen tekee. Näkymän oma puoli, uusi alitila joka syöttää yhden näppäimen kerrallaan,
+kääntyy mutta sitä ei aja yksikään headless-testi, neljäs kerta samaa kuviota gate travelin
+kirjoitetun rivin, enchantin loitsukirjan poiminnan ja wizard eyen oman silmukan jälkeen.
+Kumpikaan käsittelijä, kursori eikä varsinainen loitsukäsittelijä, ei muuttunut: molempia
+kutsutaan täsmälleen niin kuin aiemmat kierrokset niiden säännöt mittasivat.
+</p>
+
+<h2>Suora sisältö, ei litistetty alipuu</h2>
+
+<p>
+Ruudukko rakennettiin ensin menetelmästä joka litistää uhrin koko kannetun alipuun, niin
+pakissa oleva pussi olisi antanut oman paikkansa ja paikan jokaiselle sisällölleen erikseen.
+Alkuperäinen kävelee vain suoria sisältöjä: pussi pakissa on yksi paikka, pussin sisältö ei
+yhtäkään. Tämä ei ollut uusi mittaus. Tämä projekti oli mitannut juuri tämän eron kerran
+aiemmin, kun untrap-loitsua rakennettiin: sen oma testi näkee vain suorat sisällöt, mutta
+poisto ottaa ensimmäisen osuman mistä tahansa alipuusta, kahtena tarkoituksella eri hakuna.
+Sama ero, suora sisältö vastaan litistetty alipuu, ilmestyi nyt uudelleen viisitoista
+viipaletta myöhemmin, eri oliossa, eri loitsussa, eikä kumpikaan aiempi mittaus muistuttanut
+siitä suoraan. Se löytyi vasta kun ruudukon ensimmäinen versio luettiin uudelleen
+alkuperäistä vasten. Korjaus on yksi uusi, suora hakutaulun luku ilman kävelyä, olemassa
+olevan litistävän hakijan rinnalle.
+</p>
+
+<h2>Testi joka oli virheen kanssa samaa mieltä</h2>
+
+<p>
+Korjaus löysi myös vanhan testin, joka ei ollut kirjoitettu mittausta vasten vaan väärää
+toteutusta vasten. Se väitti, että pakissa oleva pussi <strong>ja</strong> sen sisältö molemmat
+kelpaavat ruudukkoon, kaksi paikkaa yhdelle pussille. Testi kaatui heti kun sääntö väitettiin
+oikein: pussi on yksi paikka, sisältö ei yhtäkään. Tämä on juuri se tilanne jota kannattaa
+pelätä eniten: testi ei kaatunut koskaan ennen tätä, koska se oli samaa mieltä sen virheen
+kanssa jota se olisi pitänyt etsiä. Korjattu jättämällä vanhan väitteen kirjatuksi
+virheelliseksi eikä hiljaa vihreäksi.
+</p>
+
+<h2>79:stä 80:een</h2>
+
+<p>
+Kahdeksankymmenestä loitsusta pelissä tavoittavia käsittelijöitä oli 79 ennen tätä kierrosta.
+Taskuvarkaus oli viimeinen joka saattoi jäädä kesken, ja tämä kierros kytki sen: kaikki
+yhdeksäntoista omaa haaraa ratkeavat nyt oikeaan rutiiniinsa, eikä yksikään enää palauta
+nimetyn kieltäytymisen riviä suoraan. <strong>80:stä loitsusta pelissä tavoittavia
+käsittelijöitä on nyt 80.</strong> Tämä on viimeinen loitsu joka ei pystynyt tätä ennen, ja
+loitsutyö päättyy tähän kierrokseen.
+</p>
+
+<p>
+"Tavoittaa käsittelijänsä" on dispatcherin oma kytkin eikä väite täydestä alkuperäisen
+uskollisuudesta, ja se kannattaa sanoa ääneen juuri kun luku viimein täyttyy. Neljä
+vuorovaikutustilaa, suuntakehote, kirjoitettu rivi, paikkakursori ja loitsukirjan poiminta,
+on rakennettu ja kytketty ainakin yhdelle loitsulle, mutta telekinesiksen työntö ja
+tuulenvaihto eivät silti koskaan lue suuntaa suuntakehotteen läpi: suunta pysyy tyhjänä
+kummallekin, mikä kummankin käsittelijän oma mitattu sääntö kääntää omaksi, tavoitettavaksi
+haarakseen eikä kaatumiseksi. Resurrectin armageddon-lippu on aina epätosi, gate travel
+lainaa help-loitsun suunnan sellaisenaan, ja enchantin kirjainten isotus on näkymän oma
+valinta eikä mittaus. Kaikki tämä on rehellisesti kirjattu, ei peitelty luvun takana.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        194 / 219
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3118 / 3118
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Loitsutyö on valmis: kaikki kahdeksankymmentä loitsua tavoittavat nyt käsittelijänsä.
+     Jonossa on seuraavaksi alkuperäisen oma viestiteksti, 884 erillistä merkkijonoliteraalia
+     lähdekoodissa taulukon sijaan, jonka puute on jättänyt seitsemän aiemman viipaleen omat
+     viesti-indeksit asettamatta juuri tästä syystä. Seuraava viipale mittaa ja tuo sen
+     tekstin tämän projektin omaksi, erilliseksi tiedostokseen.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
