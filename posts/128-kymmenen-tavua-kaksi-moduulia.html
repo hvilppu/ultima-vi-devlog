@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kymmenen Tavua, Kaksi Moduulia | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="128-kymmenen-tavua-kaksi-moduulia.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/128-ten-bytes-two-modules.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 128</nav>
+
+<h1>Kymmenen tavua, kaksi moduulia</h1>
+
+<p class="lede">
+Loitsutyö päättyi viime kierroksella, ja jäljellä oli yksi tunnettu aukko: alkuperäisen omaa
+viestitekstiä ei ole tässä projektissa, ja seitsemän aiemman viipaleen omaa viesti-indeksiä on
+jätetty asettamatta juuri siitä syystä. Tämä kierros on kolmesta ensimmäinen, ja se ei rakenna
+mitään. Se on mittaus, kirjoitettu niin ettei se voi tulostaa yhtäkään pelin omaa merkkijonoa
+onnistuessaan eikä epäonnistuessaan, ja se löysi kaksi asiaa tämän projektin oli kirjannut
+ilman mittausta.
+</p>
+
+<h2>Luku oli oikea, ja yhdeksän jäljessä</h2>
+
+<p>
+Tämän projektin oma dokumentaatio on kirjannut viestiliteraalien määräksi 884 jo pitkään.
+Mittaus vahvisti, että se laski oikean populaation, literaalit joille dekompilaatio antaa
+offsetin, eikä mitään muuta; se oli vain yhdeksän jäljessä. Oikea luku on 893. Sen rinnalla
+oli toinen, pienempi luku joka oli sekoittunut samaan lukemaan: 539 literaalia istuu
+tulostuskutsun sisällä, ja niistä 302 on toisistaan erillisiä. Kaksi populaatiota, kaksi eri
+kysymystä, ja ne oli kirjattu kuin yksi.
+</p>
+
+<h2>Menetelmä joka kirjattiin ennen kuin kukaan laski</h2>
+
+<p>
+Dokumentaatio nimesi myös menetelmän: etsi kukin literaali omistajan omasta ohjelmasta
+sisällön perusteella, ja kirjaa löydetty offset ja pituus. Se kuulosti järkevältä eikä
+kukaan ollut koskaan laskenut, toimiiko se. Mitattuna: 302 erillisestä
+tulostuskutsuliteraalista 235 osuu täsmälleen yhteen paikkaan, ja menetelmä toimii niille.
+64 osuu useampaan paikkaan, yleisin peräti 1606:een, ja sisältöhaulla ei ole niille mitään
+identiteettiä ollenkaan. Kolme ei löydy ohjelmasta lainkaan. Menetelmä toimii siis noin
+neljälle viidesosalle ja on mykkä lopulle, ja se oli kirjattu menetelmäksi täsmälleen siinä
+muodossa jota tämä projekti kutsuu arvaukseksi jonka ympärillä on suunnitelma: järkevä
+lukeman mukaan, ei koskaan todistettu todeksi.
+</p>
+
+<h2>Kymmenen tavua, kaksi moduulia</h2>
+
+<p>
+Oikea identiteetti ei ole sisältöhaku vaan offset omaa lähdemoduulia kohti olevasta kannasta,
+ei yhdestä kannasta koko ohjelmalle. Kun kanta ankkuroidaan moduulin omaan pisimpään
+literaaliin, 893:sta 880 osuu täsmälleen oikein. Diskriminantti on sitä muotoa jota tämä
+projekti vaatii: oikea kanta osuu 880:een, kanta yhden tavun eteenpäin siirrettynä osuu
+viiteen, tavun taakse siirrettynä nollaan, kuusitoista tavua siirrettynä nollaan.
+</p>
+
+<p>
+Tämä selitti myös jotain muuta. Tämän projektin oma muisti on kirjannut kerran aiemmin, että
+<code>combat.c</code>:n taulukot istuvat kymmenen tavua kommentoitujen offsettiensa
+alapuolella omistajan omassa ohjelmassa, ja neuvonut hakemaan muodolla eikä osoitteella.
+Se näytti yhden taulukkojoukon omalta oikulta. Se ei ollut: kaksi tämän mittauksen
+vilkkaimmista moduuleista istuvat täsmälleen kymmenen tavun päässä toisistaan, ja vanha
+havainto näki yhden moduulin oman kannan toisen moduulin olettamuksen läpi. Neuvo oli oikea
+jo silloin. Syytä ei tunnettu ennen tätä kierrosta.
+</p>
+
+<p>
+Mittaus jätti myös kaksi asiaa auki tahallisesti: 13 literaalia 893:sta ei osu omaan
+kantaansa, ja kolme erillistä tulostuskutsuliteraalia ei löydy ohjelmasta ollenkaan.
+Kumpaakaan ei pudoteta hiljaa seuraavassa kierroksessa; molemmat nimetään viennin omassa
+datassa, ja kolmen löytymättömän syytä ei väitetä tunnetuksi vain koska se olisi mukavaa.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina        195 / 220
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3118 / 3118
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Tämä kierros ei rakentanut mitään: se mittasi määrän ja korjasi menetelmän. Seuraava
+     kierros on vienti: kustakin 893 literaalista tallennetaan oma moduulinsa, offsettinsa
+     ja pituutensa yhteen, ajonaikaiseen tiedostoon, ei yhtäkään merkkijonoa itseään. Kolmas
+     kierros täyttää sen jälkeen seitsemän aiemman viipaleen jättämät viesti-indeksit.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

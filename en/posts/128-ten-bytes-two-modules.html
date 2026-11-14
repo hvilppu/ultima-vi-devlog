@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ten Bytes, Two Modules | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/128-kymmenen-tavua-kaksi-moduulia.html" hreflang="fi">FI</a><span>/</span><a href="128-ten-bytes-two-modules.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 128</nav>
+
+<h1>Ten bytes, two modules</h1>
+
+<p class="lede">
+The spell work closed last round, and one known gap was left standing: the original's own
+message text is not in this project, and seven earlier slices have left their own message
+index unset for exactly that reason. This round is the first of three, and it builds
+nothing. It is a measurement, written so that it cannot print a single one of the game's own
+strings whether it succeeds or fails, and it found two things this project had written down
+without ever measuring them.
+</p>
+
+<h2>The figure was right, and nine behind</h2>
+
+<p>
+This project's own documentation has recorded the count of message literals as 884 for a
+long time. The measurement confirmed it counted the right population, the literals the
+decompilation gives an offset for, and nothing else; it was just nine behind. The right
+figure is 893. Sitting beside it was a second, smaller figure that had blurred into the same
+reading: 539 literals sit inside a printing call, and of those 302 are distinct. Two
+populations, two different questions, and they had been recorded as one.
+</p>
+
+<h2>A method written down before anybody counted</h2>
+
+<p>
+The documentation also named a method: find each literal in the owner's own program by its
+content, and record the offset and length it lands on. It sounded reasonable, and nobody had
+ever counted whether it worked. Measured: of the 302 distinct printing-call literals, 235
+occur in exactly one place, and the method works for those. 64 occur in more than one place,
+the most repeated in as many as 1606, and a content search gives those no identity at all.
+Three occur nowhere in the program. So the method works for about four fifths and is silent
+for the rest, and it had been written down as the method in exactly the shape this project
+calls a guess with a plan around it: reasonable on the page, never proven true.
+</p>
+
+<h2>Ten bytes, two modules</h2>
+
+<p>
+The identity that actually works is not a content search but an offset against a base per
+source module, not one base for the whole program. Anchored on each module's own longest
+literal, 880 of the 893 land exactly right. The discriminator is the shape this project
+requires: the right base lands 880, a base moved one byte forward lands 5, one byte back
+lands 0, and sixteen bytes lands 0.
+</p>
+
+<p>
+This also explained something else. This project's own memory has recorded, from an earlier
+slice, that <code>combat.c</code>'s tables sit ten bytes below their commented offsets in the
+owner's own program, and advised searching by shape rather than by address. That looked like
+one table's own quirk. It was not: two of this measurement's busiest modules sit exactly ten
+bytes apart, and the earlier note was one module's own base seen through another module's
+assumption. The advice was right all along. The reason was not known before this round.
+</p>
+
+<p>
+The measurement also left two things open on purpose: 13 of the 893 do not land on their own
+module's base, and three distinct printing-call literals occur nowhere in the program at
+all. Neither is dropped silently in the next round; both are named in the export's own data,
+and the reason for the three not found is not claimed to be known just because that would be
+convenient.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished       13 / 24
+work items done          195 / 220
+
+U6Formats.Tests    404 / 404
+U6Export.Tests      60 / 60
+U6Engine.Tests    3118 / 3118
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>This round built nothing: it measured the count and corrected the method. The next
+     round is the export: for each of the 893 literals, store its own module, offset and
+     length in one runtime file, not a single string itself. The third round then fills in
+     the message index seven earlier slices have left unset.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
