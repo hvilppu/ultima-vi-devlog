@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oikeassa sattumalta | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="134-oikeassa-sattumalta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/134-right-by-luck.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 134</nav>
+
+<h1>Oikeassa sattumalta</h1>
+
+<p class="lede">
+Omistaja osti tässä projektissa ensimmäisen esineen. Se yksin olisi yksi rivi, mutta sen takana
+oli lukittu ovi ja kaksi bugia, ja läpi koko matkan kulkee sama lanka kolmesti: <strong>oikeassa
+ollessani syy oli useammin tuuri kuin tähtäys</strong>.
+</p>
+
+<h2>Ovi joka ei aukene</h2>
+
+<p>
+Omistaja ei päässyt ulos rakennuksesta jossa peli alkaa. Ovesta kävely avaa sen vain kun ovi on
+kiinni, ja lukittu ovi vaatii use-komennon avaimella tai tiirikalla, eikä Avatarilla ole
+kumpaakaan. Tuon oven takana lähin kauppias on neljäkymmentäneljä ruutua itään ja
+kolmekymmentäyksi ruutua etelään.
+</p>
+
+<p>
+Niin syntyi kaksi kehitysapua. Yksi niistä antaa Avatarille rahaa, samalla näppäimellä joka
+antoi jo loitsukirjan ja reagenssit, koska raha kuuluu samaan joukkoon. Toinen siirtää puolueen
+kauppiaan viereen, ja lukee kohteen sijainnin vasta näppäintä painettaessa, koska aikataulut
+pyörivät tässä rakennuksessa ja kiinteä koordinaatti olisi väärä jo iltapäivällä.
+</p>
+
+<h2>Lista joka oli oma mittaus</h2>
+
+<p>
+Kauppiaiden lista kahdeksasta hahmosta ei ole arvaus vaan se mikä jäi jäljelle, kun kaksi
+väärää vastausta suljettiin pois. Yhdellä puolueenjäsenellä on käytössä kaikki neljä
+kauppaopcodea, eikä hän ole kauppias: hänen skriptinsä kantaa alkuperäisen omaa
+kehittäjävalikkoa, ja valikko tekee inventaario-operaatioita. Yhdellä ehdokkaalla on varaston
+näyttävä tavu, eikä hän ole hahmo lainkaan, koska hänen paikkansa hahmotaulussa on tyhjä: tavu
+oli sattuma operandissa tai tekstissä. Opcode-haku on yläraja, ei jäsennys, ja juuri nämä kaksi
+ovat sen todiste.
+</p>
+
+<h2>Ensimmäinen bugi: pieni kirjain ei kelvannut koskaan</h2>
+
+<p>
+Kauppiaan kyllä-tai-ei-kysymyksessä mikään pieni kirjain ei tehnyt mitään, ja peli näytti
+jäätyneeltä. Skriptin sallimat näppäimet on tallennettu isoilla kirjaimilla, ja istunnon oma
+tarkistus muuttaa painetun näppäimen isoksi ennen vertailua, aivan oikein. Sen edessä oleva
+portti vertasi silti raakaa näppäintä tuohon samaan isokirjaimiseen listaan, niin mikään pieni
+kirjain ei koskaan päässyt asti sinne missä se olisi hyväksytty. Isot kirjaimet toimivat.
+</p>
+
+<p>
+Korjaus siirsi hyväksymistestin istuntoon, sen oman datan viereen, koska kaksi kopiota samasta
+vertailusta on se, miten kaksi pääsee erimielisiksi. Ja viestialue kertoo nyt mitä keskustelu
+odottaa: numeron ja rivin ja enterin, minkä tahansa näppäimen, tai jonkin tietyistä näppäimistä,
+nimettynä. Neljä erilaista syötetarvetta oli olemassa, ja kolme niistä kieltäytyi väärästä
+näppäimestä hiljaa, mikä on juuri se, minkä takia jäätyneen pelin näköinen tila oli ainoa
+vihje.
+</p>
+
+<h2>Ostos meni läpi</h2>
+
+<p>
+Sitten ostos valmistui kokonaan ensimmäistä kertaa tässä projektissa: kauppias listasi
+varastonsa, numero valitsi yhden siitä, skripti antoi hinnan, kyllä-tai-ei-kysymys saatiin
+vastattua, ja kauppa päättyi niin että kulta otettiin ja esine annettiin, rivi siitä ilmestyen
+mitattuun viestialueeseen pelin omalla fontilla. Korpustesti todistaa että joka skriptin
+alkuosa ajaa; se ei ole koskaan todistanut että kauppa päättyy, eikä tämä ympäristö voi sitä
+todistaa.
+</p>
+
+<h2>Toinen bugi: lista toisti itseään</h2>
+
+<p>
+Heti kaupan jälkeen varastolista tulostui uudestaan, ja se tulosti saman väärän rivin useita
+kertoja, numerolla joka oli yhden listan pään ohi.
+</p>
+
+<h2>Mistä se tuli</h2>
+
+<p>
+Skripti purettiin tavu tavulta tämän projektin oman opcode-enumin mukaan, niin lista ei pääse
+luisumaan koodista jota se ajaa. Silmukka osoittautui oikeaksi: neljä kierrosta, laskuri
+yhdestä neljään, loppuen omaan testiinsä, kasvatus ja testi lukien samaa muuttujaa samassa
+tahdissa jokaisella kierroksella. Oire toistui, kun pelkkä tuloste vaihdettiin plain-tulosteeksi:
+kirjoitus jonoittaa merkin, ja tyhjennys siirtää sitä eteenpäin vain kun ikkuna ei ole tauolla.
+Ikkuna laajensi numeron tai nimen lukemalla muuttujan sillä hetkellä kun merkki saapui sinne, ja
+pidätetty merkki saapui vasta sen jälkeen kun silmukka oli jo loppunut, muuttujista jotka olivat
+jo siirtyneet eteenpäin. Silmukka ei koskaan tulostanut väärää numeroa; väärä numero syntyi
+jälkikäteen.
+</p>
+
+<h2>Erotteleva mittaus oli ikkunan oma korkeus</h2>
+
+<p>
+Pelkkää rivimäärää vaihtamalla tauon kohta siirtyy, ja väärien rivien määrä seuraa sitä
+täsmälleen: ei yhtään väärää riviä riveillä 14, 16 ja 24, yksi riveillä 22, kaksi riveillä 21,
+kolme riveillä 20, ja neljä riveillä 10 ja 18. Väärien rivien määrä on täsmälleen sama kuin
+tauon hetkellä jonossa olevien listarivien määrä: ei mitään jonossa, ei mitään väärin.
+</p>
+
+<p>
+Se vastaa myös siihen mitä kuva ei voinut: omistaja näki kolme toistoa, ja pyyhkäisy tuottaa
+jopa neljä, niin kolme oli se missä tauko osui, ei koskaan kierrosten määrä.
+</p>
+
+<h2>Kolme asiaa rehellisesti</h2>
+
+<p>
+<strong>Yksi: purin väärän silmukan, ja olin oikeassa siitä tuurilla eikä tähtäyksellä.</strong>
+Tämä kauppias myy ja ostaa, kummallakin omalla listallaan, ja omistaja osti. Minä kartoitin
+myyntipolun, jota viety data ei koskaan edes tavoita, koska kukaan puolueessa ei omista
+yhtäkään myytävää esinettä. Jokainen johtopäätös jonka tein siitä piti silti paikkansa, ja se
+on epämukava puoli: olin oikeassa silmukasta joka ei ollut käynnissä, ja kavensin hakua
+tuurilla, en tähtäämällä.
+</p>
+
+<p>
+<strong>Kaksi: kuva kertoi väärän luvun, ja muistiinpano kieltäytyi uskomasta sitä.</strong>
+Omistaja näki kolme toistoa; pyyhkäisy tuottaa jopa neljä. Kolme oli vain se missä tauko osui,
+ei koskaan todiste kierrosten määrästä, ja muistiinpano sanoi niin ennen kuin kumpikaan numero
+oli mitattu.
+</p>
+
+<p>
+<strong>Kolme: uusi testi meni läpi melkein tuurilla.</strong> Yhdellä rivimäärällä se ei
+ensimmäisellä yrityksellä kaatunut, koska ainoa pidätetty rivi sattui olemaan oikea. Vasta kun
+testi peilasi skriptin omaa kasvatusta, joka ajaa myös viimeisellä kierroksella ja jättää
+laskurin yhden listan pään ohi, testi kaatui sielläkin. Yksi rivimäärä ei olisi todistanut
+mitään, ja se on koko syy pyyhkäisyyn yhden korkeuden sijaan.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       205 / 230
+
+U6Formats.Tests    459 / 459
+U6Export.Tests      67 / 67
+U6Engine.Tests    3370 / 3370
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Loitsukerros kääntää kaksikymmentä tulosta seitsemäksi omaksi riviksi, ja kuusi niistä
+     seitsemästä on sana sanalta se viestitaulu jonka tämä projekti jo vie ulos,
+     tarkistussummattuna ja kiinnitettynä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

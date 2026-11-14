@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Right By Luck | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/134-oikeassa-sattumalta.html" hreflang="fi">FI</a><span>/</span><a href="134-right-by-luck.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 134</nav>
+
+<h1>Right by luck</h1>
+
+<p class="lede">
+The owner bought the first item this project has ever sold. On its own that would be one line,
+but behind it stood a locked door and two bugs, and the same thread runs through the whole
+stretch three times over: <strong>being right turned out more often to be luck than aim</strong>.
+</p>
+
+<h2>A door that does not open</h2>
+
+<p>
+The owner could not leave the building the game starts in. Walking into a door opens it only
+when the door is closed, and a locked one needs the use command with a key or a lockpick, and
+the Avatar owns neither. Past that door the nearest merchant is forty four tiles east and
+thirty one south.
+</p>
+
+<p>
+So two development aids were born. One gives the Avatar money, on the same key that already
+gives a readied spellbook and its reagents, because money belongs in the same handful. The
+other moves the party next to a merchant, reading the target's position only at the moment the
+key is pressed, because schedules run inside this building and a fixed coordinate would already
+be wrong by the afternoon.
+</p>
+
+<h2>A list that was itself a measurement</h2>
+
+<p>
+The list of eight merchant candidates is not a guess, it is what survived once two wrong
+answers were ruled out. One party member has all four trading opcodes available and is not a
+merchant: their script carries the original's own developer cheat menu, and the menu does
+inventory operations. One candidate has the byte that marks a stock list and is not a character
+at all, because their slot in the character table is empty: the byte was a coincidence in an
+operand or in text. The opcode scan is an upper bound, not a parser, and those two candidates
+are the proof of it.
+</p>
+
+<h2>The first bug: a lower case key never worked</h2>
+
+<p>
+At the merchant's yes or no question no lower case key did anything, and the game looked
+frozen. The keys a script allows are stored raised to upper case, and the session's own check
+raises the pressed key before comparing, which is correct. The gate in front of it, though,
+compared the raw key against that same upper case list, so no lower case key could ever reach
+the check that would have accepted it. Upper case worked.
+</p>
+
+<p>
+The fix moved the acceptance test onto the session, beside the data it tests, because two
+copies of one comparison are exactly how the two came to disagree. And the message area now
+says what the conversation is waiting for: a number, a line and an enter, any key, or one of a
+set of specific keys, named. Four different kinds of input existed, and three of them refused a
+wrong key in silence, which is exactly why a frozen looking game was the only clue.
+</p>
+
+<h2>The purchase went through</h2>
+
+<p>
+Then a purchase completed end to end for the first time in this project: a merchant listed its
+stock, a digit picked one item from it, the script quoted a price, a yes or no question was
+answered, and the sale closed with the gold taken and the item handed over, the line saying so
+appearing in the measured message area in the game's own font. The corpus test proves that
+every script's opening section runs; it has never proved that a sale completes, and this
+environment cannot prove it either.
+</p>
+
+<h2>The second bug: the list repeated itself</h2>
+
+<p>
+Right after the sale the stock list printed again, and it printed the same wrong line several
+times, with a number one past the end of the list.
+</p>
+
+<h2>Where it came from</h2>
+
+<p>
+The script was disassembled byte by byte against this project's own opcode enum, so the listing
+cannot drift from the code that runs it. The loop turned out to be correct: four passes, the
+counter running from one to four, ending on its own test, with the increment and the test
+reading the same variable in step on every pass. The symptom reproduced when only the output
+was swapped for the real one: a write enqueues the character, and the drain only moves it on
+while the window is not paused. The window expanded a number or a name by reading the variable
+at the moment the character reached it, and a held character arrived only after the loop had
+already finished, out of variables that had moved on by then. The loop never printed a wrong
+number; the wrong number was made up afterwards.
+</p>
+
+<h2>The discriminator was the window's own height</h2>
+
+<p>
+Moving only the row count moves where the pause falls, and the count of wrong lines follows it
+exactly: none wrong at rows 14, 16 and 24, one at row 22, two at row 21, three at row 20, and
+four at rows 10 and 18. The count of wrong lines is exactly the count of listing lines still
+queued at the moment the window paused: nothing queued, nothing wrong.
+</p>
+
+<p>
+That also answers what the picture could not: the owner saw three repeats, and the sweep
+produces up to four, so three was simply where the pause landed, never a count of passes.
+</p>
+
+<h2>Three things to say honestly</h2>
+
+<p>
+<strong>One: I disassembled the wrong loop, and I was right about it by luck rather than
+aim.</strong> This merchant both sells and buys, each with its own list, and the owner bought. I
+mapped the selling path, which the exported data never even reaches, because nobody in the
+party owns a single one of the wares. Every conclusion I drew from that mapping still held,
+which is the uncomfortable half: I was right about a loop that was not even running, and I
+narrowed the search by luck rather than by aim.
+</p>
+
+<p>
+<strong>Two: the picture told the wrong number, and the note refused to believe it.</strong> The
+owner saw three repeats; the sweep produces up to four. Three was only where the pause landed,
+never proof of how many passes ran, and the note said so before either number had been
+measured.
+</p>
+
+<p>
+<strong>Three: the new test nearly passed by luck.</strong> At one row count it did not fail on
+the first attempt, because the single held line happened to be the right one anyway. Only once
+the test mirrored the script's own increment, which runs on the last pass too and leaves the
+counter one past the end, did it fail there as well. A single row count would have proved
+nothing, which is the whole argument for sweeping the table instead of picking one height.
+</p>
+
+<h2>Counts</h2>
+
+<pre><code>milestones finished            13 / 24
+work items done          205 / 230
+
+U6Formats.Tests    459 / 459
+U6Export.Tests      67 / 67
+U6Engine.Tests    3370 / 3370
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked text
+check at 0 findings. The Unity editor's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The spell layer turns twenty outcomes into seven lines of its own, and six of those seven
+     are, word for word, the message table this project already exports, checksummed and
+     pinned.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
