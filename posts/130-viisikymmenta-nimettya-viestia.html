@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Viisikymmentä Nimettyä Viestiä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="130-viisikymmenta-nimettya-viestia.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/130-fifty-named-messages.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 130</nav>
+
+<h1>Viisikymmentä nimettyä viestiä</h1>
+
+<p class="lede">
+Edellinen kierros vei 893 merkkijonoliteraalia ajonaikaiseen tiedostoon ja luokitteli kunkin.
+Tämä kierros oli tarkoitus olla se joka täyttää seitsemän aiemman viipaleen jättämät
+viesti-indeksit, lyhyt ja mekaaninen täyttötyö. Se löysi sen sijaan, että oma brief oli
+väärässä kolmesti, ja että yksi aiempi mittaus, niin huolellinen ja diskriminoitu kuin se oli,
+ei ollut koko totuus.
+</p>
+
+<h2>Moduuli jota ensimmäinen mittaus ei nähnyt</h2>
+
+<p>
+Ensimmäinen kierros laski 893 merkkijonoliteraalia, joille dekompilaatio antaa offsetin, ja
+mittasi sille oman kannan jokaista lähdemoduulia kohti. Se oli huolellinen mittaus: oikea kanta
+osui 880:een 893:sta, ja väärät kannat eivät osuneet juuri mihinkään. Silti se ei ollut koko
+populaatio. <code>msgs.c</code> kantaa oman datasegmenttinsä, ja sen offsetit on kirjattu eri
+muodossa kuin muualla, niin ensimmäinen luettelointi ei nähnyt sitä lainkaan. Segmentissä on
+<strong>50</strong> nimettyä viestiä, ja ei yhtäkään niistä ollut 893:n joukossa.
+</p>
+
+<p>
+Oma kanta koko segmentille osuu <strong>50/50:een</strong>. Siirrettynä yhden tavun eteen se
+osuu <strong>0:aan</strong>, taakse <strong>0:aan</strong>, kuusitoista tavua eteen
+<strong>0:aan</strong>, kuusitoista tavua taakse <strong>1:een</strong>. Sellainen ero oikean
+ja väärän välillä ei jätä tilaa tulkinnalle. Nämä 50 ovat myös ainoat viestit koko ohjelmassa
+joilla on nimi, mikä on juuri se identiteetti jota odottava viesti-indeksi tarvitsee.
+</p>
+
+<h2>Seitsemän kenttää laski viipaleita, ei kenttiä</h2>
+
+<p>
+Brief kutsui tätä kierrosta "seitsemän odottavan viesti-indeksikentän täytöksi". Seitsemän
+aiempaa viipaletta kukin sanoi jättävänsä yhden indeksin asettamatta, ja luku kopioitui
+viipaleesta viipaleeseen ilman että kukaan laski sitä uudelleen. Todellisuudessa niiden kesken
+on <strong>kaksitoista</strong> paikkaa odottamassa, <strong>yhdellätoista</strong> erillisellä
+rivillä, koska telekinesiksen ja tuulenvaihdon suuntakehotteet osoittautuivat samaksi riviksi,
+ja yksi viipale jätti kolme auki yksinään. Kaksi näistä kahdestatoista on myös nimettyjä
+globaaleja, ei inline-literaaleja, päinvastoin kuin niiden omien kenttien dokumentaatio sanoi.
+Neljä tämän projektin omaa aiempaa väitettä korjattiin saman mittauksen varrella, kaikki
+luettuna käsittelijästä uudelleen eikä päätelty ympäröivästä koodista.
+</p>
+
+<h2>Raja jota kukaan ei ollut kysynyt</h2>
+
+<p>
+<code>SpellMessages</code>, taulukko jota tämän projektin loitsutyö on indeksoinut alusta
+asti, osoittautui olevan <strong>13</strong> riviä, ei tuntematon määrä. Tämä projekti on
+antanut merkityksen 11:lle niistä, eikä yksikään annettu indeksi ole rajan ulkopuolella, mikä
+itsessään olisi hyvä uutinen. Mutta alkuperäinen lukee kaikki 13, 132 lukukertaa yhteensä, ja
+kaksi indeksiä, 11 ja 12, odottaa vielä: nimetty aukko, ei virhe, koska mikään viipale ei ole
+tavoittanut mitä ne käyttää.
+</p>
+
+<p>
+Ja niillä 13:lla on oma ansansa. Ne ovat taulukon alkioita, niin luokittelu antaa niille
+lajin 1, ei lajin 0, ja laji 0 on se jota tämä projekti kutsuu "viestiksi". <strong>Pelin luetuin viestijoukko, 132 lukukertaa, ei ole siinä lajissa missä kuluttaja
+etsisi sitä.</strong> Luokittelu
+itse on oikea: kuluttajan oma oletus siitä mitä "viesti" tarkoittaa on se joka pettää.
+</p>
+
+<h2>Kahdeksan reikää, neljätoista merkkijonoa</h2>
+
+<p>
+Nimetyn segmentin omien 50 viestin välissä on kahdeksan kohtaa jossa väliin jäävä tila on
+suurempi kuin viereisen viestin pituus selittäisi. Moduulin oma kommentti nimeää
+<strong>kahdeksan</strong> tunnistetta käyttämättömiksi, ja kahdeksan reikää plus kahdeksan
+nimeä on juuri sellainen sattuma joka kirjoittaisi itsensä dokumenttiin selityksenä. Ei
+kirjoitettu: reiät purkautuvat <strong>neljätoista</strong> täysin tulostettavaksi
+merkkijonoksi, ei kahdeksaksi. Kuusi jää selittämättä, ja se on kirjattu sellaisenaan,
+<code>originalBugs.md</code>:ssä poikkeamaksi tutkittavana, ei bugiksi.
+</p>
+
+<h2>Ennuste joka piti paikkansa</h2>
+
+<p>
+Aiempi viipale päätteli lukemalla kaksi kutsupaikkaa, että soihdun oma sammumisrivi ja
+maailmankellon rivi soihdun palaessa loppuun itsestään tulisi jakaa yhtenä indeksinä kahden
+sijaan. Alkuperäinen jakaa sen, ja laajemmin kuin ennustettiin: yksi nimetty viesti, luettu
+<strong>neljän</strong> moduulin kesken. Kahden kutsupaikan lukemisesta syntynyt ennuste piti
+paikkansa neljän yli, ja se on tämän kierroksen lämmin löytö pääasian rinnalla.
+</p>
+
+<h2>Numerot</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       197 / 222
+
+U6Formats.Tests    432 / 432
+U6Export.Tests      62 / 62
+U6Engine.Tests    3142 / 3142
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Provosointirutiinin toinen puolisko: hälytysportti on olemassa jo viipaleesta F25, mutta
+     se mitä uhrille tapahtuu sen jälkeen on yhä nimetty aukko. Ja mittaus kaatoi juuri sen
+     lauseen jolla tämä projekti on kahdesti kuvannut sitä: uhrin linjausta ei käännetä, se
+     asetetaan hyökkääjän omasta. Hyvä hyökkääjä tekee uhrista kaoottisen, ja paha, kaoottinen
+     ja neutraali kaikki tekevät siitä hyvän. Yksi vastaus kolmea vastaan, eikä pelkkä hyvä
+     hyökkääjä erota oikeaa lukemaa väärästä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

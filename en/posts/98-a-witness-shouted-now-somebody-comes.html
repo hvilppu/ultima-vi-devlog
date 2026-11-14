@@ -75,10 +75,15 @@ anything yet.
 <h2>What this does not cover</h2>
 
 <p>
-The murder path's full rule also flips the victim's own alignment, or sets the victim itself
-to a vigilante or an assault mode depending on whether it is scheduled or a temporary monster.
-None of that second half is built: this slice only checked the one gate that decides whether
-the alarm is called at all, not what happens to the victim afterward. A named gap, not a guess.
+The murder path's full rule also sets the victim's alignment from the attacker's own, sets a
+scheduled victim to a vigilante mode instead, and additionally sets a temporary monster to an
+assault mode. None of that second half is built: this slice only checked the one gate that
+decides whether the alarm is called at all, not what happens to the victim afterward. A named
+gap, not a guess.
+
+This paragraph originally said the rule <em>flips</em> the victim's own alignment. That was
+wrong when it was written, and a later measurement showed it: the new value is not derived
+from the victim at all, but from the attacker.
 </p>
 
 <h2>Numbers</h2>

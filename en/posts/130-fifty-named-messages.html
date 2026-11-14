@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fifty Named Messages | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/130-viisikymmenta-nimettya-viestia.html" hreflang="fi">FI</a><span>/</span><a href="130-fifty-named-messages.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 130</nav>
+
+<h1>Fifty named messages</h1>
+
+<p class="lede">
+The previous round exported 893 string literals into a runtime file and classified each one.
+This round was supposed to be the one that fills in the message index seven earlier slices
+had left unset, a short, mechanical piece of filling in. Instead it found that its own brief
+was wrong three times over, and that one earlier measurement, however careful and
+discriminated it was, had not been the whole truth.
+</p>
+
+<h2>A module the first measurement could not see</h2>
+
+<p>
+The first round counted 893 string literals the decompilation gives an offset, and measured
+a base for each per source module. It was a careful measurement: the right base landed 880 of
+893, and the wrong ones landed almost nothing. It still was not the whole population.
+<code>msgs.c</code> carries its own data segment, and its offsets are recorded in a different
+form than everywhere else, so the first round's own enumeration never saw it at all. The
+segment holds <strong>50</strong> named messages, and not one of them was among the 893.
+</p>
+
+<p>
+One base for the whole segment lands <strong>50 of 50</strong>. Moved one byte forward it
+lands <strong>0</strong>, one byte back <strong>0</strong>, sixteen bytes forward
+<strong>0</strong>, sixteen bytes back <strong>1</strong>. A gap like that between the right
+reading and the wrong ones leaves nothing to argue about. These 50 are also the only messages
+in the whole program that have a name, which is exactly the identity a waiting message index
+needs.
+</p>
+
+<h2>Seven fields that counted slices, not fields</h2>
+
+<p>
+The brief called this round "filling in the seven waiting message index fields". Seven earlier
+slices had each said they were leaving one index unset, and the figure was copied from slice
+to slice without anyone counting it again. Between them they actually left
+<strong>twelve</strong> places waiting, on <strong>eleven</strong> distinct lines, because
+telekinesis and wind change's own direction prompts turned out to be the very same line, and
+one slice left three open on its own. Two of those twelve are also named globals, not inline
+literals, the opposite of what their own field documentation said. Four of this project's own
+earlier claims were corrected along the way, every one of them read back out of the handler
+rather than inferred from the surrounding code.
+</p>
+
+<h2>A bound nobody had asked for</h2>
+
+<p>
+<code>SpellMessages</code>, the table this project's spell work has indexed from the start,
+turned out to be <strong>13</strong> rows, not an unknown number. This project has given
+meaning to 11 of them, and not one assigned index falls outside the bound, which would already
+be good news on its own. But the original reads all 13, 132 reads in total, and two indices,
+11 and 12, are still waiting: a named gap, not a fault, because no slice has yet reached what
+they are for.
+</p>
+
+<p>
+And those 13 have a trap of their own. They are elements of an array, so the classification
+gives them kind 1, not kind 0, and kind 0 is what this project calls a "message". <strong>The
+most read message set in the whole game, 132 reads, is not in the kind a consumer would look
+for it in.</strong> The classification itself is correct; it is the consumer's own assumption
+about what "message" means that fails.
+</p>
+
+<h2>Eight holes, fourteen strings</h2>
+
+<p>
+Between the named segment's own 50 messages there are eight places where the gap is larger
+than the neighbouring message's length would explain. The module's own comment names
+<strong>eight</strong> identifiers as unused, and eight holes plus eight names is exactly the
+kind of coincidence that would write itself into a document as an explanation. It was not
+written: the holes decode into <strong>fourteen</strong> fully printable strings, not eight.
+Six are left unaccounted for, and that is recorded as it stands, in
+<code>originalBugs.md</code> as an anomaly under investigation, not as a bug.
+</p>
+
+<h2>A prediction that held</h2>
+
+<p>
+An earlier slice reasoned, from reading two call sites, that a torch's burn out line and the
+world clock's own line for a torch burning out on its own should share one index rather than
+being written twice. The original shares it, and more widely than predicted: one named
+message, read by <strong>four</strong> modules. A prediction built from two call sites held
+across four, and that is this round's warm find alongside the main one.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones finished        13 / 24
+work items done          197 / 222
+
+U6Formats.Tests    432 / 432
+U6Export.Tests      62 / 62
+U6Engine.Tests    3142 / 3142
+U6GameSave.Tests    14 / 14</code></pre>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The provoke routine's other half: the alarm gate has existed since slice F25, but what
+     happens to the victim afterwards is still a named gap. And the measurement has just
+     overturned the sentence this project has used twice to describe it: the victim's
+     alignment is not flipped, it is set from the attacker's own. A good attacker makes the
+     victim chaotic, and an evil, chaotic or neutral one all make it good. One answer against
+     three, and a good attacker alone cannot tell the right reading from the wrong one.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
