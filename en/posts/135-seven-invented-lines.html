@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seven Invented Lines, Six Already There | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/135-seitseman-keksittya-rivia.html" hreflang="fi">FI</a><span>/</span><a href="135-seven-invented-lines.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 135</nav>
+
+<h1>Seven Invented Lines, Six Already There</h1>
+
+<p class="lede">
+The spell layer turned twenty outcomes into seven English lines that I had written myself. Six of
+those seven are a row of the message table this project had already exported, checksummed and
+pinned by index. <strong>So the game was printing a paraphrase of a line it was holding the real
+text of.</strong>
+</p>
+
+<h2>The rule that decided what converts</h2>
+
+<p>
+A build session had refused to give these an identity before this, and its reason was a good one:
+<strong>an enum value is not an identity.</strong> One value can stand for several engine branches
+that print different things, or nothing at all. That is true of one of the twenty, and treating
+the whole group as impossible left the most used path in the game speaking my own English.
+</p>
+
+<p>
+So the rule was written more narrowly: <strong>an outcome converts to read the original's own row
+when exactly one engine branch produces it and that branch declares one index.</strong> Anything
+else is named and left alone. Reading all twenty three values through gave exactly three groups:
+nine convert, five stay named as a collapse, and nine declare no row at all.
+</p>
+
+<h2>Silence where the original is silent</h2>
+
+<p>
+Two of the row-less ones turned out, mid build, not to be unbuilt rules but measured, built
+branches for which <strong>the original prints nothing</strong>. Six halo duration spells and four
+winds go through the original's <em>other</em> spell switch, and that switch has no message tail
+at all: it never sets a result variable anywhere inside itself, and its cases do the halo, the
+effect and the slot write without printing a word. This project printed its own success line for
+both, because the old rule assumed every successful cast says something.
+</p>
+
+<p>
+The question was left open in the slice that found it and measured a second time independently
+before the change was ordered, because it changes what a player sees. Now neither produces a row,
+<strong>not even a blank one</strong> through the same path: a blank row on a scrolling text area
+would wipe what the player was reading, which is not silence but a second event.
+</p>
+
+<h2>Two default arms, and the answer one call away</h2>
+
+<p>
+Two outcomes stayed named as a collapse for the same reason: each came from a three armed switch
+whose <strong>default arm</strong> folded three different results into one. Success, done with no
+message, and done with the message already printed. Those three do not print the same thing, so
+one row would be wrong for two of them.
+</p>
+
+<p>
+The measurement found the answer <strong>one call away from the code that threw the question
+out</strong>: a neighbouring routine already resolves all five result values into their own row
+and sound, measured and tested in an earlier slice, and the outcome never read it. The outcome
+lost the result, so the status line had nothing left to ask.
+</p>
+
+<h2>The brief was wrong twice, and the building session right twice</h2>
+
+<p>
+This is the most interesting part of the post, and it is not what got built.
+</p>
+
+<p>
+<strong>First the count.</strong> The brief claimed exactly one outcome folded three results.
+Reading every value found a second one, on exactly the same pattern, in another spell family. Two
+fold, not one. The correction was recorded as such rather than the number being quietly changed to
+match the finding.
+</p>
+
+<p>
+<strong>Then the shape.</strong> The next brief, mine, argued that for a status line the two done
+results are the same answer, no row, so two outcomes per family would do. The building session
+disagreed and was right: <strong>that holds for the row and not for the reason.</strong> One of
+them is the original printing nothing; the other is an effect that has already printed something,
+and the branches behind it disagree about what. Folding them forces one reason onto both, and
+either reason would be false for half the results that reach it. That is the exact shape the
+previous slice's own tests forbid. So three per family, and the argument for it is better than
+mine.
+</p>
+
+<p>
+The same session found, in passing, <strong>one sentence that was wrong beside correct
+code</strong>, and declined to fix a file it had been told not to touch. That was the right call,
+and the fix came as a measurement: the summary of the done-with-no-message result said a failure
+sound is played for it. The switch's epilogue excludes that value from the test that plays
+anything and then fails the success test beside it, so <strong>nothing is printed and nothing is
+played</strong>. That sound belongs to the arm that catches a value outside the five named ones.
+The code was right and the sentence was attached to the wrong value.
+</p>
+
+<h2>And one number I got wrong myself today</h2>
+
+<p>
+The document's first draft said the default arm was split into five. It was split into three: the
+default arm folded three results, so undoing it gives three outcomes. Five is the number of result
+values, which each family now resolves completely, and that is a different fact about a different
+thing. The wrong number was in eight places across three files and is corrected in all of them.
+The two true numbers sit one sentence apart, which is exactly why this is written here rather than
+quietly fixed.
+</p>
+
+<h2>What a player sees</h2>
+
+<p>
+Not one new spell: all eighty reached their handler before this. The change is in what the message
+area says. <strong>Eleven outcomes of twenty eight now read the original's own words</strong>,
+where seven invented phrases used to cover all twenty three. <strong>Four say nothing</strong>
+where the original says nothing. The remaining thirteen keep my own English, named as their own
+group for three distinct reasons (branches collapse, the rule is not built, or the row has not
+been measured) rather than quietly mixed in with the converted ones. The invented success line
+survives on three outcomes only, and they are exactly the three whose row has not been measured.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    459 / 459
+U6Export.Tests      67 / 67
+U6Engine.Tests    3405 / 3405
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings, the blog link check at 0 broken links. Unity's own Test Runner was
+<strong>not</strong> run, and what a player actually reads is out of reach of these headless tests.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>A conversation shows a face. The portrait atlas has been exported since the graphics work,
+     206 images from three files, and a conversation asks for one of them every time. The request
+     is recorded, three tests assert that it is recorded, and nothing draws it.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seitsemän keksittyä riviä, kuusi jo olemassa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="135-seitseman-keksittya-rivia.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/135-seven-invented-lines.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 135</nav>
+
+<h1>Seitsemän keksittyä riviä, kuusi jo olemassa</h1>
+
+<p class="lede">
+Loitsukerros käänsi kaksikymmentä lopputulosta seitsemäksi englanninkieliseksi riviksi, jotka
+olin kirjoittanut itse. Kuusi niistä seitsemästä on rivi siitä viestitaulusta jonka tämä
+projekti oli jo vienyt ulos, tarkistussummannut ja kiinnittänyt indeksillä. <strong>Peli siis
+tulosti parafraasia rivistä jonka oikean tekstin se piti kädessään.</strong>
+</p>
+
+<h2>Sääntö joka päätti mikä muuntuu</h2>
+
+<p>
+Tätä ennen eräs rakennussessio oli kieltäytynyt antamasta näille identiteettiä, ja perustelu oli
+hyvä: <strong>enum-arvo ei ole identiteetti.</strong> Yksi arvo voi edustaa useaa moottorin
+haaraa jotka tulostavat eri asioita, tai eivät mitään. Se pätee yhteen niistä
+kahdestakymmenestä, ja koko ryhmän kohtelu mahdottomana jätti pelin käytetyimmän polun puhumaan
+omaa englantiani.
+</p>
+
+<p>
+Niin sääntö kirjoitettiin tarkemmin: <strong>lopputulos muuntuu lukemaan alkuperäisen omaa
+riviä silloin kun täsmälleen yksi moottorin haara tuottaa sen ja se haara ilmoittaa yhden
+indeksin.</strong> Mikä tahansa muu nimetään ja jätetään rauhaan. Kaikkien kahdenkymmenenkolmen
+arvon läpi lukeminen antoi tasan kolme ryhmää: yhdeksän muuntuu, viisi jää nimetyksi
+kokoontaitoksena, ja yhdeksän ei ilmoita riviä lainkaan.
+</p>
+
+<h2>Hiljaisuus siellä missä alkuperäinen on hiljaa</h2>
+
+<p>
+Kahdesta rivittömästä paljastui kesken rakentamista, että ne eivät ole rakentamattomia sääntöjä
+vaan mitattuja, rakennettuja haaroja joille <strong>alkuperäinen ei tulosta mitään</strong>.
+Kuusi halo-kestoloitsua ja neljä tuulta kutsuvat alkuperäisen <em>toista</em> loitsukytkintä, ja
+sillä kytkimellä ei ole viestihäntää ollenkaan: se ei aseta tulosmuuttujaa missään kohdassa
+sisällään, ja sen tapaukset tekevät halon, vaikutuksen ja slottikirjoituksen tulostamatta
+sanaakaan. Tämä projekti tulosti kummallekin oman onnistumisrivinsä, koska vanha sääntö oletti
+että jokainen onnistunut kasto sanoo jotain.
+</p>
+
+<p>
+Kysymys jätettiin auki sen löytäneessä viipaleessa ja mitattiin toiseen kertaan riippumattomasti
+ennen kuin muutos tilattiin, koska se muuttaa sitä mitä pelaaja näkee. Nyt kumpikaan ei tuota
+riviä, <strong>eikä edes tyhjää riviä</strong> saman polun läpi: tyhjä rivi vierittyvällä
+tekstialueella pyyhkisi sen mitä pelaaja oli lukemassa, mikä ei ole hiljaisuus vaan toinen
+tapahtuma.
+</p>
+
+<h2>Kaksi oletushaaraa, ja vastaus yhden kutsun päässä</h2>
+
+<p>
+Kaksi lopputulosta jäi nimetyksi kokoontaitoksena samasta syystä: kumpikin tuli
+kolmihaaraisesta kytkimestä jonka <strong>oletushaara</strong> taittoi kolme eri tulosta
+yhdeksi. Onnistuminen, valmis ilman viestiä, ja valmis niin että viesti on jo tulostettu. Nämä
+kolme eivät tulosta samaa asiaa, joten yksi rivi olisi väärä kahdelle niistä.
+</p>
+
+<p>
+Mittaus löysi vastauksen <strong>yhden kutsun päästä siitä kohdasta joka heitti kysymyksen
+pois</strong>: viereinen rutiini ratkaisee jo kaikki viisi tulosarvoa omaksi rivikseen ja
+äänekseen, mitattuna ja testattuna aiemmassa viipaleessa, eikä lopputulos lukenut sitä
+lainkaan. Lopputulos hukkasi tuloksen, niin statusrivillä ei ollut enää mitä kysyä.
+</p>
+
+<h2>Briefi oli väärässä kahdesti, ja rakentava sessio oikeassa kahdesti</h2>
+
+<p>
+Tämä on kirjoituksen kiinnostavin osa, ja se ei ole se mitä rakennettiin.
+</p>
+
+<p>
+<strong>Ensin luku.</strong> Briefi väitti että tasan yksi lopputulos taittaa kolme tulosta.
+Kaikkien arvojen lukeminen löysi toisen, täsmälleen samalla kuviolla, toisessa loitsuperheessä.
+Kaksi taittaa, ei yksi. Korjaus kirjattiin sellaisenaan sen sijaan että luku olisi hiljaa
+muutettu vastaamaan löydöstä.
+</p>
+
+<p>
+<strong>Sitten muoto.</strong> Seuraava briefi, minun, perusteli että statusrivin kannalta ne
+kaksi valmis-tulosta ovat sama vastaus, ei riviä, joten kaksi lopputulosta perhettä kohti
+riittäisi. Rakentava sessio oli eri mieltä ja oli oikeassa: <strong>se pätee riviin eikä
+syyhyn.</strong> Toinen niistä on alkuperäinen joka ei tulosta mitään, toinen on vaikutus joka
+on jo tulostanut jotain, ja sen takana olevat haarat eivät ole yksimielisiä siitä mitä. Kahden
+taittaminen yhteen pakottaisi yhden syyn molemmille, ja kumpi tahansa syy olisi väärä puolelle
+niistä tuloksista jotka sinne päätyvät. Se on tasan se muoto jonka edellisen viipaleen omat
+testit kieltävät. Niin kolme perhettä kohti, ja perustelu on parempi kuin minun.
+</p>
+
+<p>
+Sama sessio löysi ohimennen <strong>yhden lauseen joka oli väärässä oikean koodin vierellä</strong>,
+ja kieltäytyi korjaamasta tiedostoa jota sen oli käsketty olla koskematta. Se oli oikea
+ratkaisu, ja korjaus tuli mittauksena: valmis-ilman-viestiä -tuloksen kuvaus sanoi että siitä
+soitetaan epäonnistumisääni. Kytkimen häntä sulkee sen arvon ulos siitä ehdosta joka soittaa
+mitään, ja kaatuu sitten viereiseen onnistumistestiin, joten <strong>mitään ei tulosteta eikä
+soiteta</strong>. Se ääni kuuluu sille haaralle joka nappaa viiden nimetyn ulkopuolisen arvon.
+Koodi oli oikeassa ja lause oli kiinnitetty väärään arvoon.
+</p>
+
+<h2>Ja yksi luku jonka sain itse väärin tänään</h2>
+
+<p>
+Dokumentin ensimmäinen versio sanoi että oletushaara jaettiin viideksi. Se jaettiin kolmeksi:
+oletushaara taittoi kolme tulosta, joten sen purkaminen antaa kolme lopputulosta. Viisi on
+tulosarvojen määrä, jonka kumpikin perhe nyt ratkaisee kokonaan, mikä on eri fakta eri asiasta.
+Väärä luku oli kahdeksassa paikassa kolmessa tiedostossa ja on korjattu kaikissa. Kaksi oikeaa
+lukua istuvat yhden lauseen etäisyydellä toisistaan, mikä on juuri se syy miksi tämä on tässä
+eikä korjattuna hiljaa.
+</p>
+
+<h2>Mitä pelaaja näkee</h2>
+
+<p>
+Ei yhtäkään uutta loitsua: kaikki kahdeksankymmentä tavoittivat käsittelijänsä jo ennen tätä.
+Muutos on siinä, mitä viestialue sanoo. <strong>Yksitoista lopputulosta kahdestakymmenestäkahdeksasta
+lukee nyt alkuperäisen omaa sanaa</strong>, missä aiemmin seitsemän keksittyä ilmausta kattoi
+kaikki kaksikymmentäkolme. <strong>Neljä vaikenee</strong> siellä missä alkuperäinen vaikenee.
+Loput kolmetoista pitävät oman englantini, nimettyinä omana ryhmänään kolmesta eri syystä
+(haarat taittuvat, sääntöä ei ole rakennettu, tai riviä ei ole mitattu) sen sijaan että ne
+olisivat hiljaa sekoitettuina muuntuneisiin. Keksitty onnistumisrivi säilyy enää kolmella
+lopputuloksella, ja ne ovat tasan ne joiden riviä ei ole mitattu.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    459 / 459
+U6Export.Tests      67 / 67
+U6Engine.Tests    3405 / 3405
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä, blogin linkkitarkistus 0 rikkinäisellä
+linkillä. Unityn editorin oma Test Runner <strong>ei</strong> ajettu, eikä se mitä pelaaja
+oikeasti lukee ole näiden headless-testien tavoitettavissa.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Keskustelu näyttää kasvot. Portrettiatlas on viety siitä asti kun grafiikat tehtiin, 206
+     kuvaa kolmesta tiedostosta, ja keskustelu pyytää niistä yhtä joka kerta. Pyyntö kirjataan
+     muistiin, kolme testiä väittää että se kirjataan, ja mikään ei piirrä sitä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
