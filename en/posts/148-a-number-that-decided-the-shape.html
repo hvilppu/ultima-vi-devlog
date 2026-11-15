@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Number That Decided the Shape | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/148-luku-joka-ratkaisi-muodon.html" hreflang="fi">FI</a><span>/</span><a href="148-a-number-that-decided-the-shape.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 148</nav>
+
+<h1>A Number That Decided the Shape</h1>
+
+<p class="lede">
+Two slices, and in both the <strong>search came before the building</strong>. In one, a number
+decided the whole shape of the slice before a line was written. In the other, it found an answer I
+had just written down as not found.
+</p>
+
+<h2>550</h2>
+
+<p>
+The next piece was the selection: what the pointer is pointing at, which commands then use. I
+meant to measure it and build it.
+</p>
+
+<p>
+First I swept the name. <strong>550 hits</strong> in the source directory, 555 across the tree.
+</p>
+
+<p>
+That number answered a question I had not asked. <strong>A thing with five hundred and fifty
+readers is not a slice, it is a layer.</strong> Every command handler, every targeting path and
+most of the status panel reads it, so giving it a home here would have been an architectural
+commitment nobody has made.
+</p>
+
+<p>
+The bounded part was the routine that <em>fills</em> it: <strong>14 hits and one function</strong>.
+That was built. What it fills was left homeless on purpose, and the brief says so outright.
+</p>
+
+<h2>And that routine holds something tidying would lose</h2>
+
+<p>
+It tests <strong>one threshold, not the zone table</strong>. It never re-tests the map rectangle
+and never consults the zones, because every caller is already inside a zone arm that decided.
+</p>
+
+<p>
+The build replaced the threshold with a zone lookup to see what happened. The test failed, and took
+two others with it. <strong>That is the fix anyone tidying the code would make</strong>, and it
+would answer differently for a pointer the original never asks it about.
+</p>
+
+<h2>And my brief asked for something impossible</h2>
+
+<p>
+I wrote, as a discriminator: <em>"a point the zone table would call the panel, but whose x is below
+168"</em>. The panel zone's left edge <strong>is</strong> 168. No such point exists.
+</p>
+
+<p>
+The build said so and used the case that is constructible. <strong>It did not invent something to
+fit my wording</strong>, which is the thing you most want from an instruction when the instruction
+is wrong.
+</p>
+
+<h2>The second slice: the letter that confirms</h2>
+
+<p>
+Pressing the pending command's own initial turns the key into enter. <strong>For eight of the ten
+commands</strong>: rest and combat are absent. And <strong>cast carries an extra condition</strong>
+the other seven do not.
+</p>
+
+<p>
+Both ways of getting that wrong failed under test: adding rest and combat to the list, and applying
+cast's condition to all eight or to none.
+</p>
+
+<h2>And the gate fired again</h2>
+
+<p>
+My brief said: <em>"the select mode's value two has not been seen, and the sweep is where it
+should turn up."</em>
+</p>
+
+<p>
+The sweep found <strong>all four values enumerated in the original's own comment</strong>, one grep
+away. None, the aiming cursor on the map, the slot cursor in the equipment view, typing an
+incantation.
+</p>
+
+<p>
+<strong>That is the darkness shape again, smaller.</strong> The answer existed and was written
+down, and the search had not been run. The difference is that this time it surfaced <em>before</em>
+the building, rather than by playing months later.
+</p>
+
+<h2>And one number out of 81 is worth more than the rest</h2>
+
+<p>
+The select mode has 81 hits. Six are already built here under other names. Seventeen are named as
+gaps by this project's own briefs.
+</p>
+
+<p>
+<strong>54 have never been opened.</strong>
+</p>
+
+<p>
+That is the number I want. It does not say anything is broken; it says how deep one name runs and
+how much of it is still unasked. <strong>The difference between assumed-finished and never-opened
+is where this project's most expensive mistakes have all lived</strong>, and now that difference is
+a number rather than an impression.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3737 / 3737
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Four rules now stand complete with no caller, and that is a named state rather than an
+     accident: the pointer's zones, the armed default command, the dispatcher's arms and the
+     selection's filling. What would connect them is the selection itself, which has 550 readers
+     and no home yet.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luku joka ratkaisi muodon | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="148-luku-joka-ratkaisi-muodon.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/148-a-number-that-decided-the-shape.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 148</nav>
+
+<h1>Luku joka ratkaisi muodon</h1>
+
+<p class="lede">
+Kaksi viipaletta, ja molemmissa <strong>haku tehtiin ennen rakentamista</strong>. Toisessa luku
+ratkaisi koko viipaleen muodon ennen kuin yhtään riviä oli kirjoitettu. Toisessa se löysi
+vastauksen jonka olin juuri kirjannut löytymättömäksi.
+</p>
+
+<h2>550</h2>
+
+<p>
+Seuraava pala oli valinta: se mihin osoitin osoittaa, jota komennot sitten käyttävät. Aioin mitata
+ja rakentaa sen.
+</p>
+
+<p>
+Ensin hain nimen läpi. <strong>550 osumaa</strong> lähdehakemistossa, 555 koko puussa.
+</p>
+
+<p>
+Se luku vastasi kysymykseen jota en ollut esittänyt. <strong>Viidensadanviidenkymmenen lukijan
+asia ei ole viipale vaan kerros.</strong> Jokainen komentokäsittelijä, jokainen tähtäyspolku ja
+suurin osa statuspaneelista lukee sitä, joten sille kodin antaminen olisi ollut
+arkkitehtuurisitoumus jota kukaan ei ole tehnyt.
+</p>
+
+<p>
+Rajattu osa oli se rutiini joka <em>täyttää</em> sen: <strong>14 osumaa ja yksi funktio</strong>.
+Se rakennettiin. Se mitä se täyttää jäi kodittomaksi tarkoituksella, ja briefi sanoo sen suoraan.
+</p>
+
+<h2>Ja siinä rutiinissa on asia jonka siistiminen hävittäisi</h2>
+
+<p>
+Se testaa <strong>yhden kynnyksen eikä vyöhyketaulua</strong>. Se ei tarkista karttasuorakulmiota
+uudelleen eikä katso vyöhykkeitä lainkaan, koska jokainen kutsuja on jo vyöhykehaarassa joka
+päätti.
+</p>
+
+<p>
+Rakennusajo korvasi kynnyksen vyöhykehaulla nähdäkseen mitä tapahtuu. Testi kaatui, ja kaksi muuta
+kaatui mukana. <strong>Se on se korjaus jonka tekisi kuka tahansa joka siistisi koodia</strong>, ja
+se vastaisi eri tavalla osoittimelle jota alkuperäinen ei koskaan kysy siltä.
+</p>
+
+<h2>Ja briefini pyysi mahdotonta</h2>
+
+<p>
+Kirjoitin erottelijaksi: <em>"piste jonka vyöhyketaulu kutsuisi paneeliksi mutta jonka x on alle
+168"</em>. Paneelivyöhykkeen vasen reuna <strong>on</strong> 168. Sellaista pistettä ei ole.
+</p>
+
+<p>
+Rakennusajo sanoi sen ja käytti sitä tapausta joka on rakennettavissa. <strong>Se ei keksinyt
+jotain joka sopii sanamuotooni</strong>, mikä on se asia jota ohjeelta eniten toivoo kun ohje on
+väärä.
+</p>
+
+<h2>Toinen viipale: kirjain joka vahvistaa</h2>
+
+<p>
+Odottavan komennon oman alkukirjaimen painaminen muuttaa näppäimen enteriksi.
+<strong>Kahdeksalle kymmenestä komennosta</strong>: lepo ja taistelu puuttuvat. Ja
+<strong>kastolla on lisäehto</strong> jota seitsemällä muulla ei ole.
+</p>
+
+<p>
+Molemmat tavat mennä väärin kaatuivat testiin: levon ja taistelun lisääminen listaan, ja kaston
+ehdon soveltaminen kaikkiin tai ei keneenkään.
+</p>
+
+<h2>Ja portti laukesi taas</h2>
+
+<p>
+Briefini sanoi: <em>"valintatilan arvoa kaksi ei ole nähty, ja haku on se paikka jossa sen pitäisi
+tulla vastaan."</em>
+</p>
+
+<p>
+Haku löysi <strong>kaikki neljä arvoa lueteltuina alkuperäisen omassa kommentissa</strong>, yhden
+grepin päässä. Ei mitään, tähtäyskursori kartalla, paikkakursori varustenäkymässä, loitsun
+lausuminen.
+</p>
+
+<p>
+<strong>Se on sama muoto kuin pimeys, pienempänä.</strong> Vastaus oli olemassa ja kirjoitettu
+ylös, ja hakua ei oltu ajettu. Ero on se, että tällä kertaa se löytyi <em>ennen</em> rakentamista
+eikä pelaamalla kuukausia myöhemmin.
+</p>
+
+<h2>Ja yksi luku 81:stä on hyödyllisempi kuin muut</h2>
+
+<p>
+Valintatilalla on 81 osumaa. Kuusi on jo rakennettu täällä toisilla nimillä. Seitsemäntoista on
+nimetty aukoiksi tämän projektin omissa briefeissä.
+</p>
+
+<p>
+<strong>54 ei ole avattu koskaan.</strong>
+</p>
+
+<p>
+Se on se luku jonka haluan tietää. Se ei kerro että jotain on rikki; se kertoo kuinka syvälle yksi
+nimi kulkee ja kuinka paljon siitä on yhä kysymättä. <strong>Valmiiksi oletetun ja avaamattoman
+ero on tämän projektin koko kalleimmat virheet</strong>, ja nyt se ero on luku eikä vaikutelma.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3737 / 3737
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Neljä sääntöä on nyt valmiina ilman kutsujaa, ja se on nimetty tila eikä vahinko: osoittimen
+     vyöhykkeet, viritetty oletuskomento, lähettäjän haarat ja valinnan täyttö. Se mikä ne
+     yhdistäisi on juuri se valinta, jolla on 550 lukijaa ja ei vielä kotia.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
