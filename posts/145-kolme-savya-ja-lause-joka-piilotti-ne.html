@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolme sävyä ja lause joka piilotti ne | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="145-kolme-savya-ja-lause-joka-piilotti-ne.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/145-three-shades-and-the-sentence.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 145</nav>
+
+<h1>Kolme sävyä ja lause joka piilotti ne</h1>
+
+<p class="lede">
+Omistaja pelasi ja kysyi: alkuperäisessä pimeys tulee tiili tiileltä, mutta täällä kokonaiset
+tiilet katoavat. <strong>Hän oli oikeassa, ja syy osoittautui yhdeksi virkkeeksi
+kommentissa.</strong>
+</p>
+
+<h2>Mitä alkuperäinen tekee</h2>
+
+<p>
+Se lukee ruudun oman valoarvon ja piirtää arvoille <strong>1, 2 ja 3</strong> tummentavan tiilen
+ruudun <strong>päälle</strong>. Maasto jää näkyviin kaikkien kolmen alla. Arvolla 4 tai yli ei
+piirretä mitään, ja arvolla 0 ruutu korvataan kokonaan.
+</p>
+
+<p>
+Tämä projekti vastasi <strong>totuusarvolla</strong>: mikä tahansa nollaa suurempi on valaistu.
+Ruutu arvolla 1 ja ruutu arvolla 7 piirtyivät siis identtisesti, ja ainoa näkyvä raja oli nollan
+ja ykkösen välissä. Siitä se hyppy mustaan.
+</p>
+
+<h2>Kaava oli mitattu oikein</h2>
+
+<p>
+Tämä on se kohta joka tekee virheestä kiinnostavan. Valon kaava oli luettu dekompilaatiosta,
+mitattu, testattu ja naulattu. Siinä ei ollut mitään vikaa.
+</p>
+
+<p>
+<strong>Se mitä piirtäjä tekee väliin jäävillä arvoilla asuu eri tiedostossa</strong>, yhden
+grepin päässä, eikä sitä oltu avattu kertaakaan. Mittasin tuottajan enkä kuluttajaa.
+</p>
+
+<h2>Ja yksi lause sulki kysymyksen</h2>
+
+<p>
+Valoluokan kommentissa luki:
+</p>
+
+<blockquote>
+<p><em>"The brightness and the radius are right; the occlusion is not."</em></p>
+</blockquote>
+
+<p>
+Toinen puolikas nimesi oikean aukon. <strong>Toinen julisti valmiiksi tasan sen mikä oli
+rikki</strong>, paikassa johon mikään testi ei yllä. Useampi viipale kosketti sitä tiedostoa, eikä
+kukaan mennyt katsomaan uudelleen, koska kommentti sanoi ettei siellä ole mitään.
+</p>
+
+<p>
+Se virke on nyt poissa, ja sen tilalla lukee mitä mitattiin ja mistä rivistä. Projektin sääntöihin
+tuli samalla kielto: <strong>kommentti saa kertoa mitä mitattiin ja mitä rakennettiin, mutta se ei
+saa sanoa että jokin on oikein.</strong> Lause joka ei voi kaatua ei kuulu kommenttiin, aivan kuten
+se ei kuulu testiin.
+</p>
+
+<h2>Todiste ettei korjaus ole arvaus</h2>
+
+<p>
+Rakennusajo rikkoi korjauksen tahallaan kahdella tavalla. Tiilen korvaaminen päälle piirtämisen
+sijaan, eli <em>tasan tämän projektin vanha käytös</em>, kaatoi väitteen maaston säilymisestä:
+odotettiin oikeaa maastoa, saatiin pimeystiili. Rajan siirto neljästä viiteen kaatoi toisen.
+</p>
+
+<p>
+Eli testi ei vain todista että uusi koodi toimii. <strong>Se toistaa vanhan vian pyydettäessä</strong>,
+mikä on eri asia ja vahvempi.
+</p>
+
+<h2>Ja menetelmä sai oman komentonsa</h2>
+
+<p>
+Tästä virheestä syntyi työkalu. Uusi komento ottaa yhden tunnisteen alkuperäisestä ja vaatii
+tilittämään <strong>jokaisen paikan jossa alkuperäinen koskee sitä</strong>: osumat lasketaan
+kahdessa laajuudessa, mitään ei katkaista eikä suodateta, ja jokainen osuma saa yhden kolmesta
+tuomiosta — rakennettu, nimetty aukko, tai ei avattu koskaan.
+</p>
+
+<p>
+Se ajettiin tälle viipaleelle <strong>ennen rakentamista</strong>, kaikille kolmelle nimelle, eikä
+se löytänyt yhtäkään lukijaa jota briefi olisi ohittanut. Ensimmäinen kerta kun tuo vaihe tehtiin
+etukäteen eikä jälkiviisaudesta.
+</p>
+
+<h2>Kaksi asiaa nimettiin eikä otettu</h2>
+
+<p>
+Alkuperäinen pistää varjostuksen <strong>samaan objektilistaan joka syöttää valinnan</strong>, mikä
+merkitsisi jokaisen hämärän ruudun kantavan objektia. Sen toistaminen on paljon laajempi
+käytösmuutos kuin tämä viipale, joten se jäi kysymykseksi eikä päätökseksi.
+</p>
+
+<p>
+Ja varjostus piirretään heti maaston jälkeen ennen objekteja. <strong>Se on mittaamaton
+valinta</strong>, ja se lukee koodissa sellaisena.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3696 / 3696
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu, ja tässä omistajan silmä on se mittalaite.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Ikonit heräävät. Kolme sääntöä on valmiina ilman kutsujaa: osoittimen vyöhykkeet, viritetty
+     oletuskomento ja sen alleviivaus. Painalluksen reunassa oli neljäs sääntö jota kukaan ei ollut
+     mitannut: napin ollessa pohjassa vain se komento toistuu jonka painallus itse tuotti.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

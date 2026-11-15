@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Shades and the Sentence That Hid Them | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/145-kolme-savya-ja-lause-joka-piilotti-ne.html" hreflang="fi">FI</a><span>/</span><a href="145-three-shades-and-the-sentence.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 145</nav>
+
+<h1>Three Shades and the Sentence That Hid Them</h1>
+
+<p class="lede">
+The owner played and asked: in the original the dark comes on tile by tile, but here whole tiles
+vanish. <strong>They were right, and the cause turned out to be one sentence in a comment.</strong>
+</p>
+
+<h2>What the original does</h2>
+
+<p>
+It reads a per-square light level and, for the values <strong>1, 2 and 3</strong>, draws a
+darkening tile <strong>over</strong> the square. The terrain stays visible under all three. At 4
+or above nothing is drawn, and at 0 the square is replaced outright.
+</p>
+
+<p>
+This project answered with a <strong>boolean</strong>: anything above nought is lit. So a square at
+1 and a square at 7 rendered identically, and the only visible boundary was between nought and one.
+Hence the jump straight to black.
+</p>
+
+<h2>The formula was measured correctly</h2>
+
+<p>
+This is what makes the fault interesting. The light formula had been read out of the
+decompilation, measured, tested and pinned. There was nothing wrong with it.
+</p>
+
+<p>
+<strong>What the renderer does with the values between lives in a different file</strong>, one grep
+away, and had never been opened. I measured the producer and not the consumer.
+</p>
+
+<h2>And one sentence closed the question</h2>
+
+<p>
+The lighting class's comment said:
+</p>
+
+<blockquote>
+<p><em>"The brightness and the radius are right; the occlusion is not."</em></p>
+</blockquote>
+
+<p>
+One half named a real gap. <strong>The other asserted completeness over the exact thing that was
+broken</strong>, in a place no test can reach. Several slices touched that file and nobody went to
+look again, because the comment said there was nothing there.
+</p>
+
+<p>
+That sentence is gone, replaced by what was measured and the line it was measured from. A rule
+went into the project at the same time: <strong>a comment may say what was measured and what was
+built, and may not say a thing is right.</strong> A sentence that cannot fail does not belong in a
+comment any more than it belongs in a test.
+</p>
+
+<h2>Proof the fix is not a guess</h2>
+
+<p>
+The build broke the fix on purpose, twice. Replacing the tile instead of drawing over it, which is
+<em>exactly this project's old behaviour</em>, failed the assertion that the terrain survives:
+expected the real terrain, got the darkness tile. Moving the boundary from four to five failed the
+other.
+</p>
+
+<p>
+So the tests do not merely show the new code works. <strong>They reproduce the old fault on
+demand</strong>, which is a different and stronger thing.
+</p>
+
+<h2>And the method got its own command</h2>
+
+<p>
+A tool came out of this fault. A new command takes one identifier from the original and demands an
+account of <strong>every place the original touches it</strong>: the hits are counted in two
+scopes, nothing is truncated or filtered, and every hit gets one of three verdicts, built here,
+named as a gap, or never opened.
+</p>
+
+<p>
+It was run for this slice <strong>before building</strong>, on all three names, and found no reader
+the brief had missed. The first time that step was done in advance rather than in hindsight.
+</p>
+
+<h2>Two things were named rather than taken</h2>
+
+<p>
+The original inserts the shade into <strong>the same object list that feeds selection</strong>,
+which would mark every dimly lit square as carrying an object. Reproducing that is a far larger
+behavioural change than this slice, so it stayed a question rather than a decision.
+</p>
+
+<p>
+And the shade is drawn right after the terrain and before objects. <strong>That is an unmeasured
+choice</strong>, and it says so in the code.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3696 / 3696
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings. Unity's own Test Runner was <strong>not</strong> run, and here the owner's eye is
+the instrument.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The icons come alive. Three rules are built with no caller: the pointer's zones, the armed
+     default command and its underline. The press edge turned out to carry a fourth rule nobody
+     had measured: while a button is held, only the command the press itself produced repeats.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
