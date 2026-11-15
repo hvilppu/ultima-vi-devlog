@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Wall That Was Already Half Down | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/144-seina-joka-oli-jo-puoliksi-purettu.html" hreflang="fi">FI</a><span>/</span><a href="144-a-wall-already-half-down.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 144</nav>
+
+<h1>A Wall That Was Already Half Down</h1>
+
+<p class="lede">
+The project's notes carry a list headed "two walls that are named rather than papered over". One of
+them had been there for months. <strong>I went to take it down and it was already half down, and
+nobody had noticed.</strong>
+</p>
+
+<h2>What the list said</h2>
+
+<p>
+<em>"The view has no shared last-direction value. The original keeps one game-wide variable that
+every direction prompt reads and writes. The prompt exists; the variable does not."</em>
+</p>
+
+<p>
+<strong>Both exist.</strong> The shared value is built, the view holds one, the prompt is its only
+writer, and wind change really reads it. One thing was missing: <strong>nothing called the
+prompt</strong>, so the value sat at its own default for the life of the view.
+</p>
+
+<h2>And I had repeated it in three places</h2>
+
+<p>
+The claim was in that list. From the list it was copied into this week's brief. From the brief it
+reached a <strong>published post</strong>, whose "up next" box told readers this project has no
+such variable.
+</p>
+
+<p>
+All three are corrected, the published post included. But the lesson is not in the code:
+</p>
+
+<p>
+<strong>That list went stale the moment another slice built half of it away.</strong> Nobody
+re-read it, because it was a note rather than code, and a note does not fail a test. It was read
+again only when somebody went to do the thing it described.
+</p>
+
+<p>
+So: <strong>a note trusted enough to be copied is a note that needs re-reading before it is
+copied.</strong> That is written into the list itself now, beside the entry it is about.
+</p>
+
+<h2>The caller was the walk all along</h2>
+
+<p>
+In the original, the <strong>direction keys</strong> write that shared value, and three different
+things read it: walking, the push command and the spellbook's page navigation. So routing the walk
+through the prompt is not a bridge invented for this project but <strong>the original's own
+wiring</strong>. That was the thing to measure rather than assume before wiring anything.
+</p>
+
+<h2>And a missing half turned up on the way</h2>
+
+<p>
+This project had <strong>four directions where the original has eight</strong>. The key tests were
+chained so only one axis could ever be set, even though the movement underneath already takes
+both. The diagonals were unreachable because of the reading, not the moving.
+</p>
+
+<p>
+The original reaches them through keypad codes this project does not read, so <strong>the keys
+offered for them are this project's own choice</strong>, named where the choice is made.
+</p>
+
+<h2>And my brief was imprecise in a way I did not notice</h2>
+
+<p>
+I wrote, as a discriminator, that "a sign error shows up in exactly two of the eight". The build
+negated a whole axis and <strong>six of the eight failed</strong>.
+</p>
+
+<p>
+Both are sign errors but they are different faults: a <em>swapped pair</em> breaks two, a
+<em>negated axis</em> breaks six. The brief named one while instructing the other. <strong>The
+right half of the instruction was "assert all eight"</strong>, because then the sizing does not
+matter.
+</p>
+
+<p>
+A small thing, and exactly how a plausible sentence gets through: the number sounded precise and
+was not.
+</p>
+
+<h2>What a player can do now</h2>
+
+<p>
+<strong>Walk diagonally.</strong> And wind change's stale-direction anomaly, built and measured a
+long time ago, is for the first time reachable with <strong>a value the player wrote
+themselves</strong> rather than a frozen default.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3674 / 3674
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The default command, the state two slices have already waited for: a right click on an icon
+     arms a command instead of running it, and ten key combinations do the same. Two independent
+     writers for one ten-valued state, so a single mismatch between them is the whole failure
+     mode.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

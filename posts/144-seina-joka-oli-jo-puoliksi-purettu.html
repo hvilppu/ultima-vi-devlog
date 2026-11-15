@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seinä joka oli jo puoliksi purettu | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="144-seina-joka-oli-jo-puoliksi-purettu.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/144-a-wall-already-half-down.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 144</nav>
+
+<h1>Seinä joka oli jo puoliksi purettu</h1>
+
+<p class="lede">
+Projektin muistiinpanoissa on lista otsikolla "kaksi seinää, jotka on nimetty eikä peitelty".
+Toinen niistä on ollut siellä kuukausia. <strong>Menin purkamaan sitä ja se oli jo puoliksi
+purettu, eikä kukaan ollut huomannut.</strong>
+</p>
+
+<h2>Mitä lista sanoi</h2>
+
+<p>
+<em>"Näkymällä ei ole jaettua viimeisen suunnan arvoa. Alkuperäinen pitää yhtä pelinlaajuista
+muuttujaa, jota jokainen suuntakehote lukee ja kirjoittaa. Kehote on olemassa, muuttuja ei."</em>
+</p>
+
+<p>
+<strong>Molemmat ovat olemassa.</strong> Jaettu arvo on rakennettu, näkymä pitää sellaista,
+kehote on sen ainoa kirjoittaja, ja tuulenmuutos lukee sitä oikeasti. Puuttui yksi asia:
+<strong>mikään ei kutsunut kehotetta</strong>, joten arvo jäi omaan oletukseensa näkymän
+eliniäksi.
+</p>
+
+<h2>Ja ehdin toistaa sen kolmessa paikassa</h2>
+
+<p>
+Väite oli siinä listassa. Siitä se kopioitui tämän viikon briefiin. Briefistä se päätyi
+<strong>julkaistuun kirjoitukseen</strong>, jonka "seuraavaksi"-ruutu kertoi lukijoille, ettei
+tällä projektilla ole sellaista muuttujaa.
+</p>
+
+<p>
+Kaikki kolme on korjattu, julkaistu kirjoitus mukaan lukien. Mutta opetus ei ole koodissa:
+</p>
+
+<p>
+<strong>Se lista vanheni hiljaa sinä hetkenä kun toinen viipale rakensi puolet siitä pois.</strong>
+Kukaan ei lukenut sitä uudelleen, koska se oli muistiinpano eikä koodia, eikä muistiinpano kaadu
+testiin. Se luettiin vasta kun joku meni tekemään sitä mitä se kuvasi.
+</p>
+
+<p>
+Niinpä: <strong>muistiinpano johon luotetaan tarpeeksi kopioitavaksi on muistiinpano joka pitää
+lukea uudelleen ennen kopiointia.</strong> Se on nyt kirjattu itse listaan, sen kohdan viereen
+jota se koskee.
+</p>
+
+<h2>Kutsuja oli koko ajan kävely</h2>
+
+<p>
+Alkuperäisessä <strong>suuntanäppäimet</strong> kirjoittavat sen jaetun arvon, ja kolme eri asiaa
+lukee sitä: kävely, työntökomento ja loitsukirjan sivunavigointi. Kävelyn reitittäminen kehotteen
+läpi ei siis ole tätä projektia varten keksitty silta vaan <strong>alkuperäisen oma
+kytkentä</strong>. Se oli se asia joka piti mitata eikä olettaa, ennen kuin mitään kytkettiin.
+</p>
+
+<h2>Ja matkalla paljastui puuttuva puolikas</h2>
+
+<p>
+Tällä projektilla oli <strong>neljä suuntaa siinä missä alkuperäisellä on kahdeksan</strong>.
+Näppäintestit oli ketjutettu niin, että vain yksi akseli voi kerrallaan olla asetettuna, vaikka
+liike niiden alla ottaa jo molemmat vastaan. Diagonaalit eivät siis olleet saavuttamattomia
+liikkeen takia vaan lukemisen.
+</p>
+
+<p>
+Alkuperäinen tavoittaa ne numeronäppäimistön koodeilla joita tämä projekti ei lue, joten
+<strong>diagonaalien näppäimet ovat tämän projektin oma valinta</strong>, nimettynä siinä missä
+valinta tehdään.
+</p>
+
+<h2>Ja briefini oli epätarkka tavalla jota en huomannut</h2>
+
+<p>
+Kirjoitin erottelijaksi, että "merkkivirhe näkyy tasan kahdessa kahdeksasta". Rakennusajo negatoi
+kokonaisen akselin ja <strong>kuusi kahdeksasta kaatui</strong>.
+</p>
+
+<p>
+Molemmat ovat merkkivirheitä, mutta eri vikoja: <em>vaihtunut pari</em> kaataa kaksi,
+<em>negatoitu akseli</em> kaataa kuusi. Briefi nimesi toisen samalla kun se käski toista.
+<strong>Ohjeen oikea puolisko oli "väitä kaikki kahdeksan"</strong>, koska silloin mitoitus ei
+merkitse mitään.
+</p>
+
+<p>
+Pieni asia, ja silti juuri se tapa jolla uskottava lause menee läpi: luku kuulosti tarkalta eikä
+ollut.
+</p>
+
+<h2>Mitä pelaaja voi nyt tehdä</h2>
+
+<p>
+<strong>Kävellä vinottain.</strong> Ja tuulenmuutoksen vanhentuneen suunnan poikkeama, joka on
+ollut rakennettuna ja mitattuna jo pitkään, on ensimmäistä kertaa tavoitettavissa
+<strong>pelaajan itsensä kirjoittamalla arvolla</strong> eikä jäätyneellä oletuksella.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3674 / 3674
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Oletuskomento, se tila jota kaksi viipaletta on jo odottanut: oikea klikkaus ikonilla virittää
+     komennon sen sijaan että ajaisi sen, ja kymmenen näppäinyhdistelmää tekee saman. Kaksi
+     riippumatonta kirjoittajaa samalle kymmenarvoiselle tilalle, eli yksi epäsuhta niiden välillä
+     on koko vikamuoto.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
