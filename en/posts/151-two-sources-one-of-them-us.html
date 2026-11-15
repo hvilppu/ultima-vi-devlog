@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Sources, One of Them Us | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/151-kaksi-lahdetta-joista-toinen-me.html" hreflang="fi">FI</a><span>/</span><a href="151-two-sources-one-of-them-us.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 151</nav>
+
+<h1>Two Sources, One of Them Us</h1>
+
+<p class="lede">
+I wrote a brief ordering the export of two tables. <strong>Both had been exported sixteen slices
+earlier.</strong> The build found that before writing a line, and the reason I got it wrong is
+worth more than the slice.
+</p>
+
+<h2>What the brief leaned on</h2>
+
+<p>
+A comment in our own code said the incantation and its syllable table "are not exported to the
+running game yet". I read that sentence and took it as the current state.
+</p>
+
+<p>
+It was stale. Slice F46 had exported both. The matcher I also ordered had been built in F47, cap of
+four syllables and order-blind mask included.
+</p>
+
+<h2>And the worse half</h2>
+
+<p>
+The brief said two independent places in the project pointed at this routine, which made it look
+like a well-evidenced slice. One of those places was the original's own code. <strong>The other was
+that comment.</strong>
+</p>
+
+<p>
+<strong>Two sources, one of which is a sentence about ourselves that nobody has updated, is one
+source.</strong> That is the part I will not get to repeat: it is a rule now.
+</p>
+
+<h2>Why an absence rots faster than a claim of correctness</h2>
+
+<p>
+There has been a standing rule here for a while that <em>a comment may not say a thing is right</em>.
+It came from a lighting comment that asserted completeness over the exact thing that was broken.
+</p>
+
+<p>
+That rule covered the wrong half. A comment claiming correctness is at least about code somebody is
+looking at. <strong>A comment claiming an absence goes stale the moment the thing gets built, and
+nobody goes back to the sentence that said it was missing</strong>, because the person who built it
+was reading somewhere else entirely.
+</p>
+
+<p>
+The proof is that <strong>the same paragraph had already rotted this way once</strong>. It used to
+say the eight shared spell handlers had nothing wiring a spell number to any of them. Sixteen
+slices had closed that, and the correction was still sitting in the paragraph, one sentence above
+the next stale claim.
+</p>
+
+<p>
+One paragraph, the same rot twice. That is a pattern, not an accident.
+</p>
+
+<h2>So the rule has three clauses</h2>
+
+<ul>
+<li>a brief may not cite one of our own comments as evidence that something is unbuilt</li>
+<li>an absence claim in a comment names the slice that would close it, so a reader can check
+    whether that slice landed instead of believing the sentence</li>
+<li>before a brief orders anything built, it searches for it by name</li>
+</ul>
+
+<p>
+That last one is the consumer sweep pointed the other way. The sweep asks whether the original has
+readers nobody opened. This asks whether <strong>we already have the thing nobody noticed</strong>.
+</p>
+
+<h2>What was actually missing, and it is a good one</h2>
+
+<p>
+Three behaviours the existing matcher had no notion of. The first is why the slice was worth
+opening at all.
+</p>
+
+<p>
+<strong>Saying the words of power yourself stops the game saying them back.</strong> At the moment
+the spell goes off, the original prints the spell's name alone if the player typed the incantation,
+and the name followed by every syllable if they picked it from the book.
+</p>
+
+<p>
+That lives two thousand lines from the typing code and is invisible from it. Nothing would have
+invented it.
+</p>
+
+<h2>And the fifth letter</h2>
+
+<p>
+The incantation holds four syllables. Type a fifth and <strong>it is swallowed and changes
+nothing</strong>, because the key is consumed <em>outside</em> the length check rather than inside
+it.
+</p>
+
+<p>
+Move the consume inside, which is the tidier shape and the one anyone would write, and the fifth
+letter falls through to the command handler in the middle of typing a spell. The test caught it as
+Consumed against NotOwned.
+</p>
+
+<h2>The brief was wrong about the original too, in five more places</h2>
+
+<p>
+The one with the nicest shape: I said the eighty spell codes were one consecutive run of strings.
+<strong>They are 76 standalone and four pooled</strong>, each of those four being a suffix sitting
+one byte inside a longer entry. The build asserted my reading on purpose and it failed with
+"Expected: 80, But was: 76".
+</p>
+
+<p>
+Also: the format I called the first syllable's own is the module's bare one-argument format with
+twenty occurrences; the closing quote is not a fifth string but the last byte of the opening; and
+the length clear I called the cast arm's cleanup is its <strong>setup</strong>, which is exactly
+what makes the typed length belong to <em>this</em> cast rather than being a leftover.
+</p>
+
+<h2>The gate found a better reason than mine</h2>
+
+<p>
+The brief argued that an out-of-bounds read was unreachable because no real spell has an empty
+code. The sweep found something sharper.
+</p>
+
+<p>
+The spellbook's membership setter <strong>does not check the slot</strong>, so a spell whose quality
+names one of the six padding slots in a circle really does set a padding bit. But the routine's last
+act, before anything reads the table, clears exactly those bits in every circle, with the original's
+own comment beside it saying <em>10 spells per circle</em>.
+</p>
+
+<p>
+So the branch stays dead, no guard was added, and nothing goes in the bug list. And the original's
+own comment independently confirms a count the brief had worked out by listing all 128 slots.
+</p>
+
+<h2>One slip in the decompilation itself</h2>
+
+<p>
+Checking the format claim meant reading all twenty rows at that offset. <strong>Exactly one does not
+land</strong>: a format carrying a leading space is tagged with the offset of the one without.
+</p>
+
+<p>
+That is the decompilation's transcription slip, <strong>not a bug in the original</strong>, and the
+difference matters: the first goes in a comment and the second would go in the bug list.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    472 / 472
+U6Export.Tests      75 / 75
+U6Engine.Tests    3799 / 3799
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings over 558 sources. Unity's own Test Runner was <strong>not</strong> run, though the
+EditMode check project caught two nullable-annotation errors Unity would have rejected.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The screen shake, the last piece of the moving picture. It expires a choice an earlier slice
+     named: the composer has no off-screen form because its one caller always presents, and the
+     shake is a second caller that does not. It is also the only caller in the whole program that
+     exercises the screen copy's word rounding, so it is the one place a test of that rounding can
+     fail.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
