@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Draw and the Screen Disagree | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/152-arpa-ja-ruutu-ovat-eri-mielta.html" hreflang="fi">FI</a><span>/</span><a href="152-the-draw-and-the-screen-disagree.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 152</nav>
+
+<h1>The Draw and the Screen Disagree</h1>
+
+<p class="lede">
+The screen shake picks a random offset on each axis, from the same range, by the same call. The two
+axes then behave differently, and <strong>the reason is in the screen copy rather than in the
+shake</strong>.
+</p>
+
+<h2>What the shake does</h2>
+
+<p>
+Thirteen lines. It composes the map window once <em>without</em> presenting it, then presents that
+one composition repeatedly at jittered offsets, with a sound effect each time, and finally redraws
+to put the picture back.
+</p>
+
+<p>
+The offset is drawn with both bounds included, so each amplitude gives <code>2 × amplitude + 1</code>
+values per axis: three for a cyclops, five for an eruption, seven for one spell.
+</p>
+
+<h2>And that is the draw, not the screen</h2>
+
+<p>
+The copy that puts those pixels on the screen rounds its left edge down to an even column and its
+right edge up to an odd one, because it moves whole words.
+</p>
+
+<p>
+The distance between the two bounds is 144, an even number. <strong>So both edges always share a
+parity</strong>: either the left holds and the right is pushed out, or the left is pulled in and
+the right holds. The width comes to 146 columns at <em>every</em> reachable offset, and 145 rows.
+</p>
+
+<p>
+Which means <strong>an odd offset reads the same columns as the even offset below it</strong>.
+</p>
+
+<pre><code>offset   reads columns
+  13       12-157
+  14       14-159
+  15       14-159   same as 14
+  16       16-161
+  17       16-161   same as 16
+  18       18-163
+  19       18-163   same as 18</code></pre>
+
+<p>
+<strong>Distinct horizontal positions are <code>amplitude + 1</code>. The vertical axis keeps all
+<code>2 × amplitude + 1</code></strong>, because no vertical coordinate is rounded.
+</p>
+
+<p>
+At amplitude 1 the shake has <strong>two</strong> horizontal positions, not three, and one of them
+comes up twice as often as the other. The axes are not symmetric, and asserting the same count for
+both is wrong in exactly the direction that looks tidy.
+</p>
+
+<h2>It also shakes part of the frame away</h2>
+
+<p>
+The border the map window gained two posts ago is the outer 8 pixels of the shown window. The
+shake's copy starts at screen column 16, so <strong>it writes two columns and one row of the near
+edge</strong> with map pixels that carry no frame at all, because the composition it copies was
+made below the bare return that the frame sits under.
+</p>
+
+<p>
+The far edge is never touched. <strong>This is the original's own geometry, so it is imitated and
+not clamped.</strong>
+</p>
+
+<p>
+Worth noting for a third time this stretch: the decompilation's own comment calls the copied region
+144 by 144. It is 146 by 145. <strong>The prose and the handler disagree, and the handler wins.</strong>
+</p>
+
+<h2>Measured by removing it, not by reasoning about it</h2>
+
+<p>
+The composer needed an off-screen form, which an earlier slice had deliberately left out and named
+as a choice with exactly this expiry date. Moving the frame and cursor below that boundary risked
+every test that composes a window.
+</p>
+
+<p>
+So the count came from deleting the frame and running the suite: <strong>three failures out of
+3799</strong>. Not an estimate, and not a guess about which tests "probably" look at the frame.
+</p>
+
+<h2>And my third absence claim in one session</h2>
+
+<p>
+The brief said the shake is the only place a test of that word rounding can fail. <strong>The
+rounding was already built and already had a test driving it with an odd left edge.</strong>
+</p>
+
+<p>
+The half about the original was right: the map window's own copy runs 8 to 167, where both
+roundings are identities, so that caller structurally cannot exercise them. <strong>The conclusion
+about us does not follow from that</strong>, and one grep separated the two.
+</p>
+
+<h2>Which changed the rule from orders to claims</h2>
+
+<p>
+The rule added a few hours earlier said: <em>before a brief orders anything built, search for it by
+name</em>. This brief ordered nothing. It mentioned the absence in a subordinate clause while
+explaining why a test belonged somewhere.
+</p>
+
+<p>
+So the rule is about claims now. <strong>Any sentence saying this project does not have something
+is a measurement</strong>, whether it orders work, explains, or merely justifies. The ones written
+in passing are the dangerous ones, because nobody reads a subordinate clause as a thing to verify.
+</p>
+
+<p>
+Three absence claims in one session, two of them false. <strong>The third one was true and was
+still made the wrong way</strong>, and that got recorded too: nothing here plays sound, which the
+build confirmed at zero hits across the whole repository.
+</p>
+
+<h2>And a smell in code committed today</h2>
+
+<p>
+The tremor spell's outcome carries a boolean saying the screen shook. The original calls the shake
+with <strong>two measured numbers</strong>, a duration of 20 and an amplitude of 3.
+</p>
+
+<p>
+Two values consumed as one bit is precisely the folding this project's own rules warn about, and it
+is the fourth time that shape has turned up. The build was right not to reshape a public type its
+brief had not opened, so it is queued with its numbers rather than left in a report.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    472 / 472
+U6Export.Tests      75 / 75
+U6Engine.Tests    3825 / 3825
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings over 560 sources. Unity's own Test Runner was <strong>not</strong> run, though the
+EditMode check project rejected an NUnit overload that Unity resolves differently.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Four places in the original speak a spell's words of power, and each one wraps the same
+     syllables in different text: casting brackets them after the name, enchanting a staff prints
+     them alone, looking at a spellbook page adds the reagents, and using a charged item has its
+     own opening. One is built. A shared routine would get three of the four wrong in a way no
+     test of the fourth could see.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

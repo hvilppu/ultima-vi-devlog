@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arpa ja ruutu ovat eri mieltä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="152-arpa-ja-ruutu-ovat-eri-mielta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/152-the-draw-and-the-screen-disagree.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 152</nav>
+
+<h1>Arpa ja ruutu ovat eri mieltä</h1>
+
+<p class="lede">
+Ruudun tärinä arpoo siirron kummallekin akselille, samalta väliltä, samalla kutsulla. Akselit
+käyttäytyvät sitten eri tavalla, ja <strong>syy on ruutukopiossa eikä tärinässä</strong>.
+</p>
+
+<h2>Mitä tärinä tekee</h2>
+
+<p>
+Kolmetoista riviä. Se sommittelee karttaikkunan kertaalleen <em>esittämättä</em> sitä, esittää
+sitten saman sommitelman toistuvasti nytkähtelevin siirroin ja äänitehosteella joka kerta, ja
+lopuksi piirtää kuvan takaisin paikalleen.
+</p>
+
+<p>
+Siirto arvotaan molemmat rajat mukaan lukien, joten jokainen amplitudi antaa
+<code>2 × amplitudi + 1</code> arvoa akselille: kolme kyklooppille, viisi purkaukselle, seitsemän
+yhdelle loitsulle.
+</p>
+
+<h2>Ja se on arpa, ei ruutu</h2>
+
+<p>
+Se kopio joka vie pikselit ruudulle pyöristää vasemman reunansa alas parilliseen sarakkeeseen ja
+oikean ylös parittomaan, koska se siirtää kokonaisia sanoja.
+</p>
+
+<p>
+Rajojen välimatka on 144, parillinen luku. <strong>Reunat jakavat siis aina pariteetin</strong>:
+joko vasen pitää ja oikea työnnetään ulos, tai vasen vedetään sisään ja oikea pitää. Leveydeksi
+tulee 146 saraketta <em>joka</em> saavutettavalla siirrolla, ja 145 riviä.
+</p>
+
+<p>
+Mikä tarkoittaa, että <strong>pariton siirto lukee samat sarakkeet kuin sen alapuolinen
+parillinen</strong>.
+</p>
+
+<pre><code>siirto   lukee sarakkeet
+  13       12-157
+  14       14-159
+  15       14-159   sama kuin 14
+  16       16-161
+  17       16-161   sama kuin 16
+  18       18-163
+  19       18-163   sama kuin 18</code></pre>
+
+<p>
+<strong>Erillisiä vaakasijainteja on <code>amplitudi + 1</code>. Pystyakseli säilyttää kaikki
+<code>2 × amplitudi + 1</code></strong>, koska yhtäkään pystykoordinaattia ei pyöristetä.
+</p>
+
+<p>
+Amplitudilla 1 tärinällä on <strong>kaksi</strong> vaakasijaintia eikä kolme, ja toinen niistä
+tulee kaksi kertaa useammin kuin toinen. Akselit eivät ole symmetrisiä, ja saman luvun väittäminen
+molemmille on väärin juuri siihen suuntaan joka näyttää siistiltä.
+</p>
+
+<h2>Se myös tärisyttää osan kehystä pois</h2>
+
+<p>
+Se reunus jonka karttaikkuna sai kaksi postausta sitten on näytetyn ikkunan uloimmat 8 pikseliä.
+Tärinän kopio alkaa ruudun sarakkeesta 16, joten <strong>se kirjoittaa kaksi saraketta ja yhden
+rivin lähireunasta</strong> karttapikseleillä joissa ei ole kehystä lainkaan, koska se sommitelma
+jota se kopioi tehtiin sen paljaan paluun alapuolella jonka alla kehys on.
+</p>
+
+<p>
+Kaukoreunaan ei kosketa koskaan. <strong>Tämä on alkuperäisen oma geometria, joten se jäljitellään
+eikä rajoiteta.</strong>
+</p>
+
+<p>
+Mainitsemisen arvoista kolmannen kerran tässä jaksossa: dekompilaation oma kommentti kutsuu
+kopioitua aluetta 144 kertaa 144:ksi. Se on 146 kertaa 145. <strong>Proosa ja käsittelijä ovat eri
+mieltä, ja käsittelijä voittaa.</strong>
+</p>
+
+<h2>Mitattu poistamalla, ei päättelemällä</h2>
+
+<p>
+Komposiittori tarvitsi off-screen-muodon, jonka aiempi viipale oli tarkoituksella jättänyt pois ja
+nimennyt valinnaksi täsmälleen tällä viimeisellä käyttöpäivällä. Kehyksen ja kursorin siirtäminen
+sen rajan alapuolelle vaaransi jokaisen testin joka sommittelee ikkunan.
+</p>
+
+<p>
+Niinpä luku tuli poistamalla kehys ja ajamalla testit: <strong>kolme kaatumista 3799:stä</strong>.
+Ei arviota, eikä arvausta siitä mitkä testit "kaiketi" katsovat kehystä.
+</p>
+
+<h2>Ja kolmas puuttumisväitteeni yhdessä istunnossa</h2>
+
+<p>
+Briefi sanoi, että tärinä on ainoa paikka jossa sen sanakohdistuksen testi voi kaatua.
+<strong>Kohdistus oli jo rakennettu ja sillä oli jo testi joka ajaa sen parittomalla vasemmalla
+reunalla.</strong>
+</p>
+
+<p>
+Puoli väitteestä piti: karttaikkunan oma kopio kulkee 8:sta 167:ään, missä kumpikin pyöristys on
+identiteetti, joten se kutsuja ei rakenteellisesti voi käyttää niitä. <strong>Johtopäätös meistä ei
+seuraa siitä</strong>, ja yksi grep erotti ne.
+</p>
+
+<h2>Mikä muutti säännön käskyistä väitteiksi</h2>
+
+<p>
+Muutama tunti aiemmin lisätty sääntö sanoi: <em>ennen kuin briefi käskee rakentaa mitään, se hakee
+sen nimellä</em>. Tämä briefi ei käskenyt mitään. Se mainitsi puuttumisen sivulauseessa
+selittäessään miksi testi kuuluu jonnekin.
+</p>
+
+<p>
+Niinpä sääntö koskee nyt väitteitä. <strong>Jokainen lause joka sanoo tämän projektin puuttuvan
+jotain on mittaus</strong>, käskeekö se työtä, selittääkö se, vai vain perusteleeko. Ohimennen
+kirjoitetut ovat ne vaaralliset, koska kukaan ei lue sivulausetta tarkistettavana asiana.
+</p>
+
+<p>
+Kolme puuttumisväitettä yhdessä istunnossa, kaksi niistä vääriä. <strong>Kolmas oli tosi ja
+tehtiin silti väärin</strong>, ja sekin kirjattiin: täällä ei soiteta ääntä, minkä rakennusajo
+vahvisti nollalla osumalla koko repositoriossa.
+</p>
+
+<h2>Ja haju tänään commitatussa koodissa</h2>
+
+<p>
+Maanjäristysloitsun tulos kantaa totuusarvoa siitä että ruutu tärisi. Alkuperäinen kutsuu tärinää
+<strong>kahdella mitatulla luvulla</strong>, kestolla 20 ja amplitudilla 3.
+</p>
+
+<p>
+Kaksi arvoa yhdeksi bitiksi on tarkalleen se taittuminen josta tämän projektin omat säännöt
+varoittavat, ja se on neljäs kerta kun sama muoto tulee vastaan. Rakennusajo oli oikeassa siinä
+ettei se muokannut julkista tyyppiä jota sen briefi ei avannut, joten se on jonossa lukuineen eikä
+jätetty raporttiin.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    472 / 472
+U6Export.Tests      75 / 75
+U6Engine.Tests    3825 / 3825
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä 560 lähteestä. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu, mutta EditMode-tarkistusprojekti hylkäsi NUnit-ylikuormituksen
+jonka Unity ratkaisee toisin.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Neljä paikkaa alkuperäisessä lausuu loitsun voiman sanat, ja jokainen kääriytyy eri tekstiin:
+     kasto sulkee ne nimen jälkeen, sauvan loitsiminen tulostaa ne yksinään, loitsukirjan sivun
+     katsominen lisää ainekset, ja ladatun esineen käytöllä on oma avauksensa. Yksi on rakennettu.
+     Yhteinen rutiini menisi väärin kolmessa neljästä tavalla jota yhdenkään testi ei näkisi.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
