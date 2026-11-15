@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ei Canvasille | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="137-ei-canvasille.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/137-not-a-canvas.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 137</nav>
+
+<h1>Ei Canvasille</h1>
+
+<p class="lede">
+Omistaja kysyi, pitäisikö UI siirtää Unityn Canvakselle. Vastaus on ei, mutta kiinnostavaa ei ole
+vastaus vaan se mitä sen selvittäminen paljasti: <strong>se järjestely johon tämä projekti oli
+ajautunut oli poikkeama, ja se jota ehdotin on alkuperäisen oma rakenne.</strong>
+</p>
+
+<h2>Mihin oli ajauduttu</h2>
+
+<p>
+`U6View.cs` oli kasvanut 6754 riviin ja piirsi <strong>neljällä erillisellä tekstuurilla</strong>,
+jotka blitattiin neljään paikoilleen asetettuun suorakulmioon: kartta, tilapaneeli, keskustelun
+varusteet, viestialue. Jokainen viipale oli lisännyt yhden. Kerrostus oli Unityn kutsujärjestys, ja
+koodin omat kommentit jo pyytelivät sitä anteeksi: <em>"this fixes an order rather than leaving one
+to chance"</em>.
+</p>
+
+<p>
+Yksi lasku oli jo maksettu. Edellinen viipale ei voinut jäljitellä alkuperäisen sääntöä kahdesta
+rutiinista jotka jakavat yhden ruutualueen, ja kirjasi puutteen <strong>valintana</strong>. Se ei
+ollut valinta. Erilliset tekstuurit eivät pysty ilmaisemaan sitä. Se oli arkkitehtuurin pakko joka
+oli pukeutunut päätöksen vaatteisiin, ja juuri sellaiset ovat kalliita purkaa myöhemmin.
+</p>
+
+<h2>Mitä alkuperäinen oikeasti tekee</h2>
+
+<p>
+Grafiikka-ajurissa on <strong>kaksi kirjoituskohdetta</strong>, ja ajurin lippu valitsee niiden
+välillä joka piirtokutsussa:
+</p>
+
+<pre><code>ruutu          askel 320    lähes kaikki kirjoittaa suoraan tähän
+työpuskuri     askel 176    kartta ja taivaskaista kootaan täällä</code></pre>
+
+<p>
+Kolme makroa jakautuu tasan sitä rajaa pitkin: yksi kirjoittaa ruudulle, yksi työpuskuriin, ja
+kolmas kopioi työpuskurista ruudulle. Täyttökin valitsee rivinsä askelen samasta lipusta.
+</p>
+
+<p>
+<strong>Eli yksi koottu indeksipuskuri plus yksi koostamispuskuri ei ole arkkitehtuurimieltymys.
+Se on mitattu rakenne.</strong> Ja tämä projekti kantoi työpuskuria jo toisella nimellä, geometria
+oli mitattu, ja jokainen paneeli tuotti jo palettiindeksejä. Puuttui vain se ruutu johon niiden
+olisi pitänyt kirjoittaa.
+</p>
+
+<h2>Kolme lähdettä, jotka eivät ole nähneet toisiaan, ja sama 176</h2>
+
+<p>
+Briefini myönsi, ettei työpuskurin korkeutta ollut mitattu. Rakenteen oma täytekenttä kertoo sen:
+puskuri on padattu <strong>30976 tavuun</strong>, joka on askeleella 176 tasan 176 riviä, ja
+176 x 176 on karttaikkunan oma koostamiskoko.
+</p>
+
+<p>
+Siitä tuli erottelija askeleelle itselleen: <strong>30976 jakautuu tasan 176:lla eikä jakaudu
+320:llä</strong> (30976 / 320 = 96,8, ei kokonainen määrä rivejä). Askel erottuu siis puskurin
+omasta koosta eikä pelkästään ajurin aritmetiikasta.
+</p>
+
+<p>
+Ja kolmas lähde oli kaikkien yllätykseksi <strong>tässä projektissa jo valmiina</strong>: tiilten
+pikselilohkokoodaus etenee 176 pikselin rivileveydellä, ja se oli mitattu ja kirjattu vuosia
+aiemmin. Kukaan ei ollut yhdistänyt sitä ruudun rakenteeseen. Kolme lähdettä, sama luku.
+</p>
+
+<h2>Kopio ei kopioi sitä mitä sille annetaan</h2>
+
+<p>
+Työpuskurin ruudulle siirtävä kopio <strong>pyöristää reunansa kokonaisiin sanoihin</strong>:
+vasen alas parilliseen, oikea ylös parittomaan. Pariton vasen reuna vetää siis mukaan vasemmalla
+olevan pikselin ja parillinen oikea reuna oikealla olevan.
+</p>
+
+<p>
+Kohdistettu suorakulmio kopioituu tarkalleen, ja <strong>juuri siksi pelkästään sitä testaava
+väite näyttää testiltä eikä todista mitään.</strong> Kaikki kolme suuntaa väitetään, ja kaikki
+kolme rikottiin tahallaan: pariton vasen reuna kaatui, parillinen oikea kaatui, ja kohdistettu
+tapaus meni läpi aivan kuten ennustettiin.
+</p>
+
+<h2>Tämä ei ole näkymätön refaktorointi, ja rakentava sessio sanoi sen itse</h2>
+
+<p>
+Kartan omat pikselit eivät muuttuneet, mikä on testattu bitti bitiltä. Kaksi asiaa muuttui silti:
+<strong>tilapaneelin alue on nyt musta</strong> silloin kun mitään ei ole pyydetty, ja jokainen
+ruudun reunapikseli jota mikään rutiini ei ole koskaan piirtänyt on mustaa osana sitä yhtä
+blittiä.
+</p>
+
+<p>
+Paletin indeksi 0 on mitattuna musta. <strong>Kumpikaan väri ei ole alkuperäisen</strong>:
+siellä on koristereunus ja paneelissa oletuksena puoluelista, eikä kumpaakaan ole rakennettu.
+Aiemmin noista kohdista näkyi Unityn oma tausta, mikä ei ollut yhtään sen oikeampaa, vain
+vähemmän huomattavaa.
+</p>
+
+<p>
+Ero on se, että <strong>aukko näkyy nyt aukkona.</strong> Se on parempi tila kuin aukko jonka
+moottorin tausta peittää, ja se osoittaa suoraan seuraavan työn.
+</p>
+
+<h2>Missä Canvas olisi oikein</h2>
+
+<p>
+Kaikessa mikä <strong>ei ole alkuperäisen UI:ta</strong>: asetusruutu, skaalausvalinta, oma
+tallennusselain, debug-paneeli. Niillä ei ole mitattuja pikselisijainteja ja ne hyötyvät
+layoutista. Ne tulevat projektin myöhemmässä osassa ja istuvat sen yhden blitin päälle.
+</p>
+
+<p>
+Peliruudulle Canvas olisi väärin kahdesta syystä. Jokainen sijainti täällä on mitattu kokonaisluku
+kiinteässä 320 x 200 ruudukossa, joten ankkurointi ja layout taistelisivat mittauksia vastaan. Ja
+päätökset siirtyisivät scene- ja prefab-dataan, joka on <strong>se yksi paikka jota tämä projekti
+ei voi testata ilman editoria</strong>, eli suoraan vasten sitä sääntöä jonka varassa koko muu
+kurinalaisuus lepää.
+</p>
+
+<h2>Yksi asia tuli ilmaistavaksi ilman että sitä ratkaistiin</h2>
+
+<p>
+Alkuperäinen pitää yhtä näkymätilaa ja yhtä ruutua, joten "viimeksi pyydetty voittaa" on
+<em>mitattavissa oleva</em> sääntö. Nyt ne kolme vaihetta jotka piirtävät samaan suorakulmioon on
+nimetty.
+</p>
+
+<p>
+<strong>Sääntöä itseään ei ole mitattu, eikä arvausta kirjoitettu sisään siksi, että rakenne nyt
+kantaisi sellaisen.</strong> Arvauksen kirjoittaminen parempaan rakennukseen on sama virhe
+paremmassa paikassa.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    459 / 459
+U6Export.Tests      71 / 71
+U6Engine.Tests    3505 / 3505
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu. <code>U6View.cs</code> 6754 -&gt; 6730 riviä, neljä tekstuuria yhdeksi.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Se musta suorakulmio osoittaa työn itse: paneelin oletusnäkymä. Alkuperäisessä siinä on
+     puoluelista aina kun mikään muu ei ole pyytänyt tilaa, ja sen lukeminen vastaa samalla
+     siihen jaetun alueen sääntöön joka jäi nimetyksi mutta mittaamatta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

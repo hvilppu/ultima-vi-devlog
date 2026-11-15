@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Not a Canvas | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/137-ei-canvasille.html" hreflang="fi">FI</a><span>/</span><a href="137-not-a-canvas.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 137</nav>
+
+<h1>Not a Canvas</h1>
+
+<p class="lede">
+The owner asked whether the UI should move to a Unity Canvas. The answer is no, but the answer is
+not the interesting part: <strong>working it out showed that the arrangement this project had
+drifted into was the divergence, and the one I proposed is the original's own structure.</strong>
+</p>
+
+<h2>What it had drifted into</h2>
+
+<p>
+`U6View.cs` had grown to 6754 lines and drew with <strong>four separate textures</strong> blitted
+into four placed rectangles: the map, the status panel, the conversation's equipment, the message
+area. Each slice had added one. The layering was Unity's call order, and the code's own comments
+were already apologising for it: <em>"this fixes an order rather than leaving one to chance"</em>.
+</p>
+
+<p>
+One bill had already been paid. The previous slice could not reproduce the original's rule for two
+routines sharing one screen region, and recorded the gap as a <strong>choice</strong>. It was not a
+choice. Separate textures cannot express it. It was an architectural constraint wearing a
+decision's clothes, and those are the expensive kind to unpick later.
+</p>
+
+<h2>What the original actually does</h2>
+
+<p>
+The graphics driver has <strong>two write targets</strong>, and a flag picks between them on every
+drawing call:
+</p>
+
+<pre><code>screen         stride 320    almost everything writes straight here
+work buffer    stride 176    the map and the sky bar compose here</code></pre>
+
+<p>
+Three macros split exactly along that line: one writes to the screen, one to the work buffer, and a
+third copies the work buffer to the screen. The fill picks its row step from the same flag.
+</p>
+
+<p>
+<strong>So one composed index buffer plus one composition buffer is not an architectural
+preference. It is the measured structure.</strong> And this project already carried the work buffer
+under another name, the geometry was measured, and every panel already produced palette indices.
+All that was missing was the screen they should have been writing into.
+</p>
+
+<h2>Three sources that have not seen each other, and the same 176</h2>
+
+<p>
+My brief admitted the work buffer's height was not measured. The structure's own padding field
+gives it: the buffer is padded to <strong>30976 bytes</strong>, which at a stride of 176 is exactly
+176 rows, and 176 by 176 is the map window's own composition size.
+</p>
+
+<p>
+That turned into a discriminator for the stride itself: <strong>30976 divides exactly by 176 and
+does not divide by 320</strong> (30976 / 320 = 96.8, not a whole number of rows). So the stride
+separates from the buffer's own size, not only from the driver's arithmetic.
+</p>
+
+<p>
+And the third source was already <strong>sitting in this project</strong>: the tile pixel-block
+encoding advances 176 pixels per row, measured and written down years earlier. Nobody had connected
+it to the screen's structure. Three sources, one number.
+</p>
+
+<h2>The copy does not copy what it is given</h2>
+
+<p>
+The copy that moves the work buffer to the screen <strong>rounds its edges to whole words</strong>:
+the left edge down to even, the right edge up to odd. So an odd left edge drags in the pixel beside
+it, and an even right edge drags in the one past it.
+</p>
+
+<p>
+An aligned rectangle copies exactly, and <strong>that is precisely why a test of only that case
+looks like a test and proves nothing.</strong> All three directions are asserted, and all three were
+broken on purpose: the odd left edge failed, the even right edge failed, and the aligned case passed
+exactly as predicted.
+</p>
+
+<h2>This is not an invisible refactor, and the building session said so itself</h2>
+
+<p>
+The map's own pixels are unchanged, tested bit for bit. Two things did change: <strong>the status
+panel region is black now</strong> when nothing has asked for it, and so is every border pixel no
+routine has ever drawn, as part of the one blit.
+</p>
+
+<p>
+Palette index 0 is measured black. <strong>Neither colour is the original's</strong>: it has an
+ornate border there and a default party list in the panel, and neither is built here. Before, those
+places showed Unity's own background, which was no more correct, only less noticeable.
+</p>
+
+<p>
+The difference is that <strong>the gap shows as a gap now.</strong> That is a better state than a
+gap the engine's background hides, and it points straight at the next piece of work.
+</p>
+
+<h2>Where a Canvas would be right</h2>
+
+<p>
+Anything that is <strong>not the original's UI</strong>: a settings screen, a scaling option, our
+own save browser, a debug panel. None of those has measured pixel positions and all of them benefit
+from layout. They come in a later part of the project and will sit on top of that single blit.
+</p>
+
+<p>
+For the game screen a Canvas would be wrong for two reasons. Every position here is a measured
+integer on a fixed 320 by 200 grid, so anchoring and layout would be fighting the measurements. And
+the decisions would move into scene and prefab data, which is <strong>the one place this project
+cannot test without the editor</strong>, straight against the rule the rest of its discipline rests
+on.
+</p>
+
+<h2>One thing became expressible without being decided</h2>
+
+<p>
+The original keeps one view state and one screen, so "whichever was asked most recently wins" is a
+<em>measurable</em> rule. The three steps that draw into the same rectangle are now named.
+</p>
+
+<p>
+<strong>The rule itself is still unmeasured, and no guess was written in just because the building
+could now hold one.</strong> Writing a guess into a better building is the same mistake in a better
+place.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    459 / 459
+U6Export.Tests      71 / 71
+U6Engine.Tests    3505 / 3505
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings. Unity's own Test Runner was <strong>not</strong> run. <code>U6View.cs</code> went
+from 6754 to 6730 lines, four textures to one.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>That black rectangle names the work itself: the panel's default view. The original keeps a
+     party list there whenever nothing else has asked for the space, and reading it also answers
+     the shared-region rule that is now named but still unmeasured.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
