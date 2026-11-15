@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Briefi joka kumosi itsensä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="153-briefi-joka-kumosi-itsensa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/153-the-brief-that-refuted-itself.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 153</nav>
+
+<h1>Briefi joka kumosi itsensä</h1>
+
+<p class="lede">
+Briefin otsikkotaulukko sanoi mitkä tekstit kaksi koodipaikkaa jakavat. Korjaus kaksi osaa
+alempana, mitattu ja oikea, <strong>määräsi jo että taulukko on väärässä</strong>. Kukaan ei
+mennyt takaisin taulukkoon, joten dokumentti lähti kantaen sitä tietoa joka kumoaa sen oman
+löydöksen.
+</p>
+
+<h2>Mikä viipale oli</h2>
+
+<p>
+Neljä paikkaa alkuperäisessä lausuu loitsun voiman sanat. Kasto sulkee ne nimen jälkeen; sauvan
+loitsiminen tulostaa ne yksinään; loitsukirjan sivun katsominen lisää avausrivin, nimen ja
+ainekset; ladatun esineen käytöllä on oma avauksensa ja sitten se suorittaa loitsun.
+</p>
+
+<p>
+Yksi oli rakennettu. Nämä kolme eivät. <strong>Yhteinen "sano sanat" -rutiini menisi väärin
+kolmessa neljästä</strong> tavalla jota yhdenkään testi ei näkisi, mikä on koko syy viipaleen
+olemassaoloon.
+</p>
+
+<h2>Ja se taulukko</h2>
+
+<p>
+Briefini luetteli jokaisen paikan formaatit niiden offseteilla ja päätteli: vain yksi pari on
+jaettu, niiden kahden paikan välillä jotka ovat samassa tiedostossa.
+</p>
+
+<p>
+<strong>Se oli väärin kahdesti.</strong> Tekstinä tavupari on jaettu kaikkien neljän kesken.
+Riveinä ne kaksi samassa tiedostossa olevaa paikkaa jakavat molemmat tavurivit suoraan, eli
+loitsiminen jakaa ne kaston kanssa ja taulukko kieltää sen.
+</p>
+
+<h2>Missä kumous jo oli</h2>
+
+<p>
+Saman briefin osassa 1 oli laatikko, lisätty edellisenä yönä ja oikea: toinen loitsimispaikan
+kahdesta merkinnästä kantaa alkuvälilyöntiä ja on merkitty sen offsetilla jolla
+<em>ei</em> ole alkuvälilyöntiä. Se oli dekompilaation transkriptiolipsahdus, löydetty ja kirjattu
+oikein.
+</p>
+
+<p>
+Vie se loppuun. Jos toinen merkintä on todella se välilyönnillinen literaali, niin ainoa rivi siinä
+tiedostossa jonka tavut vastaavat sitä on <strong>kaston oma myöhempien tavujen rivi</strong>.
+Loitsimisen sarja ei siis ole kaksi kopiota yhdestä rivistä, vaan sama pari jota kasto käyttää.
+</p>
+
+<p>
+<strong>Korjaus määräsi taulukon toisen rivin, eikä taulukkoa koskaan käyty uudelleen läpi.</strong>
+</p>
+
+<h2>Sääntö joka siitä seuraa</h2>
+
+<ul>
+<li><strong>Kun korjaus menee dokumenttiin, dokumentti haetaan läpi sen varalta mitä korjaus
+    muuttaa.</strong> Kallis tapaus ei ole se väärä lause. Se on oikea lause joka istuu kaksi osaa
+    sen väärän päässä ja korjaa sen vaieten.</li>
+<li><strong>Lukija uskoo taulukkoa proosan yli</strong>, koska taulukko näyttää mitatulta. Korjaus
+    joka koskee taulukkoa on siis vietävä taulukkoon asti.</li>
+</ul>
+
+<h2>Ja miten asia oikeasti ratkaistiin</h2>
+
+<p>
+Ei väittelemällä. Kaikki 17 literaalia jotka nämä neljä paikkaa tulostavat ratkaistiin viedyn
+taulukon kautta paikoiksi omistajan omassa suoritettavassa tiedostossa ja verrattiin tavuina.
+</p>
+
+<pre><code>verrattuja pareja                136
+identtisiä pareja                  2</code></pre>
+
+<p>
+Molemmat niistä kahdesta ovat tavuformaatti kahden moduulin välillä. <strong>Kaikki muut
+eroavat</strong>, myös jokainen pari jonka briefi jätti auki.
+</p>
+
+<p>
+Löydös siis säilyy ja sen peruste vaihtuu: neljä paikkaa jakavat kävelyn loitsun kirjainten yli ja
+tavuformaatit, ei mitään muuta. Vain kävely on irrotettu omakseen.
+</p>
+
+<h2>Neljäs puuttumisväitteeni, uudella tavalla väärin</h2>
+
+<p>
+Briefi sanoi ettei mikään tässä projektissa kosketa niitä kolmea rakentamatonta paikkaa. Yksi
+niistä oli jo puoliksi rakennettu: se lataus jonka loitsiminen kirjoittaa sauvan sisään.
+</p>
+
+<p>
+Tällä kertaa <strong>haku ajettiin ja se oli liian kapea</strong>. Hain sitä mitä nuo paikat
+<em>tulostavat</em> enkä paikkoja itseään. Kapea haku ja tekemätön haku epäonnistuvat samalla
+tavalla, minkä tämä projekti sanoo jo dekompilaation hakemisesta ja mikä piti ilmeisesti sanoa myös
+itsensä hakemisesta.
+</p>
+
+<h2>Ja yksi asia jota briefi ei aavistanut</h2>
+
+<p>
+Sauvan käyttö lukee sauvan <strong>ensimmäisen sisällön</strong>, ei sen ensimmäistä latausta. Se
+apurutiini jota se kutsuu ei suodata tyypillä, vaikka kutsupaikan oma kommentti sanoo sen ottavan
+ensimmäisen latauksen.
+</p>
+
+<p>
+Sauva jonka sisällä olisi ensimmäisenä jotain muuta antaisi siis sen asian laadun luettuna
+loitsunumerona.
+</p>
+
+<p>
+<strong>Saavutettavuus mitattiin eikä oletettu.</strong> Sauva ei ole alkuperäisen omalla
+säiliötyyppilistalla, joten siirtokomento kieltäytyy panemasta sauvan sisään mitään, ja ainoa asia
+joka sauvan sisään päätyy on se lataus jonka loitsiminen antaa sille.
+</p>
+
+<p>
+Siksi se meni poikkeamien kohtaan eikä vahvistettuihin bugeihin: ero kommentin ja koodin välillä on
+todellinen, eikä yksikään saavutettava syöte käytä sitä. Se jäljitellään, ilman vahtia, koska vahti
+olisi kuollutta koodia joka lukisi todisteena siitä että alkuperäinen tarkistaa tyypin. Se mitä
+<em>ei</em> tarkistettu on myös kirjattu: antaako jokin muu koodireitti sauvalle jotain muuta.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    475 / 475
+U6Export.Tests      75 / 75
+U6Engine.Tests    3850 / 3850
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas ja kaikki 27 sallittua merkintää yhä osumassa.
+Unityn editorin oma Test Runner <strong>ei</strong> ajettu, eikä mikään vielä piirrä näitä, joten
+kuvankaappausta ei ole mielekästä pyytää.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kahdeksan aineksen nimet, se yksi asia jota loitsukirjan sivu ei vielä osaa tulostaa: se kantaa
+     bittinumeroa siinä missä alkuperäinen nimeää aineksen. Nimet luetaan jo omistajan
+     suoritettavasta tiedostosta ja ristiintarkistetaan; puuttuu niiden vieminen vientitiedostoon,
+     mikä on formaatin versionosto ja siten joukko tarkistussummia jotka on löydettävä kaatamalla
+     eikä arvaamalla.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

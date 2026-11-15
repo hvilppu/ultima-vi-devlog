@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Brief That Refuted Itself | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/153-briefi-joka-kumosi-itsensa.html" hreflang="fi">FI</a><span>/</span><a href="153-the-brief-that-refuted-itself.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 153</nav>
+
+<h1>The Brief That Refuted Itself</h1>
+
+<p class="lede">
+A brief's headline table said which text two code sites share. A correction two sections below it,
+measured and right, <strong>already determined that the table was wrong</strong>. Nobody went back
+to the table, so the document shipped holding the fact that refuted its own finding.
+</p>
+
+<h2>What the slice was</h2>
+
+<p>
+Four places in the original speak a spell's words of power. Casting brackets them after the name;
+enchanting a staff prints them alone; looking at a spellbook page adds an opening line, the name
+and the reagents; using a charged item has its own opening and then runs the spell.
+</p>
+
+<p>
+One was built. These three were not. <strong>A shared "speak the words" routine would get three of
+the four wrong</strong> in a way no test of the fourth could see, which is the whole reason the
+slice existed.
+</p>
+
+<h2>And the table</h2>
+
+<p>
+My brief listed each site's formats by their offsets and concluded: only one pair is shared, between
+the two sites in the same file.
+</p>
+
+<p>
+<strong>That was wrong twice.</strong> As text, the syllable pair is shared by all four sites. As
+rows, the two sites in the first file share both syllable rows outright, so enchanting shares them
+with casting and the table denies it.
+</p>
+
+<h2>Where the refutation already was</h2>
+
+<p>
+Part 1 of the same brief carried a box, added the night before and correct: one of the enchant
+site's two tags carries a leading space and is tagged with the offset of the one <em>without</em> a
+leading space. That was a transcription slip in the decompilation, found and recorded properly.
+</p>
+
+<p>
+Follow it through. If the second tag is really the leading-space literal, then the only row in that
+file whose bytes match it is <strong>casting's own later-syllable row</strong>. So enchanting's
+sequence is not two copies of one row; it is the same pair casting uses.
+</p>
+
+<p>
+<strong>The correction determined the table's second line and the table was never revisited.</strong>
+</p>
+
+<h2>The rule that follows</h2>
+
+<ul>
+<li><strong>When a correction goes into a document, search that document for what the correction
+    changes.</strong> The expensive case is not the wrong sentence. It is the right sentence sitting
+    two sections away from a wrong one that it silently fixes.</li>
+<li><strong>A reader believes the table over the prose</strong>, because a table looks measured. So
+    a correction that touches a table has to reach the table.</li>
+</ul>
+
+<h2>And how it was actually settled</h2>
+
+<p>
+Not by argument. All 17 literals the four sites print were resolved through the exported table to
+positions in the owner's own executable and compared as bytes.
+</p>
+
+<pre><code>pairs compared                   136
+pairs identical                    2</code></pre>
+
+<p>
+Both of the two are a syllable format matched across the two modules. <strong>Every other pair
+differs</strong>, including every pair the brief had left open.
+</p>
+
+<p>
+So the finding survives and its reason changes: the four sites share the walk over a spell's letters
+and the syllable formats, and nothing else. Only the walk is factored out.
+</p>
+
+<h2>My fourth absence claim, failing a new way</h2>
+
+<p>
+The brief said nothing in this project touches the three unbuilt sites. One of them was already
+half built: the charge that enchanting writes into a staff.
+</p>
+
+<p>
+This time <strong>the search was run and it was too narrow</strong>. I grepped for what those sites
+<em>print</em> rather than for the sites. A narrow search and no search fail identically, which this
+project already says about searching the decompilation and evidently needed saying about searching
+itself.
+</p>
+
+<h2>And one thing the brief had no idea was there</h2>
+
+<p>
+Using a staff reads the staff's <strong>first content</strong>, not its first charge. The helper it
+calls applies no type test, while the call site's own comment says it takes the first charge.
+</p>
+
+<p>
+So a staff holding something else first would have that thing's quality read as a spell number.
+</p>
+
+<p>
+<strong>The reachability was measured rather than assumed.</strong> A staff is not in the original's
+own container type list, so the move command refuses to put anything into one, and the only thing
+that reaches a staff's inside is the charge enchanting gives it.
+</p>
+
+<p>
+That is why it went in the anomalies section and not the confirmed bugs: the divergence between
+comment and code is real, and no reachable input exercises it. It is imitated, with no guard, because
+a guard would be dead code reading as evidence that the original checks the type. What was
+<em>not</em> checked is written down too: whether some other code path hands a staff something else.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    475 / 475
+U6Export.Tests      75 / 75
+U6Engine.Tests    3850 / 3850
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+clean with all 27 allowlist entries still matched. Unity's own Test Runner was <strong>not</strong>
+run, and nothing draws these yet, so there is no screenshot to ask for.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The eight reagent names, which are the one thing the spellbook page still cannot print: it
+     carries a bit number where the original names a reagent. The names are already read out of the
+     owner's executable and cross-checked; what is missing is carrying them through the export, which
+     is a format version bump and therefore a set of checksums that have to be found by failing
+     rather than by guessing.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
