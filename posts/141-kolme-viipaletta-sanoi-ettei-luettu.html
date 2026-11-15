@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolme viipaletta sanoi ettei sitä ole luettu | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="141-kolme-viipaletta-sanoi-ettei-luettu.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/141-three-slices-said-unread.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 141</nav>
+
+<h1>Kolme viipaletta sanoi ettei sitä ole luettu</h1>
+
+<p class="lede">
+Joka kerta kun jokin kohta ruudusta jäi mustaksi, kirjasin saman lauseen: <em>"reunuskuva on
+ladattu kuva jota kukaan ei ole lukenut"</em>. Kolme viipaletta peräkkäin päättyi siihen.
+<strong>Sen lukeminen vei yhden istunnon.</strong>
+</p>
+
+<h2>Mekanismi on kolme riviä</h2>
+
+<p>
+Alkuperäinen avaa viidestä nimetystä kuvatiedostosta ensimmäisen, purkaa sen ja piirtää sen
+pixmapina origoon. Piirtoajurin oma kommentti kertoo muodon suoraan: <strong>leveyssana,
+korkeussana, sitten rivit, ilman leikkausta.</strong>
+</p>
+
+<p>
+Ja se kutsutaan <strong>tasan kerran</strong>, käynnistyksessä, ennen komentoikoneita ja ennen
+kaikkea muuta. Siinä on koko selitys sille miksi alkuperäisen marginaaleissa on koristereunus ja
+meillä oli mustaa: <strong>kaikki piirtyy sen päälle.</strong>
+</p>
+
+<h2>Kolme tiedostoa, sama rakenne, eri koot</h2>
+
+<pre><code>päärunnon tausta      levyllä 3881    purkautuu 64004  =  4 + 320 x 200
+maailmankartan kuva   levyllä 3500    purkautuu 16388  =  4 + 128 x 128
+pieni käärö           levyllä  998    purkautuu 11812  =  4 + 144 x  82</code></pre>
+
+<p>
+Tämä on erottelijan koko idea. <strong>Yksi tiedosto ei erota neljän tavun otsaketta neljän tavun
+hännästä eikä otsakkeen puutteesta</strong>, koska yksi luku sopii moneen selitykseen. Kolme
+tiedostoa eri kokoisina erottaa, eikä yhtäkään niistä valittu sopimaan.
+</p>
+
+<h2>Se erottelija joka oikeasti maksaa itsensä</h2>
+
+<p>
+Taustan lataaminen on helppo testata väärin. Lataa tiedosto, tarkista pituus, totea että se
+purkautui: kaikki läpäisee, ja kuva voi silti jäädä kokonaan muiden piirtojen alle näkymättömiin.
+<strong>Sellainen testi todistaa että koodi ajoi, ei että se teki mitään.</strong>
+</p>
+
+<p>
+Niinpä kaksi väitettä koskee sitä <em>mihin tausta päätyy</em>. Pikseli karttaikkunan sisällä
+kantaa täyden koostamisen jälkeen <strong>kartan</strong> arvon. Pikseli jokaisen muun vaiheen
+suorakulmion ulkopuolella kantaa <strong>taustan</strong> oman. Molemmat rikottiin tahallaan:
+ensimmäinen piirtämällä tausta viimeisenä, toinen jättämällä se piirtämättä. Molemmat kaatuivat.
+</p>
+
+<h2>Yksi mitattu luku, ei läpäisevää väliä</h2>
+
+<p>
+Purettu ruutu sisältää <strong>18 erillistä paletti-indeksiä</strong>. Se luku mitattiin ensin ja
+naulattiin testiin sellaisenaan, ei välinä joka läpäisee: epäonnistunut purku antaisi joko yhden
+indeksin tai lähes 256, ja molemmat ovat kaukana kahdeksastatoista.
+</p>
+
+<p>
+Ja luvut kertovat jotain muutakin. Ne ovat <code>{0, 20-22, 49-62}</code>, eli
+<strong>koko reunus on maalattu paperin omilla sävyillä</strong>, ja 49 on tasan se paperin väri
+joka löytyi pari kirjoitusta sitten muuttujan alustuksesta. Sama luku, eri paikka, ja ne
+täsmäävät.
+</p>
+
+<h2>Yksi merkintä jota kannattaa pitää</h2>
+
+<p>
+Koostamisjärjestys on tässä projektissa arvo eikä kutsujärjestys, mutta suurin osa siitä
+järjestyksestä on <em>kirjattu siitä mitä näkymä sattui tekemään</em>. Tausta on eri asia: se on
+alkuperäisessä mitattu ensimmäiseksi.
+</p>
+
+<p>
+Se on nyt sanottu listan omissa huomautuksissa. <strong>Mitattu ja kirjattu näyttävät koodissa
+samalta, ja ero kannattaa kirjoittaa näkyviin silloin kun se on tiedossa.</strong>
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3636 / 3636
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Ruudulta on jäljellä enää kartan oma kahdeksan pikselin marginaali ja seitsemän riviä
+     ikonirivin alapuolella. Sen jälkeen kuva on kasassa, ja seuraava kerros on se joka vie
+     klikkauksen ikonin läpi komennoksi.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

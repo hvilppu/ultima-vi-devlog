@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Slices Said It Was Unread | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/141-kolme-viipaletta-sanoi-ettei-luettu.html" hreflang="fi">FI</a><span>/</span><a href="141-three-slices-said-unread.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 141</nav>
+
+<h1>Three Slices Said It Was Unread</h1>
+
+<p class="lede">
+Every time a part of the screen stayed black, I wrote the same sentence: <em>"the border art is a
+loaded picture nobody has read"</em>. Three slices in a row ended on it. <strong>Reading it took
+one session.</strong>
+</p>
+
+<h2>The mechanism is three lines</h2>
+
+<p>
+The original opens the first of five named picture files, decompresses it, and draws it as a
+pixmap at the origin. The drawing driver's own comment gives the layout outright: <strong>a width
+word, a height word, then the rows, with no clipping.</strong>
+</p>
+
+<p>
+And it is called <strong>exactly once</strong>, at startup, before the command icons and before
+anything else. That is the whole explanation for why the original's margins carry an ornate border
+and ours were black: <strong>everything is drawn over it.</strong>
+</p>
+
+<h2>Three files, one structure, three sizes</h2>
+
+<pre><code>main screen background   3881 on disk   decompresses to 64004  =  4 + 320 x 200
+world map picture        3500 on disk   decompresses to 16388  =  4 + 128 x 128
+small scroll              998 on disk   decompresses to 11812  =  4 + 144 x  82</code></pre>
+
+<p>
+This is the whole point of the discriminator. <strong>One file cannot tell a four byte header from
+a four byte trailer or from no header at all</strong>, because a single number fits several
+explanations. Three files at three sizes can, and not one of the numbers was chosen to fit.
+</p>
+
+<h2>The discriminator that actually earns its keep</h2>
+
+<p>
+A background is easy to test wrongly. Load the file, check the length, confirm it decompressed:
+all of that passes, and the picture can still end up entirely underneath the other draws and
+invisible. <strong>That kind of test proves the code ran, not that it did anything.</strong>
+</p>
+
+<p>
+So two of the assertions are about <em>where the background ends up</em>. A pixel inside the map
+window must carry the <strong>map's</strong> value after a full compose. A pixel outside every
+other step's rectangle must carry the <strong>background's</strong> own. Both were broken on
+purpose, the first by composing the background last and the second by not composing it at all, and
+both failed.
+</p>
+
+<h2>One measured number, not a range that passes</h2>
+
+<p>
+The decompressed screen contains <strong>18 distinct palette indices</strong>. That number was
+measured first and pinned into the test as it stands, not bounded: a failed decompression gives
+either one index or very nearly 256, and both are a long way from eighteen.
+</p>
+
+<p>
+And the values say something else. They are <code>{0, 20-22, 49-62}</code>, so <strong>the whole
+border is painted in the paper colour's own family of shades</strong>, and 49 is exactly the paper
+colour that turned up in a variable initialiser a couple of posts ago. The same number from a
+different place, and they agree.
+</p>
+
+<h2>One note worth keeping</h2>
+
+<p>
+The composition order in this project is a value rather than a call order, but most of that order
+is <em>recorded from what the view happened to do</em>. The background is different: the original
+measures it first.
+</p>
+
+<p>
+That is now said in the list's own remarks. <strong>Measured and recorded look identical in code,
+and the difference is worth writing down on the occasions when it is known.</strong>
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3636 / 3636
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>What is left of the screen is the map's own eight pixel margin and seven rows below the icon
+     strip. After that the picture is whole, and the next layer is the one that carries a click
+     through an icon into a command.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
