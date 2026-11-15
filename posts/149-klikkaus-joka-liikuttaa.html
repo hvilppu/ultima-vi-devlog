@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Klikkaus joka liikuttaa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="149-klikkaus-joka-liikuttaa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/149-a-click-that-moves-something.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 149</nav>
+
+<h1>Klikkaus joka liikuttaa</h1>
+
+<p class="lede">
+Neljä viipaletta peräkkäin päättyi samalla tavalla: sääntö valmiina, testattuna ja ilman yhtäkään
+kutsujaa. <strong>Tällä on kutsuja.</strong> Klikkaa karttaikkunaa, ja seurue astuu yhden ruudun
+klikkauksen suuntaan.
+</p>
+
+<h2>Ja oman ruudun klikkaus jättää paikalleen</h2>
+
+<p>
+Sääntö on 48 kertaa 48 pikselin laatikko johtajan ympärillä, luettuna kolme kertaa kolme
+-ruudukkona. Kahdeksan ruutua antaa kahdeksan suuntaa ja <strong>keskiruutu ei anna suuntaa
+lainkaan</strong>, mikä on se tapa jolla oman ruudun klikkaus tarkoittaa paikallaan pysymistä eikä
+suuntaa.
+</p>
+
+<p>
+Se on mitattu käytös eikä mukavuusratkaisu. Laatikon ulkopuolella kulmakerroin päättää: hallitseva
+akseli antaa pääsuunnan kun suhde on vähintään kaksi yhteen, ja muuten vinon, ja jako on suojattu
+ennen kuin se tapahtuu eikä sen jälkeen.
+</p>
+
+<h2>Ja paikallaan pysyminen nojaa yhteen aikaiseen paluuseen</h2>
+
+<p>
+Alkuperäisessä se varahaara joka valitsee vinon on <em>sisällä</em> siinä haarassa joka käsittelee
+laatikon ulkopuolisia paikkoja. Keskiruudun vastaus poistuu siis eri ovesta eikä koskaan päädy
+sinne.
+</p>
+
+<p>
+Litistä rakenne, niin kuin kuka tahansa siistijä tekisi, ja <strong>keskiruutu valuu vinojen
+varahaaraan</strong>. Oman ruudun klikkaus kävelisi vinoon, loputtomasti, eikä yksikään kahdeksan
+suunnan testi huomaisi sitä.
+</p>
+
+<h2>Portti kysyi väärän kysymyksen ja sai paremman vastauksen</h2>
+
+<p>
+Briefissä oli epäilys: pystyorigolla on <strong>22 viittausta siinä missä vaakaorigolla on
+17</strong>, ja kaksi arvoa jotka näyttävät parilta ovat jossain käytössä erikseen.
+</p>
+
+<p>
+Eivät ole. Ne viisi ylimääräistä osumaa ovat lähdetekstin toistoa: laatikon päätös haarautuu ensin
+x:n mukaan, joten y:n kaksi vertailua esiintyvät kolmesti siellä missä x:n esiintyvät kertaalleen,
+ja vinojen häntä testaa y:n kahdessa x:n haarassa yhden sijaan. Neljä plus yksi.
+</p>
+
+<p>
+<strong>Mutta se haku jonka epäilys pakotti löysi jotain muuta.</strong> Origo ei ole aina johtaja.
+Kaksi rakentamatonta paikkaa siirtää sen <em>valitun objektin</em> kohdalle, jolloin seuraava
+suuntapainallus tarkoittaa "työnnä tuota" eikä "kävele tuonne".
+</p>
+
+<p>
+Niinpä origo on parametri, ja mitattu oletus on säännön vierellä nimettynä vakiona eikä sen
+sisällä. Väärä kysymys kannatti kysyä.
+</p>
+
+<h2>Kolme rikkomista, tarkoituksella</h2>
+
+<ul>
+<li>laatikon yläreunan sulkeminen, kun se on puoliavoin: yksi testi kaatui, odotti 2 ja sai 1</li>
+<li>suhdekynnyksen siirtäminen kahdesta kolmeen: yksi testi kaatui, odotti 2 ja sai 3</li>
+<li>origon paaluttaminen vakioksi: <strong>täsmälleen yksi testi kaatui ja kaikki muut saman
+    tiedoston testit menivät läpi</strong>, mikä on juuri se mitä briefi ennusti paalutetun vakion
+    tekevän ja koko syy sille että se testi on olemassa</li>
+</ul>
+
+<h2>Kaksi asiaa on tässä valintoja, ja ne sanovat sen</h2>
+
+<p>
+<strong>Napin pohjassa pitäminen ei toista askelta.</strong> Alkuperäisen oma ehto on tosi joka
+kierroksella, eli periaatteessa se kävelee niin kauan kuin nappi on pohjassa. Toistotahtia ei ole
+luettu mistään, ja Unityn kehysnopeudella se kävelisi näppäintä moninkertaisesti nopeammin, joten
+askel tapahtuu painalluksen reunalla ja briefin aukko on nimetty eikä täytetty luvulla jota kukaan
+ei ole mitannut.
+</p>
+
+<p>
+<strong>Ja näppäin voittaa kun molemmat osuvat samalle kehykselle.</strong> Ei tätäkään ole luettu
+mistään.
+</p>
+
+<p>
+Näiden alla on kolmas asia, ja se on se muistamisen arvoinen: moottorin sääntö vastaa suunnan joka
+kierroksella <em>vain siksi että alkuperäisen oma lippu puuttuu tästä projektista</em>. Sen ehto on
+siten aina tosi. Tämä on nimetty neljässä paikassa koodissa, koska se lakkaa pitämästä sillä
+hetkellä kun joku rakentaa sen lipun.
+</p>
+
+<h2>Ja sitten tiilidata vastasi kysymykseen toisen kerran</h2>
+
+<p>
+Seuraava viipale on mitattu ja odottaa: karttaikkunan oma kehys, jota <strong>ei ole täällä
+piirretty lainkaan</strong>. Tämä rakennelma kopioi sommitelmasta saman alueen kuin alkuperäinen,
+ja alkuperäinen täyttää sen uloimmat 8 pikseliä reunuksella siinä missä me jätämme sinne maastoa.
+</p>
+
+<p>
+Kehys on kahdeksan peräkkäistä tiiltä suorakulmion ympärillä, ja kahdeksan peräkkäistä tiiltä
+houkuttelee täsmälleen yhteen väärään lukemaan: riveittäin luettu kolme kertaa kolme ilman
+keskustaa. Se on eri mieltä alkuperäisen kanssa viidessä paikasta kahdeksasta.
+</p>
+
+<p>
+Rutiinin lukeminen ratkaisee sen. <strong>Sitten kysyttiin myös tiilidatalta</strong>, koska yhdestä
+rutiinista otettu lukema on yksi lähde.
+</p>
+
+<p>
+Vipu on siinä, että jokaisesta kehystiilestä päätyy ruudulle vain osa, ja <em>mikä</em> osa riippuu
+siitä mikä reunuksen pala tiili on. Pisteytetään siis kumpikin lukema sillä, montako peittävää
+pikseliä se asettaa näkyvälle alueelle:
+</p>
+
+<pre><code>peittävät pikselit kahdeksassa tiilessä   438
+näkyvissä tällä lukemalla                 438
+näkyvissä riveittäin luetulla             295</code></pre>
+
+<p>
+<strong>Tämä lukema ei hukkaa mitään. Riveittäin luettu heittää 143 pikseliä pois ja jättää yhden
+kokonaisen tiilen näkymättömäksi.</strong>
+</p>
+
+<h2>Ja se mittasi jotain mitä mikään koodin lukeminen ei olisi antanut</h2>
+
+<p>
+<strong>47,6 prosenttia reunusvyöstä on läpinäkyvää.</strong> Kehys piirretään maaston jälkeen,
+joten kartta näkyy sen läpi: se ei ole umpinainen palkki. Täytetty reunus olisi läpäissyt kaikki
+yllä olevat luvut ja ollut näkyvästi väärä.
+</p>
+
+<h2>Se läheltä piti josta kannattaa kirjoittaa ylös</h2>
+
+<p>
+Ensimmäinen ajo laski peittäviksi nollasta poikkeavat tavut, mikä on alkuperäisen oma käytäntö.
+Jokainen kehystiili tuli takaisin 256 pikselinä 256:sta, ja johtopäätös oli ettei data pysty
+erottamaan lukemia toisistaan.
+</p>
+
+<p>
+<strong>Tämän projektin vienti käyttää läpinäkyvälle arvoa 255 eikä nollaa.</strong> Vastaus oli
+siellä koko ajan, piilossa luvun takana joka näytti täsmälleen aidolta tulokselta.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3747 / 3747
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä, blogin linkkitarkistus 0 rikkinäisellä
+linkillä. Unityn editorin oma Test Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Karttaikkunan oma piirto: yllä oleva kehys, tähtäyskursori jota kolme viipaletta on nyt
+     mitannut ja jota mikään ei ole piirtänyt, ja yksi rivi joka panee piirtorutiinin kirjoittamaan
+     sen valintatilan jota se sitten lukee. Kolme sen palaa rakennetaan, yksi todetaan rajaukseksi,
+     ja yksi nimetään aukoksi koska dekompilaation proosa ja sen oma ajuri ovat eri mieltä yhden
+     puskurin koosta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

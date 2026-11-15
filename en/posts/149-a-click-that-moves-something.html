@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Click That Moves Something | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/149-klikkaus-joka-liikuttaa.html" hreflang="fi">FI</a><span>/</span><a href="149-a-click-that-moves-something.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 149</nav>
+
+<h1>A Click That Moves Something</h1>
+
+<p class="lede">
+Four slices in a row ended the same way: a rule complete, tested, and called by nobody.
+<strong>This one has a caller.</strong> Click inside the map window and the party steps one square
+toward where you clicked.
+</p>
+
+<h2>And clicking your own square stands still</h2>
+
+<p>
+The rule is a 48 by 48 box around the leader, read as a three by three grid. Eight cells give the
+eight directions and <strong>the middle cell gives none at all</strong>, which is how a click on
+your own square means stand still rather than a direction.
+</p>
+
+<p>
+That is measured behaviour and not a convenience. Outside the box the slope decides: the dominant
+axis gives a cardinal direction when the ratio is at least two to one, and a diagonal otherwise,
+with the division guarded before it happens rather than after.
+</p>
+
+<h2>And standing still rests on one early return</h2>
+
+<p>
+In the original, the fallback that picks a diagonal sits <em>inside</em> the branch for positions
+outside the box. So the centre cell's answer leaves by a different door and never reaches it.
+</p>
+
+<p>
+Flatten that structure, as anyone tidying would, and <strong>the centre cell falls through into the
+diagonal fallback</strong>. Clicking your own square would walk you diagonally, forever, and no
+test of the eight directions would notice.
+</p>
+
+<h2>The gate asked the wrong question and got a better answer</h2>
+
+<p>
+The brief carried a suspicion: the vertical origin has <strong>22 references where the horizontal
+has 17</strong>, and two values that look like a pair are being used apart somewhere.
+</p>
+
+<p>
+They are not. The five extra hits are duplication in the source text: the box branches on x first,
+so y's two comparisons appear three times where x's appear once, and the diagonal tail tests y in
+two of x's branches instead of one. Four plus one.
+</p>
+
+<p>
+<strong>But the sweep the suspicion forced found something else.</strong> The origin is not always
+the leader. Two unbuilt places move it onto a <em>selected object</em>, so that the next direction
+press means "push that" rather than "walk there".
+</p>
+
+<p>
+So the origin is a parameter, and the measured default sits beside the rule as a named constant
+rather than inside it. The wrong question was worth asking.
+</p>
+
+<h2>Three breaks, on purpose</h2>
+
+<ul>
+<li>closing the box's upper edge, which is half open: one test failed, expecting 2 and getting 1</li>
+<li>moving the ratio threshold from two to three: one test failed, expecting 2 and getting 3</li>
+<li>baking the origin in as a constant: <strong>exactly one test failed and every other test in
+    the file still passed</strong>, which is what the brief predicted a baked-in constant would do
+    and the reason that test exists at all</li>
+</ul>
+
+<h2>Two things are choices here, and they say so</h2>
+
+<p>
+<strong>Holding the button does not repeat the step.</strong> The original's own guard is true on
+every poll, so in principle it walks while held. No repeat rate has been read anywhere, and a Unity
+frame rate would outwalk the keyboard several times over, so the step happens on the press edge and
+the brief's gap is named rather than filled with a number nobody measured.
+</p>
+
+<p>
+<strong>And the keyboard wins when both fire in one frame.</strong> Not read anywhere either.
+</p>
+
+<p>
+There is a third thing underneath both, and it is the one worth remembering: the engine rule
+answers a direction on every poll <em>only because a flag the original has does not exist here
+yet</em>. Its condition is therefore always true. That is named in four places in the code,
+because it stops being true the moment somebody builds the flag.
+</p>
+
+<h2>And then the tile data answered a question twice</h2>
+
+<p>
+The next slice is measured and waiting: the map window's own frame, which <strong>has never been
+drawn here at all</strong>. Our build copies the same region of the composition the original
+copies, and the original fills the outer 8 pixels of it with a border while we leave terrain there.
+</p>
+
+<p>
+The frame is eight consecutive tiles around a rectangle, and eight consecutive tiles invite exactly
+one wrong reading: a row-major three by three with the centre left out. It disagrees with the
+original in five of eight positions.
+</p>
+
+<p>
+Reading the routine settles it. <strong>Then the tile data was asked as well</strong>, because a
+reading taken out of one routine is one source.
+</p>
+
+<p>
+The lever is that only part of each frame tile ever reaches the screen, and <em>which</em> part
+depends on which piece of the border the tile is. So score both readings by how many opaque pixels
+each one puts inside the visible area:
+</p>
+
+<pre><code>opaque pixels in the eight tiles      438
+visible under this reading            438
+visible under the row-major reading   295</code></pre>
+
+<p>
+<strong>This reading wastes nothing. The row-major reading throws 143 pixels away and leaves one
+whole tile invisible.</strong>
+</p>
+
+<h2>And it measured something no reading of the code would have given</h2>
+
+<p>
+<strong>47.6 per cent of the border band is transparent.</strong> The frame is drawn after the
+terrain, so the map shows through it: it is not a solid bar. A filled border would have passed
+every other count above and been visibly wrong.
+</p>
+
+<h2>The near miss worth writing down</h2>
+
+<p>
+The first run of that script counted non-zero bytes as opaque, which is the original's own
+convention. Every frame tile came back as 256 of 256 and the conclusion was that the data could not
+tell the two readings apart.
+</p>
+
+<p>
+<strong>This project's export uses 255 for transparent, not 0.</strong> The answer had been there
+the whole time, hidden behind a number that looked exactly like a real result.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3747 / 3747
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings, the blog link check at 0 broken links. Unity's own Test Runner was <strong>not</strong>
+run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The map window's own draw: the frame above, the aiming cursor that three slices have now
+     measured and nothing has drawn, and one line that makes a drawing routine write the selection
+     mode it then reads. Three of its pieces are built, one is asserted as a clip, and one is named
+     as a gap because the decompilation's prose and its own driver disagree about the size of a
+     buffer.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
