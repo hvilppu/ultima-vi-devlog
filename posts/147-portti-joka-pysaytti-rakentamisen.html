@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portti joka pysäytti rakentamisen | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="147-portti-joka-pysaytti-rakentamisen.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/147-the-gate-that-stopped-the-build.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 147</nav>
+
+<h1>Portti joka pysäytti rakentamisen</h1>
+
+<p class="lede">
+Muutama tunti sitten pimeysvirheestä syntyi sääntö: <em>mitattu arvo ei ole mitattu ennen kuin
+jokainen paikka jossa alkuperäinen lukee sen on avattu.</em> Tänään se sääntö <strong>pysäytti
+viipaleen ennen kuin riviäkään oli kirjoitettu</strong>, ja se oli oikea lopputulos.
+</p>
+
+<h2>Mitä oli rakentumassa</h2>
+
+<p>
+Kaikki tämän jakson viipaleet ovat päättyneet samaan rajaan. Osoitin tuottaa komennon eikä mikään
+aja sitä. Ikonit virittävät komennon eikä mikään suorita sitä. Alla on kerros joka ottaa komennon
+vastaan ja tekee sillä jotain, ja se piti mitata.
+</p>
+
+<p>
+Mittasin sen. Kymmenen komentoa, neljä käytöstä, ja briefi käski rakentaa. <strong>Mutta se käski
+myös hakea kaksi tilamuuttujaa läpi ensin</strong>, ja pysähtyä jos niillä on lukijoita lähettäjän
+ulkopuolella.
+</p>
+
+<h2>Ja niillä oli</h2>
+
+<p>
+Odottava komento: <strong>18 osumaa</strong> lähdehakemistossa. Hiiritila: <strong>59</strong>.
+Jokainen luokiteltuna, mitään katkaisematta.
+</p>
+
+<p>
+Suurin osa ulkopuolisista kirjoittajista oli jo nimetty tämän projektin omissa aiemmissa
+briefeissä, mikä oli rauhoittavaa. <strong>Neljää lukijaa ei nimennyt mikään</strong>:
+</p>
+
+<ul>
+<li>näppäinsilmukka tulkitsee odottavan komennon oman kirjaimen uudelleenpainalluksen hyväksynnäksi</li>
+<li>sama silmukka ohjaa kaikki kirjaimet loitsupuskuriin kun odottava komento on kasto</li>
+<li>osoittimen muoto valitaan hiiritilan mukaan, kahdessa kohdassa</li>
+<li><strong>karttaikkunan oma piirto lukee hiiritilaa joka kehys</strong></li>
+</ul>
+
+<p>
+Rakennusajo pysähtyi. Se ei kirjoittanut riviäkään, vaan raportoi.
+</p>
+
+<h2>Mikä löydös oli, ja mikä se ei ollut</h2>
+
+<p>
+<strong>Tilaluku ei ollut ongelma.</strong> Hiiritila on kaksiarvoinen joka paikassa jossa sitä
+luetaan. Pimeyden kaltaista kaventumista, jossa neljä tasoa luetaan totuusarvona, ei ole.
+</p>
+
+<p>
+<strong>Lukijakunta oli.</strong> Tyyppi joka mallintaisi kymmenen komennon kytkintä yksin vastaisi
+kysymykseen "mikä on hiiritila" ikään kuin se olisi lähettäjän oma kysymys, kun alkuperäinen
+hajauttaa sen ainakin kuuteen tiedostoon syistä joihin lähettäjällä ei ole mitään tekemistä.
+</p>
+
+<p>
+Se ero on hienovarainen ja se on juuri se laji jota ei huomaa koodista joka toimii. Malli olisi
+ollut <em>uskottava</em>, testit olisivat menneet läpi, ja se olisi ollut väärä.
+</p>
+
+<h2>Uudelleenrajaus, ei hylkäys</h2>
+
+<p>
+Haarat ovat yhä mitattavia. Se mitä ei voi rakentaa on tila lähettäjän omana omaisuutena.
+</p>
+
+<p>
+Niinpä <strong>tila välitetään sisään ja palautetaan ulos</strong>, ei koskaan omisteta: sama
+muoto jonka jaettu suunta-arvo tässä projektissa jo saa. Sääntö lukee tilan, vastaa mitä haara
+tekee, ja vastaa uuden tilan. Se ei talleta mitään.
+</p>
+
+<p>
+Ja ne neljä nimetöntä lukijaa <strong>on nyt nimetty tyypin omissa huomautuksissa</strong>, jotta
+seuraava lukija oppii sen eikä löydä sitä.
+</p>
+
+<h2>Epäsymmetria jonka siistimpi toteutus hävittäisi</h2>
+
+<p>
+Seitsemästä kohdistettavasta komennosta <strong>vain neljä torjutaan aluksella</strong>. Tarkistus
+on tahallisen läpivalumisen yläpuolella, ja puhuminen, katsominen ja käyttö astuvat samaan haaraan
+sen alapuolelta. Laivalla saa siis käyttää mutta ei ottaa.
+</p>
+
+<p>
+Rakennusajo antoi kaikille seitsemälle saman tarkistuksen nähdäkseen mitä tapahtuu. Testi kaatui
+puhumiseen. <strong>Se on se virhe jonka tekisi kuka tahansa joka siivoaisi koodia lukematta
+kommentoitua tauotusta</strong>, ja se pelaisi eri tavalla.
+</p>
+
+<h2>Ja briefini ylitti rajan jonka se itse siteerasi</h2>
+
+<p>
+Siteerasin rivivälin ja kuvasin sitten tallennuskomennon, joka alkaa <strong>kaksi riviä
+myöhemmin</strong>. Ne kymmenen komentoa jotka väliin mahtuvat eivät siis sisällä tallennusta.
+</p>
+
+<p>
+Rakennusajo luki välin itse, rakensi kymmenen, jätti tallennuksen ja antoi rivinumeron joka
+ratkaisee asian. Se on <strong>kuudestoista peräkkäinen kerta</strong> kun rakennusajo on ollut eri
+mieltä briefinsä kanssa ja ollut oikeassa.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3720 / 3720
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Mikä täyttää valinnan. Yksi luku ratkaisi sen muodon: valintaa luetaan alkuperäisessä
+     550 paikassa, eli se on kerros eikä viipale. Rajattu osa on se rutiini joka täyttää sen,
+     neljätoista osumaa ja yksi funktio.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Gate That Stopped the Build | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/147-portti-joka-pysaytti-rakentamisen.html" hreflang="fi">FI</a><span>/</span><a href="147-the-gate-that-stopped-the-build.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 147</nav>
+
+<h1>The Gate That Stopped the Build</h1>
+
+<p class="lede">
+A few hours ago the darkness fault produced a rule: <em>a measured value is not measured until
+every place the original reads it has been opened.</em> Today that rule <strong>stopped a slice
+before a line was written</strong>, and that was the right outcome.
+</p>
+
+<h2>What was being built</h2>
+
+<p>
+Every slice in this stretch has ended at the same boundary. The pointer produces a command and
+nothing runs it. The icons arm a command and nothing performs it. Underneath is a layer that takes
+a command and does something with it, and it needed measuring.
+</p>
+
+<p>
+I measured it. Ten commands, four behaviours, and the brief said build. <strong>But it also said to
+sweep two pieces of state first</strong>, and to stop if either had readers outside the dispatcher.
+</p>
+
+<h2>And they did</h2>
+
+<p>
+The pending command: <strong>18 hits</strong> in the source directory. The mouse mode:
+<strong>59</strong>. Every one classified, nothing truncated.
+</p>
+
+<p>
+Most of the outside writers were already named by this project's own earlier briefs, which was
+reassuring. <strong>Four readers were named nowhere</strong>:
+</p>
+
+<ul>
+<li>the key loop treats pressing the pending command's own letter again as a confirm</li>
+<li>the same loop routes every letter into the incantation buffer when the pending command is cast</li>
+<li>the pointer's shape is chosen by the mouse mode, in two places</li>
+<li><strong>the map window's own draw reads the mouse mode every frame</strong></li>
+</ul>
+
+<p>
+The build stopped. It wrote nothing and reported.
+</p>
+
+<h2>What the finding was, and what it was not</h2>
+
+<p>
+<strong>The state count was not the problem.</strong> The mouse mode takes two values everywhere it
+is read. There is no narrowing of the darkness kind, where four levels were read as a boolean.
+</p>
+
+<p>
+<strong>The readership was.</strong> A type modelling the ten-command switch alone would answer
+"what is the mouse mode" as though that were the dispatcher's own question, when the original
+spreads it across at least six files for reasons the dispatcher has nothing to do with.
+</p>
+
+<p>
+That distinction is subtle and it is exactly the kind you cannot see from code that works. The
+model would have been <em>plausible</em>, the tests would have passed, and it would have been
+wrong.
+</p>
+
+<h2>Rescoped, not abandoned</h2>
+
+<p>
+The arms are still measurable. What cannot be built is the state as the dispatcher's own property.
+</p>
+
+<p>
+So <strong>the state is passed in and handed back</strong>, never owned: the same shape the shared
+direction value already has here. The rule reads the state, answers what the arm does, and answers
+the new state. It stores nothing.
+</p>
+
+<p>
+And the four unnamed readers are <strong>named in the type's own remarks</strong>, so the next
+reader learns it rather than discovering it.
+</p>
+
+<h2>The asymmetry a tidier implementation would lose</h2>
+
+<p>
+Of the seven targeted commands, <strong>only four are refused aboard a vehicle</strong>. The check
+sits above a deliberate fallthrough, and talk, look and use enter the same arm from below it. So on
+a ship you may use and may not get.
+</p>
+
+<p>
+The build gave all seven the check to see what happened. The test failed on talk. <strong>That is
+the mistake anyone would make tidying code without reading the commented-out break</strong>, and it
+would play differently.
+</p>
+
+<h2>And my brief crossed the boundary it cited</h2>
+
+<p>
+I quoted a line range and then described the save command, which begins <strong>two lines
+later</strong>. The ten commands inside that range do not include save.
+</p>
+
+<p>
+The build read the range itself, built the ten, left save, and gave the line number that settles
+it. That is the <strong>sixteenth consecutive time</strong> a build pass has disagreed with its
+brief and been right.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3720 / 3720
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>What fills the selection. One number decided its shape: the selection is read in 550 places in
+     the original, which makes it a layer rather than a slice. The bounded part is the routine that
+     fills it, fourteen hits and one function.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
