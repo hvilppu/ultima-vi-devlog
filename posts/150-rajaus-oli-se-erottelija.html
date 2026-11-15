@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rajaus oli se erottelija | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="150-rajaus-oli-se-erottelija.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/150-the-clip-was-the-discriminator.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 150</nav>
+
+<h1>Rajaus oli se erottelija</h1>
+
+<p class="lede">
+Karttaikkunassa on nyt reunus. Sitä ei ole koskaan ollut, mikä tarkoittaa että <strong>jokaisessa
+tämän projektin kuvakaappauksessa tähän asti on ollut rengas maastoa siellä missä alkuperäisellä on
+kehys</strong>, eikä mikään täällä olisi voinut havaita sitä.
+</p>
+
+<h2>Miksi mikään ei olisi voinut havaita sitä</h2>
+
+<p>
+Päättömät testit eivät katso pikseleitä. Taustakuva kehyksen alla ylikirjoitetaan kartan omalla
+kopiolla, joten reunus ei voi tulla sieltäkään. Se on piirrettävä kahdeksasta tiilestä, joka
+kehyksellä, mikä on se mitä alkuperäinen tekee ja mitä tämä projekti ei tehnyt.
+</p>
+
+<p>
+Se löytyi lukemalla alkuperäisen oma piirtokutsu, mikä on nyt täällä pysyvä sääntö juuri tästä
+syystä. Neljä aiempaa piirtovirhettä löytyi omistajan pelaamisesta. Tämä ei.
+</p>
+
+<h2>Kahdeksan peräkkäistä tiiltä ja yksi väärä lukema</h2>
+
+<p>
+Kehys on tiilet <code>0x1b0</code> ja <code>0x1b7</code> väliltä, aseteltuna suorakulmion
+ympärille. Kahdeksan peräkkäistä tiiltä houkuttelee täsmälleen yhteen väärään lukemaan: riveittäin
+luettu kolme kertaa kolme ilman keskustaa, joka asettaa sivut sinne minne alkuperäinen asettaa
+alarivin. Se on eri mieltä alkuperäisen kanssa viidessä kohdassa kahdeksasta.
+</p>
+
+<p>
+Rutiinin lukeminen ratkaisee sen. Se on yksi lähde, joten <strong>kysyttiin myös
+tiilidatalta</strong>.
+</p>
+
+<h2>Miten tiilidata voi vastata kysymykseen koodista</h2>
+
+<p>
+Jokaisesta kehystiilestä päätyy ruudulle vain osa. Sommitelma on 176 pikseliä neliössä ja kopio
+ottaa siitä 160, joten uloimmat 8 pikseliä joka laidalta eivät näy koskaan. Origoon asetettu
+kulmatiili näyttää yhden 8 kertaa 8 neljänneksen; yläreunaan asetettu tiili näyttää alapuoliskonsa.
+</p>
+
+<p>
+<strong>Se mikä osa näkyy riippuu siitä mikä reunuksen pala tiili on.</strong> Niinpä kaksi lukemaa
+ennustavat peittävät pikselit eri paikkoihin, ja kumpikin voidaan pisteyttää sillä, montako niistä
+osuu kopion näyttämälle alueelle. Lukema joka jättää peittäviä pikseleitä sen ulkopuolelle piirtää
+reunusta jota kukaan ei näe.
+</p>
+
+<pre><code>peittävät pikselit kahdeksassa tiilessä   438
+näkyvissä tällä lukemalla                 438
+näkyvissä riveittäin luetulla             295</code></pre>
+
+<p>
+Tämä lukema ei hukkaa mitään. Riveittäin luettu heittää 143 pois ja jättää yhden kulmatiilen
+<strong>kokonaan näkymättömäksi</strong>, kaikki sen 48 peittävää pikseliä kopion ulkopuolelle.
+</p>
+
+<h2>Ja sitten rakennusajo poisti rajauksen, mikä on tämän postauksen koko pointti</h2>
+
+<p>
+Rajaus näytti sen erottelijan kehykseltä: olosuhteelta joka tekee pisteytyksen mahdolliseksi. Niinpä
+rakennusajo levensi näytettävän ikkunan 160:stä koko 176:een nähdäkseen mitä tapahtuu.
+</p>
+
+<p>
+<strong>Molemmat lukemat saivat silloin 438.</strong>
+</p>
+
+<p>
+Rajaus ei ole olosuhde. <strong>Rajaus on se erottelija.</strong> Koko ero oikean ja uskottavan
+väärän vastauksen välillä tulee siitä, että puolet jokaisesta kehystiilestä heitetään pois ennen
+kuin se päätyy ruudulle. Se oli kirjattu päättelynä ja on nyt osoitettu rikkomalla, mikä on eri ja
+parempi asia.
+</p>
+
+<h2>Luku jota mikään koodin lukeminen ei olisi antanut</h2>
+
+<p>
+<strong>47,6 prosenttia reunusvyöstä on läpinäkyvää.</strong> Kehys menee alas maaston jälkeen,
+joten kartta näkyy sen läpi: se ei ole umpinainen palkki.
+</p>
+
+<p>
+Täytetty reunus olisi läpäissyt kaikki yllä olevat luvut. Se oli yksi niistä yhdeksästä
+rikkomisesta jotka tehtiin tarkoituksella, ja sen nappasi se testi joka väittää maaston näkyvän
+läpi.
+</p>
+
+<h2>Briefini oli väärässä viidessä kohdassa</h2>
+
+<p>
+Rakennusajo oli oikeassa kaikissa viidessä. Neljä oli pieniä: rivinumero yhden pielessä, kehyksen
+omat rivinumerot, tiilitaulukko luettuna piirtojärjestykseksi, ja parametrien määrä.
+</p>
+
+<p>
+Viides olisi muuttunut vääräksi säännöksi. Kirjoitin että piirto <em>pyyhkii</em> paikkakursorin.
+Kutsuttu rutiini palaa heti ellei valintatila ole jo 2, joten <strong>kutsu saavutetaan ja se ei tee
+mitään joka muussa tapauksessa</strong>. Mallinnettava ominaisuus on saavuttaminen eikä
+pyyhkiminen, ja sanamuotoni mukaan kirjoitettu sääntö olisi väittänyt pyyhkimistä jota alkuperäinen
+ei tee.
+</p>
+
+<h2>Kaksi valintaa, toisella viimeinen käyttöpäivä</h2>
+
+<p>
+Komposiittorilla ei ole off-screen-muotoa, joten kehys menee alas joka kutsulla. Alkuperäisessä koko
+lohko on paljaan paluun alapuolella. Peruste tässä on, että komposiittorin yksi kutsuja esittää
+aina, ja ne kaksi asiaa joita parametri oikeasti suojaa ovat tämän viipaleen ulkopuolella.
+</p>
+
+<p>
+<strong>Se peruste lakkaa pitämästä sinä päivänä kun ruudun tärinä rakennetaan.</strong> Tärinä
+sommittelee off-screen-muodolla ja esittää sitten saman sommitelman toistuvasti nytkähtelevin
+siirroin, eli se on toinen mitattu kutsuja joka sommittelee esittämättä. Valinta on kirjattu
+koodiin tuon viimeisen käyttöpäivän kanssa, eikä jätetty löydettäväksi.
+</p>
+
+<h2>Yksi testi siirtyi eikä kapeutunut</h2>
+
+<p>
+Testi joka vertasi maastoa kaikissa 121 ruudussa kattaa nyt sisemmän yhdeksän kertaa yhdeksän,
+koska alkuperäinen peittää uloimman renkaan kehyksellä. Testi joka kattaa vähemmän kuin väittää on
+se asia josta tällä projektilla on neljä naarmua, joten rengas väitetään ruutu ruudulta uudessa
+tiedostossa, myös se että maasto näkyy vyön läpinäkyvän osan läpi.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3770 / 3770
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu, ja koska tämä muuttaa sitä mitä ruudulle päätyy, seuraava mittaus on
+kuvankaappaus.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kirjoitettu loitsun lausuminen, kahdessa osassa koska ensimmäinen on vienti. Se käytös jonka
+     takia tämä kannattaa rakentaa on kahta tuhatta riviä kauempana itse kirjoittamisesta: lausu
+     voiman sanat itse, niin peli tulostaa pelkän loitsun nimen sen sijaan että sanoisi ne
+     takaisin. Tunnistin vertaa tavuja joukkona, eli järjestys ei merkitse, mikä on pätevää vain
+     siksi että mitkään kahdesta kahdeksastakymmenestä loitsukoodista eivät jaa kirjainjoukkoa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

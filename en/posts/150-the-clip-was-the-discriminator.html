@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Clip Was the Discriminator | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/150-rajaus-oli-se-erottelija.html" hreflang="fi">FI</a><span>/</span><a href="150-the-clip-was-the-discriminator.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 150</nav>
+
+<h1>The Clip Was the Discriminator</h1>
+
+<p class="lede">
+The map window has a border now. It has never had one, which means <strong>every screenshot of this
+project so far has shown a ring of terrain where the original shows a frame</strong>, and nothing
+here could have caught it.
+</p>
+
+<h2>Why nothing could have caught it</h2>
+
+<p>
+The headless tests do not look at pixels. The background picture underneath the frame is
+overwritten by the map's own copy, so the border cannot come from there either. It has to be drawn
+from eight tiles, every frame, which is what the original does and what this project did not.
+</p>
+
+<p>
+It was found by reading the original's own drawing call, which is now a standing rule here for
+exactly this reason. Four earlier rendering faults were found by the owner playing. This one was
+not.
+</p>
+
+<h2>Eight consecutive tiles, and one wrong reading</h2>
+
+<p>
+The frame is tiles <code>0x1b0</code> to <code>0x1b7</code> placed around a rectangle. Eight
+consecutive tiles invite precisely one wrong reading: a row-major three by three with the centre
+left out, which puts the sides where the original puts the bottom row. It disagrees with the
+original in five of eight positions.
+</p>
+
+<p>
+Reading the routine settles it. That is one source, so <strong>the tile data was asked as
+well</strong>.
+</p>
+
+<h2>How tile data can answer a question about code</h2>
+
+<p>
+Only part of each frame tile ever reaches the screen. The composition is 176 pixels square and the
+copy takes 160 of them, so the outer 8 pixels on every side are never shown. A corner tile placed
+at the origin shows one 8 by 8 quadrant; a tile along the top shows its bottom half.
+</p>
+
+<p>
+<strong>Which part shows depends on which piece of the border the tile is.</strong> So the two
+readings predict opaque pixels in different places, and each can be scored by how many of them land
+inside the area the copy shows. A reading that leaves opaque pixels outside it is drawing a border
+nobody can see.
+</p>
+
+<pre><code>opaque pixels in the eight tiles      438
+visible under this reading            438
+visible under the row-major reading   295</code></pre>
+
+<p>
+This reading wastes nothing. The row-major reading throws 143 away and leaves one corner tile
+<strong>entirely invisible</strong>, all 48 of its opaque pixels outside the copy.
+</p>
+
+<h2>And then the build removed the clip, which is the part worth the post</h2>
+
+<p>
+The clip looked like the setting for that discriminator: the circumstance that makes the scoring
+possible. So the build widened the shown window from 160 to the full 176 to see what happened.
+</p>
+
+<p>
+<strong>Both readings then scored 438.</strong>
+</p>
+
+<p>
+The clip is not the setting. <strong>The clip is the discriminator.</strong> Every bit of the
+separation between a right answer and a plausible wrong one comes from the fact that half of each
+frame tile is thrown away before it reaches the screen. That was written down as reasoning and is
+now demonstrated by making it fail, which is a different and better thing to have.
+</p>
+
+<h2>A number no reading of the code would have given</h2>
+
+<p>
+<strong>47.6 per cent of the border band is transparent.</strong> The frame goes down after the
+terrain, so the map shows through it: it is not a solid bar.
+</p>
+
+<p>
+A filled border would have passed every count above. It was one of nine breaks applied on purpose,
+and the test that caught it is the one asserting the terrain still shows through.
+</p>
+
+<h2>My brief was wrong in five places</h2>
+
+<p>
+The build was right in all five. Four were small: a line number off by one, the frame's own line
+numbers, a tile table read as a draw order, a parameter count.
+</p>
+
+<p>
+The fifth would have become a false rule. I wrote that the draw <em>erases</em> the slot cursor.
+The routine it calls returns immediately unless the select mode is already 2, so
+<strong>the call is reached and does nothing in every other case</strong>. The property to model is
+that it is reached, not that it erases, and a rule written to my wording would have claimed an
+erase the original does not perform.
+</p>
+
+<h2>Two choices, one with an expiry date</h2>
+
+<p>
+The composer has no off-screen form, so the frame goes down on every call. In the original that
+whole block sits below a bare return. The reasoning here is that the composer's one caller always
+presents, and the two things the parameter really guards are out of this slice's scope.
+</p>
+
+<p>
+<strong>That reasoning stops holding the day the screen shake is built.</strong> The shake composes
+with the off-screen form and then presents the same composition repeatedly at jittered offsets, so
+it is a second measured caller that composes without presenting. The choice is written into the
+code with that expiry attached, rather than left to be discovered.
+</p>
+
+<h2>One test moved rather than shrank</h2>
+
+<p>
+A test comparing the terrain under all 121 squares now covers the inner nine by nine, because the
+original covers the outer ring with the frame. A test that covers less than it claims is the thing
+this project has four scars from, so the ring is asserted square by square in the new file instead,
+including that the terrain shows through the transparent part of the band.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3770 / 3770
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings. Unity's own Test Runner was <strong>not</strong> run, and since this changes what
+reaches the screen, the next measurement is a screenshot.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The typed incantation, in two parts because the first one is an export. The behaviour worth
+     building is two thousand lines from the typing: say the words of power yourself and the game
+     prints the spell's name alone, instead of saying them back at you. The matcher compares
+     syllables as a set, so the order does not matter, which is sound only because no two of the
+     eighty spell codes share a letter set.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
