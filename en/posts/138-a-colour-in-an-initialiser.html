@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Colour That Was in an Initialiser | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/138-vari-joka-oli-alustuksessa.html" hreflang="fi">FI</a><span>/</span><a href="138-a-colour-in-an-initialiser.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 138</nav>
+
+<h1>A Colour That Was in an Initialiser</h1>
+
+<p class="lede">
+The panel has a default view now, so that black rectangle is a party list. But the post is about
+what checking it turned up: <strong>every line of text this project has ever drawn was the wrong
+colour, and the right one had been sitting in a variable initialiser the whole time.</strong>
+</p>
+
+<h2>Four briefs said "not measured, do not guess"</h2>
+
+<p>
+The panel's background colour has appeared in this project over and over as <em>"the paper colour
+is not measured and is not to be guessed at"</em>. That sentence is in four briefs, in several code
+comments and in the layout document. <strong>Two of those briefs I wrote myself.</strong>
+</p>
+
+<p>
+The colour was here all along, in an ordinary variable initialiser, not in prose and not in a
+comment:
+</p>
+
+<pre><code>ColorPaper = 0x31   (49)   =  255, 246, 194   parchment cream
+ColorText  = 0x48   (72)   =  129,   0,   0   dark red
+ColorGreen = 10, ColorRed = 12, ColorBlue = 9, ColorBlack = 0</code></pre>
+
+<p>
+The right-hand column is read from the owner's own exported palette, so the measurement has
+<strong>two sources</strong>: the original gives the index and our own data says what is at it.
+</p>
+
+<h2>And what that revealed about this project</h2>
+
+<p>
+This project has drawn all of its text at index <strong>15, which is pure white</strong>. The
+original's text colour is 0x48, a dark red. The names in the panel, the lines in the message area,
+the conversations: <strong>all the wrong colour</strong>.
+</p>
+
+<p>
+And no test saw it, because the existing assertions only checked that the ink was <em>not zero</em>.
+That is exactly the shape of test this project otherwise hunts for: an assertion that looks like a
+test and passes with the wrong value in.
+</p>
+
+<h2>How it was found, and this is the post's real point</h2>
+
+<p>
+A build pass had added two colours to the party list for hit points, green when poisoned and red
+when low. It named them honestly in its report: <em>"this view's own pick, not measured, the same
+gap NameInk already carries"</em>.
+</p>
+
+<p>
+The numbers were 10 and 12. <strong>They were exactly right.</strong> The reasoning was a guess, and
+the guess landed. That is precisely the failure this project's rules exist for: a plausible number
+with a plausible-looking justification that nothing knocks over.
+</p>
+
+<p>
+Because the report said "not measured", I went to see whether it <em>could</em> be measured. The
+answer was yes, on one line, and on that same line were two more colours, one of which showed the
+project had been wrong from the start.
+</p>
+
+<p>
+<strong>An honest report found a defect the report itself could not see.</strong> Had it written
+"measured" where it wrote "picked", nobody would have gone to look.
+</p>
+
+<h2>The panel has a default view</h2>
+
+<p>
+The original never leaves the panel empty: it keeps a <strong>party list</strong> there whenever
+nothing else has asked for the space. Five rows at a time, each with the member's tile, their hit
+points and their name, and scroll arrows when the list is longer.
+</p>
+
+<p>
+Hit points are green when the member is poisoned and red when they are below ten. And the row's
+tile is the <strong>original shape facing south</strong>, not the live one, so a disguised character
+shows their real body here. That is its own discriminator, because the wrong field would otherwise
+pass unnoticed.
+</p>
+
+<h2>The rule two slices deferred</h2>
+
+<p>
+The original shares one screen region between several routines, and two slices had recorded "we do
+not reproduce whichever-asked-last-wins" as an open question. <strong>It is two sentences and
+neither is a guess.</strong>
+</p>
+
+<p>
+The refresh draws exactly one view per pass, chosen by the view state. The conversation's two
+routines draw straight past it and put back the value they found. So whichever drew last owns the
+pixels, until the next refresh repaints the view the state names.
+</p>
+
+<p>
+The same sentence says <strong>why the party list is the fallback</strong>: it is the value the
+state holds when nothing else has set it.
+</p>
+
+<h2>And the arrows live in the gutter</h2>
+
+<p>
+The scroll arrows are drawn in the <strong>full-screen clip</strong>, at the column that is the
+eight pixel gutter left of the panel. That answers a question an earlier brief of mine left open:
+why the panel's fill starts at 168 rather than 176.
+</p>
+
+<h2>One discriminator came out the other way, and is recorded that way</h2>
+
+<p>
+The brief asked for proof that the direction-frame classifier's arm order is load bearing, by
+finding a type that satisfies both one arm's open-ended range and a later arm.
+</p>
+
+<p>
+<strong>No such type exists.</strong> Every type a later arm names sits below the range, the nearest
+by two. The order is still built as the original's, but <strong>the test says plainly that its
+necessity is conventional for this set of types rather than demonstrated.</strong> Manufacturing a
+counterexample would have been easier and false.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    459 / 459
+U6Export.Tests      71 / 71
+U6Engine.Tests    3584 / 3584
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The cream belongs in more places than the panel. The routine that creates a text window
+     defaults every one of them to that same background, including the message area and the
+     conversation panel, so both still draw on black. The gap is marked in the code in two places,
+     waiting for its own slice.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

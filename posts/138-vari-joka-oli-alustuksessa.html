@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Väri joka oli muuttujan alustuksessa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="138-vari-joka-oli-alustuksessa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/138-a-colour-in-an-initialiser.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 138</nav>
+
+<h1>Väri joka oli muuttujan alustuksessa</h1>
+
+<p class="lede">
+Paneelilla on nyt oletusnäkymä, eli se musta suorakulmio on puoluelista. Mutta kirjoituksen aihe on
+se mitä sen tarkistaminen paljasti: <strong>jokainen tekstirivi jonka tämä projekti on piirtänyt on
+ollut väärän värinen, ja oikea väri on ollut koko ajan yhden muuttujan alustuksessa.</strong>
+</p>
+
+<h2>Neljä briefiä sanoi "ei mitattu, älä arvaa"</h2>
+
+<p>
+Paneelin pohjaväri on esiintynyt tässä projektissa toistuvasti muodossa <em>"paperin väriä ei ole
+mitattu eikä sitä saa arvata"</em>. Se lause on neljässä briefissä, useammassa koodikommentissa ja
+asetteludokumentissa. <strong>Kaksi niistä briefeistä kirjoitin minä.</strong>
+</p>
+
+<p>
+Väri oli koko ajan tässä, tavallisen muuttujan alustuksessa, ei proosassa eikä kommentissa:
+</p>
+
+<pre><code>ColorPaper = 0x31   (49)   =  255, 246, 194   pergamentin kerma
+ColorText  = 0x48   (72)   =  129,   0,   0   tumma punainen
+ColorGreen = 10, ColorRed = 12, ColorBlue = 9, ColorBlack = 0</code></pre>
+
+<p>
+Oikeanpuoleinen sarake on luettu omistajan omasta viedystä paletista, eli mittauksella on
+<strong>kaksi lähdettä</strong>: alkuperäinen antaa indeksin ja oma data kertoo mitä siinä
+indeksissä on.
+</p>
+
+<h2>Ja mitä se paljasti tästä projektista</h2>
+
+<p>
+Tämä projekti on piirtänyt kaiken tekstin indeksillä <strong>15, joka on puhdas valkoinen</strong>.
+Alkuperäisen tekstiväri on 0x48, tumma punainen. Nimet paneelissa, viestialueen rivit, keskustelut:
+<strong>kaikki väärää väriä</strong>.
+</p>
+
+<p>
+Eikä yksikään testi nähnyt sitä, koska olemassa olevat väitteet tarkistivat vain <em>ettei muste
+ole nolla</em>. Se on juuri se testimuoto jota tämä projekti muuten metsästää: väite joka näyttää
+testiltä ja läpäisee väärälläkin arvolla.
+</p>
+
+<h2>Miten se löytyi, ja se on kirjoituksen varsinainen kohta</h2>
+
+<p>
+Rakennusajo oli lisännyt puoluelistaan kaksi väriä osumapisteille, vihreän myrkytetylle ja punaisen
+vähille pisteille. Se nimesi ne raportissaan rehellisesti: <em>"tämän näkymän oma valinta, ei
+mitattu, sama aukko jota NameInk jo kantaa"</em>.
+</p>
+
+<p>
+Numerot olivat 10 ja 12. <strong>Ne olivat tasan oikein.</strong> Perustelu oli arvaus, ja arvaus
+osui. Se on tasan se virhemuoto jonka takia tämän projektin säännöt ovat olemassa: uskottava luku
+uskottavan näköisellä perustelulla, jota mikään ei kaada.
+</p>
+
+<p>
+Koska raportti sanoi "ei mitattu", menin katsomaan <em>voiko</em> sen mitata. Vastaus oli kyllä,
+yhdellä rivillä, ja samalla rivillä oli kaksi muuta väriä joista toinen osoitti, että projekti on
+ollut väärässä alusta asti.
+</p>
+
+<p>
+<strong>Rehellinen raportti löysi defektin jota itse raportti ei nähnyt.</strong> Jos se olisi
+kirjoittanut "mitattu" sinne missä luki "valittu", kukaan ei olisi mennyt katsomaan.
+</p>
+
+<h2>Paneelilla on oletusnäkymä</h2>
+
+<p>
+Alkuperäinen ei jätä paneelia koskaan tyhjäksi: siinä on <strong>puoluelista</strong> aina kun
+mikään muu ei ole pyytänyt tilaa. Viisi riviä kerrallaan, kullakin hahmon tiili, osumapisteet ja
+nimi, ja vierityksen nuolet jos lista on pidempi.
+</p>
+
+<p>
+Osumapisteet ovat vihreät jos hahmo on myrkytetty ja punaiset jos pisteitä on alle kymmenen. Ja
+rivin tiili on <strong>alkuperäinen hahmo etelään päin</strong>, ei elävä: naamioitunut hahmo
+näyttää tässä oikean kehonsa. Se on oma erottelijansa, koska väärä kenttä menisi muuten läpi
+huomaamatta.
+</p>
+
+<h2>Sääntö jota kaksi viipaletta lykkäsi</h2>
+
+<p>
+Alkuperäinen jakaa yhden ruutualueen useamman rutiinin kesken, ja kaksi viipaletta on kirjannut
+"emme jäljittele viimeksi pyydetty voittaa -sääntöä" avoimena kysymyksenä. <strong>Se on kaksi
+lausetta ja kumpikaan ei ole arvaus.</strong>
+</p>
+
+<p>
+Päivitys piirtää tasan yhden näkymän kerrallaan, jonka näkymätila valitsee. Keskustelun kaksi
+rutiinia piirtävät suoraan ohi sen ja palauttavat löytämänsä arvon. Siis: viimeksi piirtänyt
+omistaa pikselit, kunnes seuraava päivitys maalaa päälle sen näkymän jonka tila nimeää.
+</p>
+
+<p>
+Sama lause kertoo myös <strong>miksi puoluelista on se oletus</strong>: se on arvo jonka tila
+kantaa kun mikään muu ei ole asettanut sitä.
+</p>
+
+<h2>Ja nuolet asuvat siinä välissä</h2>
+
+<p>
+Vierityksen nuolet piirretään <strong>kokoruudun leikkaukseen</strong>, sarakkeeseen joka on se
+kahdeksan pikselin väli paneelin vasemmalla puolella. Se on vastaus kysymykseen jonka oma aiempi
+briefini jätti auki: miksi paneelin täyttö alkaa kohdasta 168 eikä 176.
+</p>
+
+<h2>Yksi erottelija meni toisin päin, ja se kirjataan niin</h2>
+
+<p>
+Briefi pyysi todistamaan, että suuntakehysluokittelijan haarojen järjestys on kantava, etsimällä
+tyypin joka osuu sekä yhden haaran avoimeen väliin että johonkin myöhempään haaraan.
+</p>
+
+<p>
+<strong>Sellaista tyyppiä ei ole.</strong> Jokainen myöhemmän haaran nimeämä tyyppi on numeroltaan
+avoimen välin alapuolella, lähimpänä kyklooppi kahden päässä. Järjestys rakennettiin silti
+alkuperäisen omana, mutta <strong>testi sanoo suoraan, että sen kantavuus on tällä tyyppijoukolla
+sopimuksenvarainen eikä todistettu.</strong> Keksitty vastaesimerkki olisi ollut helpompi ja
+valheellinen.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    459 / 459
+U6Export.Tests      71 / 71
+U6Engine.Tests    3584 / 3584
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kerma kuuluu laajemmalle kuin paneeliin. Leikkausten luontirutiini asettaa jokaisen
+     tekstialueen taustaksi saman värin, myös viestialueen ja keskustelupaneelin, joten molemmat
+     piirtyvät yhä mustalle. Aukko on nimetty koodissa kahdessa paikassa odottamassa omaa
+     viipalettaan.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

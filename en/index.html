@@ -1660,13 +1660,22 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        confirmed from three independent sources, one of which had been sitting in this project for
        years. The refactor was not invisible, and the post says so.</p>
   </li>
+  <li>
+    <span class="n">138</span>
+    <a href="posts/138-a-colour-in-an-initialiser.html">A Colour That Was in an Initialiser</a>
+    <p>The panel has a default view now, so that black rectangle is a party list. But checking it
+       showed that every line of text this project has drawn was the wrong colour: the paper and
+       text colours had been sitting in a variable initialiser all along, while four briefs said
+       they were unmeasured. An honest report found a defect the report itself could not see.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>That black rectangle names the work itself: the panel's default view. The original keeps a
-     party list there whenever nothing else has asked for the space, and reading it also answers
-     the shared-region rule that is now named but still unmeasured.</p>
+  <p>The cream belongs in more places than the panel. The routine that creates a text window
+     defaults every one of them to that same background, including the message area and the
+     conversation panel, so both still draw on black. The gap is marked in the code in two places,
+     waiting for its own slice.</p>
 </div>
 
 <footer class="foot">
