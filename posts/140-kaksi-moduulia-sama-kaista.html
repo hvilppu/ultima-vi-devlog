@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaksi moduulia, sama kaista | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="140-kaksi-moduulia-sama-kaista.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/140-two-modules-one-strip.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 140</nav>
+
+<h1>Kaksi moduulia, sama kaista</h1>
+
+<p class="lede">
+Ruudun alalaita oli kokonaan musta. Nyt siinä on kymmenen komentoikonia ja päivämäärä- ja
+tuulirivi, eli se mitä alkuperäinen sinne panee. <strong>Mielenkiintoista on se, mistä mitta
+otettiin: kahdesta moduulista jotka eivät tiedä toisistaan.</strong>
+</p>
+
+<h2>Yksi kaista, kaksi riippumatonta lähdettä</h2>
+
+<p>
+Käynnistyskoodi piirtää yhdeksän ikonia peräkkäisinä tiilinä <strong>x 8:sta alkaen 16 pikselin
+välein, y 176</strong>, ja kymmenentenä taistelukytkimen kohtaan x 152.
+</p>
+
+<p>
+Aivan toisessa moduulissa, hiiren käsittelyssä, on taulukko osuma-alueista, ja yksi niistä on
+<strong>x 8-167, y 176-191</strong>.
+</p>
+
+<p>
+152 on 8 + 16 x 9, joten ne kymmenen ruutua <strong>laatoittavat tasan sen alueen, ilman rakoa ja
+ilman päällekkäisyyttä</strong>. Kaksi koodinpätkää jotka eivät viittaa toisiinsa kuvaavat saman
+suorakulmion.
+</p>
+
+<p>
+Sama toistuu pystysuunnassa: päivämäärärivi piirretään kokoruudun leikkauksen <strong>riville
+21</strong>, joka on y 168, ja ikonit alkavat y 176:sta. Kahdeksan pikseliä, eli tasan yksi
+tekstirivi. Rivi istuu suoraan ikonien päällä.
+</p>
+
+<h2>Siksi testit väittävät yhtäpitävyyden eivätkä lukuja</h2>
+
+<p>
+Olisi helppo kirjoittaa neljä testiä jotka väittävät "vasen on 8", "y on 176", "rivi on 21".
+Jokainen niistä läpäisisi, vaikka yksi luku olisi kopioitu väärin, koska mikään ei vertaisi niitä
+mihinkään.
+</p>
+
+<p>
+Sen sijaan testit väittävät, että <strong>ruudut laatoittavat osuma-alueen</strong> ja että
+<strong>rivi istuu suoraan ikonirivin päällä</strong>. Väärä alkukohta tai väärä askel rikkoo
+ensimmäisen; väärä rivinumero rikkoo toisen. Molemmat rikottiin tahallaan ja molemmat kaatuivat.
+</p>
+
+<h2>Eikä yksikään sana päätynyt lähdekoodiin</h2>
+
+<p>
+Rivin muotoilu on pelin omaa tekstiä, samoin yhdeksän tuulensuunnan nimeä. Ne ratkeavat tämän
+projektin omasta viennistä ajossa, muotoilu nimellä ja suunnat siirtymällä, ja testit väittävät ne
+<strong>pituudella ja sillä rivillä johon ne ratkeavat</strong>, eivät sanoilla.
+</p>
+
+<p>
+Mittasin muotoilun pituuden itse ennen kuin rakennusajo raportoi sen. <strong>Molemmat saivat
+23.</strong> Se on koko sen säännön idea: luku joka voidaan tarkistaa kahdesti ilman että teksti
+liikkuu mihinkään.
+</p>
+
+<h2>Yksi askel briefin yli, ja se sanotaan</h2>
+
+<p>
+Briefi vaati vain, että rivin teksti tunnistetaan ja sen paikka mitataan. Rakennusajo toteutti
+lisäksi <strong>konsolin oman muotoilurutiinin</strong>, mitattuna siitä rutiinista, jotta korvattu
+rivi voidaan oikeasti piirtää ilman että muotoilumerkkijono päätyy koodiin literaalina.
+</p>
+
+<p>
+Se on harkintaratkaisu eikä mittaus, ja se on nimetty sellaisena. Kielioppi on alkuperäisen; sen
+läpi kulkee ajossa vain numeroita ja merkkijonoja.
+</p>
+
+<h2>Kolme asiaa on nimetty eikä jätetty näyttämään päätetyltä</h2>
+
+<p>
+Mikään ei seuraa oletuskomentoa, joten se alleviivaus jonka alkuperäinen piirtää valitun ikonin
+alle on olemassa arvona mutta kukaan ei piirrä sitä. Taistelukytkin saa aina pois-tilan. Ja tämä
+projekti kokoaa ruudun joka kehys siinä missä alkuperäinen piirsi kaistan kerran: ero mekanismissa,
+ei näkyvässä tuloksessa.
+</p>
+
+<p>
+Kaikki kolme ovat koodissa sanottuna. <strong>Rakentamaton asia joka näyttää rakennetulta on
+pahempi kuin rakentamaton asia jolla on nimi.</strong>
+</p>
+
+<h2>Mitä ruudulta yhä puuttuu</h2>
+
+<p>
+Reunuskuva, joka on ladattu kuva eikä tiiliä eikä sitä ole luettu. Kartan oma kahdeksan pikselin
+marginaali. Ja rivit y 193-199, joista mikään mitattu ei sano mitään.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    459 / 459
+U6Export.Tests      71 / 71
+U6Engine.Tests    3628 / 3628
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Ikonit ovat komentoja, mutta mikään ei vielä vie klikkausta niiden läpi. Osuma-alue on
+     mitattu ja kartoitus ikonista komentoon on rakennettu; puuttuu se kerros joka muuttaa
+     painalluksen komennoksi.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

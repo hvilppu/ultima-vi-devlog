@@ -1676,14 +1676,21 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        in a sprite and 1414 of 1534 tiles contain it. And the cream turned out to be per character
        cell rather than per rectangle, which made the obvious fix the wrong one.</p>
   </li>
+  <li>
+    <span class="n">140</span>
+    <a href="posts/140-two-modules-one-strip.html">Two Modules, One Strip</a>
+    <p>The bottom of the screen is no longer black: ten command icons and a date line. The
+       measurement came from two modules that do not know about each other and describe the same
+       rectangle, so the tests assert the agreement rather than the numbers on their own. Not one
+       word reached the source, and the format's length was measured twice.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>Three single-tile draws in the status panel skip the background tile the original composes
-     underneath: the owner's picture, the worn items and the pack grid. Invisible today for the
-     same reason as above, but a measured difference. They are named and waiting for their own
-     slice.</p>
+  <p>The icons are commands, but nothing carries a click through them yet. The hit zone is measured
+     and the mapping from icon to command is built; what is missing is the layer that turns a press
+     into a command.</p>
 </div>
 
 <footer class="foot">

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Modules, One Strip | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/140-kaksi-moduulia-sama-kaista.html" hreflang="fi">FI</a><span>/</span><a href="140-two-modules-one-strip.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 140</nav>
+
+<h1>Two Modules, One Strip</h1>
+
+<p class="lede">
+The bottom of the screen was entirely black. It now carries ten command icons and a date and wind
+line, which is what the original puts there. <strong>The interesting part is where the measurement
+came from: two modules that do not know about each other.</strong>
+</p>
+
+<h2>One strip, two independent sources</h2>
+
+<p>
+The startup code draws nine icons as consecutive tiles <strong>from x 8, sixteen pixels apart, at
+y 176</strong>, and a tenth, the combat toggle, at x 152.
+</p>
+
+<p>
+In an entirely different module, in the mouse handling, there is a table of hit zones, and one of
+them is <strong>x 8 to 167, y 176 to 191</strong>.
+</p>
+
+<p>
+152 is 8 plus 16 times 9, so those ten cells <strong>tile that zone exactly, with no gap and no
+overlap</strong>. Two pieces of code that never refer to one another describe the same rectangle.
+</p>
+
+<p>
+The same happens vertically: the date line is drawn at <strong>row 21</strong> of the full screen
+window, which is y 168, and the icons begin at y 176. Eight pixels, which is exactly one text row.
+The line sits directly on top of the icons.
+</p>
+
+<h2>So the tests assert the agreement, not the numbers</h2>
+
+<p>
+It would be easy to write four tests saying "the left edge is 8", "y is 176", "the row is 21". Each
+would pass even if one number had been copied wrongly, because nothing would compare them to
+anything.
+</p>
+
+<p>
+Instead the tests assert that <strong>the cells tile the hit zone</strong> and that <strong>the
+line sits directly above the icon row</strong>. A wrong origin or a wrong stride breaks the first;
+a wrong row number breaks the second. Both were broken on purpose and both failed.
+</p>
+
+<h2>And not one word reached the source</h2>
+
+<p>
+The line's format is the game's own text, and so are the nine wind direction names. They resolve
+from this project's own export at runtime, the format by name and the directions by offset, and the
+tests assert them by <strong>length and by the row they resolve to</strong>, never by their words.
+</p>
+
+<p>
+I measured the format's length myself before the build pass reported it. <strong>Both got
+23.</strong> That is the whole idea of the rule: a number that can be checked twice without the
+text going anywhere.
+</p>
+
+<h2>One step past the brief, and it says so</h2>
+
+<p>
+The brief required only that the line's text be identified and its position measured. The build
+pass also implemented <strong>the console's own formatting routine</strong>, measured from that
+routine, so the substituted line could actually be drawn without the format string ever becoming a
+literal.
+</p>
+
+<p>
+That is a judgment call rather than a measurement, and it is named as one. The grammar is the
+original's; only numbers and strings pass through it at runtime.
+</p>
+
+<h2>Three things are named rather than left looking decided</h2>
+
+<p>
+Nothing tracks a default command, so the underline the original draws beneath the chosen icon
+exists as a value with nobody to draw it. The combat toggle is always given its off state. And this
+project composes the screen every frame where the original drew the strip once: a difference in
+mechanism, not in what is seen.
+</p>
+
+<p>
+All three are said in the code. <strong>An unbuilt thing that looks built is worse than an unbuilt
+thing with a name.</strong>
+</p>
+
+<h2>What is still missing from the screen</h2>
+
+<p>
+The border art, which is a loaded picture rather than tiles and which nobody has read. The map's
+own eight pixel margin. And rows y 193 to 199, which no measurement speaks for.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    459 / 459
+U6Export.Tests      71 / 71
+U6Engine.Tests    3628 / 3628
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The icons are commands, but nothing carries a click through them yet. The hit zone is measured
+     and the mapping from icon to command is built; what is missing is the layer that turns a press
+     into a command.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
