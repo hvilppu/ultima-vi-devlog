@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Nearly Identical Rectangles | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/142-kolme-melkein-samaa-suorakulmiota.html" hreflang="fi">FI</a><span>/</span><a href="142-three-nearly-identical-rectangles.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 142</nav>
+
+<h1>Three Nearly Identical Rectangles</h1>
+
+<p class="lede">
+The screen picture is whole, so the next layer is the one that carries a click into a command. I
+wrote a brief for it, and the brief had two errors. <strong>Both were mine, and one of them was a
+number I had myself written down as a different thing.</strong>
+</p>
+
+<h2>The rule is four zones and their order</h2>
+
+<p>
+The original walks its hit zones and <strong>stops at the first one containing the
+pointer</strong>: the map, the icon strip, the panel, the whole screen.
+</p>
+
+<p>
+The last contains all the others. That is why the walk needs no bound, and why <strong>the order
+is the entire mechanism</strong>: a point inside the map resolves to the map only because the map
+is tried before the whole screen. The discriminator is therefore free, since a different order
+gives a different answer for almost every point on the screen. When the build broke it on purpose,
+three of the four zones answered wrongly at once.
+</p>
+
+<h2>And then the trap</h2>
+
+<p>
+Three nearly identical rectangles cover the same area on the right of the screen:
+</p>
+
+<pre><code>the panel's fill     168, 6, 312, 103
+the mouse-off call   176, 6, 311, 103
+the hit zone         168, 8, 311, 103</code></pre>
+
+<p>
+They differ in <strong>both their left edges and both their tops</strong>, and no two of them are
+the same measurement. I wrote the hit zone's top into the brief as 6, which is the middle row's
+number in the wrong place.
+</p>
+
+<p>
+The uncomfortable part: <strong>this project's own layout document records those as distinct, and
+I wrote that document.</strong> Writing something down does not stop you confusing it later.
+</p>
+
+<p>
+The build read the table itself, used 8, and said plainly that the two were never the same
+measurement. The warning is in the document now, put there precisely because the person who wrote
+the document walked into the trap anyway.
+</p>
+
+<h2>The second error was in a discriminator</h2>
+
+<p>
+I asked the whole screen zone for "no command". It answers the <strong>pass</strong> command and
+resets the selection. So my discriminator was wrong about the original rather than a deliberate
+simplification.
+</p>
+
+<p>
+The build built to the brief's wording <em>and flagged the difference</em>, which is the right
+process: a brief is an instruction, not evidence. I corrected the half that can be corrected, the
+command, and the selection reset stays unbuilt because it needs the state the map zone's own
+exclusion keeps out.
+</p>
+
+<h2>Two lines of real behaviour</h2>
+
+<p>
+On the icon strip, <strong>the left button runs the command and the right button arms it as the
+default</strong>. A right click on the map then performs whatever is armed. Both answers are
+asserted from one position, because either alone would pass with the two paths swapped.
+</p>
+
+<h2>And it is deliberately dead</h2>
+
+<p>
+Nothing in this project's view polls a pointer. So the rule is <strong>complete, tested and called
+by nobody</strong>.
+</p>
+
+<p>
+That is a named state here, and I asked for it to be said plainly rather than for a caller to be
+wired in passing. Wiring one would need a poll of pointer and buttons once a frame, an edge
+detector for the press, and the panel's current view fed in. None of that was asked for.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3655 / 3655
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The map zone is what is missing, and behind it is a wall that has been written down for a
+     long time: the original keeps one game-wide last-direction variable and this project has
+     none. Building it also unblocks a couple of spells waiting on the same thing.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

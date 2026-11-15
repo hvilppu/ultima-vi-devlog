@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolme melkein samaa suorakulmiota | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="142-kolme-melkein-samaa-suorakulmiota.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/142-three-nearly-identical-rectangles.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 142</nav>
+
+<h1>Kolme melkein samaa suorakulmiota</h1>
+
+<p class="lede">
+Ruutukuva on kasassa, joten seuraava kerros on se joka vie klikkauksen komennoksi. Kirjoitin siitä
+briefin, ja siinä oli kaksi virhettä. <strong>Molemmat olivat minun, ja toinen oli luku jonka olin
+itse aiemmin kirjannut eri asiaksi.</strong>
+</p>
+
+<h2>Sääntö on neljä vyöhykettä ja niiden järjestys</h2>
+
+<p>
+Alkuperäinen käy osuma-alueet läpi ja <strong>pysähtyy ensimmäiseen joka sisältää osoittimen</strong>:
+kartta, ikonikaista, paneeli, koko ruutu.
+</p>
+
+<p>
+Viimeinen sisältää kaikki muut. Siksi haku päättyy aina ilman rajaa, ja siksi
+<strong>järjestys on koko mekanismi</strong>: piste kartan sisällä ratkeaa kartaksi vain siksi,
+että kartta kokeillaan ennen koko ruutua. Erottelija on siis ilmainen, koska toinen järjestys
+antaisi eri vastauksen melkein jokaiselle ruudun pisteelle. Kun rakennusajo rikkoi sen tahallaan,
+neljästä vyöhykkeestä kolme vastasi väärin yhdellä kertaa.
+</p>
+
+<h2>Ja sitten se ansa</h2>
+
+<p>
+Samalla ruudun oikealla alueella on <strong>kolme melkein samaa suorakulmiota</strong>:
+</p>
+
+<pre><code>paneelin täyttö        168, 6, 312, 103
+hiirikutsu             176, 6, 311, 103
+osuma-alue             168, 8, 311, 103</code></pre>
+
+<p>
+Ne eroavat <strong>molemmista vasemmista reunoista ja molemmista yläreunoista</strong>, eivätkä
+mitkään kaksi niistä ole sama mittaus. Kirjoitin briefiin osuma-alueen yläreunaksi 6:n, joka on
+keskimmäisen rivin luku väärässä paikassa.
+</p>
+
+<p>
+Epämukava osa: <strong>tämän projektin oma asetteludokumentti kirjaa nuo erillisinä, ja minä
+kirjoitin sen dokumentin.</strong> Tiedon kirjaaminen ei estä sekoittamasta sitä myöhemmin.
+</p>
+
+<p>
+Rakennusajo luki taulukon itse, käytti 8:aa ja sanoi suoraan etteivät ne ole koskaan olleet sama
+mittaus. Varoitus on nyt dokumentissa, kirjoitettuna sinne juuri siksi että sen kirjoittaja käveli
+ansaan itse.
+</p>
+
+<h2>Toinen virhe oli erottelijassa</h2>
+
+<p>
+Pyysin kokoruudun vyöhykkeeltä "ei komentoa". Se antaa <strong>pass-komennon</strong> ja nollaa
+valinnan. Erottelijani oli siis väärässä alkuperäisestä, ei yksinkertaistus.
+</p>
+
+<p>
+Rakennusajo rakensi briefin sanamuodon mukaan <em>ja merkitsi eron</em>, mikä on oikea prosessi:
+briefi on ohje, ei todiste. Korjasin sen puoliskon joka voidaan korjata, eli komennon, ja valinnan
+nollaus jäi rakentamatta, koska se tarvitsee sitä tilaa jonka karttavyöhykkeen rajaus pitää ulkona.
+</p>
+
+<h2>Kaksi riviä oikeaa pelikäytöstä</h2>
+
+<p>
+Ikonikaistalla <strong>vasen nappi ajaa komennon ja oikea virittää sen oletukseksi</strong>. Oikea
+klikkaus kartalla suorittaa sitten sen mikä on viritettynä. Molemmat vastaukset väitetään samasta
+pisteestä, koska kumpikaan yksin läpäisisi vaikka polut olisivat vaihtuneet keskenään.
+</p>
+
+<h2>Ja se on tarkoituksella kuollut</h2>
+
+<p>
+Mikään tämän projektin näkymässä ei kysele osoitinta. Sääntö on siis <strong>valmis, testattu
+eikä kukaan kutsu sitä</strong>.
+</p>
+
+<p>
+Se on tälle projektille nimetty tila, ja pyysin sanomaan sen suoraan sen sijaan että kutsuja
+kytkettäisiin ohimennen. Kytkeminen vaatisi osoittimen ja nappien kyselyn kerran kehyksessä,
+painalluksen reunan tunnistuksen ja paneelin senhetkisen näkymän syötön. Sitä ei pyydetty.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3655 / 3655
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Karttavyöhyke on se joka puuttuu, ja sen takana on seinä joka on ollut kirjattuna pitkään:
+     alkuperäisellä on yksi pelinlaajuinen viimeisen suunnan muuttuja, eikä tällä projektilla ole
+     sitä. Sen rakentaminen avaa myös pari loitsua jotka odottavat samaa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
