@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Musta jonka tausta paljasti | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="143-musta-jonka-tausta-paljasti.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/143-the-black-the-background-revealed.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 143</nav>
+
+<h1>Musta jonka tausta paljasti</h1>
+
+<p class="lede">
+Omistaja lähetti kuvakaappauksen heti kun reunuskuva oli paikallaan, ja kysyi siitä hyvän
+kysymyksen: eroja on vielä, mutta kuuluuko niiden olla? <strong>Suurin osa kuului. Yksi ei, ja se
+oli ollut siellä koko ajan näkymättömissä.</strong>
+</p>
+
+<h2>Mitä mittasin kuvasta</h2>
+
+<p>
+Viestialueen seitsemästätoista solusta rivillä:
+</p>
+
+<pre><code>kermaa  kermaa  kermaa  kirjain  kirjain  kermaa  MUSTAA  MUSTAA</code></pre>
+
+<p>
+<strong>Jokainen solu johon kirjoitettiin oli kermaa. Jokainen solu johon ei kirjoitettu oli
+mustaa.</strong> Merkkiruutusääntö toimi siis täsmälleen oikein, ja musta oli jotain aivan muuta.
+</p>
+
+<h2>Se oli meidän oma puskuri</h2>
+
+<p>
+Viestialue piirrettiin omaan puskuriinsa, joka <strong>nollattiin ja kopioitiin
+läpinäkymättömänä</strong> taustan päälle. Alkuperäisellä ei ole sellaista puskuria lainkaan:
+merkit menevät suoraan ruudulle, joten koskematon osa tekstialuetta näyttää sen mitä alla on.
+</p>
+
+<h2>Ja tämä on kirjoituksen varsinainen kohta</h2>
+
+<p>
+Kermaviipale <strong>löysi tämän, nimesi sen ja jätti sen tarkoituksella</strong>. Sen raportissa
+luki, että viestialueen nollaus on sama muoto ja kuuluu toisen rutiinin työksi.
+</p>
+
+<p>
+Silloin se ei näkynyt. Alla oli mustaa joka tapauksessa, eikä läpinäkymätöntä puskuria voinut
+erottaa läpinäkyvästä. <strong>Taustaviipale teki erosta näkyvän kahdessa päivässä</strong>, ja
+omistajan kuva löysi sen ensimmäisellä silmäyksellä.
+</p>
+
+<p>
+Tämä on se mihin nimetty aukko on olemassa. Jos se olisi korjattu hiljaa silloin kun se ei vielä
+näkynyt, kukaan ei olisi tiennyt kumpi kahdesta muutoksesta teki mitä. Jos se olisi jätetty
+nimeämättä, se olisi jäänyt löytymättä. <strong>Nimeäminen on halvempaa kuin korjaaminen ja
+kalliimpaa kuin vaikeneminen, ja se maksoi tässä itsensä takaisin.</strong>
+</p>
+
+<h2>Korjaus on helppo ylittää, joten molemmat puoliskot väitetään</h2>
+
+<p>
+Ilmeinen tapa korjata "älä maalaa koskemattomia soluja" on lakata maalaamasta taustaa ollenkaan.
+Se purkaisi edellisen viipaleen, jossa opittiin että <strong>merkki maalaa oman ruutunsa
+kokonaan</strong>, etualaväri ykkösbiteille ja taustaväri nollabiteille.
+</p>
+
+<p>
+Niinpä molemmat väitetään: koskematon solu säilyttää sen mitä alla oli, <em>ja</em> kirjoitettu
+solu maalataan silti kokonaan. Rakennusajo rikkoi molemmat kerralla, ja <strong>kuusi testiä
+kaatui, niiden joukossa edellisen viipaleen oma</strong>. Se on todiste siitä, että vartija on
+oikeasti paikallaan eikä vain kommentissa.
+</p>
+
+<h2>Ja raja vedettiin toiseen suuntaan</h2>
+
+<p>
+Statuspaneeli <strong>ei</strong> muuttunut. Siellä alkuperäinen oikeasti täyttää suorakulmion
+ennen piirtoa, joten täyttäminen on siellä mitattu ja tekstialueilla mittaamaton. Sama
+kysymys, kaksi eri vastausta, ja ero on luettu eikä päätelty.
+</p>
+
+<p>
+Kolmas samanmuotoinen paikka löytyi matkan varrella ja jätettiin: keskustelun varustepuskuri
+nollaa ja kopioi samalla tavalla, ja sen oma kommentti oli jo nimennyt sen. <strong>Sama kuvio
+kolmannen kerran, ja nyt se on kirjattuna odottamaan omaa viipalettaan.</strong>
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3663 / 3663
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kahdeksan suuntanäppäintä. Tällä projektilla on neljä siinä missä alkuperäisellä on kahdeksan,
+     ja samalla se jaettu suunta-arvo jota pari loitsua lukee saa vihdoin kirjoittajan: alkuperäisessä
+     kävelynäppäimet ovat se mikä sen kirjoittaa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

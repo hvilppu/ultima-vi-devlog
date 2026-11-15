@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Black the Background Revealed | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/143-musta-jonka-tausta-paljasti.html" hreflang="fi">FI</a><span>/</span><a href="143-the-black-the-background-revealed.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 143</nav>
+
+<h1>The Black the Background Revealed</h1>
+
+<p class="lede">
+The owner sent a screenshot as soon as the border art was in place, with a good question attached:
+there are still differences, but are they supposed to be there? <strong>Most were. One was not, and
+it had been there all along, invisible.</strong>
+</p>
+
+<h2>What I measured from the picture</h2>
+
+<p>
+Across the message area's seventeen cells on one row:
+</p>
+
+<pre><code>cream  cream  cream  glyph  glyph  cream  BLACK  BLACK</code></pre>
+
+<p>
+<strong>Every cell a character was written into was cream. Every cell nothing was written into was
+black.</strong> So the per-cell rule was working exactly right, and the black was something else
+entirely.
+</p>
+
+<h2>It was our own buffer</h2>
+
+<p>
+The message area was drawn into a buffer of its own, which was <strong>cleared to nought and
+copied over the background opaquely</strong>. The original has no such buffer at all: characters go
+straight to the screen, so an untouched part of a text window shows whatever is underneath.
+</p>
+
+<h2>And this is the post's real point</h2>
+
+<p>
+The cream slice <strong>found this, named it, and deliberately left it</strong>. Its report said
+the message area's clear was the same shape and belonged to another routine's work.
+</p>
+
+<p>
+At that time it was invisible. Everything under the message area was black too, so an opaque buffer
+could not be told from a transparent one. <strong>The background slice made the difference visible
+within two days</strong>, and the owner's screenshot found it at a glance.
+</p>
+
+<p>
+This is what a named gap is for. Fixed quietly while invisible, nobody would know which of two
+changes did what. Left unnamed, it would simply not have been found. <strong>Naming is cheaper than
+fixing and dearer than silence, and here it paid for itself.</strong>
+</p>
+
+<h2>The fix is easy to overshoot, so both halves are asserted</h2>
+
+<p>
+The obvious way to implement "do not paint untouched cells" is to stop painting backgrounds at all.
+That would undo the previous slice, where the lesson was that <strong>a character paints its own
+cell in full</strong>, the foreground for set bits and the background for clear ones.
+</p>
+
+<p>
+So both are asserted: an untouched cell keeps what was underneath, <em>and</em> a written cell is
+still painted in full. The build broke both at once, and <strong>six tests failed, including the
+previous slice's own</strong>. That is the proof the guard is really there rather than only in a
+comment.
+</p>
+
+<h2>And the line is drawn the other way too</h2>
+
+<p>
+The status panel did <strong>not</strong> change. There the original genuinely fills the rectangle
+before drawing into it, so filling is measured there and unmeasured in a text area. Same question,
+two different answers, and the difference was read rather than inferred.
+</p>
+
+<p>
+A third place with the same shape turned up along the way and was left alone: the conversation
+equipment buffer clears and copies the same way, and its own comment had already named it.
+<strong>The same pattern a third time, now written down and waiting for its own slice.</strong>
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3663 / 3663
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Eight direction keys. This project has four where the original has eight, and the same slice
+     finally gives the shared direction value a writer: in the original, the walk keys are what
+     writes it, and a couple of spells have been reading it ever since it was built.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
