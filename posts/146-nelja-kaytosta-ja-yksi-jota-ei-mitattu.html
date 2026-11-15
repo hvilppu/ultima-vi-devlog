@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neljä käytöstä ja yksi jota ei mitattu | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="146-nelja-kaytosta-ja-yksi-jota-ei-mitattu.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/146-four-behaviours-and-one-unmeasured.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 146</nav>
+
+<h1>Neljä käytöstä ja yksi jota ei mitattu</h1>
+
+<p class="lede">
+Ikonit heräsivät. Alt ja kirjain, tai oikea klikkaus ikonilla, virittää komennon ja sininen viiva
+ilmestyy sen alle. <strong>Mutta kiinnostavinta oli se neljäs sääntö jota kukaan ei ollut
+mitannut, ja se löytyi vasta kun painalluksen reuna luettiin loppuun.</strong>
+</p>
+
+<h2>Painalluksen reunassa on neljä käytöstä</h2>
+
+<p>
+Kolme niistä osasi odottaa: ensimmäinen kysely napin ollessa alhaalla on painallus, seuraavat
+eivät ole, ja napin nouseminen nollaa molemmat.
+</p>
+
+<p>
+Neljäs ei ollut missään kirjattuna. <strong>Kun nappi on pohjassa, vain se komento toistuu jonka
+painallus itse tuotti.</strong> Vedä osoitin pohjassa toiselle vyöhykkeelle, ja siellä laskettu
+komento lasketaan ja heitetään pois. Mitään ei tapahdu ennen kuin nappi nousee.
+</p>
+
+<p>
+Se on yksi rivi, ja se on juuri se mikä sallii suunnan pitämisen pohjassa kävelyä varten ilman
+että osoittimen harhautuminen ikonikaistalle laukaisee jotain muuta. Ilman sitä toteutus
+<strong>näyttäisi toimivalta ja käyttäytyisi väärin tasan silloin kun pelaaja liikuttaa hiirtä
+kävellessään</strong>.
+</p>
+
+<h2>Molemmat puoliskot väitetään, ja syy on konkreettinen</h2>
+
+<p>
+Vaimennuksen voi toteuttaa väärin kahdella tavalla, ja kumpikin läpäisisi puolet testeistä.
+Vaimenna kaikki pohjassa, ja "eri komento vaimentuu" menee läpi. Päästä kaikki läpi, ja "sama
+komento toistuu" menee läpi.
+</p>
+
+<p>
+Rakennusajo rikkoi kummankin erikseen ja kumpikin kaatoi <strong>oman</strong> testinsä. Se on
+eri asia kuin yksi testi joka sattuu kattamaan molemmat.
+</p>
+
+<h2>Ja yksi ratkaisu on suunnittelua, ei mittausta</h2>
+
+<p>
+Alkuperäinen maalaa alleviivauksen <em>silloin kun tila muuttuu</em>: pyyhkii vanhan, piirtää
+uuden. Tämä projekti kokoaa koko ruudun joka kehys.
+</p>
+
+<p>
+Niinpä tila vastaa <strong>mikä on viritettynä nyt</strong>, ja rivi maalataan joka kehys. Sama
+lopputulos ruudulla, eri mekanismi, ja se lukee koodissa sellaisena. Tämä projekti on oppinut
+kantapään kautta, että mittaamaton valinta joka näyttää mittaukselta on pahempi kuin reikä jolla
+on nimi.
+</p>
+
+<h2>Turvaverkko piti laajentaa, ja se oli se kohta jossa olin tarkkana</h2>
+
+<p>
+Uusi koodi tarvitsi tyypin pakettiassemblyn kautta, ja se törmäsi vanhaan kootun julkisivun ja
+moduulien ristiriitaan. Tarkistusprojektit vaihdettiin oikeisiin moduuliassemblyihin.
+</p>
+
+<p>
+<strong>Tämä projekti on pettänyt neljä kertaa tarkistukseen joka kattoi vähemmän kuin väitti</strong>,
+joten en ottanut muutosta sanana. Poistin moduuliviitteet tahallani: <strong>74 virhettä</strong>.
+Viitteet ovat siis kantavia ja tarkistus kaatuu yhä kun sen kuuluu.
+</p>
+
+<p>
+Mutta muutos toi mukanaan riippuvuuden jota ei ollut: yksi projekti viittaa nyt assemblyyn jonka
+Unity itse kääntää, ignoroidun hakemiston alta. <strong>Tuoreessa kloonissa se puuttuu</strong>, ja
+tarkistus olisi kaatunut sekavaan puuttuvan tiedoston virheeseen.
+</p>
+
+<p>
+Nyt siinä on vartija joka sanoo suoraan: <em>"mitään ei tarkistettu, eikä se ole läpäisy"</em>.
+Sama sanamuoto kuin vuotavan tekstin tarkistuksella, ja se todistettiin rikkomalla. Uusi tarkistus
+todistetaan kaatamalla se, koska sen lukeminen ei ole todiste siitä että se toimii.
+</p>
+
+<h2>Mitä pelaaja näkee</h2>
+
+<p>
+Vain erikoistapauksessa. Alt ja jokin kymmenestä kirjaimesta, tai oikea klikkaus ikonilla, piirtää
+sinisen viivan sen ikonin alle, ja toinen yhdistelmä siirtää sen. <strong>Mikään ei vielä suorita
+komentoa</strong>, ja vasen klikkaus toimii kuten ennen.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3707 / 3707
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Mitä komento tekee. Kymmenen komentoa ja neljä käytöstä, ja yksi epäsymmetria jonka
+     alkuperäinen kirjoittaa tahallisena läpivalumisena: vain neljä seitsemästä torjutaan
+     aluksella. Laivalla saa käyttää mutta ei ottaa, ja siistimpi toteutus pelaisi eri tavalla.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

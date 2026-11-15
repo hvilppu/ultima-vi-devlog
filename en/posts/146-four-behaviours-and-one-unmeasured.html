@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Four Behaviours and One Nobody Measured | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/146-nelja-kaytosta-ja-yksi-jota-ei-mitattu.html" hreflang="fi">FI</a><span>/</span><a href="146-four-behaviours-and-one-unmeasured.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 146</nav>
+
+<h1>Four Behaviours and One Nobody Measured</h1>
+
+<p class="lede">
+The icons came alive. Alt and a letter, or a right click on an icon, arms a command and a blue line
+appears beneath it. <strong>But the interesting part was a fourth rule nobody had measured, found
+only by reading the press edge to the end.</strong>
+</p>
+
+<h2>The press edge has four behaviours</h2>
+
+<p>
+Three were expected: the first poll with a button down is the press, the ones after it are not, and
+releasing clears both.
+</p>
+
+<p>
+The fourth was written down nowhere. <strong>While a button is held, only the command the press
+itself produced repeats.</strong> Drag the pointer into another zone while holding, and the command
+computed there is computed and thrown away. Nothing happens until the button comes up.
+</p>
+
+<p>
+It is one line, and it is what lets a held direction walk without the pointer wandering onto the
+icon strip and firing something else. Without it an implementation would <strong>look like it
+worked and behave wrongly exactly when the player moves the mouse while walking</strong>.
+</p>
+
+<h2>Both halves are asserted, for a concrete reason</h2>
+
+<p>
+The suppression can be implemented wrongly in two ways, and each would pass half the tests.
+Suppress everything while held, and "a different command is suppressed" passes. Let everything
+through, and "the same command repeats" passes.
+</p>
+
+<p>
+The build broke each separately and each failed its <strong>own</strong> test. That is a different
+thing from one test that happens to cover both.
+</p>
+
+<h2>And one decision is design rather than measurement</h2>
+
+<p>
+The original paints the underline <em>when the state changes</em>: erase the old, draw the new.
+This project composes the whole screen every frame.
+</p>
+
+<p>
+So the state answers <strong>what is armed now</strong>, and the row is painted every frame. Same
+result on screen, different mechanism, and it says so in the code. This project has learned the
+hard way that an unmeasured choice dressed as a measurement is worse than a hole with a name.
+</p>
+
+<h2>The safety net had to grow, and that is where I was careful</h2>
+
+<p>
+New code needed a type through a package assembly and hit an old conflict between the monolithic
+engine facade and the real modules. The check projects moved to the modules.
+</p>
+
+<p>
+<strong>This project has been burned four times by a check that covered less than it claimed</strong>,
+so I did not take the change on trust. I removed the module references on purpose: <strong>74
+errors</strong>. The references are load bearing and the check still fails when it should.
+</p>
+
+<p>
+But the change brought a dependency that was not there before: one project now references an
+assembly Unity itself compiles, under a gitignored directory. <strong>A fresh clone does not have
+it</strong>, and the check would have failed with a confusing missing-file error.
+</p>
+
+<p>
+It now has a guard that says plainly: <em>"nothing was checked, and that is not a pass"</em>. The
+same words the leaked-text check uses, and it was proved by making it fire. A new check is proved
+by breaking it, because reading one is not evidence that it works.
+</p>
+
+<h2>What a player sees</h2>
+
+<p>
+Only in a special case. Alt and one of ten letters, or a right click on an icon, draws a blue line
+under that icon, and another combination moves it. <strong>Nothing runs a command yet</strong>, and
+a left click works as before.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    466 / 466
+U6Export.Tests      75 / 75
+U6Engine.Tests    3707 / 3707
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+at 0 findings. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>What a command does. Ten commands and four behaviours, and one asymmetry the original writes
+     as a deliberate fallthrough: only four of the seven are refused aboard a vehicle. On a ship
+     you may use and may not get, and a tidier implementation would play differently.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
