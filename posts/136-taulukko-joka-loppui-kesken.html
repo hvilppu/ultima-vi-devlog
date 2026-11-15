@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taulukko joka loppui kesken | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="136-taulukko-joka-loppui-kesken.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/136-a-table-that-ran-out.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 136</nav>
+
+<h1>Taulukko joka loppui kesken</h1>
+
+<p class="lede">
+Keskustelu näyttää nyt kasvot. Mielenkiintoisin osa ei ole se, että portretti piirtyy, vaan se
+mikä sen rakentamisessa paljastui: <strong>yksi rivi aritmetiikkaa, joka oli oikein ja jolta
+puuttui yläraja, ja viety atlas joka peitti puutteen täydellisesti.</strong>
+</p>
+
+<h2>Pyyntö jota kukaan ei lukenut</h2>
+
+<p>
+Keskustelun aloitus oli pyytänyt portrettia jo kauan. Tulkki osasi myös sen käskyn jolla skripti
+pyytää portretin kesken keskustelua. Pyyntö kirjattiin ulostulokerrokseen, ja
+<strong>kolme testiä väitti että se kirjataan</strong>. Yksikään tiedosto ei lukenut sitä
+kirjausta.
+</p>
+
+<p>
+Se on tämän projektin oma nimetty muoto: <em>oikea, testattu, uinuva koodi</em>, yhden askeleen
+päässä siitä että siitä tulee vika. Sääntö oli rakennettu ja piirto puuttui.
+</p>
+
+<h2>Kolme lukua, mitattuna ennen rakentamista</h2>
+
+<p>
+Briefi kieltäytyi perimästä kolmea lukua ja vaati ne mitattavaksi ensin, mikä kannatti joka
+kerta.
+</p>
+
+<p>
+<strong>Portrettikäsky ajetaan todellisuudessa kymmenessä skriptissä, kaksikymmentäneljä
+kertaa.</strong> Raakatavujen laskenta antoi 129 osumaa 47 skriptissä, ja se oli nimenomaan
+<em>yläraja eikä jäsennys</em>: tavu on myös dataa. Tämä projekti on saastuttanut kaksi lukua
+täsmälleen tuolla tavalla aiemmin, joten tällä kertaa luku mitattiin ajamalla kaikki 199
+keskustelua läpi.
+</p>
+
+<p>
+<strong>Yksikään kahdeksasta tavoitettavasta kauppiaasta ei kanna varustettua esinettä.</strong>
+Se ratkaisee minkä piirtohaaran kauppias ottaa: pelkän portretin, ei paperinukkea. Kysely
+tarkistettiin ensin tunnettuja kantajia vasten, joten nolla on mittaus eikä rikkinäinen haku.
+</p>
+
+<p>
+<strong>Pyhäköitä ja patsaita on viisitoista, laadut 189-200.</strong> Ja tämä kolmas luku
+avasi sen mistä koko kirjoitus kertoo.
+</p>
+
+<h2>Luhistuma joka oli oikein ja jolta puuttui yläraja</h2>
+
+<p>
+Alkuperäinen valitsee portretin kahdesta tiedostosta kynnysarvolla ja vähentää eri määrän
+kummassakin haarassa. Koska vienti oli jo purkanut tiedostojaon yhdeksi atlakseksi, molemmat
+haarat antavat <strong>saman indeksin</strong>, ja se on syötenumero miinus yksi. Yksi rivi
+kahden sijaan, ja briefi kirjoitti niin.
+</p>
+
+<p>
+<strong>Se pätee vain atlasindeksiin 193 asti, eikä briefi sanonut sitä.</strong> Puute on minun.
+</p>
+
+<p>
+Luin tiedostot tavu tavulta. Ensimmäisessä portrettitiedostossa on offset-taulukko 392 tavua eli
+98 merkintää, toisessa 384 tavua eli <strong>96 merkintää</strong>, kolmannessa 48 tavua eli 12.
+Toisen tiedoston taulukko kattaa siis tasan indeksit 0-95. Alkuperäinen laskee toisen tiedoston
+indeksin vähentämällä 98, joten syöte jonka vähennetty indeksi on 194 tai suurempi lukee
+<strong>taulukon ohi</strong>:
+</p>
+
+<pre><code>tiedostoindeksi  96  ->  offset       3584   (ensimmäisen kuvan dataa, sattumalta sisällä)
+tiedostoindeksi  97  ->  offset  470311680
+tiedostoindeksi 101  ->  offset  521177027
+
+tiedoston koko:          139346 tavua</code></pre>
+
+<p>
+Alkuperäinen purkaisi siis kuvan mielivaltaisesta offsetista. Pyhäkön laatu 195 tai suurempi
+tekee juuri tämän.
+</p>
+
+<h2>Miksi litteä atlas peitti sen</h2>
+
+<p>
+Tämä on kirjoituksen varsinainen opetus, ja se koskee vientiä eikä alkuperäistä.
+</p>
+
+<p>
+Vienti litisti kolme tiedostoa yhdeksi 206 kuvan indeksiavaruudeksi. Siinä avaruudessa indeksi
+194 ja ylöspäin on kolmannen tiedoston aluetta, ja <strong>alkuperäisen tämä haara ei pääse
+kolmanteen tiedostoon koskaan</strong>: sinne mennään vain avatarin omasta haarasta. Niin
+ylivuoto, joka alkuperäisessä on taulukon ohi lukeminen, laskeutui litteässä atlaksessa
+siististi olemassa olevan kuvan kohdalle.
+</p>
+
+<p>
+Ensimmäinen versio mittauksesta väitti sen takia <em>"yksikään ei ylitä atlasta"</em>. Se on
+totta litteästä atlaksesta ja epätotta siitä rajasta jota alkuperäinen käyttää. Mittaus oli
+löytänyt <strong>täsmälleen oikeat yhdeksän objektia</strong> ja kuvannut ne väärin: oireena
+siitä että ne osuvat avatarin alueelle, eikä sinä mitä se tarkoittaa.
+</p>
+
+<h2>Saavutettavuus ratkaisee mitä se tarkoittaa</h2>
+
+<p>
+Kolme kutsujaa tarkistettiin erikseen, ei pääteltynä. Keskustelun aloitus sulkee pyhäkön tyypin
+pois nimenomaisesti. Katsekomennon oma haara nimeää kolme patsasta ja objektinumerot alle
+0x100:n, ei pyhäkön tyyppiä. Skriptikäskyn yksitoista mitattua operandia ovat kaikki alle
+0x100:n.
+</p>
+
+<p>
+<strong>Kolme patsasta ovat haaran ainoa tavoitettava syöte</strong>, ja niiden laadut 189, 190
+ja 191 antavat tiedostoindeksit 90, 91 ja 92, hyvin rajojen sisällä. Haara toimii kaikelle mikä
+sen oikeasti tavoittaa, ja ylivuoto on saavuttamaton. Kirjattu poikkeamana, ei jäljitelty,
+samaa muotoa kuin se huonekalujen etsintä joka on jo kirjattu samalla perusteella.
+</p>
+
+<h2>Ja sama erottelu kuin viime kirjoituksessa, päivää myöhemmin</h2>
+
+<p>
+Rajan myötä on nyt <strong>kaksi syytä olla piirtämättä mitään</strong>: avatarin oma portretti
+jota ei ole asetettu, ja syöte jolle ei ole kuvaa olemassa. Nämä pidetään erillään omina
+niminään sen sijaan että molemmat vastaisivat samalla tyhjällä.
+</p>
+
+<p>
+Se on tasan se erottelu jonka edellinen viipale käytti koko pituutensa palauttaakseen
+statusriville, ja sen taittaminen tässä päivää myöhemmin olisi ollut sama virhe uudessa
+paikassa. Omien aiempien päätösten lukeminen on halvempaa kuin niiden uudelleen oppiminen.
+</p>
+
+<h2>Suunnitelmakohtaa ei yliviivattu</h2>
+
+<p>
+Portretti piirtyy. Paperinukke, kahdeksan varusteruutua, taivaskaistan oma sisältö, avatarin
+portrettitavun luku ja katsekomennon oma portrettikutsu <strong>eivät</strong> piirry.
+Suunnitelmassa kohta siis nimeää jokaisen niistä jäljellä olevana sen sijaan että se olisi
+merkitty valmiiksi. Kohta joka väittää valmistumista jota se ei ole saavuttanut on pahempi kuin
+kohta joka kertoo mitä on jäljellä.
+</p>
+
+<p>
+Yksi asia jää omistajan silmälle: <strong>atlaksen pystysuunta Unityn puolella on
+tarkistamaton</strong>, koska sitä ei voi nähdä ilman editoria. Jos kasvot ovat ylösalaisin, syy
+on tasan yhdessä rivissä.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    459 / 459
+U6Export.Tests      67 / 67
+U6Engine.Tests    3463 / 3463
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöksellä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Keskusteluikkunan loppuosa: paperinukke ja kahdeksan varusteruutua, joiden geometria on
+     mitattu ja testattu mutta joita mikään ei piirrä. Niiden kahden haaran siirto antaa myös
+     kauppiaan varaston paneeliin, missä se on alkuperäisessäkin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

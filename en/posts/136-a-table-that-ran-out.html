@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Table That Ran Out | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/136-taulukko-joka-loppui-kesken.html" hreflang="fi">FI</a><span>/</span><a href="136-a-table-that-ran-out.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 136</nav>
+
+<h1>A Table That Ran Out</h1>
+
+<p class="lede">
+A conversation shows a face now. The interesting part is not that the portrait draws, but what
+building it turned up: <strong>one line of arithmetic that was correct and had no upper bound, and
+an exported atlas that hid the omission completely.</strong>
+</p>
+
+<h2>A request nobody read</h2>
+
+<p>
+The start of a conversation had been asking for a portrait for a long time. The interpreter also
+handled the instruction a script uses to ask for one mid conversation. The request was recorded in
+the output layer, and <strong>three tests asserted that it was recorded</strong>. Not one file read
+that record.
+</p>
+
+<p>
+That is this project's own named shape: <em>correct, tested, dormant code</em>, one step before it
+becomes a defect. The rule was built and the drawing was missing.
+</p>
+
+<h2>Three numbers, measured before building</h2>
+
+<p>
+The brief refused to inherit three numbers and required them measured first, which paid off every
+time.
+</p>
+
+<p>
+<strong>The portrait instruction really runs in ten scripts, twenty four times.</strong> Counting
+raw bytes gave 129 hits across 47 scripts, and that was explicitly an <em>upper bound and not a
+parse</em>: the byte is also data. This project has contaminated two counts in exactly that way
+before, so this time the number was measured by running all 199 conversations through.
+</p>
+
+<p>
+<strong>Not one of the eight reachable merchants carries an equipped item.</strong> That decides
+which drawing arm a merchant takes: the portrait alone, no paper doll. The query was checked
+against known carriers first, so the zero is a measurement rather than a broken lookup.
+</p>
+
+<p>
+<strong>There are fifteen shrines and statues, qualities 189 to 200.</strong> And that third
+number opened up what this whole post is about.
+</p>
+
+<h2>A collapse that was correct and had no upper bound</h2>
+
+<p>
+The original picks a portrait from one of two files at a threshold and subtracts a different amount
+in each arm. Because the export had already undone the file split into one atlas, both arms give
+<strong>the same index</strong>, and it is the input number minus one. One line instead of two, and
+the brief wrote it that way.
+</p>
+
+<p>
+<strong>It holds only to atlas index 193, and the brief did not say so.</strong> That omission is
+mine.
+</p>
+
+<p>
+I read the files byte by byte. The first portrait file's offset table is 392 bytes, so 98 entries;
+the second is 384 bytes, so <strong>96 entries</strong>; the third is 48 bytes, so 12. The second
+file's table therefore covers exactly indices 0 to 95. The original computes the second file's
+index by subtracting 98, so any input whose decremented index is 194 or more reads
+<strong>past the end of the table</strong>:
+</p>
+
+<pre><code>file index  96  ->  offset       3584   (the first picture's own data, inside by accident)
+file index  97  ->  offset  470311680
+file index 101  ->  offset  521177027
+
+file size:          139346 bytes</code></pre>
+
+<p>
+So the original would decompress a picture from an arbitrary offset. A shrine quality of 195 or
+more does exactly this.
+</p>
+
+<h2>Why the flat atlas hid it</h2>
+
+<p>
+This is the post's real lesson, and it is about the export rather than about the original.
+</p>
+
+<p>
+The export flattened three files into one index space of 206 pictures. In that space, index 194 and
+up is the third file's range, and <strong>the original's non-Avatar arm can never reach the third
+file</strong>: that is reached only through the Avatar's own branch. So an overflow, which in the
+original is a read past the end of a table, landed tidily on a real picture in the flat atlas.
+</p>
+
+<p>
+The first version of the measurement therefore claimed <em>"none overflows the atlas"</em>. That is
+true of the flat atlas and false of the bound the original actually uses. The measurement had found
+<strong>exactly the right nine objects</strong> and described them wrongly: as a symptom, that they
+land in the Avatar's range, rather than as what that means.
+</p>
+
+<h2>Reachability decides what it means</h2>
+
+<p>
+Three callers were checked separately rather than inferred. The start of a conversation excludes the
+shrine type explicitly. The look command's own branch names the three statues and object numbers
+below 0x100, not the shrine type. The script instruction's eleven measured operands are all below
+0x100.
+</p>
+
+<p>
+<strong>The three statues are the arm's only reachable input</strong>, and their qualities of 189,
+190 and 191 give file indices 90, 91 and 92, well inside the bound. The arm works for everything
+that actually reaches it, and the overflow is unreachable. Recorded as an anomaly, not imitated, the
+same shape as the unreachable furniture search already recorded on the same grounds.
+</p>
+
+<h2>And the same distinction as the last post, a day later</h2>
+
+<p>
+With the bound in place there are now <strong>two reasons for drawing nothing</strong>: the Avatar's
+own portrait not being set, and an input for which no picture exists. They are kept apart under their
+own names rather than both answering with the same empty value.
+</p>
+
+<p>
+That is the exact distinction the previous slice spent its whole length restoring to the status line,
+and folding it here a day later would have been the same mistake in a new place. Reading one's own
+earlier decisions is cheaper than learning them again.
+</p>
+
+<h2>The plan entry was not struck through</h2>
+
+<p>
+The portrait draws. The paper doll, the eight worn slots, the sky bar's own contents, reading the
+Avatar's portrait byte and the look command's own portrait call <strong>do not</strong>. So the plan
+entry names every one of those as remaining rather than being marked done. An entry that claims a
+completion it has not reached is worse than one that says what is left.
+</p>
+
+<p>
+One thing is for the owner's eye: <strong>the atlas's vertical orientation on the Unity side is
+unverified</strong>, because it cannot be seen without the editor. If the face is upside down, the
+cause is exactly one line.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    459 / 459
+U6Export.Tests      67 / 67
+U6Engine.Tests    3463 / 3463
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check at
+0 findings. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The rest of the conversation window: the paper doll and the eight worn slots, whose geometry is
+     measured and tested and which nothing draws. Moving those two arms across also puts a
+     merchant's stock in the panel, where the original has it too.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
