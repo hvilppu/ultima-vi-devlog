@@ -1668,14 +1668,22 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        text colours had been sitting in a variable initialiser all along, while four briefs said
        they were unmeasured. An honest report found a defect the report itself could not see.</p>
   </li>
+  <li>
+    <span class="n">139</span>
+    <a href="posts/139-two-explanations.html">The Picture Fitted Two Explanations</a>
+    <p>A screenshot of this project's own output turned up two defects. One was measured correctly;
+       the other was an inference from a picture and was wrong, because black is an ordinary colour
+       in a sprite and 1414 of 1534 tiles contain it. And the cream turned out to be per character
+       cell rather than per rectangle, which made the obvious fix the wrong one.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>The cream belongs in more places than the panel. The routine that creates a text window
-     defaults every one of them to that same background, including the message area and the
-     conversation panel, so both still draw on black. The gap is marked in the code in two places,
-     waiting for its own slice.</p>
+  <p>Three single-tile draws in the status panel skip the background tile the original composes
+     underneath: the owner's picture, the worn items and the pack grid. Invisible today for the
+     same reason as above, but a measured difference. They are named and waiting for their own
+     slice.</p>
 </div>
 
 <footer class="foot">
