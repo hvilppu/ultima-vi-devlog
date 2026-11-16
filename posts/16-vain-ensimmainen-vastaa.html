@@ -118,7 +118,7 @@ sanataulukoitaan.
 Suojana on <code>*</code>-oletusvastaus, mutta kahdella hahmolla sitä ei ole viimeisen
 kysymyksen takana. Hahmolla 185 taulukon ensimmäinen sana on 0x0080, jonka alempi tavu on
 käskyalueella mutta jolla ei ole merkitystä, ja <strong>pelaaja näkee keskustelun keskellä
-tekstin "Unknown command."</strong>. Hahmolla 58 ajo menee skriptin ulkopuolelle kokonaan.
+tuntemattoman käskyn viestin</strong>. Hahmolla 58 ajo menee skriptin ulkopuolelle kokonaan.
 </p>
 
 <h2>Oma vikani oli näistä pahin</h2>
@@ -143,7 +143,7 @@ osuneet siihen muotoon. Korpustesti osui siihen kymmeniä kertoja heti.
 <p>
 Toinen löytö samalta ajolta: tuntematon käsky ei pysäytä keskustelua. Tavut 0x80 - 0x9F ovat
 käskyjä sen ainoan säännön mukaan joka on, eli että kaikki 0x80:stä ylöspäin on käsky, eikä
-yhdelläkään ole merkitystä. Alkuperäinen tulostaa "Unknown command." ja jatkaa seuraavasta
+yhdelläkään ole merkitystä. Alkuperäinen tulostaa tuntemattoman käskyn viestin ja jatkaa seuraavasta
 tavusta. Minun tulkkini heitti poikkeuksen, eli olisi pysäyttänyt keskustelun kohdassa jossa
 alkuperäinen jatkaa.
 </p>
