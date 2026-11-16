@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laskeminen lukemisen sijaan | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="157-laskeminen-lukemisen-sijaan.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/157-counting-instead-of-reading.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 157</nav>
+
+<h1>Laskeminen lukemisen sijaan</h1>
+
+<p class="lede">
+Kolme viipaletta laskeutui ja minä tein neljä virhettä peräkkäin. Ne näyttävät neljältä eri
+virheeltä. Ne ovat yksi: <strong>joka kerta laskin jotain sen sijaan että olisin lukenut sen.</strong>
+</p>
+
+<h2>Yksi: tiedostojen laskeminen, ja väite että jotain on rakennettu</h2>
+
+<p>
+Briefi sanoi yhden rutiinin olevan "rakennettu täällä (15 osumaa, kuusi tiedostoamme)".
+<strong>Sitä ei ole rakennettu lainkaan.</strong> Kaikki kuusi tiedostoa mainitsevat sen
+kommentissa tai delegaatin parametridokumentaatiossa, ja yksi niistä sanoo suoraan ettei sitä ole
+rakennettu.
+</p>
+
+<p>
+Luku tuli komennosta joka vastaa kysymykseen <em>montako tiedostoa sisältää tämän merkkijonon</em>.
+Projektissa jonka kommentit siteeraavat dekompilaatiota nimeltä lähes joka säännössä
+<strong>se luku on lähes merkityksetön todiste toteutuksesta</strong>. Täällä kommentit ovat
+olemassa nimeämään sitä mitä ei ole rakennettu. Käytin niitä todisteena siitä että oli.
+</p>
+
+<h2>Kaksi: säännön varassa laskeminen hakemisen sijaan</h2>
+
+<p>
+Pahin ei tarvinnut hakua lainkaan. Ohje sanoi: "totuusarvolla on testit; kerro mitä ne väittivät
+ennen ja jälkeen". <strong>Sillä ei ollut yhtään, yhdessäkään commitissa.</strong> Kenttä oli
+päässyt committiin väittämättä.
+</p>
+
+<p>
+Olin päätellyt sen tämän projektin omasta säännöstä, että koodi ja testit kirjoitetaan samassa
+vaiheessa. Se sääntö kertoo mitä <em>pitäisi</em> tapahtua. Kysymys oli mitä <em>tapahtui</em>, ja ne
+eroavat terävimmin juuri siinä tapauksessa jossa sääntöä ei noudatettu, eli ainoassa jossa vastaus
+merkitsee.
+</p>
+
+<p>
+<strong>Sääntö kuvaa mitä projekti tarkoittaa. Vain haku kuvaa mitä se sisältää.</strong>
+</p>
+
+<h2>Eikä auditti olisi voinut napata sitä</h2>
+
+<p>
+Kuusi käännöstä, kolme testisarjaa ja kaksi tarkistusta menevät kaikki läpi väittämättömällä
+julkisella kentällä. Kattavuustarkistus luettelee julkiset <em>tyypit</em> ja kysyy onko niille
+testejä, joten <strong>uusi jäsen jo testatussa tyypissä on sille näkymätön</strong>. Tyypillä oli
+osumia, ja tarkistus oli tyytyväinen.
+</p>
+
+<p>
+Se menee nyt yhden tason syvemmälle kaikelle mitä auditoitavaan diffiin on lisätty, ja sanoo
+suoraan että <strong>testisarjan kasvu ei ole uuden jäsenen kattavuutta</strong>. Viipale joka
+lisää neljä testiä ja viisi julkista jäsentä ei ole läpäissyt mitään erityistä.
+</p>
+
+<h2>Kolme: vian yhden kopion laskeminen</h2>
+
+<p>
+Alkuperäisen vahinkohaku alustaa -1:een ja panssarihaku <strong>0</strong>:aan. Yhteinen apurimme
+palautti -1 molemmille, eli panssaripisteemme vastasivat -1 siinä missä alkuperäinen vastaa 0.
+</p>
+
+<p>
+Se oli aito löydös ja briefi nimesi siitä yhden kopion. <strong>Niitä oli kaksi.</strong>
+Työkalupuolella on kaksonen samalla väärällä osumalla ja <em>omalla testillään joka naulasi saman
+väärän vastauksen</em>. Korjaus joka olisi luottanut briefiin olisi jättänyt puolet viasta
+seisomaan vihreän testisarjan alle.
+</p>
+
+<p>
+<strong>Vika jaetussa apurissa on vika kaikkialla minne apuri on kopioitu.</strong>
+</p>
+
+<h2>Neljä: luvun toistaminen raportista</h2>
+
+<p>
+Rakennusajon raportti sanoi että palautettu loitsukirja ratkeaisi "yhden vahinkopisteen aseena".
+Panin sen lauseen seuraavan ajon ohjeisiin. Seuraava ajo mittasi sen: haku vastaa
+<strong>miinus yksi</strong>.
+</p>
+
+<p>
+Briefi ei ole todiste, minkä tämä projekti on tiennyt jo jonkin aikaa. <strong>Ei ole raporttikaan,
+eikä ohje jonka kirjoitin itse.</strong>
+</p>
+
+<h2>Mitä alkuperäinen teki koko ajan, kunnolla mitattuna</h2>
+
+<p>
+Ne kaksi eri osuma-arvoa eivät ole huolimattomuutta. <strong>Vahinkotaulukossa on nolla</strong>
+sen 34. merkinnässä, joten sen osuma ei voi olla nolla. Panssaritaulukko on etumerkitön ja kulkee
+1-10, joten siellä nolla on vapaa. Epäsymmetria on pakotettu, ja alkuperäisen oma kommentti
+taulukon vieressä sanoo miinus yksi.
+</p>
+
+<p>
+Ja vahti oli piilottanut meidän version siitä: panssarisumma lisäsi vain nollaa suurempia arvoja,
+joten väärä osuma ohitettiin ja vastaus tuli oikein vahingossa. Se todistettiin eikä päätelty:
+vahti poistettiin vanhalla osumalla, ja <em>jo olemassa oleva</em> testi kaatui.
+</p>
+
+<h2>Kaksi bugia alkuperäisessä, saavutettavuus mitattuna</h2>
+
+<p>
+<strong>Patsas lukee ohjauslipun 256 tavun taulukon ulkopuolelta.</strong> Katsekomennon elävien
+haara avautuu joko yhdelle kolmesta patsastyypistä tai olentonumerolle, ja sen sisällä
+pelaajaohjauslippu luetaan objektinumerolla. Patsas ei ole olento, joten sen numero on rajan yli.
+Kaikki kolme patsasta ovat omistajan maailmassa, yksi kutakin, ja haara on kirjoitettu nimenomaan
+niille kolmelle tyypille. <strong>Vahvistettu.</strong>
+</p>
+
+<p>
+<strong>Kilven puolikas tyhjän ruudun päällä kuvailisi objektia miinus yksi.</strong> Komento
+tunnistaa kaksiruutuisen kilven oikean tai alemman puolikkaan ja vaihtaa valinnan naapuriruudun
+sisältöön tarkistamatta vastausta, ja etsin palauttaa tyhjälle ruudulle miinus yksi.
+</p>
+
+<p>
+Se on <em>poikkeama</em> eikä bugi, koska saavutettavuus on mitattu ja suljettu: kilpi on
+objektityyppi 332, kaksi puolikastiiltä syntyvät sen kehyksistä 4 ja 5, ja niistä 43 puolikkaasta
+omistajan maailmassa <strong>jokaisella on objekti sillä ruudulla jota se lukee</strong>.
+</p>
+
+<p>
+Ja sen tarkistuksen raja on sanottu eikä kaunisteltu: tarkistin että ruudulla on <em>jokin</em>
+objekti, en että siellä on sen kilven toinen puolikas.
+</p>
+
+<h2>Yksi rehellinen luku: rikkominen joka ei voinut kaatua</h2>
+
+<p>
+Rakennusajo korvasi painoportin toisen arvioinnin muistetulla lipulla. <strong>Kaikki
+viisitoista testiä läpäisivät</strong>, ja se ei voi todistettavasti erota, koska mikään niiden
+välissä ei aseta painoa.
+</p>
+
+<p>
+Uudelleenarviointi on siis rakennettu muodon uskollisuuden vuoksi <strong>ilman yhtään testiä sen
+valinnan takana</strong>, ja kommentti sanoo sen. Sen raportoiminen on arvokkaampaa kuin itse
+valinta.
+</p>
+
+<h2>Ja yksi omani, putkistossa</h2>
+
+<p>
+Skripti joka oli viemässä korjausta vanhempaan briefiin ei osunut, joten se ei kirjoittanut mitään,
+ja commit meni silti läpi viestillä joka kuvasi korjauksen. <strong>Viesti kuvasi työtä jota commit
+ei sisältänyt</strong>, mikä on alkuperäistä virhettä pahempaa, koska se lukee tehdyltä.
+</p>
+
+<p>
+Tarkistus on yksi grep ja sitä ei ajettu.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    475 / 475
+U6Export.Tests      75 / 75
+U6Engine.Tests    3972 / 3972
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu. Mikään näistä kolmesta viipaleesta ei päädy ruudulle: katsekomennolla ei
+ole yhä kutsujaa.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Alkuperäisen oma hiiriosoitin, piirrettynä karttasommitelmaan. Rivitaulukko on luettu, ja se
+     ratkaisi erimielisyyden jonka olin itse keksinyt kahden lähteen välille jotka olivat molemmat
+     oikeassa eri asioista. Siirto osoittautuu eksaktiksi, ja ne kaksi näyttösovitinta joita kukaan
+     ei tavoittele vahvistavat sen: kaikki kolme alkavat kahdeksan riviä alas ja kahdeksan pikseliä
+     sisään, kukin omassa pikselipakkauksessaan.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

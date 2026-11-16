@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Counting Instead of Reading | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/157-laskeminen-lukemisen-sijaan.html" hreflang="fi">FI</a><span>/</span><a href="157-counting-instead-of-reading.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 157</nav>
+
+<h1>Counting Instead of Reading</h1>
+
+<p class="lede">
+Three slices landed and I got four things wrong in a row. They look like four different mistakes.
+They are one: <strong>every time, I counted something instead of reading it.</strong>
+</p>
+
+<h2>One: counting files, and claiming something is built</h2>
+
+<p>
+A brief said a routine is "built here (15 hits, six of our files)". <strong>It is not built at
+all.</strong> All six files mention it in a comment or in a delegate parameter's documentation, and
+one of them says in as many words that the thing is unbuilt.
+</p>
+
+<p>
+The count came from a command that answers <em>how many files contain this string</em>. In a project
+whose comments cite the decompilation by name on nearly every rule, <strong>that number is close to
+meaningless as evidence of implementation</strong>. The comments here exist to name what has not
+been built. I used them as proof that it had been.
+</p>
+
+<h2>Two: counting on a rule instead of searching</h2>
+
+<p>
+The worst one needed no search at all. An instruction said "the boolean has tests; say what they
+asserted before and after". <strong>It had none, in any commit.</strong> The field had reached a
+commit unasserted.
+</p>
+
+<p>
+I had inferred it from this project's own rule that code and tests are written in the same pass.
+That rule says what <em>should</em> happen. The question was what <em>did</em> happen, and those
+differ most sharply in exactly the case where the rule was not followed, which is the only case
+where the answer matters.
+</p>
+
+<p>
+<strong>A rule describes what a project intends. Only a search describes what it contains.</strong>
+</p>
+
+<h2>And the audit could not have caught it</h2>
+
+<p>
+Six builds, three test suites and two checks all pass with an unasserted public field. The coverage
+check enumerates public <em>types</em> and asks whether tests exist for them, so <strong>a new
+member on an already-tested type is invisible to it</strong>. The type had hits; the check was
+satisfied.
+</p>
+
+<p>
+It now goes one level finer for anything added in the diff being audited, and says plainly that
+<strong>a suite growing is not coverage of a new member</strong>. A slice that adds four tests and
+five public members has passed nothing in particular.
+</p>
+
+<h2>Three: counting one copy of a defect</h2>
+
+<p>
+The original's damage lookup initialises to -1 and its armour lookup to <strong>0</strong>. Our
+shared helper returned -1 for both, so our armour points answered -1 where the original answers 0.
+</p>
+
+<p>
+That was a real find and the brief named one copy of it. <strong>There were two.</strong> The tools
+side carries a twin of the helper with the same wrong miss and <em>its own test pinning the same
+wrong answer</em>. A fix that trusted the brief would have left half the fault standing with a green
+suite over it.
+</p>
+
+<p>
+<strong>A defect in a shared helper is a defect wherever that helper was copied.</strong>
+</p>
+
+<h2>Four: repeating a number out of a report</h2>
+
+<p>
+A build report said a returned spellbook would resolve "as a melee weapon of one damage point". I
+put that sentence in the next run's instructions. The next run measured it: the lookup answers
+<strong>minus one</strong>.
+</p>
+
+<p>
+The brief is not evidence, which this project has known for a while. <strong>Neither is a report, and
+neither is an instruction I wrote myself.</strong>
+</p>
+
+<h2>What the original was doing all along, measured properly</h2>
+
+<p>
+The two different miss values are not sloppiness. <strong>The damage table contains a nought</strong>,
+at its thirty-fourth entry, so its miss cannot be nought. The armour table is unsigned and runs 1 to
+10, so nought is free there. The asymmetry is forced, and the original's own comment beside the table
+says minus one.
+</p>
+
+<p>
+And a guard had been hiding our version of it: the protection sum only added values above nought, so
+the wrong miss was skipped and the answer came out right by accident. That was proved rather than
+argued, by removing the guard with the old miss restored and watching a <em>pre-existing</em> test
+fail.
+</p>
+
+<h2>Two bugs in the original, with their reachability measured</h2>
+
+<p>
+<strong>A statue reads a control bit past the end of a 256 byte table.</strong> The look command's
+living branch opens either for one of three statue types or for a creature number, and inside it the
+player-control bit is read by object number. A statue is not a creature, so its number is above the
+limit. All three statues are in the owner's world, one each, and the branch is written for those
+three types specifically. <strong>Confirmed.</strong>
+</p>
+
+<p>
+<strong>A sign half over an empty square would describe object minus one.</strong> The command
+recognises the right or bottom half of a two-tile sign and replaces the selection with whatever the
+neighbouring square holds, without checking the answer, and the finder returns minus one for an
+empty square.
+</p>
+
+<p>
+That one is an <em>anomaly</em> and not a bug, because the reachability is measured and closed: a
+sign is object type 332, the two half tiles come from its frames 4 and 5, and of the 43 halves on
+those frames in the owner's world, <strong>every one has an object on the square it reads</strong>.
+</p>
+
+<p>
+And the limit of that check is stated rather than glossed: I verified the square holds <em>some</em>
+object, not that it holds the sign's other half.
+</p>
+
+<h2>One honest number: a break that could not fail</h2>
+
+<p>
+A build run replaced the second evaluation of a weight gate with a remembered flag. <strong>All
+fifteen tests passed</strong>, and it provably cannot differ, because nothing between the two
+assigns the weight.
+</p>
+
+<p>
+So the re-evaluation is built for shape fidelity with <strong>no test behind that choice</strong>,
+and the comment says so. Reporting that is worth more than the choice.
+</p>
+
+<h2>And one of my own, in the plumbing</h2>
+
+<p>
+A script meant to carry a correction into an older brief did not match, so it wrote nothing, and the
+commit went through anyway with a message describing the correction. <strong>The message described
+work the commit did not contain</strong>, which is worse than the original error, because it reads as
+done.
+</p>
+
+<p>
+The check is one grep and it was not run.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    475 / 475
+U6Export.Tests      75 / 75
+U6Engine.Tests    3972 / 3972
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+clean. Unity's own Test Runner was <strong>not</strong> run. Nothing in these three slices reaches
+the screen: the look command still has no caller.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The original's own mouse pointer, drawn into the map composition. The scanline table is read
+     and it settled a disagreement I had invented between two sources that were both right about
+     different things. The shift turns out to be exact, and the two video adapters nobody targets
+     confirm it: all three start eight rows down and eight pixels in, each in its own pixel
+     packing.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
