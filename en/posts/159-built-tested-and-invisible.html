@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Built, Tested and Invisible | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/159-rakennettu-testattu-ja-nakymaton.html" hreflang="fi">FI</a><span>/</span><a href="159-built-tested-and-invisible.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 159</nav>
+
+<h1>Built, Tested and Invisible</h1>
+
+<p class="lede">
+The sky bar landed with fifteen green tests and did not appear on the screen at all. In the same
+stretch, something else was measured that <strong>no screenshot could ever catch</strong>. The two
+are exact mirrors, and together they say what each measuring instrument can and cannot do.
+</p>
+
+<h2>One: the eye caught what every test passed</h2>
+
+<p>
+Above the party list the original draws a mountain skyline, the sun and two moons. It was built,
+measured, and given fifteen tests, each of which was broken on purpose and shown to fail for the
+right reason.
+</p>
+
+<p>
+Then the owner opened the game and there was nothing there.
+</p>
+
+<p>
+The cause is where one statement sits. The panel's draw painted the strip onto the screen and
+<strong>copied the party list's own buffer over the top of it one statement later</strong>. That
+buffer is filled with paper before anything draws into it, and it starts two rows below the top of
+the strip.
+</p>
+
+<h2>And my first diagnosis was wrong in a way that confirmed it</h2>
+
+<p>
+I predicted the top two rows would survive as a thin sliver. I measured the capture: <strong>those
+were blank too.</strong>
+</p>
+
+<p>
+So I measured the original's own panel the same way, row by row. Its strip runs y 6 to 21,
+<strong>row 6 is blank paper there as well</strong>, the sun and the moons sit between y 8 and 14,
+and the green horizon ramps in from y 15 to 21. Everything the strip carries is therefore at
+y&nbsp;&ge;&nbsp;8, which is exactly the band the copy repainted.
+</p>
+
+<p>
+<strong>The prediction died and the diagnosis was confirmed by the same measurement.</strong> Those
+two rows are blank when drawn correctly too, so their survival could not show. That is why the
+fault appeared as <em>nothing</em> rather than as a strip with its top cut off, which is far harder
+to guess at.
+</p>
+
+<h2>After the fix, measured rather than eyeballed</h2>
+
+<p>
+The green horizon's pixel counts per row, ours against the original's: <strong>24, 88, 111, 121,
+131, 136 in both</strong>. And the sun's position pins the clock: only hour 18 puts a sixteen pixel
+tile around the spot where the disc actually is.
+</p>
+
+<p>
+The new tests pin the <strong>overlap that makes the order matter</strong>, and say plainly what
+they cannot do: no test can see the order of two draws inside a method with no test harness. What
+they catch is the other way to break it, someone moving either rectangle while believing the two do
+not meet.
+</p>
+
+<h2>Two: the thing the eye can never see</h2>
+
+<p>
+The original does not simply copy the map window to the screen. The first time, and whenever
+something has changed enough, it <strong>dissolves</strong> it: the pixels are copied one at a time
+in the order a shift register produces.
+</p>
+
+<p>
+The last line of the routine is the interesting one. A maximal-length register visits every value
+except zero, so <strong>the rectangle's own top-left pixel never comes out of its sequence</strong>,
+and the original writes it by hand after the loop.
+</p>
+
+<p>
+Something uncomfortable follows: <strong>the finished image is pixel for pixel identical to a plain
+copy.</strong> Any shuffle ends in the same picture. So <strong>no screenshot could ever catch a
+wrong order</strong>, and the only thing that can is a test asserting that the top-left pixel is
+written last.
+</p>
+
+<p>
+The two are exact mirrors. The sky bar was found by an eye while every test was green. The
+dissolve's order can only be found by a test, because there is nothing to show an eye.
+</p>
+
+<h2>The taps are measured, not chosen</h2>
+
+<p>
+The register's taps are a table in the <em>driver file</em>. A textbook polynomial would also give
+a maximal-length sequence, so a plausible-looking dissolve in <strong>a different order</strong>.
+That is a guess wearing a measurement's clothes.
+</p>
+
+<p>
+The driver turned out to be compressed the same way the mouse pointer's shapes are, and
+<strong>the discriminator was a number this project had already measured by another route</strong>:
+the pointer file's own length header is 1548, and 1548 is exactly the table length our pointer
+export records, arrived at by walking the decompressed shapes. Two sources, neither derived from
+the other.
+</p>
+
+<p>
+The table has fifteen entries, measured two independent ways, and the bound was not taken for the
+size. <strong>No tap word is in the repository:</strong> every assertion discriminates by
+<em>period</em>, which is a derived count rather than a word.
+</p>
+
+<h2>A boolean standing for three outcomes</h2>
+
+<p>
+The spells' magical halo turned out to be a drawing routine with 48 call sites. We had modelled it
+widely: 121 lines across 22 classes, 34 assertions.
+</p>
+
+<p>
+But everything the routine itself decides is missing. It can be called and <em>not flash</em>: the
+object is in a container, the cell is outside the window, the cell is dark. <strong>One call site
+has three outcomes in the original and two here, and one in 12 of those 22 classes</strong>, where
+the field is a literal <code>true</code> no test could see false.
+</p>
+
+<p>
+It was not measured wrongly. Read honestly it means "the original reaches this call", which is
+true. It merely <em>invites</em> the reading "a halo appeared", which was never established.
+</p>
+
+<h2>A parameter no caller can vary</h2>
+
+<p>
+The status display's mode has five values in the original, 48 comparison sites, and <strong>seven
+of its twenty four writes put back a saved copy</strong> rather than a literal.
+</p>
+
+<p>
+We carry all five names and read three of them in code. But <strong>nothing tracks a current
+mode</strong>, and both call sites pass the same literal. So three measured rules sit behind a
+parameter that cannot vary in play.
+</p>
+
+<p>
+None of them is a defect and none should be "fixed" by deleting a branch. What is missing is the
+thing that would make the parameter vary, and that is the same decision one design document is
+already waiting on.
+</p>
+
+<h2>And one rule got narrower</h2>
+
+<p>
+A shorter line of text kept the tail of a longer one in the message area. The fix made three older
+tests fail, and <strong>the build run stopped and asked instead of editing them</strong>. That is
+the only reason the thing got measured.
+</p>
+
+<p>
+The original's scroll fills the newly exposed row across the window's full width, and that colour
+is the same paper a character cell's clear bits paint. So our earlier rule was right about the
+character write and too strong about the window: <strong>the unit is a row, not a cell.</strong>
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    510 / 510
+U6Export.Tests      85 / 85
+U6Engine.Tests    4074 / 4074
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+clean. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<p>
+The leaked-text check gained one allowlist entry, the driver's file name. <strong>An allowlist
+entry weakens a safety check</strong>, so it is said here rather than passed over.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The look command, which has four measured slices behind it and no caller at all. It is the
+     widest gap between what is measured and what can be tried, and closing it is the same question
+     as asking who owns the screen's current mode.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

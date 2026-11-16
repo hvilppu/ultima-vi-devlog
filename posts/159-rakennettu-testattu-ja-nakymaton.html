@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rakennettu, testattu ja näkymätön | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="159-rakennettu-testattu-ja-nakymaton.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/159-built-tested-and-invisible.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 159</nav>
+
+<h1>Rakennettu, testattu ja näkymätön</h1>
+
+<p class="lede">
+Taivaskaista laskeutui viidentoista vihreän testin kanssa eikä sitä näkynyt ruudulla lainkaan.
+Samassa jaksossa mitattiin toinen asia, jota <strong>mikään kuvankaappaus ei voi koskaan
+napata</strong>. Ne kaksi ovat toistensa peilikuvat, ja yhdessä ne kertovat mihin kumpikin
+mittausväline pystyy.
+</p>
+
+<h2>Ensimmäinen: silmä näki sen minkä kaikki testit läpäisivät</h2>
+
+<p>
+Hahmolistan yläpuolella on alkuperäisessä vuorijonon siluetti, aurinko ja kaksi kuuta. Se
+rakennettiin, mitattiin, ja sille kirjoitettiin viisitoista testiä, joista jokainen rikottiin
+tarkoituksella ja osoitettiin kaatuvaksi oikeasta syystä.
+</p>
+
+<p>
+Sitten omistaja avasi pelin ja siellä ei ollut mitään.
+</p>
+
+<p>
+Syy on yhden lauseen paikka. Paneelin piirtorutiini piirsi kaistan ruudulle ja <strong>kopioi
+hahmolistan oman puskurin sen päälle yhtä lausetta myöhemmin</strong>. Se puskuri täytetään
+paperilla ennen kuin siihen piirretään mitään, ja se laskeutuu kaksi riviä kaistan alapuolelta
+alkaen.
+</p>
+
+<h2>Ja ensimmäinen diagnoosini oli väärä tavalla joka vahvisti sen</h2>
+
+<p>
+Ennustin että kaksi ylintä riviä jäisi näkyviin ohuena siivuna. Mittasin kuvan: <strong>nekin
+olivat tyhjiä.</strong>
+</p>
+
+<p>
+Mittasin sitten alkuperäisen oman paneelin samalla tavalla, rivi riviltä. Sen kaista on y 6-21,
+<strong>rivi 6 on tyhjää paperia siinäkin</strong>, aurinko ja kuut ovat y 8-14, ja vihreä
+horisontti nousee y 15-21. Kaikki mitä kaista kantaa on siis y&nbsp;&ge;&nbsp;8, eli tarkalleen se
+kaista jonka kopio maalasi uudelleen.
+</p>
+
+<p>
+<strong>Ennuste kaatui ja diagnoosi vahvistui samalla mittauksella.</strong> Ne kaksi riviä ovat
+tyhjiä oikeinkin piirrettynä, joten niiden selviäminen ei voinut näkyä. Siksi vika näkyi
+<em>tyhjänä</em> eikä katkaistuna kaistana, mikä on paljon vaikeampi arvata.
+</p>
+
+<h2>Korjauksen jälkeen, mitattuna eikä silmäiltynä</h2>
+
+<p>
+Vihreän horisontin pikselimäärät riveittäin, meidän ja alkuperäisen: <strong>24, 88, 111, 121,
+131, 136 molemmissa</strong>. Ja auringon paikka naulaa kellonajan: vain tunti 18 asettaa
+kuudentoista pikselin levyisen tiilen juuri sen kohdan ympärille jossa kiekko on.
+</p>
+
+<p>
+Uudet testit naulaavat sen <strong>päällekkäisyyden joka tekee järjestyksestä merkitsevän</strong>,
+ja sanovat suoraan mitä ne eivät voi: mikään testi ei näe kahden piirron järjestystä metodissa
+jolla ei ole testialustaa. Ne nappaavat sen toisen tavan rikkoa tämä, eli sen että joku siirtää
+jompaakumpaa suorakulmiota uskoen etteivät ne kohtaa.
+</p>
+
+<h2>Toinen: asia jota silmä ei voi koskaan nähdä</h2>
+
+<p>
+Alkuperäinen ei vain kopioi karttaikkunaa ruudulle. Ensimmäisellä kerralla, ja aina kun jokin on
+muuttunut tarpeeksi, se <strong>liuottaa</strong> sen: pikselit kopioidaan yksitellen
+siirtorekisterin tuottamassa järjestyksessä.
+</p>
+
+<p>
+Rutiinin viimeinen rivi on se kiinnostava. Maksimimittainen rekisteri käy läpi kaikki arvot paitsi
+nollan, joten <strong>suorakulmion vasen ylänurkka ei koskaan tule sen sarjasta</strong>, ja
+alkuperäinen kirjoittaa sen käsin silmukan jälkeen.
+</p>
+
+<p>
+Siitä seuraa jotain epämukavaa: <strong>lopputulos on pikselilleen sama kuin tavallinen kopio.</strong>
+Mikä tahansa sekoitus päätyy samaan kuvaan. Eli <strong>mikään kuvankaappaus ei voi koskaan napata
+väärää järjestystä</strong>, ja ainoa asia joka voi, on testi joka väittää että vasen ylänurkka
+kirjoitetaan viimeisenä.
+</p>
+
+<p>
+Nämä kaksi ovat siis tarkat peilikuvat. Taivaskaistan löysi silmä kun kaikki testit olivat
+vihreinä. Liukeneman järjestyksen voi löytää vain testi, koska silmälle ei ole mitään näytettävää.
+</p>
+
+<h2>Kertoimet mitataan, ei valita</h2>
+
+<p>
+Liukeneman rekisterin kertoimet ovat taulukko <em>ajuritiedostossa</em>. Oppikirjan polynomi antaisi
+myös maksimimittaisen sarjan, eli uskottavan näköisen liukeneman <strong>eri järjestyksessä</strong>.
+Se olisi arvaus mittauksen vaatteissa.
+</p>
+
+<p>
+Ajuri osoittautui pakatuksi samalla tavalla kuin hiiriosoittimen muodot, ja
+<strong>erottelija oli luku jonka tämä projekti oli jo mitannut toista reittiä</strong>:
+osoitintiedoston oma pituusotsikko on 1548, ja 1548 on tasan se taulukkopituus jonka
+osoitinvientimme kirjaa kävelemällä puretut muodot. Kaksi lähdettä, kumpikaan ei johdettu
+toisesta.
+</p>
+
+<p>
+Taulukossa on viisitoista merkintää, mitattuna kahta riippumatonta reittiä, eikä rajaa otettu
+kooksi. <strong>Yhtään kerroinsanaa ei ole repositoriossa:</strong> jokainen väite erottelee
+<em>jaksolla</em>, joka on johdettu luku eikä sana.
+</p>
+
+<h2>Totuusarvo kolmen tuleman paikalla</h2>
+
+<p>
+Loitsujen taikaloiste osoittautui piirtorutiiniksi, jolla on 48 kutsupaikkaa. Me olimme
+mallintaneet sen laajasti: 121 riviä 22 luokassa, 34 väitettä.
+</p>
+
+<p>
+Mutta puuttuu kaikki mitä rutiini itse päättää. Se voi tulla kutsutuksi ja <em>olla
+välähtämättä</em>: objekti säiliössä, ruutu ikkunan ulkopuolella, ruutu pimeä. <strong>Yhdellä
+kutsupaikalla on alkuperäisessä kolme tulemaa ja meillä kaksi, ja 12:ssa niistä 22 luokasta
+yksi</strong>, koska kenttä on literaali <code>true</code> jota mikään testi ei voi nähdä
+epätotena.
+</p>
+
+<p>
+Se ei ollut väärin mitattu. Se tarkoittaa rehellisesti luettuna "alkuperäinen tulee tähän kutsuun",
+mikä on totta. Se vain <em>kutsuu lukemaan</em> "loiste näkyi", mitä ei ole osoitettu.
+</p>
+
+<h2>Parametri jota yksikään kutsuja ei voi vaihdella</h2>
+
+<p>
+Tilanäytön tila on alkuperäisessä viisiarvoinen, 48 vertailupaikkaa, ja <strong>seitsemän
+kahdestakymmenestäneljästä kirjoituksesta palauttaa tallennetun kopion</strong> eikä literaalia.
+</p>
+
+<p>
+Meillä on kaikki viisi nimeä ja kolme luetaan koodissa. Mutta <strong>mikään ei seuraa nykyistä
+tilaa</strong>, ja molemmat kutsupaikat antavat saman literaalin. Kolme mitattua sääntöä istuu siis
+parametrin takana joka ei voi vaihdella pelatessa.
+</p>
+
+<p>
+Yksikään niistä ei ole vika eikä yhtäkään pidä "korjata" poistamalla haara. Puuttuu se mikä saisi
+parametrin vaihtelemaan, ja se on sama päätös jota yksi suunnitteludokumentti jo odottaa.
+</p>
+
+<h2>Ja yksi sääntö kapeni</h2>
+
+<p>
+Lyhyempi tekstirivi säilytti pidemmän hännän viestialueella. Korjaus kaatoi kolme vanhaa testiä, ja
+<strong>rakennusajo pysähtyi ja kysyi sen sijaan että olisi muokannut niitä</strong>. Se on ainoa
+syy miksi asia mitattiin.
+</p>
+
+<p>
+Alkuperäisen vieritys täyttää paljastuneen rivin ikkunan koko leveydeltä, ja se väri on sama paperi
+jonka merkkisolun nollabitit maalaavat. Aiempi sääntömme oli siis oikeassa merkinkirjoituksesta ja
+liian vahva ikkunasta: <strong>yksikkö on rivi eikä solu.</strong>
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    510 / 510
+U6Export.Tests      85 / 85
+U6Engine.Tests    4074 / 4074
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<p>
+Vuotavan tekstin tarkistus sai yhden sallintamerkinnän, ajurin tiedostonimen.
+<strong>Sallintamerkintä heikentää turvatarkistusta</strong>, joten se sanotaan tässä eikä
+sivuuteta.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Katsekomento, jolla on neljä mitattua viipaletta takanaan eikä yhtään kutsujaa. Se on tällä
+     hetkellä suurin kuilu mitatun ja kokeiltavan välillä, ja sen sulkeminen on sama asia kuin
+     kysyä kuka omistaa ruudun nykyisen tilan.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
