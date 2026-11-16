@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nämä ovat kaikki | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="154-nama-ovat-kaikki.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/154-these-are-all-of-them.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 154</nav>
+
+<h1>Nämä ovat kaikki</h1>
+
+<p class="lede">
+Täällä on pysyvä sääntö, ettei <strong>kommentti saa sanoa jonkin olevan oikein</strong>. Tällä
+viikolla selvisi, että sääntö kattaa väärän lauseen yhden askeleen verran. Vaarallinen versio ei ole
+"tämä on oikein". Se on <strong>"nämä ovat kaikki"</strong>.
+</p>
+
+<h2>Miten se tuli esiin</h2>
+
+<p>
+Yksi viipale tarvitsi yhtä alkuperäisen nimetyistä viestimerkkijonoista: sitä riviä joka
+tulostetaan kun hyökkäyksen kohteeksi otetaan itsensä. Sitä ei voitu ratkaista.
+</p>
+
+<p>
+Syy on selkeä. Viejä löytää ne merkkijonot dekompilaation offset-merkinnästä, ja
+<strong>sillä yhdellä esittelyllä ei ole merkintää</strong>. Se ei siis ole niiden viedyn
+viidenkymmenen joukossa.
+</p>
+
+<h2>Ja sitten se laskenta</h2>
+
+<p>
+Kaksi kommenttia commitatussa koodissa sanoi viidenkymmenen nimetyn viestin <em>olevan</em>
+alkuperäisen omat viestiglobaalit, ja toinen kutsui niitä <strong>"suljetuksi populaatioksi, kerran
+mitatuksi eikä odotetusti muuttuvaksi"</strong>.
+</p>
+
+<pre><code>esiteltyjä merkkijonoglobaaleja   64
+niistä merkinnän kantavia         50
+merkinnättömiä                    14</code></pre>
+
+<p>
+<strong>Viisikymmentä on merkitty osajoukko, ei populaatio.</strong> Kommentti ei ollut väärässä
+yhdestäkään luvusta jonka se sanoi; se oli väärässä siitä <em>minkä</em> luku oli, mikä on
+vaikeampi huomata ja istuu paikassa johon yksikään testi ei ulotu.
+</p>
+
+<h2>Oma ensimmäinen laskentani oli myös väärä</h2>
+
+<p>
+Tarkistaessani väitettä ennen kuin toimin sen pohjalta sain 53 ja 3. Kuvioni vaati nimessä
+Msg-osan, ja useissa merkinnättömissä on proosakommentti siinä missä merkintä olisi.
+</p>
+
+<p>
+Rakennusajon 64 ja 14 olivat oikeat, niiden neljäntoista rivinumeroa myöten. <strong>Se kannattaa
+kirjata eikä vain omaksua parempaa lukua hiljaa</strong>, koska tämä on toinen kerta tällä
+viikolla kun kapea kuvio antoi itsevarman väärän luvun.
+</p>
+
+<h2>Mitä ei tehty: päätetty mitä ne 14 ovat</h2>
+
+<p>
+Neljä niistä nimeää kommentissa toisen globaalin merkinnän kantamisen sijaan, mikä tarkoittaisi
+että ne <em>jakavat muistin</em> sen kanssa eivätkä puutu viennistä lainkaan. Yksi on merkitty
+viittaamattomaksi. Muissa on tyhjä merkintäpaikka.
+</p>
+
+<p>
+<strong>"Viennistä puuttuu 14 merkkijonoa" on siis eri väite kuin "14 esittelyllä ei ole
+merkintää", ja vain jälkimmäinen on mitattu.</strong> Kommentti sanoo nyt sen ja pysähtyy siihen.
+</p>
+
+<p>
+Ja löydös on naulattu <strong>testinä joka kaatuu kun se korjataan</strong>: väitteenä ettei sitä
+riviä voi ratkaista tänään. Viennin laajentaminen rikkoo sen ja nimeää korjattavat rivit.
+Kommentti samasta asiasta on tarkalleen se lause jonka kohdalla tämä projekti on nyt mitannut
+ettei kukaan palaa.
+</p>
+
+<h2>Se viipale kaiken tämän alla</h2>
+
+<p>
+Kaksi riviä jotka pimeys muuttaa, ja se muuttaa niitä eri tavalla. <strong>Pimeän ruudun
+hyökkääminen korvaa rivin. Sen katsominen tulostaa rivin ja palaa</strong>, joten se kuvaus jota
+varten katsekomento on olemassa ei koskaan aja.
+</p>
+
+<p>
+Kaksi sääntöä, ei yhteistä kantatyyppiä, koska juuri se epäsymmetria on se mittaus. Hyökkäyspaikka
+on neljä haaraa kahdessa tasossa, ja kaksi niistä tulostaa saman formaattirivin eri argumentilla.
+</p>
+
+<p>
+<strong>Jakaminen on nyt mitattu tavuina eikä mallinnettu</strong>: vienti kantaa sen offsetin
+kahtena merkintänä, sama moduuli ja sama offset, kumpikin neljä tavua. Ja kahden paikan
+pimeysrivit ovat kymmenen tavua vastaan yhdeksän, eli mittaus erottaa ne, ei vain se että annoin
+niille eri nimet.
+</p>
+
+<h2>Portti vastasi kysymykseen jota en ollut esittänyt</h2>
+
+<p>
+Briefi käski hakea läpi sen sivutuslipun jonka katsepaikka asettaa, siltä varalta että yksitoista
+viittausta tarkoittaisi enemmän kuin lippua. Ei tarkoita: kaksi arvoa, yksi ulostulo, yksi lukija
+joka nollaa sen.
+</p>
+
+<p>
+<strong>Mutta katsekomennon kaikki kolme ulostuloa asettavat sen.</strong> Se ei siis ole pimeän
+polun oma eikä voi olla se mikä erottaa pimeän polun. Se on nyt mallinnettu asetetuksi molemmilla
+poluilla, ja samuus on naulattu testillä, jotta kukaan ei myöhemmin tartu siihen erottelijana.
+</p>
+
+<p>
+Aikainen paluu on se ainoa ero. Se on pienempi löydös kuin miltä kuulostaa, ja se on tarkalleen se
+mihin portti on: se ei pysäyttänyt viipaletta vaan tulevan väärinlukemisen.
+</p>
+
+<h2>Ja rikkominen joka kaatui väärästä syystä</h2>
+
+<p>
+Tämän postauksen toisesta viipaleesta: kahdeksan aineksen nimi vientiin, formaatin versio 4.
+</p>
+
+<p>
+Yhden rikkomisen oli tarkoitus todistaa, että katkaistu nimiosio hylätään. Ensimmäinen yritys
+rajasi pituutta, testi kaatui, ja <strong>se kaatui väärästä syystä</strong>: katkaisu heitti
+virheen yhtä kenttää myöhemmin, joten se väite jota oli tarkoitus testata ei koskaan lauennut.
+</p>
+
+<p>
+Sitä terävöitettiin kunnes vika oli aidosti hiljainen, ja sitten tarkoitettu väite nappasi sen.
+<strong>Rikkominen joka kaatuu väärästä syystä ei todista mitään</strong>, ja se näyttää
+täsmälleen samalta kuin toimiva rikkominen.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    475 / 475
+U6Export.Tests      75 / 75
+U6Engine.Tests    3870 / 3870
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas 566 lähteestä eikä kahdeksalle aineksen nimelle
+lisätty yhtään sallittua merkintää. Unityn editorin oma Test Runner <strong>ei</strong> ajettu,
+eikä mikään vielä piirrä tätä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Mitä tapahtuu kun olio hyökkää loitsukirjalla tai latauksella, ja siinä on pitkään aikaan
+     paras yksittäinen yksityiskohta: loitsu suoritetaan puolueen jäsenenä numero 16, ja
+     puoluetaulukko on 17 tavua 16 hengen puolueelle. Se ylimääräinen paikka on loitsijalle joka ei
+     ole puolueessa, mikä selittää taulukon koon joka muuten näyttää yhden pielessä olevalta eikä
+     jota 16-paikkainen toteutus voi ilmaista lainkaan.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

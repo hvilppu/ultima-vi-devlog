@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>These Are All of Them | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/154-nama-ovat-kaikki.html" hreflang="fi">FI</a><span>/</span><a href="154-these-are-all-of-them.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 154</nav>
+
+<h1>These Are All of Them</h1>
+
+<p class="lede">
+There is a standing rule here that <strong>a comment may not say a thing is right</strong>. This
+week it turned out the rule covers the wrong sentence by one step. The dangerous version is not
+"this is correct". It is <strong>"these are all of them"</strong>.
+</p>
+
+<h2>How it surfaced</h2>
+
+<p>
+A slice needed one of the original's named message strings: the line printed when you target
+yourself with an attack. It could not be resolved.
+</p>
+
+<p>
+The reason is clean. The exporter finds those strings by an offset tag in the decompilation, and
+<strong>that one declaration has no tag</strong>. So it is not among the exported fifty.
+</p>
+
+<h2>And then the count</h2>
+
+<p>
+Two comments in committed code said the fifty named messages <em>are</em> the original's own message
+globals, and one called them <strong>"a closed population, measured once and never expected to
+change"</strong>.
+</p>
+
+<pre><code>string globals declared       64
+of those, carrying a tag      50
+untagged                      14</code></pre>
+
+<p>
+<strong>Fifty is the tagged subset, not the population.</strong> The comment was not wrong about any
+number it stated; it was wrong about what the number was <em>of</em>, which is harder to notice and
+sits where no test can reach.
+</p>
+
+<h2>My own first count was wrong too</h2>
+
+<p>
+Checking the claim before acting on it, I counted 53 and 3. My pattern required the name to contain
+"Msg", and several of the untagged ones carry a prose comment where the tag would be.
+</p>
+
+<p>
+The build run's 64 and 14 were right, down to the fourteen line numbers. <strong>That is worth
+recording rather than quietly adopting the better number</strong>, because it is the second time
+this week a narrow pattern gave a confident wrong count.
+</p>
+
+<h2>What was not done: deciding what the 14 are</h2>
+
+<p>
+Four of them name another global in a comment rather than carrying a tag, which would mean they
+<em>share storage</em> with it and are not missing from the export at all. One is marked as not
+referenced. The rest carry an empty tag slot.
+</p>
+
+<p>
+<strong>So "the export is missing 14 strings" is a different claim from "14 declarations have no
+tag", and only the second one is measured.</strong> The comment now says that and stops.
+</p>
+
+<p>
+And the finding is pinned as a <strong>test that fails when it is fixed</strong>: an assertion that
+the self-attack row cannot be resolved today. Widening the export breaks it and names the lines to
+update. A comment saying the same thing is exactly the sentence this project has now measured that
+nobody goes back to.
+</p>
+
+<h2>The slice underneath all this</h2>
+
+<p>
+Two lines the dark changes, and they change them differently. <strong>Attacking a dark square
+substitutes a line. Looking at one prints a line and returns</strong>, so the whole description the
+look command exists for never runs.
+</p>
+
+<p>
+Two rules, no shared base type, because that asymmetry is the measurement. The attack site is four
+branches nested two deep, and two of them print through one format row with a different argument.
+</p>
+
+<p>
+<strong>The sharing is now measured in bytes rather than modelled</strong>: the export carries that
+offset as two entries of identical module and offset, both four bytes. And the two sites' dark rows
+are ten bytes against nine, so measurement separates them, not just the fact that I gave them
+different names.
+</p>
+
+<h2>The gate answered a question I had not asked</h2>
+
+<p>
+The brief told the build to sweep the paging flag the look site sets, in case eleven references meant
+it was more than a flag. It is not: two values, one outcome, one reader that clears it.
+</p>
+
+<p>
+<strong>But all three of the look command's exits set it.</strong> So it is not peculiar to the dark
+path and cannot be what tells the dark path apart. It is now modelled as set on both paths, with a
+test pinning the sameness, so that nobody later reaches for it as the discriminator.
+</p>
+
+<p>
+The early return is the only difference. That is a smaller finding than it sounds and it is exactly
+what a gate is for: it did not stop the slice, it stopped a future misreading.
+</p>
+
+<h2>And a break that failed for the wrong reason</h2>
+
+<p>
+From the other slice this post covers, the eight reagent names going through the export at format
+version 4.
+</p>
+
+<p>
+One break was meant to prove that a truncated name section is refused. The first attempt clamped a
+length, the test failed, and <strong>it failed for the wrong reason</strong>: the truncation still
+threw one field later, so the assertion under test was never the thing that fired.
+</p>
+
+<p>
+It was sharpened until the fault was genuinely silent, and then the intended assertion caught it.
+<strong>A break that fails for the wrong reason proves nothing</strong>, and it looks exactly like a
+break that works.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    475 / 475
+U6Export.Tests      75 / 75
+U6Engine.Tests    3870 / 3870
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+clean over 566 sources with no allowlist entry added for the eight reagent names. Unity's own Test
+Runner was <strong>not</strong> run, and nothing draws any of this yet.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>What happens when a creature attacks with a spellbook or a charge, which has the best single
+     detail in a while: the spell runs with the active member set to 16, and the party array is 17
+     bytes for a party of 16. The spare slot exists for a caster who is not in the party, which
+     explains an array size that otherwise reads as an off-by-one and that a 16-element party
+     cannot express at all.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
