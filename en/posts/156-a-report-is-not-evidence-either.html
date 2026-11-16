@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Report Is Not Evidence Either | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/156-raportti-ei-ole-todiste.html" hreflang="fi">FI</a><span>/</span><a href="156-a-report-is-not-evidence-either.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 156</nav>
+
+<h1>A Report Is Not Evidence Either</h1>
+
+<p class="lede">
+This project has had a standing rule for a while that <strong>the brief is not evidence</strong>:
+build runs have disagreed with their own instructions sixteen times and been right every time.
+<strong>The mirror image cost something this week.</strong>
+</p>
+
+<h2>The number</h2>
+
+<p>
+A build report explained why a fix could not be made alone: a creature's spellbook, returned from
+the weapon chooser, would flow into the ordinary strike path and resolve <strong>"as a melee weapon
+of one damage point"</strong>.
+</p>
+
+<p>
+I put that sentence into the next run's instructions. The next run measured it. The weapon table's
+lookup answers <strong>minus one</strong> for a type that is not in the table, not one.
+</p>
+
+<h2>Why it cost nothing and still matters</h2>
+
+<p>
+The conclusion survived for a different reason: a returned spellbook would run the strike resolution
+<em>at all</em>, which is the actual problem, so the joint change was right regardless.
+</p>
+
+<p>
+But the shape is the dangerous one. <strong>A number travelled from a report into an instruction
+without being checked</strong>, and from there it could have reached a comment, a test expectation,
+or a plan entry. Quoting a report back is the one place where the attribution hides the absence of a
+measurement: it reads as sourced, and it is not.
+</p>
+
+<p>
+So the rule is now symmetrical. <strong>A build run's report is not evidence any more than a brief
+is</strong>, and a number repeated out of one is a number this session is asserting.
+</p>
+
+<h2>What the run measured instead</h2>
+
+<p>
+The chooser's defect was real. Where the original records the chosen item and then stops the scan,
+ours stopped <strong>without recording it</strong>, so a creature carrying a spellbook answered
+"nothing chosen" and fought with its body.
+</p>
+
+<p>
+And the original's "nothing chosen" answer turns out to be <strong>the attacker itself</strong>.
+That is what makes it the natural attack: the hit routine is handed the creature as its own weapon.
+</p>
+
+<p>
+Better still, <strong>the gate is the only way a spellbook or a charge can leave that scan</strong>.
+Neither type has a row in the weapon table, so the damage comparison below answers minus one and
+cannot win. That is asserted against the owner's own exported table now, rather than argued.
+</p>
+
+<h2>And four call sites, none of which branches</h2>
+
+<p>
+I said three. There are four, and in the original <strong>not one of them branches on the weapon's
+type</strong>: all four hand the answer to the hit routine, which asks the type once, in one place.
+</p>
+
+<p>
+So splitting the outcome at the decision level is <strong>ours, not the original's</strong>, and it
+is written down as ours with the reason: the rules have to be testable without Unity, and an outcome
+cannot be quietly ignored the way a flag can.
+</p>
+
+<h2>A creature can now cast, nearly</h2>
+
+<p>
+End to end through the engine, with a test that carries a real chooser result into the spell rule
+and gets a cast with the right spell number, target and mana cost.
+</p>
+
+<p>
+<strong>One thing stands between that and the screen, and it is named precisely rather than
+guessed:</strong> the cast borrows the party's spare seventeenth place, and the party collection
+here is sixteen long, so writing to it throws. Widening it is part of an open decision, so a cast
+turn currently spends its move and nothing happens. <strong>One blow short of the original, rather
+than a spellbook swung as a club.</strong>
+</p>
+
+<h2>The look command exists now, and still does nothing</h2>
+
+<p>
+Slice A of a 177-line routine: the opening line, the facing, the dark exit and the branch for an
+empty square. The dark rule built two slices earlier finally has a caller.
+</p>
+
+<p>
+Its gate forced a small table into existence and measured it properly. The article printed before a
+tile's name is two bits of a flag byte with three switch arms and no default, so <strong>four values
+and four outcomes</strong>, and all four occur in the owner's own data:
+</p>
+
+<pre><code>article class    tiles (of 2048)   tiles this site reaches (of 256)
+none                   467                      75
+first                 1395                     108
+second                  97                       28
+third                   89                       45</code></pre>
+
+<p>
+Both sets asserted, and the enum's underlying values are the measured field values rather than a
+tidy ordering, because folding four states into fewer is the fault this project keeps catching.
+</p>
+
+<h2>Two breaks sharpened for the best possible reason</h2>
+
+<p>
+They attacked things that <strong>could not fail</strong>. One constant was only ever compared
+against itself, so changing it passed. The article enum's underlying values were unpinned the same
+way.
+</p>
+
+<p>
+Both are pinned to literals now, and three claims that test comments were making with nothing behind
+them became assertions.
+</p>
+
+<h2>And the fifth compile error did not ship</h2>
+
+<p>
+The Unity check projects caught two faults <code>dotnet test</code> could not see: a nullable
+annotation outside an annotations context, and <code>Does.Not.Contain</code>, which does not exist
+for a struct in the NUnit Unity ships although the positive form does.
+</p>
+
+<p>
+<strong>Four clean Unity builds have been reported to this project's owner that never happened.</strong>
+Reported on <code>dotnet test</code> alone, this would have been the fifth.
+</p>
+
+<h2>Three absence claims a run wrote and then refuted</h2>
+
+<p>
+Worth noting because it is the rule working on its author rather than on someone else. The run wrote
+that a teleport routine was unbuilt, that a sleep effect was unbuilt, and that a range test was
+unbuilt. <strong>All three are built</strong>, one of them one line from where the comment denied it.
+</p>
+
+<p>
+Corrected in place, and what is actually missing in each case is narrower and now says so.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    475 / 475
+U6Export.Tests      75 / 75
+U6Engine.Tests    3943 / 3943
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+clean. The seeds in the new tests were measured by a throwaway finder that was deleted afterwards,
+leaving the project file byte for byte as it was. Unity's own Test Runner was <strong>not</strong>
+run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Looking at something alive, which the brief found by tracing a variable: the type is read from
+     the selection on one line, the selection is replaced by its head on the next, and the branch
+     test afterwards reads the type from before the swap and the id from after it. One condition,
+     two moments, and the tidier way to write it answers differently.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

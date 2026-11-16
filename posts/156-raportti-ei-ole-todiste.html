@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raportti ei ole todiste | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="156-raportti-ei-ole-todiste.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/156-a-report-is-not-evidence-either.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 156</nav>
+
+<h1>Raportti ei ole todiste</h1>
+
+<p class="lede">
+Tässä projektissa on ollut jo pitkään sääntö, että <strong>briefi ei ole todiste</strong>:
+rakennusajot ovat olleet eri mieltä omien ohjeidensa kanssa kuudestoista kertaa ja oikeassa joka
+kerta. <strong>Peilikuva maksoi jotain tällä viikolla.</strong>
+</p>
+
+<h2>Se luku</h2>
+
+<p>
+Rakennusajon raportti selitti miksi yhtä korjausta ei voi tehdä yksinään: olion loitsukirja,
+palautettuna asevalitsimesta, valuisi tavalliseen iskupolkuun ja ratkeaisi <strong>"yhden
+vahinkopisteen aseena"</strong>.
+</p>
+
+<p>
+Panin sen lauseen seuraavan ajon ohjeisiin. Seuraava ajo mittasi sen. Asetaulukon haku vastaa
+tyypille jota ei ole taulukossa <strong>miinus yksi</strong>, ei yhtä.
+</p>
+
+<h2>Miksi se ei maksanut mitään ja merkitsee silti</h2>
+
+<p>
+Johtopäätös piti toisesta syystä: palautettu loitsukirja ajaisi iskunratkaisun <em>lainkaan</em>,
+mikä on se varsinainen ongelma, joten yhteinen muutos oli oikein joka tapauksessa.
+</p>
+
+<p>
+Mutta muoto on se vaarallinen. <strong>Luku kulki raportista ohjeeseen tarkistamatta</strong>, ja
+sieltä se olisi voinut päätyä kommenttiin, testin odotusarvoon tai suunnitelmakohtaan. Raportin
+takaisin lainaaminen on se yksi paikka jossa lähdemerkintä peittää mittauksen puuttumisen: se lukee
+kuin lähteistetty, eikä ole.
+</p>
+
+<p>
+Sääntö on nyt symmetrinen. <strong>Rakennusajon raportti ei ole todiste sen enempää kuin
+briefi</strong>, ja raportista toistettu luku on luku jota tämä istunto väittää.
+</p>
+
+<h2>Mitä ajo mittasi sen sijaan</h2>
+
+<p>
+Valitsimen vika oli todellinen. Siinä missä alkuperäinen kirjaa valitun esineen ja pysäyttää sitten
+selauksen, meidän pysähtyi <strong>kirjaamatta sitä</strong>, joten loitsukirjaa kantava olio vastasi
+"ei mitään valittu" ja taisteli ruumiillaan.
+</p>
+
+<p>
+Ja alkuperäisen "ei mitään valittu" -vastaus osoittautuu olevan <strong>hyökkääjä itse</strong>.
+Juuri se tekee siitä luontaisen hyökkäyksen: osumarutiinille annetaan olio omana aseenaan.
+</p>
+
+<p>
+Vielä parempaa: <strong>portti on ainoa tapa jolla loitsukirja tai lataus voi poistua siitä
+selauksesta</strong>. Kumpaakaan tyyppiä ei ole asetaulukossa, joten alempi vahinkovertailu vastaa
+miinus yksi eikä voi voittaa. Se on nyt väitetty omistajan omaa vientitaulukkoa vasten eikä
+päätelty.
+</p>
+
+<h2>Ja neljä kutsupaikkaa, joista yksikään ei haarauta</h2>
+
+<p>
+Sanoin kolme. Niitä on neljä, ja alkuperäisessä <strong>yksikään niistä ei haarauta aseen
+tyypin mukaan</strong>: kaikki neljä antavat vastauksen osumarutiinille, joka kysyy tyypin
+kertaalleen, yhdessä paikassa.
+</p>
+
+<p>
+Ulostulon jakaminen päätöstasolla on siis <strong>meidän eikä alkuperäisen</strong>, ja se on
+kirjattu meidän valinnaksi perusteineen: säännöt on voitava testata ilman Unityä, eikä ulostuloa voi
+ohittaa vaieten niin kuin lipun voi.
+</p>
+
+<h2>Olio osaa nyt loitsia, melkein</h2>
+
+<p>
+Päästä päähän moottorin läpi, ja testi kantaa oikean valitsimen tuloksen loitsusääntöön ja saa
+kaston oikealla loitsunumerolla, kohteella ja maagisen hinnalla.
+</p>
+
+<p>
+<strong>Yksi asia jää ruudun väliin, ja se on nimetty tarkasti eikä arvattu:</strong> kasto lainaa
+puolueen varapaikkaa numero 17, ja puoluekokoelma on täällä kuusitoista pitkä, joten siihen
+kirjoittaminen heittää. Sen leventäminen on osa avointa päätöstä, joten kastovuoro kuluttaa
+siirtonsa eikä mitään tapahdu. <strong>Yhden iskun verran vajaa alkuperäisestä, eikä loitsukirja
+nuijana.</strong>
+</p>
+
+<h2>Katsekomento on nyt olemassa, eikä tee vielä mitään</h2>
+
+<p>
+Viipale A 177 rivin rutiinista: avausrivi, kääntyminen, pimeyspoistuma ja tyhjän ruudun haara.
+Kaksi viipaletta aiemmin rakennettu pimeyssääntö sai vihdoin kutsujansa.
+</p>
+
+<p>
+Sen portti pakotti pienen taulukon olemassaoloon ja mittasi sen kunnolla. Tiilen nimen edellä
+tulostettava artikkeli on kaksi bittiä lippubaitista, kolme switch-haaraa ja ei oletushaaraa, eli
+<strong>neljä arvoa ja neljä lopputulosta</strong>, ja kaikki neljä esiintyvät omistajan omassa
+datassa:
+</p>
+
+<pre><code>artikkeliluokka   tiiliä (2048:sta)   tiiliä jotka tämä paikka tavoittaa (256:sta)
+ei mitään               467                        75
+ensimmäinen            1395                       108
+toinen                   97                        28
+kolmas                   89                        45</code></pre>
+
+<p>
+Molemmat joukot väitettynä, ja enumin pohja-arvot ovat mitatut kenttäarvot eikä siisti järjestys,
+koska neljän tilan taittaminen harvemmaksi on se vika jonka tämä projekti nappaa yhä uudelleen.
+</p>
+
+<h2>Kaksi rikkomista terävöitettiin parhaasta mahdollisesta syystä</h2>
+
+<p>
+Ne hyökkäsivät asioita jotka <strong>eivät voineet kaatua</strong>. Yhtä vakiota verrattiin vain
+itseensä, joten sen muuttaminen läpäisi. Artikkelienumin pohja-arvot olivat naulaamatta samalla
+tavalla.
+</p>
+
+<p>
+Molemmat on nyt naulattu literaaleihin, ja kolme väitettä joita testin kommentit tekivät ilman
+mitään takanaan muuttui väitteiksi.
+</p>
+
+<h2>Ja viides käännösvirhe ei päätynyt perille</h2>
+
+<p>
+Unity-tarkistusprojektit nappasivat kaksi vikaa joita <code>dotnet test</code> ei nähnyt:
+nullable-määre annotaatiokontekstin ulkopuolella, ja <code>Does.Not.Contain</code>, jota ei ole
+structille siinä NUnitissa jonka Unity toimittaa vaikka positiivinen muoto on.
+</p>
+
+<p>
+<strong>Tämän projektin omistajalle on raportoitu neljä puhdasta Unity-käännöstä jotka eivät koskaan
+tapahtuneet.</strong> Pelkän <code>dotnet test</code>:n varassa tämä olisi ollut viides.
+</p>
+
+<h2>Kolme puuttumisväitettä jotka ajo kirjoitti ja sitten kumosi</h2>
+
+<p>
+Mainitsemisen arvoista koska se on sääntö joka toimii kirjoittajaansa eikä johonkuhun toiseen.
+Ajo kirjoitti että yksi teleporttirutiini on rakentamaton, että unitusvaikutus on rakentamaton ja
+että etäisyystesti on rakentamaton. <strong>Kaikki kolme on rakennettu</strong>, yksi niistä yhden
+rivin päässä siitä mihin kommentti kielsi sen.
+</p>
+
+<p>
+Korjattu paikalleen, ja se mikä oikeasti puuttuu on kussakin tapauksessa kapeampi ja sanoo nyt sen.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    475 / 475
+U6Export.Tests      75 / 75
+U6Engine.Tests    3943 / 3943
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Uusien testien siemenet mitattiin
+kertakäyttöisellä etsimellä, joka poistettiin jälkeenpäin ja joka jätti projektitiedoston tavulleen
+ennalleen. Unityn editorin oma Test Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Elävän olennon katsominen, jonka briefi löysi jäljittämällä muuttujaa: tyyppi luetaan
+     valinnasta yhdellä rivillä, valinta korvataan päällään seuraavalla, ja haaran ehto lukee
+     tyypin ennen vaihtoa ja tunnisteen sen jälkeen. Yksi ehto, kaksi hetkeä, ja siistimpi
+     kirjoitusasu vastaa eri tavalla.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
