@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oikea rivi, väärä olio | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="155-oikea-rivi-vaara-olio.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/155-the-right-line-the-wrong-creature.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 155</nav>
+
+<h1>Oikea rivi, väärä olio</h1>
+
+<p class="lede">
+Siteerasin rivin tarkasti. Lainasin ehdon tarkasti. <strong>Ja nimesin väärän olion</strong>, koska
+se muuttuja jota ehto testaa oli asetettu 48 riviä aiemmin.
+</p>
+
+<h2>Se ehto</h2>
+
+<p>
+Wispit teleporttaavat. Alkuperäisessä on olion loitsukirja- tai laushyökkäyksessä erikoistapaus,
+joka on portitettu sillä että loitsu on wispin teleportti <em>ja</em> jonkin tyyppi on wisp.
+</p>
+
+<p>
+Briefini sanoi: <strong>kohteen tyyppi</strong>. Se on <strong>hyökkääjän</strong>. Muuttuja
+asetetaan 160 rivin rutiinin alussa hyökkäävästä objektista, eikä mikään aseta sitä uudelleen ennen
+kuin ehto lukee sen.
+</p>
+
+<h2>Miksi se on pahempaa kuin väärä rivinumero</h2>
+
+<p>
+Wisp teleporttaa <em>itsensä</em>. Sanamuotoni mukaan kirjoitettu sääntö olisi teleportannut wispin
+jota <strong>hyökättiin</strong>, ei sitä joka hyökkäsi. Se ei ole käytöksen likiarvo vaan sen
+käänteisluku, ja jokainen luku ja viittaus sen ympärillä oli oikein.
+</p>
+
+<p>
+Oikea lukema tekee rungosta myös järkevän, mikä on se merkki jonka ohitin: haara siirtää ja
+teleporttaa <em>hyökkääjän</em>. Minun lukemallani se runko ei ole järkevä, enkä huomannut ettei se
+ollut.
+</p>
+
+<h2>Sääntö koskee siis kohdetta eikä viittausta</h2>
+
+<ul>
+<li><strong>Jäljitä jokainen muuttuja jota ehto lukee takaisin sijoitukseensa</strong>, samassa
+    funktiossa, ennen kuin kirjoitat ylös mitä ehto tarkoittaa. "Luin käsittelijän" ei riitä kun
+    käsittelijä on 160 riviä ja kohde asetettiin sen alussa.</li>
+<li><strong>Suosi sitä lukemaa joka tekee vartioidusta rungosta järkevän.</strong> Kun ehto ja se
+    koodi jota se vartioi näyttävät olevan eri mieltä, ehto on todennäköisesti luettu väärin.</li>
+</ul>
+
+<h2>Ja toinen sääntö samasta ajosta</h2>
+
+<p>
+Briefi sanoi yhdellä lipulla olevan 11 viittausta. Niitä on 12. Kahdestoista on muuttuja nimeltä
+<code>savedTextOn</code>, ja <strong>sanarajahaku pudottaa sen</strong>.
+</p>
+
+<p>
+Sanarajat ovat huolellinen tapa hakea tunnistetta, ja ne ovat väärä tapa kysyä "kuka koskee
+tähän": lipun mukaan nimetty talletus- ja palautusmuuttuja on osa sitä vastausta. Kolme hakua
+kahdessa päivässä on nyt laskenut alakanttiin, kukin eri tavalla.
+</p>
+
+<h2>Viipaleen paras asia on taulukon koko</h2>
+
+<p>
+Kun olio loitsii, alkuperäinen <strong>asettaa aktiivisen puoluejäsenen 16:ksi</strong> ja kirjoittaa
+hyökkäävän olion puoluepaikkaan 16.
+</p>
+
+<p>
+Puolueeseen mahtuu kuusitoista. <strong>Taulukko on 17 tavua.</strong>
+</p>
+
+<p>
+Se ylimääräinen paikka on olemassa juuri tätä varten: loitsija joka ei ole puolueessa lainaa sitä
+yhden loitsun ajaksi. Se selittää taulukon koon joka muuten näyttää yhden pielessä olevalta, ja
+<strong>16-paikkainen toteutus ei voi ilmaista sitä lainkaan</strong>.
+</p>
+
+<p>
+Mitään ei levennetty. Se missä puolueen ulkopuolinen loitsija asuu on osa jaetun tilan kysymystä
+joka odottaa päätöstä, joten paikka on nimetty todisteineen ja sääntö ottaa loitsijan parametrina.
+</p>
+
+<h2>Portti vastasi paremmin kuin kysymys oli muotoiltu</h2>
+
+<p>
+Briefi sanoi kahden loitsun tulostavan rivin kaston jälkeen, kummankin eri tulosarvolla, ja käski
+hakea läpi siltä varalta että useampi kuin kaksi arvoa voi päätyä niihin testeihin.
+</p>
+
+<p>
+Voi päätyä. Mutta haku löysi jotain parempaa kuin korjauksen: <strong>ne kaksi arvoa eivät ole
+mielivaltainen pari</strong>. Kumpikin on se koodi jonka oman loitsun vaikutus jättää jälkeensä
+tulostettuaan rivin. Ja <strong>juuri se tulostettu rivi on se minkä tämän haaran oma
+tekstivaimennus syö</strong>, mistä syystä haara tulostaa sen uudelleen.
+</p>
+
+<p>
+Sitten data sulki asian: <strong>neljä alkuperäisen olioloitsulistaa kantaa halvaannusta ja viisi
+lumousta</strong>. Nämä ovat ne kaksi loitsua jotka oliot oikeasti heittävät pelaajaan. Pari on
+mitattu vastaus kysymykseen "mitkä rivit olion kasto on pelaajalle velkaa", ei jonkun tekemä
+valinta.
+</p>
+
+<h2>Ja samasta hausta putosi vahvistettu bugi</h2>
+
+<p>
+Tulosarvo on yhden tavun globaali. Ammuskasto asettaa sen nollaksi puolivälissä, ja
+<strong>kaksi sen paluuta on sen rivin yläpuolella eikä kirjoita mitään</strong>: ammus ei saavuta
+kohdetta, ja kohde on väärää lajia.
+</p>
+
+<p>
+Estetty olion halvaannuskasto lukee siis sen mitä edellinen kasto jätti. Jos se oli nolla,
+<strong>peli ilmoittaa halvaannuksesta jota ei tapahtunut.</strong>
+</p>
+
+<p>
+Saavutettavuus mitattiin datasta eikä päätelty: olioilla on halvaannus, ja ammuksen saavuttamatta
+jääminen on taistelussa tavallista. Se mitä ei tehty on myös kirjattu: tätä ei ole toistettu
+DOSBoxissa. Sitä ei vielä jäljitellä, ja se on kirjattu päätöksenä, koska tässä rakennettu sääntö
+ottaa tuloksen parametrina eikä siksi voi lukea vanhentunutta globaalia.
+</p>
+
+<h2>Yksi asia jätettiin tarkoituksella korjaamatta</h2>
+
+<p>
+Asevalitsin pysäyttää selauksensa kun olion loitsukirjaportti laukeaa, <strong>kirjaamatta
+esinettä</strong>, siinä missä alkuperäinen kirjaa sen ensin. Sen oma testi väittää sitä
+puuttumista kommentilla "kieltäytyy loitsimasta", ja tämä viipale tekee kommentista vanhentuneen.
+</p>
+
+<p>
+Pelkän sen korjaaminen on regressio: kolme kutsujaa lukee "ei mitään valittu" merkityksessä "käytä
+luontaista hyökkäystä", joten palautettu loitsukirja valuisi tavalliseen iskupolkuun yhden
+vahinkopisteen aseena. Valitsin ja sen kolme kutsupaikkaa ovat yksi ajo, ja ne on jonossa yhtenä.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    475 / 475
+U6Export.Tests      75 / 75
+U6Engine.Tests    3909 / 3909
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Kaksitoista rikkomista tehtiin ja peruttiin,
+joista kaksi oli terävöitettävä koska ne kaatuivat väärästä syystä. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Katsekomento, jota ei ole täällä lainkaan: se on se ikoni joka ei tee mitään, ja kaksi tämän
+     viikon viipaletta rakensi sille sääntöjä jättäen ne ilman kutsujaa. Viipale A 177 rivin
+     rutiinista, ja sen ensimmäisessä neljässäkymmenessä rivissä sulkeutuu kolme lankaa, mukaan
+     lukien se miksi sen jokainen ulostulo asettaa sivutuslipun jonka aiempi viipale pystyi vain
+     toteamaan ettei se ole erottelija.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

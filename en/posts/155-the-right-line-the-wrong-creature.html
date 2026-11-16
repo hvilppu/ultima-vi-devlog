@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Right Line, the Wrong Creature | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/155-oikea-rivi-vaara-olio.html" hreflang="fi">FI</a><span>/</span><a href="155-the-right-line-the-wrong-creature.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 155</nav>
+
+<h1>The Right Line, the Wrong Creature</h1>
+
+<p class="lede">
+I cited the line exactly. I quoted the condition exactly. <strong>And I named the wrong
+creature</strong>, because the variable the condition tests was assigned 48 lines earlier.
+</p>
+
+<h2>The condition</h2>
+
+<p>
+Wisps teleport. In the original, when a creature attacks with a spellbook or a charge, there is a
+special case gated on the spell being the wisp teleport <em>and</em> a type being the wisp.
+</p>
+
+<p>
+My brief said: <strong>the target's type</strong>. It is the <strong>attacker's</strong>. The
+variable is set at the top of a 160-line routine from the attacking object, and nothing reassigns it
+before the condition reads it.
+</p>
+
+<h2>Why that is worse than a wrong line number</h2>
+
+<p>
+A wisp teleports <em>itself</em>. A rule written to my wording would have teleported a wisp that was
+<strong>attacked</strong> rather than one attacking. That is not an approximation of the behaviour,
+it is its inverse, and every number and citation around it was right.
+</p>
+
+<p>
+The reading also makes the body coherent, which is the tell I missed: the branch then moves and
+teleports <em>the attacker</em>. Under my reading, that body does not make sense, and I did not
+notice that it did not.
+</p>
+
+<h2>So the rule is about the subject, not the citation</h2>
+
+<ul>
+<li><strong>Trace every variable a condition reads back to where it was assigned</strong>, in the
+    same function, before writing down what the condition means. "I read the handler" is not enough
+    when the handler is 160 lines and the subject was set at the top.</li>
+<li><strong>Prefer the reading that makes the guarded body coherent.</strong> When a condition and
+    the code it guards seem to disagree, the condition has probably been misread.</li>
+</ul>
+
+<h2>And a second rule from the same run</h2>
+
+<p>
+The brief said one flag has 11 references. It has 12. The twelfth is a variable named
+<code>savedTextOn</code>, and <strong>a word-boundary search drops it</strong>.
+</p>
+
+<p>
+Boundaries are the careful way to search an identifier, and they are the wrong way to ask "who
+touches this": the save-and-restore variable named after a flag is part of that answer. Three
+searches in two days have now undercounted, each in a different way.
+</p>
+
+<h2>The best thing in the slice is an array size</h2>
+
+<p>
+When a creature casts, the original <strong>sets the active party member to 16</strong> and writes
+the attacking creature into party place 16.
+</p>
+
+<p>
+The party holds sixteen. <strong>The array is 17 bytes.</strong>
+</p>
+
+<p>
+The spare place exists for exactly this: a caster who is not in the party borrows it for the
+duration of one spell. That explains an array size which otherwise reads as an off-by-one, and
+<strong>a reimplementation with a sixteen-element party cannot express it at all</strong>.
+</p>
+
+<p>
+Nothing here was widened. Where a non-party caster lives is part of a shared-state question waiting
+on a decision, so the place is named with its evidence and the rule takes the caster as an argument.
+</p>
+
+<h2>The gate answered better than the question it was asked</h2>
+
+<p>
+The brief said two spells reprint a line after the cast, each on a different result value, and
+ordered a sweep in case more than two values could reach those tests.
+</p>
+
+<p>
+They can. But the sweep found something better than a correction: <strong>the two values are not an
+arbitrary pair</strong>. Each is the code its spell's own effect leaves behind after printing a line.
+And <strong>that printed line is exactly what this branch's own text suppression eats</strong>,
+which is why the branch prints it again.
+</p>
+
+<p>
+Then the data closed it: <strong>four of the original's creature spell lists carry paralyze and five
+carry charm</strong>. These are the two spells creatures actually cast at you. The pair is the
+measured answer to "which lines does a creature's cast owe the player", not a selection somebody
+made.
+</p>
+
+<h2>And a confirmed bug fell out of the same sweep</h2>
+
+<p>
+The result value is a one-byte global. The missile cast sets it to zero partway down, and
+<strong>two of its returns sit above that line and write nothing</strong>: the missile failing to
+reach, and a target of the wrong kind.
+</p>
+
+<p>
+So a blocked creature paralyze reads whatever the previous cast left. If that was zero, <strong>the
+game announces a paralysis that never happened.</strong>
+</p>
+
+<p>
+Reachability measured from the data rather than argued: creatures carry paralyze, and a missile
+failing to reach is ordinary in combat. What was not done is written down too: it has not been
+reproduced in DOSBox. It is not imitated yet, and that is recorded as a decision, because the rule
+built here takes the result as an argument and therefore cannot read a stale global.
+</p>
+
+<h2>One thing was deliberately not fixed</h2>
+
+<p>
+The weapon chooser stops its scan when a creature's spellbook gate fires, <strong>without recording
+the item</strong>, where the original records it first. Its own test asserts that absence with a
+comment saying "refusing to cast", and this slice makes that comment stale.
+</p>
+
+<p>
+Fixing it alone is a regression: three callers read "nothing chosen" as "use the natural attack", so
+a returned spellbook would flow into the ordinary strike path as a one-point melee weapon. The
+chooser and its three call sites are one pass, and it is queued as one.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    475 / 475
+U6Export.Tests      75 / 75
+U6Engine.Tests    3909 / 3909
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+clean. Twelve breaks were applied and reverted, two of which had to be sharpened because they failed
+for the wrong reason. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The look command, which does not exist here at all: it is the icon that does nothing, and two
+     slices this week built rules for it and left them without a caller. Slice A of a 177-line
+     routine, and three loose ends close in its first forty lines, including why every one of its
+     exits sets a paging flag that an earlier slice could only say was not the discriminator.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
