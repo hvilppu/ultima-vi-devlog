@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nine Times Out of Ten | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/158-yhdeksan-kertaa-kymmenesta.html" hreflang="fi">FI</a><span>/</span><a href="158-nine-times-out-of-ten.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 158</nav>
+
+<h1>Nine Times Out of Ten</h1>
+
+<p class="lede">
+The original's own mouse pointer is on the screen, after three slices. The best thing this
+measurement produced is not the pointer. It is one shape out of ten that <strong>disagrees</strong>
+with the other nine, and that could otherwise have pinned a wrong reading under a green suite.
+</p>
+
+<h2>Three slices: the place, the data, the draw</h2>
+
+<p>
+First the <strong>geometry</strong>: where the pointer belongs in the map composition. Then the
+<strong>shapes</strong>, which are data in the owner's own installation and therefore have to be
+exported. Last the <strong>draw</strong>, after the frame, so the pointer sits on top of it.
+</p>
+
+<p>
+The geometry slice drew nothing, and my own instruction had assumed it could. When the first slice
+puts nothing on the screen it is easy to read as a dead end. It was not: the road to the screen was
+three steps, and reading that took one search.
+</p>
+
+<h2>The one shape out of ten</h2>
+
+<p>
+Every shape declares its own box as four extents, and inside it are runs of pixels. Those give two
+different readings of a shape's size: <em>read the declared box</em>, or <em>derive the size from
+how far the runs reach</em>. The original's own arithmetic says the declared box, so that was my
+brief's answer.
+</p>
+
+<p>
+It was still only a citation. <strong>The file itself supplied the discriminator:</strong> shape
+0's declared box is 11 by 15 while its runs reach only 10 by 14. The other nine agree exactly.
+</p>
+
+<p>
+So <strong>the wrong reading would be right nine times out of ten</strong>. That is exactly the
+shape that survives testing: one test in ten fails, it looks like an edge case, and the bound gets
+loosened until green comes back. I parsed the exported file myself rather than taking the number
+out of a report, and the walk closes at 1520 of 1520 bytes.
+</p>
+
+<h2>The crosshair answers outside the map too</h2>
+
+<p>
+The shape choice has five cases and the crosshair is what <strong>both branches</strong> fall
+through to. That means the crosshair also appears <em>outside</em> the map window whenever the mouse
+mode is targeting, not only over the map.
+</p>
+
+<p>
+A reimplementation that writes the crosshair as "the map's targeting shape" gets the panel wrong,
+and nothing about it looks wrong. It was broken on purpose into the inside branch's else, and
+<strong>two tests of 4028 failed</strong> while the other four cases passed.
+</p>
+
+<h2>A break that kept every pixel count correct</h2>
+
+<p>
+One break changed no count at all. It was seen only by comparing <strong>pixel values</strong>, and
+the reason is that the tests compute their expectations by a different formulation from the code:
+the draw trims each run at its ends, the test walks every pixel and bounds-tests it individually.
+</p>
+
+<p>
+<strong>Counting alone would have passed a wrong draw.</strong> Had the test been written with the
+same formulation, it would have been an expensive way of agreeing with itself.
+</p>
+
+<h2>Three errors in my brief, and all three are its own numbers</h2>
+
+<p>
+<strong>The height formula dropped the plus one the width kept.</strong> One pixel short for every
+shape. And the interesting part: <strong>the reader already had it right</strong>, so the brief was
+the odd one out rather than the authority. The build run caught it by reading the line instead of
+the brief.
+</p>
+
+<p>
+<strong>My own table contradicted my own sentence</strong> two inches above it. The table lists
+three rows that reach the crosshair, and the next paragraph said to assert "the two" separately.
+The difference between two routes and three cases is small, but the instruction read as covering
+everything.
+</p>
+
+<p>
+And the claim that this is the <em>first</em> caller of the direction rule that is not walking:
+<strong>the look command got there first.</strong> One search of our own sources would have answered
+it, and the sentence was written from memory of the walking code.
+</p>
+
+<h2>The consumer rule bit its own author</h2>
+
+<p>
+I had written in the brief that what a shape's four extents <em>mean in pixels</em> is unmeasured.
+It is measured, <strong>in a third consumer I did not look for</strong>: the routine that saves the
+background reads the same four words as geometry, as a width, a height and a top-left corner.
+</p>
+
+<p>
+My own sentence did hedge, with "in both routines read here", so the fault is narrower than a false
+claim. It is <strong>naming a gap that one search would have closed</strong>, which is precisely the
+rule this project added after the darkness. <strong>Two of three is not a sweep.</strong>
+</p>
+
+<h2>Two sources agreed on ten</h2>
+
+<p>
+The number of shapes is what the whole export rests on, and it was measured from two independent
+sources. <strong>The calling code</strong> asks for shape 0, shape 1, and a direction plus two,
+where the direction is one of eight, so it predicts ten. <strong>The owner's own file</strong> says
+the same through its bound word: 44, and the directory starts at offset 4 with four-byte entries,
+so 44 = 4 + 4 * 10.
+</p>
+
+<p>
+Neither number is derived from the other. A wrong directory stride or a wrong base would give some
+other number, and the two agreeing would not be a coincidence.
+</p>
+
+<h2>And that bound admits one index too many</h2>
+
+<p>
+The brief said to measure the bound rather than assume it is the count, and the suspicion came
+true: because the bound word is the low word of the first directory entry, the test <em>index times
+four at least 44</em> admits index 10 and refuses only at 11. <strong>Eleven indices for ten
+shapes.</strong>
+</p>
+
+<p>
+That is an <em>anomaly</em> and not a bug, because the reachability was measured and closed: the
+chooser asks only for 0 to 9, and the search found no call site asking for anything else. What was
+not checked is stated too: this has not been reproduced in DOSBox.
+</p>
+
+<h2>One principle the export wrote more clearly than I did</h2>
+
+<p>
+The double word at the start of the table turned out to be the decompressed length in both real
+files. The reader <strong>exposes it and does not enforce it</strong>, because no consumer reads it
+and enforcing would refuse a file the original accepts.
+</p>
+
+<p>
+<strong>Expose what you measured, enforce only what the original enforces.</strong>
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          208 / 233
+
+U6Formats.Tests    499 / 499
+U6Export.Tests      80 / 80
+U6Engine.Tests    4028 / 4028
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+clean. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<p>
+<strong>The pointer is doubled over the map, and that is deliberate.</strong> Unity's own cursor was
+left unhidden, because the original's draw for the panel and the icon strip is unmeasured; hiding
+the cursor before that is built would leave the player with no pointer anywhere outside the map,
+which is worse than two inside it.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>A screenshot, and it is a measuring instrument rather than an illustration. This is the first
+     time since the frame and the darkness that there is something new to look at, and three things
+     at once: the border, the darkness dimming tile by tile, and the pointer. After that, the
+     consumer sweep for the magical halo, where one value is written in 28 files.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

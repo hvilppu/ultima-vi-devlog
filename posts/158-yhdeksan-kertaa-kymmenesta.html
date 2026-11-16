@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yhdeksän kertaa kymmenestä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="158-yhdeksan-kertaa-kymmenesta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/158-nine-times-out-of-ten.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 158</nav>
+
+<h1>Yhdeksän kertaa kymmenestä</h1>
+
+<p class="lede">
+Alkuperäisen oma hiiriosoitin on ruudulla, kolmen viipaleen jälkeen. Paras asia jonka tämä mittaus
+tuotti ei ole osoitin. Se on yksi muoto kymmenestä, joka <strong>eroaa</strong> yhdeksästä muusta,
+ja jonka takia väärän lukeman olisi voinut naulata vihreällä testisarjalla.
+</p>
+
+<h2>Kolme viipaletta: paikka, data, piirto</h2>
+
+<p>
+Ensin <strong>geometria</strong>: mihin osoitin kuuluu karttasommitelmassa. Sitten
+<strong>muodot</strong>, jotka ovat dataa omistajan omassa asennuksessa, joten ne pitää viedä.
+Viimeisenä <strong>piirto</strong>, kehyksen jälkeen, jotta osoitin on sen päällä.
+</p>
+
+<p>
+Geometrian viipale ei piirtänyt mitään, ja oma ohjeeni oli olettanut että se voisi. Kun ensimmäinen
+viipale ei vie mitään ruudulle, se on helppo lukea pysähdyksenä. Se ei ollut: tie ruudulle oli
+kolme askelta, ja niiden luku oli yksi haku.
+</p>
+
+<h2>Se yksi muoto kymmenestä</h2>
+
+<p>
+Jokainen muoto ilmoittaa itse laatikkonsa neljänä ulottuvuutena, ja sen sisällä on pikselijuoksuja.
+Niistä saa kaksi eri lukemaa muodon koolle: <em>lue ilmoitettu laatikko</em>, tai <em>päättele koko
+siitä mihin juoksut ulottuvat</em>. Alkuperäisen oma laskutoimitus sanoo ilmoitetun laatikon, joten
+se oli briefini vastaus.
+</p>
+
+<p>
+Se oli silti vain lainaus. <strong>Tiedosto itse antoi erottelijan:</strong> muodon 0 ilmoitettu
+laatikko on 11 x 15 kun sen juoksut ulottuvat vain 10 x 14:ään. Yhdeksän muuta täsmäävät
+tarkalleen.
+</p>
+
+<p>
+Eli <strong>väärä lukema olisi oikein yhdeksän kertaa kymmenestä</strong>. Se on juuri se muoto
+joka selviää testauksesta: yksi testi kymmenestä kaatuu, se näyttää reunatapaukselta, ja raja
+löystyy kunnes vihreä palaa. Jäsensin viedyn tiedoston itse sen sijaan että olisin ottanut luvun
+raportista, ja kävely sulkeutuu 1520 tavussa 1520:stä.
+</p>
+
+<h2>Tähtäin vastaa myös kartan ulkopuolella</h2>
+
+<p>
+Muodon valinnassa on viisi tapausta ja tähtäin on se mihin <strong>molemmat haarat</strong>
+valahtavat. Se tarkoittaa että tähtäin näkyy myös <em>kartan ulkopuolella</em> silloin kun
+hiiritila on tähtäävä, eikä vain kartan päällä.
+</p>
+
+<p>
+Uudelleentoteutus joka kirjoittaa tähtäimen "kartan tähtäysmuodoksi" saa paneelin väärin, eikä
+mikään siinä näytä väärältä. Se rikottiin tarkoituksella sisähaaran else-haaraksi, ja
+<strong>kaksi testiä 4028:sta kaatui</strong> neljän muun tapauksen läpäistessä.
+</p>
+
+<h2>Rikkominen joka piti jokaisen pikselimäärän oikeana</h2>
+
+<p>
+Yksi rikkominen ei muuttanut yhtäkään lukumäärää. Se nähtiin vain <strong>pikseliarvoja</strong>
+vertaamalla, ja syy on se että testit laskevat odotuksensa eri muotoilusta kuin koodi: piirto
+rajaa jokaisen juoksun päistään, testi kävelee joka pikselin ja rajatestaa sen erikseen.
+</p>
+
+<p>
+<strong>Pelkkä laskeminen olisi läpäissyt väärän piirron.</strong> Jos testi olisi kirjoitettu
+samalla muotoilulla, se olisi ollut kalliimpi tapa olla samaa mieltä itsensä kanssa.
+</p>
+
+<h2>Kolme virhettä briefissäni, ja kaikki kolme ovat sen omia lukuja</h2>
+
+<p>
+<strong>Korkeuskaava pudotti sen plus yhden jonka leveys säilytti.</strong> Yksi pikseli vähemmän
+jokaiselle muodolle. Ja kiinnostava osa: <strong>lukija oli jo oikeassa</strong>, eli brief oli
+joukosta poikkeava eikä auktoriteetti. Rakennusajo nappasi sen lukemalla rivin eikä briefiä.
+</p>
+
+<p>
+<strong>Oma taulukkoni kumosi oman lauseeni</strong> parin sentin päässä siitä. Taulukossa on kolme
+riviä jotka päätyvät tähtäimeen, ja seuraava kappale käski väittää "ne kaksi" erikseen. Kahden
+reitin ja kolmen tapauksen ero on pieni, mutta ohje luki kattavalta.
+</p>
+
+<p>
+Ja väite että tämä on suuntasäännön <em>ensimmäinen</em> kutsuja joka ei ole kävelyä:
+<strong>katsekomento ehti ensin.</strong> Yksi haku omista lähteistä olisi vastannut siihen, ja
+lause kirjoitettiin kävelykoodin muistista.
+</p>
+
+<h2>Kuluttajasääntö puraisi omaa kirjoittajaansa</h2>
+
+<p>
+Olin kirjoittanut briefiin että se mitä muodon neljä ulottuvuutta <em>tarkoittavat pikseleinä</em>
+on mittaamatta. Se on mitattu, <strong>kolmannessa kuluttajassa jota en etsinyt</strong>: taustan
+tallentava rutiini lukee samat neljä sanaa geometriana, leveytenä, korkeutena ja vasempana
+ylänurkkana.
+</p>
+
+<p>
+Oma lauseeni kaarsi sanoilla "näissä kahdessa rutiinissa", joten vika on kapeampi kuin väärä
+väite. Se on <strong>aukon nimeäminen jonka yksi haku olisi sulkenut</strong>, ja juuri se sääntö
+jonka tämä projekti lisäsi pimeyden jälkeen. <strong>Kaksi kolmesta ei ole pyyhkäisy.</strong>
+</p>
+
+<h2>Kaksi lähdettä olivat yhtä mieltä kymmenestä</h2>
+
+<p>
+Muotojen määrä on se luku josta koko vienti riippuu, ja se mitattiin kahdesta toisistaan
+riippumattomasta lähteestä. <strong>Kutsuva koodi</strong> pyytää muotoa 0, muotoa 1 ja
+suunta + 2, missä suunta on yksi kahdeksasta, eli se ennustaa kymmenen. <strong>Omistajan oma
+tiedosto</strong> sanoo saman rajasanansa kautta: 44, ja hakemisto alkaa offsetilta 4 neljän tavun
+merkinnöillä, joten 44 = 4 + 4 * 10.
+</p>
+
+<p>
+Kumpikaan luku ei ole johdettu toisesta. Väärä hakemistoaskel tai väärä kanta antaisi jonkin muun
+luvun, eikä niiden yhteensopivuus olisi sattumaa.
+</p>
+
+<h2>Ja se raja päästää yhden indeksin liikaa</h2>
+
+<p>
+Brief käski mitata rajan sen sijaan että olettaisi sen olevan muotojen määrä, ja arvelusta tuli
+totta: koska rajasana on ensimmäisen hakemistomerkinnän alasana, testi <em>indeksi kertaa neljä
+vähintään 44</em> päästää läpi indeksin 10 ja torjuu vasta 11:n. <strong>Yksitoista indeksiä
+kymmenelle muodolle.</strong>
+</p>
+
+<p>
+Se on <em>poikkeama</em> eikä bugi, koska saavutettavuus mitattiin ja suljettiin: valitsija pyytää
+vain arvoja 0-9, eikä haku löytänyt yhtäkään kutsupaikkaa joka pyytäisi muuta. Mitä ei
+tarkistettu, sanotaan myös: tätä ei ole toistettu DOSBoxissa.
+</p>
+
+<h2>Yksi periaate jonka vienti kirjoitti selvemmin kuin minä</h2>
+
+<p>
+Taulukon alussa oleva kaksoissana osoittautui puretuksi pituudeksi molemmissa oikeissa
+tiedostoissa. Lukija <strong>näyttää sen eikä valvo sitä</strong>, koska yksikään kuluttaja ei lue
+sitä ja valvonta torjuisi tiedoston jonka alkuperäinen hyväksyy.
+</p>
+
+<p>
+<strong>Näytä mitä mittasit, valvo vain sitä mitä alkuperäinen valvoo.</strong>
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       208 / 233
+
+U6Formats.Tests    499 / 499
+U6Export.Tests      80 / 80
+U6Engine.Tests    4028 / 4028
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu.
+</p>
+
+<p>
+<strong>Osoitin on kartan päällä kahtena, ja se on tarkoituksellista.</strong> Unityn oma kursori
+jätettiin piilottamatta, koska alkuperäisen oma paneelin ja ikonikaistan piirto on mittaamatta;
+kursorin piilottaminen ennen sitä jättäisi pelaajan ilman osoitinta kartan ulkopuolella, mikä on
+huonompi kuin kaksi kartan päällä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kuvankaappaus, ja se on mittauslaite eikä kuvitus. Tämä on ensimmäinen kerta sitten kehyksen
+     ja pimeyden kun ruudulla on jotain uutta katsottavaa, ja kolme asiaa kerralla: reunus,
+     pimeyden himmeneminen tiili tiileltä, ja osoitin. Sen jälkeen taikaloisteen kuluttajien
+     pyyhkäisy, jossa yhtä arvoa kirjoitetaan 28 tiedostossa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
