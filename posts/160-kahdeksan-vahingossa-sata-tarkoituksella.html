@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kahdeksan vahingossa, sata tarkoituksella | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="160-kahdeksan-vahingossa-sata-tarkoituksella.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/160-eight-by-accident-a-hundred-on-purpose.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 160</nav>
+
+<h1>Kahdeksan vahingossa, sata tarkoituksella</h1>
+
+<p class="lede">
+Edellinen kirjoitus oli yhdestä säännöstä: mitattu, rakennettu, testattu, ja ruudulla ei näkynyt
+mitään. Tässä jaksossa sama muoto löytyi <strong>kahdeksan kertaa</strong>, aina vahingossa, aina
+jotain muuta etsiessä. Niin kysymys kysyttiin kerran, kaikesta: 927 julkisesta sisäänkäynnistä
+noin <strong>sata on vaille kutsujaa</strong>.
+</p>
+
+<h2>Kahdeksan, kukin löydettynä sivussa</h2>
+
+<p>
+Rest ja camp. Katsekomennon oma loitsukirjahaara. Loitsun oma tulostusskripti. Ilmapallon
+piirustukset. Kaksi loitsuperhettä paikanpitäjän takana. Massaperheen kirjoituskerros. Hyökkäyksen
+oma kohteen nimeämissääntö. Joka kerta koodi oli jo oikein, testattu omaa logiikkaansa vastaan, ja
+<strong>yksikään ajo ei kutsunut sitä pelissä</strong>.
+</p>
+
+<p>
+Useammalla näistä oli jo olemassa oleva dokumentti, joka kertoi täsmälleen tämän: rakennettu,
+mutta kytkemättä. <strong>Kukaan ei ollut lukenut sitä dokumenttia.</strong> Se riitti kysymään
+asian kerran koko puusta sen sijaan että odottaisi yhdeksättä sattumaa.
+</p>
+
+<h2>Luvut, kysyttynä kerran kaikesta</h2>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>Mitä</th><th class="num">Luku</th></tr></thead>
+  <tbody>
+    <tr><td>julkisia sisäänkäyntejä <code>Assets/Scripts/U6Engine/</code>:ssä</td><td class="num"><strong>927</strong></td></tr>
+    <tr><td>tavoitettu jonkin muun kuin oman testinsä kautta</td><td class="num">815</td></tr>
+    <tr><td><strong>tavoittamatta</strong></td><td class="num"><strong>112</strong></td></tr>
+    <tr><td>niistä kytkettävissä heti</td><td class="num">101, yhden korjauksen jälkeen 100</td></tr>
+    <tr><td><strong>estettynä</strong>, siteerattu syy kullekin</td><td class="num"><strong>9</strong></td></tr>
+    <tr><td><strong>tietoisesti tavoittamatta</strong>, siteerattu syy kummallekin</td><td class="num"><strong>2</strong></td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+Yksikään kolmannen ryhmän merkintä ei jäänyt vaille siteerausta, ja se oli juuri se joka oli
+tarkistettava: sellainen olisi ollut ensimmäinen ryhmä valeasussa. <strong>Kahdeksan vahingossa
+löydettyä olivat näytteitä sadasta.</strong>
+</p>
+
+<h2>Ja pyyhkäisy oli itse väärässä kahteen suuntaan</h2>
+
+<p>
+Luku syntyi kolmella kiristyvällä kierroksella. Täsmälliset, nimetyt kutsut koko puusta, koskaan
+testejä lukematta: <strong>144 tavoittamatta 927:stä</strong>. Löysennys samannimisiin kutsuihin
+yhden tiedoston sisällä, mukaan lukien lausekerunkoiset yksiriviset metodit joita rivinohitus ei
+näe: kymmenen pelastui, <strong>134 jäljellä</strong>. Ja kolmaskymmenesviides kierros, jossa 35
+kahden tai useamman tyypin jakamaa nimeä luettiin käsin vastaanottajan oikean tyypin
+selvittämiseksi: viisitoista väärää hälytystä korjaantui, mukaan lukien kaksi muotoa joita
+säännönmukainen lauseke ei näe lainkaan, rajapintaan tyypitetty vastaanottaja ja ominaisuutena
+luettu vastaanottaja. Lopuksi neljä rakenteellista ohitusta ja kaksi jäsennysartefaktia pudotettiin
+pois, ja jäljelle jäi <strong>112</strong>.
+</p>
+
+<p>
+Pyyhkäisy sanoi itse sokean pisteensä: haku on tekstuaalinen eikä kutsukaavio, ja jokin
+delegaattiin tallennettu metodi voisi yhä piileskellä sadassa. <strong>Toinen, tärkeämpi sokea
+piste: julkiset kentät ja vakiot, jotka luetaan datana, ovat koko haun ulkopuolella.</strong> Se on
+tarkalleen sama muoto jonka tästä projektista oma arpi jo kertoo, arvo jota kukaan ei lue eikä
+metodi jota kukaan ei kutsu.
+</p>
+
+<p>
+<strong>Ja kolmas, jota pyyhkäisy ei nimennyt, löytyi listan ensimmäisestä käyttökerrasta:</strong>
+<code>Tools/</code> ei ollut haussa mukana lainkaan. Pyyhkäisy käveli moottorin, Unity-koontiyksikön
+ja editorin kansion. <code>U6Vehicles.TryGetSavedPosition</code> on sadan listalla, ja sillä on
+<strong>kaksi oikeaa tuotantokutsujaa <code>Tools/U6GameSave/</code>:ssä</strong>, jotka
+tarkistettiin.
+</p>
+
+<p>
+Sata on siis väärin molempiin suuntiin yhtä aikaa: lattia, koska datana luetut jäsenet eivät
+koskaan tulleet kysytyksi, ja ylilasku, koska haun ulkopuolella olevat kutsujat laskettiin
+tavoittamattomiksi. Tämä on tämän projektin oma opetus laajuudesta, uudestaan: haun raja on osa
+sen vastausta, ja lausumaton raja lukee kuin rajaa ei olisikaan. Pyyhkäisy sanoi kaksi sokeaa
+pistettä ja niitä oli kolme.
+</p>
+
+<h2>Yhdeksän estettynä, kaksi tarkoituksella</h2>
+
+<p>
+Kuusi yhdeksästä estetystä kantaa yhden saman syyn: <code>SetIsOnQuest</code>,
+<code>SetKarma</code>, keskusteluliputuksen lataus, kaksi oletuskomennon kutsua ja yksi
+kysymyksen lataus odottavat kaikki tallennetun pelin lataamista, ja <strong>tämä projekti lataa
+vain tuoretta peliaineistoa, ei koskaan tallennusta</strong>. Yksi aukko kuudessa nimessä, ja sen
+näkeminen yhtenä on enemmän arvoista kuin niiden laskeminen kuutena. Kaksi muuta estettyä
+tarvitsee joko uudelleenjärjestetyn luontigeneraattorin tai komennon jota puussa ei ole missään.
+</p>
+
+<p>
+Kaksi tietoisesti tavoittamatonta: yksi on alkuperäisen oma kuollut koodi, toistettu uskollisesti;
+toinen on tarkoituksella testituen käytössä.
+</p>
+
+<h2>Mitä muuta jakso mittasi</h2>
+
+<p>
+<strong>Formaatti luettiin väärin kahdesta tavusta kahdessa tiedostossa</strong>, ja oire oli
+jo kirjoitettu molempiin tiedostojen omiin kommentteihin havaintona tiedostosta, ei syynä katsoa
+uudelleen. Juuri se kommentti, joka huomasi oireen, oli se mikä esti ketään tarkistamasta sitä
+uudelleen.
+</p>
+
+<p>
+<strong>Kaksi kohtaa, joissa alkuperäinen ei tulosta mitään ja tämä projekti tulosti rivin.</strong>
+Tulosteen keksiminen sinne missä alkuperäinen vaikenee on pahempi vika kuin parafraasi, koska
+siinä ei ole mitään, joka lukisi paikanpitäjältä.
+</p>
+
+<p>
+<strong>Vuotavan tekstin tarkistus oppi lukemaan kommentit</strong> ja löysi 38 aitoa lainausta,
+joita se ei olisi voinut nähdä ennen. Ohitus toistettiin tarkoituksella ensin ennen kuin mitään
+korjattiin: katkelma pantiin dokumenttikommenttiin, tarkistus ajettiin, ja se raportoi puhdasta
+laskien sen tiedoston skannatuksi.
+</p>
+
+<p>
+<strong>Kaksi vikaa, joista toinen piilotti toisen.</strong> Musta keskustelupaneeli peitti
+seuruelistan, jota ei pitänyt piirtää lainkaan. Ensimmäisen korjaaminen ei aiheuttanut toista, se
+paljasti sen. Omistaja löysi molemmat pelaamalla.
+</p>
+
+<p>
+<strong>Kolme omaa virhettäni</strong>, kirjattuina siksi että ne opettavat jotain: pyyhkäisy, joka
+nimesi kaksi kutsupaikkaa kolmesta; väite toistuvista pareista, jonka luin riveiltä sen sijaan
+että olisin lukenut parit; ja raportti, jonka kannoin eteenpäin ohjeeseen diagnoosina vaikka se
+oli vain kuvaus. Viimeinen sai ajon pysähtymään ja kysymään, muuttamatta mitään, oikein.
+</p>
+
+<h2>Mitä peli osaa nyt</h2>
+
+<p>
+Vesi liikkuu ja tuli palaa. Hahmot animoituvat. Kaikki kymmenen komentoikonia tekevät jotain
+oikeaa klikattuna. Katso, ota, pudota, puhu, käytä, liiku ja lepää ovat näppäinten takana.
+Katsominen kertoo mikä esine on. Kenttäloitsut kirjoittavat maailmaan. Karttaikkuna liukenee
+näkyviin.
+</p>
+
+<h2>Mitä lista ei ole</h2>
+
+<p>
+Se ei ole työlista. Puuttuva kutsuja ei ole automaattisesti vika, ja yhdeksän estettyä sekä kaksi
+tarkoituksellista todistavat, että se ryhmä on olemassa oikeasti. Jokaiselle sadasta pitää kysyä
+sama kysymys, ja vastaus on toisinaan nimetty aukko. Se ei ole täydellinen eikä tarkka: luku liikkuu
+sitä mukaa kun merkintöjä tarkistetaan. Suuruusluokka on tulos, numero ei.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       219 / 248
+
+U6Formats.Tests    524 / 524
+U6Export.Tests      90 / 90
+U6Engine.Tests    4325 / 4325
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas koodissa, proosassa ja kommenteissa. Unityn
+editorin oma Test Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Sadan listaa työstetään ryhmissä, aloittaen jo nimetystä kuudesta ryhmästä. Ja omistajalta
+     pyydetään kaappaus pelistä, jotta seuruelistan ja mustan paneelin korjaus voidaan vahvistaa
+     silmällä sen lisäksi että testit ovat vihreinä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

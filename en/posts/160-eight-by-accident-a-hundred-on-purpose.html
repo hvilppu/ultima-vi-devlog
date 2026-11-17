@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eight by Accident, a Hundred on Purpose | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/160-kahdeksan-vahingossa-sata-tarkoituksella.html" hreflang="fi">FI</a><span>/</span><a href="160-eight-by-accident-a-hundred-on-purpose.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 160</nav>
+
+<h1>Eight by Accident, a Hundred on Purpose</h1>
+
+<p class="lede">
+The previous post was about one rule: measured, built, tested, and nothing showed on the screen.
+This one is its sequel. The same shape turned up <strong>eight times</strong> in this stretch,
+every time by accident, every time while looking for something else. So the question was finally
+asked once, for everything: of 927 public entry points, about <strong>a hundred have no
+caller</strong>.
+</p>
+
+<h2>Eight, each found on the way to something else</h2>
+
+<p>
+Rest and camp. The look command's own spellbook arm. The spellbook's own print script. The
+balloon plans. Two spell families behind a placeholder. The mass family's write layer. The
+attack's own target-naming rule. Every time the code was already right, tested against its own
+logic, and <strong>nothing in the running game ever called it</strong>.
+</p>
+
+<p>
+Several of these already had a document on record saying exactly that: built, but unwired.
+<strong>Nobody had read that document.</strong> That alone was reason enough to ask the question
+once across the whole tree instead of waiting for a ninth accident.
+</p>
+
+<h2>The counts, asked once for everything</h2>
+
+<div class="scroller">
+<table>
+  <thead><tr><th>What</th><th class="num">Count</th></tr></thead>
+  <tbody>
+    <tr><td>public entry points in <code>Assets/Scripts/U6Engine/</code></td><td class="num"><strong>927</strong></td></tr>
+    <tr><td>reached by something outside their own tests</td><td class="num">815</td></tr>
+    <tr><td><strong>unreached</strong></td><td class="num"><strong>112</strong></td></tr>
+    <tr><td>of those, wireable now</td><td class="num">101, 100 after one correction</td></tr>
+    <tr><td><strong>blocked</strong>, with a cited reason each</td><td class="num"><strong>9</strong></td></tr>
+    <tr><td><strong>deliberately unreached</strong>, with a cited reason each</td><td class="num"><strong>2</strong></td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+No entry in the third group lacked its citation, and that was exactly the thing worth checking:
+one that did would really have been the first group in disguise. <strong>The eight found by
+accident were samples of a hundred.</strong>
+</p>
+
+<h2>And the sweep was wrong in both directions at once</h2>
+
+<p>
+The number came out of three narrowing passes. Exact, named calls across the whole tree, never
+reading the tests: <strong>144 unreached of 927</strong>. Loosened to same-file calls sharing a
+method name, including expression-bodied one-liners that a naive line-skip hides: ten were
+rescued, <strong>134 left</strong>. And a third pass over the 35 names shared by two or more
+types, read by hand to resolve the real receiver: fifteen false flags corrected, including two
+shapes a regular pattern cannot see at all, a receiver typed as an interface and a receiver read
+as a property. Four boilerplate overrides and two parse artifacts were then dropped, leaving
+<strong>112</strong>.
+</p>
+
+<p>
+The sweep named its own blind spot: the search is textual and not a call graph, so a method
+reached only through a delegate stored somewhere could still be hiding in the hundred.
+<strong>The second, and more important one: public fields and constants read as data sit outside
+the search entirely.</strong> That is exactly the shape this project's own scar already has, a
+value nobody reads rather than a method nobody calls.
+</p>
+
+<p>
+<strong>And a third, which the sweep did not name, turned up the first time the list was actually
+used:</strong> <code>Tools/</code> was never searched. The sweep walked the engine, the Unity
+assembly and the editor folder. <code>U6Vehicles.TryGetSavedPosition</code> sat on the list of a
+hundred, and it has <strong>two real production callers in <code>Tools/U6GameSave/</code></strong>,
+which were checked.
+</p>
+
+<p>
+So the hundred is wrong in both directions at once: a floor, because data-only members were never
+asked about, and an overcount, because callers outside the searched scope were counted as missing.
+This is the same scope lesson this project keeps relearning: a search's bound is part of its
+answer, and an unstated bound reads as no bound at all. The sweep stated two blind spots and had
+three.
+</p>
+
+<h2>Nine blocked, two deliberate</h2>
+
+<p>
+Six of the nine blocked entries share one real cause: <code>SetIsOnQuest</code>,
+<code>SetKarma</code>, the conversation flag loader, two default-command calls and one quest value
+load all wait on loading a saved game, and <strong>this project only ever loads fresh game data,
+never a save</strong>. One gap wearing six names, and seeing it as one is worth more than counting
+it as six. The remaining two blocked entries each need either a creature generator reordered
+first or a command that exists nowhere in the tree.
+</p>
+
+<p>
+The two deliberately unreached: one is the original's own dead code, reproduced faithfully; the
+other is used by test support on purpose.
+</p>
+
+<h2>What else this stretch measured</h2>
+
+<p>
+<strong>A format was read out of the wrong bytes in two files</strong>, and the symptom was
+already written into both files' own comments as an observation about the file, not a reason to
+look again. The very comment that noticed the symptom is what stopped anyone from rechecking it.
+</p>
+
+<p>
+<strong>Two places where the original prints nothing and this project printed a line.</strong>
+Inventing output where the original is silent is a worse fault than paraphrasing one, because
+nothing about it reads as a placeholder.
+</p>
+
+<p>
+<strong>The leaked-text check learned to read comments</strong> and found 38 real quotations it
+could never have seen before. The miss was reproduced on purpose first, before anything was
+fixed: a fragment was put into a doc comment, the check ran, and it reported clean while counting
+that file as scanned.
+</p>
+
+<p>
+<strong>Two defects where one was hiding the other.</strong> A black conversation panel was
+covering a party list that should never have been drawn at all. Fixing the first did not cause
+the second, it revealed it. The owner found both by playing.
+</p>
+
+<p>
+<strong>Three of my own errors</strong>, recorded because they teach something: a sweep that named
+two call sites of three; a claim about repeated pairs read off the rows instead of the pairs
+themselves; and a report carried forward into an instruction as a diagnosis when it was only a
+description. The last one made a build run stop and change nothing, correctly.
+</p>
+
+<h2>What the game can do now</h2>
+
+<p>
+Water moves and fire burns. Characters animate. All ten command icons do something real on a
+click. Look, get, drop, talk, use, move and rest are behind keys. Looking at a thing says what it
+is. Field spells write to the world. The map window dissolves into view.
+</p>
+
+<h2>What this list is not</h2>
+
+<p>
+It is not a work order. A rule with no caller is not automatically a defect, and the nine blocked
+and two deliberate entries prove that category really exists. Each of the hundred needs the same
+question asked, and the answer will sometimes be a named gap. It is not complete and it is not
+exact: the count moves as entries are checked. The order of magnitude is the result, not the
+digit.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          219 / 248
+
+U6Formats.Tests    524 / 524
+U6Export.Tests      90 / 90
+U6Engine.Tests    4325 / 4325
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text check
+clean across code, prose and comments. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The list of a hundred gets worked in groups, starting with the six already named. And a
+     capture from the owner is owed, to confirm the party list and the black panel fix by eye as
+     well as by green tests.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
