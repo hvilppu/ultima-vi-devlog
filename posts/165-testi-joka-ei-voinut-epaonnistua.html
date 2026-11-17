@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testi joka ei voinut epäonnistua | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="165-testi-joka-ei-voinut-epaonnistua.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/165-the-test-that-could-not-fail.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 165</nav>
+
+<h1>Testi joka ei voinut epäonnistua</h1>
+
+<p class="lede">
+Tämä jakso löysi neljä testiä ja tarkistusta joilla ei ollut mahdollisuutta epäonnistua, ja
+kukin löytyi eri tavalla. Yksi oli sokea yhdelle sattumanvaraiselle parametriarvolle. Toinen
+oli sokea testiaineistolle joka sattui olemaan jo isolla alkukirjaimella. Kolmas väitti äänen
+määrän eikä sen sisältöä. Neljäs oli parametroitu juuri sillä vakiolla jonka piti tarkistaa.
+Ja yksi rikkomus todisti enemmän kuin siltä kysyttiin.
+</p>
+
+<h2>Ensimmäinen, josta tämä jakso oppi varoa</h2>
+
+<p>
+Kolmetoista merkintää sadan säännön listalta vastattiin yksi kerrallaan. Ruudunjärinä kytkettiin
+samalla tavalla kuin häivytys on aiemmin: sääntö vastaa askelia, näkymä kääntää askelet ajaksi
+omalla nimetyllä vakiolla, ja mikään testi ei naulaa sitä vakiota. Se varmistettiin muuttamalla
+vakiota ja katsomalla joka säännötesti pysyvän vihreänä.
+</p>
+
+<p>
+Parhaana raportin asiana ei ole se mikä rakennettiin, vaan testi joka pysyi vihreänä
+rikkomuksen alla ja joka ei olisi saanut lohduttaa ketään. Offset-kaavan rikkomus kaatoi viisi
+väitettä säännön omissa testeissä ja jätti uudet soittotestit vihreiksi, koska ne vertaavat
+soittoa saman rikotun säännön itsenäisesti laskettuun kutsuun. Ne todistavat uskollisen
+kulutuksen eikä oikeita lukuja, ja ajo sanoi sen eikä laskenut niitä katteeksi.
+</p>
+
+<h2>Neljä sokeaa testiä, löydettynä neljällä tavalla</h2>
+
+<p>
+Ensimmäinen oli sokea yhdelle yhteensattuvalle parametriarvolle. Kahden kolmesta samanmuotoisesta
+ammushaaran yhdistäminen läpäisi kaikki neljäkymmentäviisi testiä, koska testin oma parametri
+oli 125, ainoa piste jossa molemmat kaavat saavuttavat nollan. Ajo löysi yhteensattuman itse,
+lisäsi toisen pisteen kauempaa, ja rikkomus kaatui silloin täsmälleen ennustetulla tavalla.
+</p>
+
+<p>
+Toinen oli sokea testiaineistolle joka sattui olemaan jo isolla alkukirjaimella. Testi ratkaisee
+nimen joka on jo isolla, niin isontamiskontrollin rikkomus on näkymätön sille. Ajo raportoi sen
+sellaisenaan sen sijaan että olisi hiljaa vaihtanut testiaineiston.
+</p>
+
+<p>
+Kolmas väitti äänen määrän eikä sen sisältöä, ja löytyi ajosta joka lähti etsimään
+tarkoituksella, ensimmäistä kertaa tällä jaksolla. Väite sanoi, että pirulainen soittaa yhden
+äänen eikä nosta mitään satunnaisgeneraattorista, ja se läpäisi kun sille annettiin
+kalmankantajan ääni sen sijaan, koska molemmat ovat nollanosto-ääniä. Se naulaa nyt äänen oman
+sisällön eikä vain sen muotoa.
+</p>
+
+<p>
+Neljäs oli parametroitu juuri sillä vakiolla jonka piti tarkistaa, ja löytyi vain ajamalla
+rikkomus, ei päättelemällä. Soitinmäärityksen pituustesti luki oman odotetun arvonsa
+täsmälleen siitä vakiosta jota se oli tarkoitettu tarkistamaan, niin vakion lyhentäminen ei
+kaatanut sitä testiä lainkaan. Positiivinen läpikäynti kaikista kahdestatoista kappaleesta ei
+kaatunut siihenkään, koska väärä kohdistus ei heitä poikkeusta, se lukee väärät tavut
+komentoina, mikä on juuri se hiljaa väärä tapaus jota tämän projektin säännöt ovat olemassa
+varten. Se mikä napasi sen oli katkaisutesti, joka lakkasi kieltäytymästä. Korvaava testi
+kirjoittaa luvun suoraan ja kaatuu tarkalleen oikealla tavulla.
+</p>
+
+<h2>Rikkomus joka todisti enemmän kuin siltä kysyttiin</h2>
+
+<p>
+Vakion muuttaminen viidellä suuruusluokalla ei kaatanut mitään, ja syy on rakenteellinen eikä
+onnekas: näkymä ei ole käännetty moottorin testikokoonpanoon lainkaan, niin yksikään
+sääntötesti ei voi nähdä sitä vakiota. Se on vahvin muoto todistetta jota päätös pyysi, ja se
+on erilainen asia kuin testi joka ei ollut sattunut kaatumaan.
+</p>
+
+<h2>Se mitä mikään testi ei voi koskaan nähdä</h2>
+
+<p>
+Neljä sokeaa testiä jakaa yhden puolen: ne olivat testejä, kirjoitettuja väärin. Toisella
+puolella on neljä paikkaa joissa mikään testi, oikein tai väärin kirjoitettu, ei olisi voinut
+koskaan nähdä mitä rikki oli, koska koostuminen asuu Unity-kokoonpanossa, jolla ei ole
+testialustaa lainkaan.
+</p>
+
+<p>
+Omistajan ensimmäinen kuvakaappaus näytti osumarivin raakoja esinenumeroita varten. Toinen
+näytti saman rivin nimeävän dekompilaation omia tunnisteita, kolmas invented-lause jäljellä
+sen rinnalla jota kaksi edellistä poistoa eivät koskeneet, koska poistot toimivat fraasi
+kerrallaan ja tämä kehys ei ollut fraasi. Neljäs kerta samassa projektissa, omistajan oma kone
+oli väline joka napasi sen.
+</p>
+
+<p>
+Äänipuoli antoi kolme lisää, eikä yksikään niistä ollut koodivirhe tässä projektissa. Kaiutin
+kysyi Unitylta näytetaajuutta äänisäikeen omassa kutsussa, mikä heittää poikkeuksen koska se
+ominaisuus sallitaan vain pääsäikeellä, eikä mikään tässä repositoriossa voinut napata sitä
+ennen editoria. Lähde oli sekoitettu kolmiulotteiseen ääneen ja sen prioriteetti oli kolme
+askelta Unityn matalimmasta, kumpikaan ei tästä projektista, ja komponentti jätti kaiken muun
+kohtauksen sarjallistuksen varaan. Ja jono eteni kerran kuvaa kohden kuvan omalla kuluneella
+ajalla, niin koko efekti kului yhden päivityksen sisällä ennen kuin äänikutsu ehti ajaa
+lainkaan, mitä mikään testi ei voinut nähdä koska ajoitus on juuri se asia jota headless-ajo
+ei mallinna.
+</p>
+
+<h2>Kaksi puolta samasta kolikosta</h2>
+
+<p>
+Neljä sokeaa testiä ja neljä kaappauksen löytämää vikaa eivät ole eri ilmiöitä. Ne ovat samaa
+kysymystä kysyttynä kahdella eri tavalla. Sokea testi kysyy "mitä tämä testi todella väittää"
+ja vastaa toisinaan väärin siihen mikä se väittää olevansa. Kaappaus kysyy "mitä tämä projekti
+voi ylipäätään nähdä" ja vastaa toisinaan ei mitään. Kumpaakaan ei korjaa lisää koodia; molemmat
+korjaa joku joka kysyy kumpaa kysymystä juuri nyt kysytään.
+</p>
+
+<p>
+Mittauksen oma sääntö tässä projektissa sanoo, ettei testi tai tarkistus saa olla sellainen
+jonka väite ei olisi voinut kaatua. Tämä jakso osoitti, että sen tarkistaminen vaatii joskus
+rikkomuksen ajamista eikä sen päättelemistä, ja joskus kaappauksen pyytämistä omistajalta
+koska mikään tässä ei voi katsoa.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       219 / 248
+
+U6Formats.Tests    585 / 585
+U6Export.Tests      90 / 90
+U6Engine.Tests    4673 / 4673
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner <strong>ei</strong>
+ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Omistajalta pyydetään kaappaus joka vahvistaa paneelin neljä näkymää ja äänen kuultavuuden
+     silmällä ja korvalla, testien lisäksi. Sadan listaa työstetään ryhmissä edelleen.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

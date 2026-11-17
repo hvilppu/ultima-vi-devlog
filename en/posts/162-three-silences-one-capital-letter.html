@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Silences, One Capital Letter | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/162-kolme-hiljaisuutta-yksi-iso-kirjain.html" hreflang="fi">FI</a><span>/</span><a href="162-three-silences-one-capital-letter.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 162</nav>
+
+<h1>Three Silences, One Capital Letter</h1>
+
+<p class="lede">
+The owner's capture showed a hit line in invented English with raw object numbers in it. Fixing
+that took four slices, and the end result carries less text than the start: three of our own
+invented sentences came out, because the original is silent in exactly those places.
+</p>
+
+<h2>Before the line could be fixed, the table it leans on</h2>
+
+<p>
+The original's message table has eleven pairs of entries sharing one offset tag, and an earlier
+run had called them unresolvable. A full pass over all 893 entries showed that twenty of those
+pairs are the same shape: nineteen land at the same length and the twentieth lands nowhere. A
+pair's length is now judged only among the rows that land, and a stray row is counted but no
+longer votes.
+</p>
+
+<p>
+One of the eleven pairs was not this shape at all: two different lines share a tag, and one of
+them has a real consumer, the balloon crafting line. The fix first resolved the pair to the wrong
+one of the two, which would have printed the cauldron's line in place of a missing rope, and
+nobody would have noticed. The rope's own reference now names its own position, the cauldron's
+offset plus that line's stored length plus a terminator, which appears nowhere in the
+decompilation, so it still refuses, now for the honest reason instead of the stale one.
+</p>
+
+<h2>What a hit prints, measured again</h2>
+
+<p>
+The original does not print any hits-for-N line at all. It has that exact sentence, three
+hexadecimal numbers wide, inside a disabled block in its own source. Both projects wrote the same
+debugging aid, and only one of them shipped it.
+</p>
+
+<p>
+So this is the third silence found this week: a place where we print a sentence and the original
+prints nothing. The same line carried two more. Its provoke sentence has no counterpart anywhere
+in the routine it names. And its kill branch printed experience and karma numbers where the
+original prints one line and no figures at all.
+</p>
+
+<p>
+What a hit actually prints is seven lines, cumulative rather than exclusive, in an order with two
+traps in it: the kill test excludes four types and not one, and the kill branch returns where the
+graze branch falls through, so one hit can print four lines and a killed target prints none of
+them.
+</p>
+
+<p>
+Thirteen references were named, twelve of them by name or offset, and the thirteenth is
+measurably absent: its declaration carries an empty comment where the others carry an offset tag,
+so it falls outside the exported population the same way one other already recorded does. The
+absence is the discriminator, not a gap to route around.
+</p>
+
+<h2>A sentence that hid inside its own frame</h2>
+
+<p>
+The wound branch kept its invented frame through the slice that removed two other invented
+sentences, because that removal worked phrase by phrase and the frame was not a phrase. A second
+capture from the owner showed the message area naming the decompilation's own identifiers with a
+parenthetical explaining that the text was not resolved. It is not meant to look like that: the
+references do resolve, twelve of thirteen measured against the real export, and the view already
+has the resolver it uses in three other places. It simply never asks.
+</p>
+
+<p>
+The same line also named an attacker and a connective the original does not have. The original
+wound line has one subject, the defender, and no verb at all. So this was the third invented
+sentence in the same method, and it survived because the composition lives in the Unity assembly,
+which has no headless coverage. The owner's capture is the instrument that caught it, for the
+fourth time in this project.
+</p>
+
+<p>
+The line now reports the wound level by the original's own four names instead of a severity
+integer, and prints nothing at all when the target is left unwounded, which is exactly what the
+original does and what we were filling with a sentence. The alarm's own flag and victim have a
+reader for the first time, which closes the first entry the data sweep found.
+</p>
+
+<h2>A number becomes a name</h2>
+
+<p>
+The combat lines named characters by object number. They now resolve the real name: a party
+member's own stored name, or the tile name of its current shape, or of its original shape when
+dead or asleep. The name routine finally has a production caller, which it had not had since it
+was built, and the original calls its counterpart from 47 places.
+</p>
+
+<p>
+Seven branches were wired rather than the three the brief named, because the name was already
+threaded through them and leaving four on raw numbers would have been inconsistent for nothing.
+</p>
+
+<p>
+Two corrections the run made on its own, both verified against the original, and both would have
+been behavioural inversions rather than cosmetic. The party search is bounded by the party's own
+size and answers nothing when the character is not in it; a neighbouring helper is bounded by a
+fixed eight and carries the original's own recorded bug of answering a ninth slot, so using it
+would have imported a bug into a path that does not have it. And the arm naming a creature's
+original shape is gated on dead or asleep, distinct from the original's own wider macro that also
+includes paralysed, so using the wider one would have named the shape of a paralysed but
+undamaged character that has not taken it.
+</p>
+
+<h2>Four special attacks, and a cause other than missing data</h2>
+
+<p>
+The monster table with all 64 classes and 15 used flags has been exported since an earlier
+milestone. Nothing had ever converted an object type into a class. Three of the four tests are an
+exact class number and the fourth is a flag bit, so a build treating all four alike is wrong for
+three of them or for one.
+</p>
+
+<p>
+The item pick is neither the first match nor a uniform pick: each match after the first replaces
+the current one on a coin flip, so the last matching item is taken half the time and the first
+only when nothing later matched. The pick draws one number from the shared generator per match
+after the first, and the poison gate draws exactly once whether or not it poisons.
+</p>
+
+<p>
+The wound branch now names only the defender, no attacker, no verb, no reference identifier. Four
+special attacks are built: a corpser drags its victim under, a slug dissolves a piece of armour, a
+gremlin steals food, and a poisonous creature poisons one time in four. The break that turned the
+corpser into a flag test failed seven assertions across three files.
+</p>
+
+<h2>A capital letter lost long ago</h2>
+
+<p>
+The run that wired these names predicted its own next defect: the graze and kill lines take the
+name as a conversion that nothing fills. A second thing was already visible in the same capture:
+the creature name read in lower case, which is not a naming defect, it is an unapplied control
+byte. A backtick is a capitalise control, consumed and printing nothing itself, and this project
+measured it years of slices ago and never applied it. The names are stored lower case precisely
+because the line carries the control instead of the table carrying capitals.
+</p>
+
+<p>
+The control was named, mapped, and tested in the formats layer, and the engine side folded line
+breaks and did nothing else, which was right when the only line it handled carried neither a
+control nor a conversion. The wound line was correct today for the wrong reason: it was built by
+concatenation rather than by formatting, so it never meets either one.
+</p>
+
+<p>
+The capitalise control is applied now and the conversion is filled, and a conversion that cannot
+be filled yields nothing rather than reaching the player with its own placeholder in it, a case
+the previous version leaked that no test had ever asked about.
+</p>
+
+<h2>Five spells speak, four name why they cannot yet</h2>
+
+<p>
+Nine message references the data sweep found unread were classified one by one before anything
+was wired: five needed a caller, four need something that does not exist.
+</p>
+
+<p>
+Five are read in production now. Enchant and pickpocket each print the line that belongs before
+the one they already printed. Any missile spell aimed at empty space prints the original's own
+two rows instead of an invented sentence, and splitting out that case let four other spell
+families trade the same invention for the original's row too. Changing the wind now asks for a
+direction and reads it, where it silently answered "not a direction" before. A torch burning out
+from ordinary time passing prints the original's line, once per torch.
+</p>
+
+<p>
+The four refusals each name a different missing thing, and none of them is a missing caller. One
+needs a generic targeting prompt roughly ten sibling constants are equally waiting on. One needs
+an unmeasured collision test. One is reachable only through a typed-incantation input mode this
+project has never built. One needs a whole command path that does not exist.
+</p>
+
+<p>
+The run also confirmed an instance of a limitation the sweep script's own header had only
+predicted. Two spell classes declare a member of the same name; wiring one made the aggregate
+report both as read while the other was still touched by nothing. The run caught it by re-reading
+the list rather than the total, and both the script and its brief now carry the rule: when a name
+leaves the list, check that the declaration you wired is the one that left.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          219 / 248
+
+U6Formats.Tests    585 / 585
+U6Export.Tests      90 / 90
+U6Engine.Tests    4673 / 4673
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text
+check clean. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>The data sweep's own other half: 189 of 1588 members that nothing in production reads, and
+     the four attempts it took to get the method right.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Subsystems, One in the Plan | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/164-kolme-alijarjestelmaa-yksi-suunnitelmassa.html" hreflang="fi">FI</a><span>/</span><a href="164-three-subsystems-one-in-the-plan.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 164</nav>
+
+<h1>Three Subsystems, One in the Plan</h1>
+
+<p class="lede">
+The owner asked for sound next. The plan's own entry says twelve song files, convert or render
+them, done when fourteen tracks play. The module itself names three subsystems, and the plan has
+only the one that needs an asset pipeline.
+</p>
+
+<h2>Two thirds that need no file at all</h2>
+
+<p>
+Twenty three sound effects are generated on the speaker from five primitives, and the ambient
+layer plays the four nearest emitting objects every animation tick from fourteen accepted types.
+Both are written out in full in the original's own source, so the game can stop being silent
+without exporting anything. The plan's own completion test would have left it without a hit, a
+door, a fountain, or a fire.
+</p>
+
+<p>
+Four traps in the effect table were measured rather than described. Three arms that look alike
+use different shifts, different origins, and different random gates, so one shared helper would
+have merged three separate measurements into one. Theft and a failed spell share an arm by fall
+through, the same shape the mass spells already taught this project. One arm has a
+negative-parameter case that returns early. And the frequency floor is not the same constant in
+every arm.
+</p>
+
+<p>
+The ambient layer carries a discrepancy the first brief does not resolve: four of the fourteen
+accepted types have no arm in the player at all. That is either the original's own bug or a
+reading error here.
+</p>
+
+<h2>Music moved further than expected</h2>
+
+<p>
+The song files are LZW compressed, and this project already has that decompressor, built for
+another file. All three sampled files declare an uncompressed size well above what they store,
+which is suggestive and not proof, and the proof is decompressing one and getting exactly the
+declared count.
+</p>
+
+<h2>Sound draws from the same dice as everything else</h2>
+
+<p>
+Reading the layer under the effect table changed what this slice was. The sound effects call the
+same random generator every rule in this game shares, six of the twenty three effect arms and
+three of the ambient ones, between twenty and a hundred and twenty draws each.
+</p>
+
+<p>
+So playing a sound consumes numbers the next rule would otherwise have had. A build that keeps
+the rules and skips the sounds has a different game and not a quieter one, and an effect with the
+right sound and the wrong number of draws is wrong in a way nobody can hear and every later roll
+can. The draw counts are now part of the measurement rather than a side effect of the audio.
+</p>
+
+<p>
+The gate sits above every one of those draws, which means the original's own sequence differs
+between sound on and sound off. That is a property of the original, which makes the setting a
+thing to model rather than a thing to assume. It also reverses the ordering argument: every rule
+wired on top of a silent game is being measured against a stream that shifts the moment the
+sounds arrive, which is the case for doing this now rather than last.
+</p>
+
+<p>
+The opposite mistake was just as close. The noise primitive has its own sixteen bit generator
+with its own seed, so routing that one through the shared stream would have corrupted every later
+roll instead.
+</p>
+
+<h2>Built: the speaker's own sound world</h2>
+
+<p>
+The game is no longer structurally silent. Twenty three numbered effects, the ambient layer's ten
+sounding types, the five primitives under them, and the song selection rule are built as rules
+that answer what the speaker does, with the view left to render it later. Nothing was exported and
+nothing was needed: these are algorithms in the original's own source.
+</p>
+
+<p>
+Four accepted ambient types have no arm at all, which was measured in the owner's own starting
+objects: a stalagmite appears 1485 times, a volcano 98, a saw and a millstone three times each.
+It is the original's own bug, recorded as section 3.37, measured and imitated. Its consequence was
+first written too strongly: an entry said a nearer silent source blocks a farther real one. It
+does not, because the loop's own exit tests a counter a silent arm never raises, so the loop
+continues and the real source still sounds. The damage is in the four-slot registration instead,
+where a silent type displaces a fifth real source entirely, and that narrower reading is what
+makes 1485 stalagmites matter.
+</p>
+
+<p>
+The best thing in the report is a break that caught nothing. Merging two of the three
+missile-shaped arms passed all forty five tests, because the test's own parameter was 125, the
+single point where the two formulas both reach zero. The run found the coincidence, added a
+second point away from it, and the break then failed exactly as predicted. A test can be blind to
+precisely the bug it was written for.
+</p>
+
+<h2>Measured: what playing a sound needs</h2>
+
+<p>
+Nothing plays the sound rules or calls them. The architecture needed no new decision: the rule
+answers a queue in steps and the view plays it, decided earlier for the dissolve and the screen
+shake.
+</p>
+
+<p>
+What is new is how little of the timing is a choice. The delay routine is not a formula but a
+table lookup, and the table holds five distinct shifts for the whole game. So the relative timing
+of every wait in every effect is measured, and the single unmeasured thing is the machine
+calibration the shifts are applied to. The table is indexed in bytes into a table of words, so
+every odd index reads a high byte and gets zero; the note primitive passes an odd index and gets
+full speed by that structure rather than by arithmetic.
+</p>
+
+<p>
+The open question left by an earlier decision is answered here: the original blocks while a sound
+plays and this project cannot, and the answer follows from the draws being consumed when the rule
+is asked rather than when the sound is heard. Playing asynchronously cannot move a single later
+roll, and the longest ordinary effect is under one frame anyway.
+</p>
+
+<h2>Measured: the song format, after writing that it could not be measured</h2>
+
+<p>
+An earlier brief in this same session said the driver is a binary that cannot be run, that a
+decompressed song is unmeasured, and that the question could not be answered here. The first two
+hold. The third was wrong: the decompilation's own port rewrote the AdLib driver in C, and its
+header documents the song format command by command. It sat one directory away from a file the
+same brief had already cited for the sound primitives.
+</p>
+
+<p>
+The format is eight channel commands and seven stream commands, with three traps worth naming: a
+carrier level write stops a volume slide, a wait of nought means 256 ticks rather than none, and
+the end marker means one thing inside a repeat and loops the whole song outside one. Verified
+against the owner's own twelve files with a separate port of this project's own decompressor, so
+the agreement is between two implementations. All twelve decompress to exactly the length they
+declare.
+</p>
+
+<p>
+The tempo turns out to be a measurement and not a choice: the song tick is a fixed number from the
+timer divisor and should be asserted; the effects' own scale is adjustable, and no test may pin
+it.
+</p>
+
+<h2>Built: 52 sounds play, sixteen name what is missing</h2>
+
+<p>
+The sound path had two of the original's call sites wired. It now has 52, and the remaining 16
+each name a different missing thing rather than a missing caller. What a player hears now: every
+spell succeeding or failing, the game's most frequent sound call site, every melee swing in range
+and both ways an attack can be refused mid swing, a corpser, a slug, or a gremlin's own attack
+landing, stealing something, and a lockpick snapping.
+</p>
+
+<p>
+The draw order bit exactly where the previous slice predicted. The acid slug's sound is one of the
+six that draw, and it draws between that attack's own item pick and the poison gate's roll. Wiring
+it from the caller, the obvious place, would have let the poison gate consume the number that
+belonged to the sound. It is wired inside the rule instead, in the original's own order.
+</p>
+
+<p>
+The run corrected one of this project's own comments while reading. It had claimed a spell's
+result code was never measured; the assignment is on the line the decompilation gives, the same
+line a neighbouring spell already treats as measured. This project has a rule about a comment
+claiming an absence that was never checked.
+</p>
+
+<p>
+Sixteen gaps, each with its own reason. Five need frame-by-frame animations this project does not
+run. Three need a summon whose draws cannot be reordered yet. The rest need a rule, a key mode, or
+a result field that does not exist, and one needs only a caller for a rule that is built and
+tested and reached by nothing.
+</p>
+
+<p>
+The run also found one of its own tests blind, the third time this stretch and the first time a
+run went looking on purpose. It asserted that a gremlin plays one sound with no draws, and passed
+when given the corpser's sound instead, because both are zero-draw. It now pins the sound's own
+content.
+</p>
+
+<h2>Measured: the driver that turned out to be a drawing routine</h2>
+
+<p>
+The ambient rules were built and tested, and nothing registers a source or ticks them. The
+driver is not a sound routine at all: it is the routine that builds the eleven by eleven display
+stacks, which also detects the bard, decides which volcano erupts, and draws the darkness. The
+layer is driven by the composer, and this project already has the composer.
+</p>
+
+<p>
+Four things sit in that loop and only one is a sound. The caller offers every object in the
+window and filters nothing, so the filtering stays in the rule. The distance is the larger of the
+two absolute deltas rather than Euclidean, and all five of the ambient distance laws read that one
+number, so a wrong metric is wrong five ways at once. A musician coming into view draws one random
+number from the shared stream, on the transition and not while it stays.
+</p>
+
+<p>
+The fourth closes an entry from the data sweep. The eruption flag is on the list of members no
+code reads, and the original reads it in this loop: one means an eruption is due, the loop
+replaces it with the object number of the first volcano in view, and the end of the routine
+clears it when none was. So it is a three-state value, and this project holds it as a boolean,
+exactly the narrowing this file already names as its own standing smell.
+</p>
+
+<h2>Caught on the owner's own machine, heard rather than seen</h2>
+
+<p>
+The owner ran it and the first audio buffer threw. The speaker asked Unity for its own output
+sample rate inside the buffer callback, which runs on the audio thread, and that property may only
+be asked on the main thread. The rate is now read once when the component wakes and held in a
+field.
+</p>
+
+<p>
+The owner ran it again and heard nothing. Two values explain it and neither came from this
+project: the source was blended 0.107 towards three dimensional sound, so a speaker modelling a PC
+speaker was being positioned in a world it has no place in, and its priority was 244, three steps
+off Unity's own lowest. The component set four properties and left everything else to whatever the
+scene had serialised. It now sets every property that can silence it.
+</p>
+
+<p>
+The same capture also gave the arithmetic reason nothing had sounded long enough to be heard. The
+queue was advanced once per rendered frame, by the frame's own elapsed time. The common effects
+are forty or fifty steps of a third of a millisecond, so a whole effect was consumed inside a
+single update before the audio callback ever ran. The callback owns the clock now and advances
+playback one sample at a time, while the game thread only queues.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          219 / 248
+
+U6Formats.Tests    585 / 585
+U6Export.Tests      90 / 90
+U6Engine.Tests    4673 / 4673
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text
+check clean. Unity's own Test Runner was <strong>not</strong> run, and neither was audibility: that
+is the owner's own machine's question, not this repository's.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Four tests that should have failed and did not, found four different ways, and one break
+     that proved more than it was asked to.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

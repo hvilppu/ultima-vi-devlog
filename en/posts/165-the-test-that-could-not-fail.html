@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Test That Could Not Fail | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/165-testi-joka-ei-voinut-epaonnistua.html" hreflang="fi">FI</a><span>/</span><a href="165-the-test-that-could-not-fail.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 165</nav>
+
+<h1>The Test That Could Not Fail</h1>
+
+<p class="lede">
+This stretch found four tests and checks that had no way to fail, and each was found a different
+way. One was blind at a single coincidental parameter value. One was blind at a fixture whose
+name happened to be capitalised already. One asserted a sound's count and not its identity. One
+was parameterised by the very constant it was meant to check. And one break proved more than it
+was asked to.
+</p>
+
+<h2>The first, which taught this stretch to be careful</h2>
+
+<p>
+Thirteen entries from the hundred-rule list were answered one by one. The screen shake was wired
+the same way the dissolve already is: the rule answers steps, the view turns steps into time with
+a named constant of its own, and no test pins that constant. That was verified by changing it and
+watching every rule test stay green.
+</p>
+
+<p>
+The best thing in that report is not what was built, it is a test that stayed green under a
+break and should not have comforted anyone. Breaking the offset formula failed five assertions in
+the rule's own tests and left the new playback tests passing, because they compare playback
+against an independently computed call of the same broken rule. They prove faithful consumption
+and not correct numbers, and the run said so rather than counting them as cover.
+</p>
+
+<h2>Four blind tests, found four different ways</h2>
+
+<p>
+The first was blind at a single coincidental parameter value. Merging two of three
+missile-shaped arms passed all forty five tests, because the test's own parameter was 125, the
+single point where both formulas reach zero. The run found the coincidence itself, added a second
+point further away, and the break then failed exactly as predicted.
+</p>
+
+<p>
+The second was blind at a fixture whose name happened to be capitalised already. A test resolves
+a name that is already capital, so a break in the capitalise control is invisible to it. The run
+reported this as it stood rather than quietly swapping the fixture.
+</p>
+
+<p>
+The third asserted a sound's count and not its identity, and was found by a run that went looking
+on purpose, the first time this stretch. The assertion said a gremlin plays one sound with no
+draws from the random generator, and it passed when given the corpser's sound instead, because
+both are zero-draw sounds. It now pins the sound's own content rather than only its shape.
+</p>
+
+<p>
+The fourth was parameterised by the very constant it was meant to check, and was found only by
+running the break, not by reasoning about it. An instrument-length test read its expected value
+directly off the constant it was supposed to verify, so shortening that constant failed nothing
+there at all. A positive pass over all twelve song files did not fail either, because a wrong
+alignment does not throw, it reads the wrong bytes as commands, which is exactly the silently
+wrong case this project's rules exist to catch. What caught it was the truncation test, which
+stopped refusing. The replacement hardcodes the number and fails on the exact byte.
+</p>
+
+<h2>A break that proved more than it was asked to</h2>
+
+<p>
+Changing a constant by five orders of magnitude failed nothing, and the reason is structural
+rather than lucky: the view is not compiled into the engine's test assembly at all, so no rule
+test could ever see that constant. That is the strongest form of proof a decision could ask for,
+and a different thing entirely from a test that simply happened not to fail.
+</p>
+
+<h2>What no test can ever see</h2>
+
+<p>
+The four blind tests share one side: they were tests, written wrong. The other side has four
+places where no test, written right or wrong, could ever have seen what broke, because the
+composition lives in the Unity assembly, which has no headless path at all.
+</p>
+
+<p>
+The owner's first capture showed a hit line full of raw object numbers. A second showed the same
+line naming the decompilation's own identifiers. A third invented sentence sat beside it,
+untouched by the two earlier removals, because those worked phrase by phrase and this frame was
+not a phrase. The fourth time in this project, the owner's own machine was the instrument that
+caught it.
+</p>
+
+<p>
+The sound side added three more, none of them a code fault in this project. The speaker asked
+Unity for its sample rate inside the audio thread's own callback, which throws because that
+property is allowed only on the main thread, and nothing here could have caught it before the
+editor did. The source was blended towards three dimensional sound and its priority sat three
+steps off Unity's lowest, neither of them set by this project, and the component had left
+everything else to whatever the scene serialised. And the queue advanced once per rendered frame
+by that frame's own elapsed time, so a whole effect was consumed inside a single update before the
+audio callback ever ran, which is exactly the kind of timing a headless run does not model.
+</p>
+
+<h2>Two sides of the same coin</h2>
+
+<p>
+The four blind tests and the four capture-caught defects are not two different phenomena. They
+are the same question asked two different ways. A blind test asks what this test truly asserts,
+and sometimes answers wrong about what it claims to be. A capture asks what this project can see
+at all, and sometimes answers nothing. Neither is fixed by more code; both are fixed by someone
+asking which question is being asked right now.
+</p>
+
+<p>
+This project's own rule says a test or a check must never be the kind whose assertion could not
+have failed. This stretch showed that checking that sometimes means running the break instead of
+reasoning about it, and sometimes means asking the owner for a capture, because nothing here can
+look.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          219 / 248
+
+U6Formats.Tests    585 / 585
+U6Export.Tests      90 / 90
+U6Engine.Tests    4673 / 4673
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text
+check clean. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>A capture from the owner is owed, to confirm the panel's four views and the audibility of
+     sound by eye and by ear, not only by green tests. The list of a hundred keeps being worked
+     in groups.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

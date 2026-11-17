@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neljäsosa listasta oli väärin | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="163-neljasosa-listasta-oli-vaarin.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/163-a-quarter-of-the-list-was-wrong.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 163</nav>
+
+<h1>Neljäsosa listasta oli väärin</h1>
+
+<p class="lede">
+Sadan listan oma otsikko kertoi yhdessä lauseessa mitä se ei kattanut: julkiset kentät ja
+vakiot jotka luetaan datana. Se lause luki kuin alaviite. Datapopulaatio on 1588 jäsentä 927
+metodia vastaan, ja sen tavoittamaton osa on 218 jäsentä 112 vastaan, niin alaviite kattaa
+enemmän maastoa kuin itse pyyhkäisy kattoi.
+</p>
+
+<h2>Lakkasi olemasta hypoteettinen tällä viikolla</h2>
+
+<p>
+Rivi jonka omistaja kuvasi pelistä olisi pitänyt ajaa ominaisuus joka on mitattu, kirjoitettu,
+testattu, ja luettu ei mistään muusta kuin omista testeistään. Mikään metodipohjainen pyyhkäisy
+ei olisi voinut löytää sitä, koska se ei kutsu eikä kutsuta.
+</p>
+
+<h2>Kolme yritystä, kolme eri vastausta</h2>
+
+<p>
+Kommenttien laskeminen antoi 24. Koko julistusrivin ohittaminen antoi 98, koska ominaisuus
+oman alustajansa kanssa piilottaa luvut omaan alustajaansa, ja se paisutus näyttää löydökseltä
+juuri siitä syystä. Vain julistetun nimen ohittaminen ja sijoituksen lukeminen kirjoituksena
+antoi 81. Siksi tämä skripti committiin numeron sijaan: ensimmäisen pyyhkäisyn oma summa ei
+koskaan ollut toistettavissa, ja se liikkui joka kerta kun joku tarkisti yhden merkinnän.
+</p>
+
+<p>
+Skripti hyväksyttiin löytämällä uudelleen jotain jo tiedettyä muulla tavalla. Sen täytyi sijoittaa
+provoke-tuleman tulostuslippu pelkkien testien lukemaksi, sen seurakenttä ja purkautumislippu
+ei-minkään-lukemiksi, ja se sijoitti kaikki kolme oikein. Se on ainoa syy uskoa mihinkään muuhun.
+</p>
+
+<p>
+Uusi jako merkitsee enemmän kuin kokonaismäärä. Jäsen jota mikään ei lue on usein jäänne; jäsen
+jota lukevat vain testit kantaa vihreän väitteen kytkemättömän säännön päällä, ja 188 kahdesta
+sadastakahdeksastatoista on tätä muotoa. Niiden lukeminen näyttää yhden muodon eikä monia:
+tulema-tietue sanoo mitä sääntö teki ja näkymä lukee osan siitä mitä se sanoo. Yhdeksän niistä on
+viestiviittauksia riveille joita alkuperäinen tulostaa ja mikään tässä ei tulosta, mikä on lyhin
+matka tästä listasta johonkin ruudulla näkyvään.
+</p>
+
+<h2>Neljäsosa oli väärin, ja yksi merkki selittää miksi</h2>
+
+<p>
+Kaksi committia aiemmin committoitu pyyhkäisy raportoi kahdeksankymmentäyksi tavoittamatonta
+vakiota. Se on viisikymmentäkaksi. Virhe on yhden merkin levyinen: kuvio joka tunnistaa
+kirjoituksen täsmäsi nimeen jonka jälkeen on yhtäsuuruusmerkki, ja myös nimeen jonka jälkeen on
+nuoli, niin joka haara jokaisessa vakiolla avainnetussa switch-lausekkeessa laski kyseisen
+vakion kirjoitukseksi. Kaksikymmentäkahdeksan esinetyyppivakiota, joita käyttökomennon oma
+dispatch lukee, olivat listalla juuri tästä syystä.
+</p>
+
+<p>
+Se suunta on vaarallinen suunta. Väärä kirjoitus tekee luetusta jäsenestä tavoittamattoman
+näköisen, se lukee kuin löydös ja siihen reagoidaan, ja jokin viipale olisi voitu käyttää
+kytkemällä vakioita joita oli jo kytketty.
+</p>
+
+<p>
+Virhe itse merkitsee vähemmän kuin tapa jolla se löydettiin. Kolme aiempaa virhettä samassa
+metodissa löydettiin päättelemällä metodista, ja joka kerta ne muuttivat vastausta: 24 kun
+kommentit laskettiin, 98 kun julistusrivi piilotti luvut omaan alustajaansa. Tämä oli
+näkymätön päättelylle ja löydettiin avaamalla viisi merkintää listalta, joista ensimmäinen
+luettiin oman tiedostonsa seuraavalla rivillä. Lista jota kukaan ei ole näytteistänyt on
+hypoteesi, ja brief sanoo nyt niin paikassa jossa joku sen lukee.
+</p>
+
+<h2>Hyväksyntätesti joka vanhenee itse</h2>
+
+<p>
+Hyväksyntätarkistus on kiinnitetty committiin eikä työpuuhun, ja se ei ole koristetta: kaksi
+kolmesta sen aiheesta lakkasivat kelpaamasta yhden viipaleen sisällä, koska seuraava viipale
+antoi niille lukijan. Ajettuna työpuuta vasten se olisi kaatunut kahdesta kolmesta, ja metodi
+olisi saanut syytteen siitä että puu oli korjattu.
+</p>
+
+<p>
+Kokonaismäärät liikkuvat mukana: 189 tavoittamatonta 1588:sta julistetusta, 161 niistä vain
+testien lukemia ja 28 ei-minkään lukemaa. Kahdeskymmeneskahdeksan on nyt lueteltuna täysin
+eikä esimerkein, niin seuraava korjaus tietää mihin osua, ja aiempi osittainen lista on
+merkitty vääräksi eikä hiljaa korvattu.
+</p>
+
+<h2>Mitä lista yhä ei ole</h2>
+
+<p>
+Textuaalinen eikä kutsukaavio, jaetut nimet laskettuna yhteen, ja kolme neljästä
+kokoonpanosta yhä pyyhkäisemättä. Suuruusluokka on jo osoittanut olevansa väärässä molempiin
+suuntiin, niin seuraava kierros tarkistaa yksittäiset merkinnät eikä vain kokonaismäärän.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       219 / 248
+
+U6Formats.Tests    585 / 585
+U6Export.Tests      90 / 90
+U6Engine.Tests    4673 / 4673
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner <strong>ei</strong>
+ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Ääni, jolla suunnitelma nimesi yhden alijärjestelmän kolmesta, ja kaksi muuta jotka eivät
+     tarvitse yhtäkään vientiä pelatakseen.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Panel Answered, the Draw Did Not | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/161-paneeli-vastasi-piirto-ei.html" hreflang="fi">FI</a><span>/</span><a href="161-the-panel-answered-the-draw-did-not.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 161</nav>
+
+<h1>The Panel Answered, the Draw Did Not</h1>
+
+<p class="lede">
+The character panel's state was a literal zero from end to end: the buttons did nothing, the
+keyboard never reached it at all, and the scroll forgot itself on every click. Five slices in a
+row fixed this one step at a time, and the middle step found a draw routine that ignored the
+state entirely.
+</p>
+
+<h2>A four-arm switch, measured before it was built</h2>
+
+<p>
+The portrait and equipment views had never reached the screen, so measurement came first. The
+portrait view draws four buttons, the equipment view five, and both arrow conditions agree with
+the drawing rule for <strong>the fourth time running</strong>. The health value has three colours
+where a build would have written one.
+</p>
+
+<p>
+Two things were worth measuring on their own. The inventory draw ignores its own parameter, and
+five call sites pass it five different things, two of which name a person and then draw whoever
+the panel was already showing. And the down scroll handler is looser than both its callers, the
+third handler that evening whose bound lives in the caller rather than in itself.
+</p>
+
+<h2>Buttons move state, and the screen does not listen</h2>
+
+<p>
+Clicking a row, the two arrows, the party button, and the swap between the portrait and
+equipment views now move the panel's own state, which was a literal zero until now. Ready and
+unready needed no new code: the original's two routines turned out to be the same rules in the
+same check order this project had already written correctly.
+</p>
+
+<p>
+But the status redraw calls the party list unconditionally and never asks which view is on show.
+The state was now correct and the screen was not. Pressing a button changed what the rules would
+answer and nothing about what was on screen. A capture taken at this point would have shown the
+party list regardless of state, which is exactly the kind of defect tests are structurally blind
+to.
+</p>
+
+<h2>The draw finally follows the state</h2>
+
+<p>
+The status redraw now picks by view, with solo mode forcing the shown place outside the switch
+rather than inside one arm, and pressing the portrait button finally changes the screen and not
+only what the rules answer. The portrait view draws its four buttons and never a fifth, its three
+attributes, magic, health, and the level and experience line, with the health value in the same
+three colours already built and tested for the party list. The break that collapsed two of those
+colours failed in both places, which is what proves the reuse is live rather than cited in a
+comment.
+</p>
+
+<p>
+Twelve message references carry every label and format string by offset, measured by length
+against the real export. None of them is typed anywhere, which the leaked-text check confirmed
+on all three passes.
+</p>
+
+<h2>Four views, and only one of them answered</h2>
+
+<p>
+The pointer's panel zone answered the party view and dropped the rest. The portrait, equipment,
+and spellbook views now answer too, measured out of the original's own three handlers and built
+over members that already existed.
+</p>
+
+<p>
+The finding this slice was written around is a state count. Both of the original's slot picks
+have three outcomes: no hit, a hit on an empty slot, and a hit on an object. This project's
+equipment pick had folded the first two together. In the one arm it was built for that is
+harmless, because the consumer reads the object and not the hit. In targeting mode the original
+reads the return value instead, so a click on an empty slot is a selection, which the folded
+answer would have swallowed. The three states now have their own answer, composed from the two
+members that already existed.
+</p>
+
+<p>
+Three arms were refused rather than invented, each for a missing ingredient confirmed absent by
+searching rather than assumed from a comment: the inventory hit's ready and open decision needs a
+container-type test, the combat button's propagation needs who is under player control, and the
+owner picture's own second pick needs the container the panel is showing. The brief's own search
+list was incomplete, and the run said so: it named seven, and the eighth, player control, blocks
+half of one discriminator just as surely.
+</p>
+
+<p>
+The best thing in the report is a break that broke nothing. Moving the combat button's arm after
+the button row changed no answer in 372 tests, and the reason is structural rather than a weak
+test: the two rectangles do not overlap, and since the button's own mutation is one of the refused
+arms, the ordering cannot be observed from a return value at all. A break that cannot fail is
+worth exactly as much as a test that cannot, and saying so is better than counting it.
+</p>
+
+<h2>The keyboard reaches the panel for the first time</h2>
+
+<p>
+The rule was measured and tested a slice ago, and nothing called it, because this project had no
+key mapping for any of the keys the original's own table lists. It does now, over that same
+table: one asymmetry remains, a function key in the party view opens the equipment view and not
+the portrait view.
+</p>
+
+<p>
+One collision was real and is resolved by precedence rather than by moving a key: the party
+list's own view hands the colliding function key on to the development aid that already used it,
+and only the two views whose table answers for it take it. The spellbook's own pass key stays
+unreached, and the reason is structural rather than an oversight: that view returns from an
+earlier branch and its own handler already owns the keys.
+</p>
+
+<p>
+The inventory scroll had a rule with the original's own bounds and nowhere to keep its answer,
+so the grid showed the first row whatever a click had done. It has a field now beside the two the
+previous slice gave homes to, and the two bounds stay apart: the handler's own looser one decides
+what a press does, the caller's tighter one decides whether the arrow is offered at all.
+</p>
+
+<p>
+Unready works from the panel now. The pointer resolved the command and did not carry which object
+was hit, so nothing could act on it; the result carries the object now. Ready stays unreached,
+and that is correct rather than incomplete: nothing this project produces ever emits that command,
+it comes only from a click on the inventory grid, which the pointer deliberately does not
+recognise while the container test behind it is absent.
+</p>
+
+<p>
+One break could not fail, and the reason is worth keeping: the wiring it attacked lives in the
+Unity assembly, which has no headless test, so only the editor could have caught it. The engine
+rule underneath is pinned by its own test. The other two breaks failed on the exact line changed.
+</p>
+
+<p>
+The run also found a leaked-text failure in a document committed two commits earlier: a format
+string had been copied out of the decompilation into a brief instead of described. The
+description now says everything the quotation did. The check caught it after the commit, which is
+the check working and the audit not having been run before that commit.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          219 / 248
+
+U6Formats.Tests    585 / 585
+U6Export.Tests      90 / 90
+U6Engine.Tests    4673 / 4673
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text
+check clean. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>What a hit prints: the same panel capture that showed the party list in the wrong view also
+     showed a line of raw object numbers where the original speaks in its own words.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

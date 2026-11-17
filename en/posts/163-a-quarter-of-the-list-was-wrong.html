@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Quarter of the List Was Wrong | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/163-neljasosa-listasta-oli-vaarin.html" hreflang="fi">FI</a><span>/</span><a href="163-a-quarter-of-the-list-was-wrong.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 163</nav>
+
+<h1>A Quarter of the List Was Wrong</h1>
+
+<p class="lede">
+The hundred-rule list named its own blind spot in one sentence: public fields and constants read
+as data were outside it. That sentence reads like a footnote. The data population is 1588
+members against 927 methods, and its unread part is 218 against 112, so the footnote covers more
+ground than the sweep did.
+</p>
+
+<h2>It stopped being hypothetical this week</h2>
+
+<p>
+The line the owner photographed should have been driven by a property that is measured, written,
+tested, and read by nothing but its own tests. No method-based sweep could ever have found it,
+because it neither calls nor is called.
+</p>
+
+<h2>Three attempts, three different answers</h2>
+
+<p>
+Counting comments said 24. Skipping the whole declaration line said 98, because a property with
+an initialiser hides its reads inside its own initialiser, and that inflation looks exactly like a
+finding. Skipping only the declared name and treating an assignment as a write said 81. That is
+why the script was committed rather than a number quoted: the first sweep's own total was never
+reproducible, and it moved every time somebody checked one entry.
+</p>
+
+<p>
+The script was accepted by rediscovering something already known by other means. It had to place
+the provoke outcome's own printed-line flag under read only by tests, its companion victim field
+and the eruption flag under read by no code at all, and it placed all three correctly. That is
+the only reason to believe the rest.
+</p>
+
+<p>
+The new split matters more than the total. A member nothing reads is often a leftover; a member
+only tests read carries a green assertion standing over an unwired rule, and 188 of the 218 are
+that kind. Reading them shows one shape rather than many: an outcome record says what a rule did,
+and the view reads some of what it says. Nine of them are message references for lines the
+original prints and nothing here does, which is the shortest distance from this list to something
+visible on screen.
+</p>
+
+<h2>A quarter was wrong, and one character explains why</h2>
+
+<p>
+The sweep committed two commits earlier reported 81 unread constants. It is 52. The error is one
+character wide: the pattern that recognises a write matched a name followed by an equals sign,
+and also a name followed by an arrow, so every arm of every switch expression keyed on a constant
+counted as a write of that constant. Twenty eight object-type constants that the use command's own
+dispatch reads were on the list because of this.
+</p>
+
+<p>
+That direction is the dangerous one. A false write makes a member that is read look unread, which
+reads as a finding and gets acted on, and a slice could have been spent wiring constants that were
+already wired.
+</p>
+
+<p>
+The fault matters less than how it was found. Three earlier faults in the same method were found
+by reasoning about the method, and each one moved the answer: 24 when comments counted, 98 when a
+declaration line hid reads inside its own initialiser. This one was invisible to reasoning and was
+found by opening five entries off the list, where the first was read on the very next line of its
+own file. A list nobody has sampled is a hypothesis, and the brief now says so where somebody will
+read it.
+</p>
+
+<h2>An acceptance check that goes stale on its own</h2>
+
+<p>
+The acceptance check is pinned to a commit rather than to the working tree, and that is not
+decoration: two of its three subjects stopped qualifying within one slice, because the slice
+after it gave them a reader. Run against the tree it would have failed on two of three, and the
+method would have taken the blame for the tree having been fixed.
+</p>
+
+<p>
+Totals move with it: 189 unread of 1588 declared, 161 of them read only by tests and 28 by nothing
+at all. The twenty eight are now listed in full rather than by example, so the next correction has
+somewhere to land, and the earlier partial list is marked as the wrong one rather than quietly
+replaced.
+</p>
+
+<h2>What the list still is not</h2>
+
+<p>
+It is textual rather than a call graph, shared names are counted together, and three of the four
+assemblies are still unswept. The order of magnitude has already shown itself wrong in both
+directions once, so the next round checks individual entries and not only the total.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          219 / 248
+
+U6Formats.Tests    585 / 585
+U6Export.Tests      90 / 90
+U6Engine.Tests    4673 / 4673
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, with nothing skipped. All six build targets at 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0 broken references, the leaked-text
+check clean. Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Up next</span>
+  <p>Sound, where the plan named one of three subsystems, and the other two need no asset at all
+     to play.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolme hiljaisuutta, yksi iso kirjain | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="162-kolme-hiljaisuutta-yksi-iso-kirjain.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/162-three-silences-one-capital-letter.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 162</nav>
+
+<h1>Kolme hiljaisuutta, yksi iso kirjain</h1>
+
+<p class="lede">
+Omistajan kuvakaappaus näytti osumarivin raakoja esinenumeroita varten keksityllä englannilla.
+Sen korjaaminen vei neljä viipaletta, ja lopussa oli vähemmän tekstiä kuin alussa: kolme omaa
+keksittyä lausetta poistui, koska alkuperäinen on hiljaa juuri niissä kohdissa.
+</p>
+
+<h2>Ennen rivin korjaamista, pöytä jonka päälle se nojaa</h2>
+
+<p>
+Alkuperäisen viestitaulukossa on yksitoista parin merkintää joiden offset on yhteinen kahdelle
+riville, ja aiempi ajo kutsui niitä ratkaisemattomiksi. Täydellinen läpikäynti 893 merkinnästä
+osoitti, että kaksikymmentä niistä pareista on samaa muotoa: yhdeksäntoista laskeutuu samalla
+pituudella ja kahdeskymmenes ei laskeudu minnekään. Parin pituus luetaan nyt vain laskeutuvien
+rivien joukosta, ja eksynyt rivi lasketaan mutta ei äänestä.
+</p>
+
+<p>
+Yksi yhdestätoista parista ei ollut tätä muotoa: kaksi eri riviä jakavat samanmerkin, ja
+toisella niistä on oikea kuluttaja, ilmapallon rakentamisen rivi. Korjaus ratkaisi parin
+ensin väärään riviin, mikä olisi tulostanut kattilan rivin puuttuvan köyden tilalla eikä kukaan
+olisi huomannut. Köyden oma viittaus nimeää nyt oman paikkansa, kattilan offsetin plus sen rivin
+tallennetun pituuden plus päätemerkin, joka ei esiinny dekompilaatiossa missään, niin se
+kieltäytyy yhä, nyt rehellisestä syystä eikä vanhentuneesta.
+</p>
+
+<h2>Osuma, mitattuna uudelleen</h2>
+
+<p>
+Alkuperäinen ei tulosta minkäänlaista osumamäärä-riviä ollenkaan. Sillä on tarkalleen sama lause,
+kolme heksadesimaalilukua leveä, oman lähdekoodinsa poistetun lohkon sisällä. Molemmat projektit
+kirjoittivat saman diagnostiikka-avun, ja vain toinen niistä toimitti sen.
+</p>
+
+<p>
+Tämä on siis kolmas hiljaisuus viikon aikana: paikka jossa me tulostamme lauseen ja alkuperäinen
+ei mitään. Sama rivi kantoi kaksi muuta. Sen provoke-lause ei vastaa mitään koko rutiinissa jota
+se nimeää. Ja sen kuolemahaara tulosti kokemuksen ja karman lukuja siinä missä alkuperäinen
+tulostaa yhden rivin eikä yhtäkään lukua.
+</p>
+
+<p>
+Mitä osuma todella tulostaa on seitsemän riviä, kumulatiivisesti eikä toisensa poissulkevasti,
+järjestyksessä jossa on kaksi ansaa: kuolemantesti sulkee pois neljä tyyppiä eikä yhtä, ja
+kuolemahaara palaa siitä missä haavahaara jatkuu läpi, niin yksi osuma voi tulostaa neljä riviä
+ja tapettu kohde ei yhtäkään.
+</p>
+
+<p>
+Kolmetoista viittausta nimettiin, kaksitoista niistä nimellä tai offsetilla, ja kolmastoista on
+mitatusti poissa: sen julistus kantaa tyhjän kommentin siellä missä muut kantavat offset-merkin,
+niin se putoaa viedyn populaation ulkopuolelle samalla tavalla kuin yksi toinen jo kirjattu.
+Poissaolo on erottelija, ei ongelma jonka ympäri kierretään.
+</p>
+
+<h2>Lause joka piiloutui omaan kehykseensä</h2>
+
+<p>
+Haavahaara kantoi omaa keksittyä kehystään läpi sen viipaleen joka poisti kaksi muuta keksittyä
+lausetta, koska se poisto toimi fraasi kerrallaan ja kehys ei ollut fraasi. Toinen omistajan
+kuvakaappaus näytti viestialueen nimeävän dekompilaation omia tunnisteita ja sulkeita jotka
+selittivät, että teksti ei ratkennu. Se ei tarkoita näin: viittaukset ratkeavat, kaksitoista
+kolmestatoista mitattuna oikeaa vientiä vasten, ja näkymällä on jo ratkaisija jota se käyttää
+kolmessa muussa paikassa. Se vain ei koskaan kysy.
+</p>
+
+<p>
+Sama rivi nimesi myös hyökkääjän ja sidosanan jota alkuperäisellä ei ole. Alkuperäisen
+haavarivillä on yksi aihe, kohde, ja ei verbiä lainkaan. Tämä on siis kolmas keksitty lause
+samassa metodissa, ja se selvisi hengissä koska koostuminen asuu Unity-kokoonpanossa, jolla ei ole
+testialustaa. Omistajan kuvakaappaus on väline joka napasi sen, neljännen kerran tässä
+projektissa.
+</p>
+
+<p>
+Rivi tulostaa nyt alkuperäisen omilla neljällä nimellä haavan vakavuuden sijaan kokonaislukuna,
+eikä mitään kun kohde ei haavaudu lainkaan, mikä on tarkalleen se mitä alkuperäinen tekee ja me
+täytimme lauseella. Hälytyksen omalla lipulla ja kohteella on nyt lukija ensimmäistä kertaa,
+mikä sulkee datapyyhkäisyn ensimmäisen merkinnän.
+</p>
+
+<h2>Numero muuttuu nimeksi</h2>
+
+<p>
+Taisteluun liittyvät rivit nimesivät hahmot esinenumerolla. Ne ratkaisevat nyt oikean nimen:
+puolueenjäsenen oman tallennetun nimen, tai sen nykyisen muodon tiiliväkinimen, tai kuolleena
+tai nukkuessa sen alkuperäisen muodon nimen. Nimirutiinilla on vihdoin tuotantokutsuja, jota
+sillä ei ole ollut sen vientihetkestä lähtien, ja alkuperäinen kutsuu vastaavaa 47 paikasta.
+</p>
+
+<p>
+Seitsemän haaraa kytkettiin eikä briefin nimeämää kolmea, koska nimi oli jo kulkenut niiden
+läpi, ja neljän jättäminen raakaan numeroon olisi ollut epäjohdonmukaista turhaan.
+</p>
+
+<p>
+Kaksi korjausta ajo teki omasta aloitteestaan, molemmat varmistettuina alkuperäistä vasten, ja
+molemmat olisivat olleet käyttäytymisen kääntymisiä eikä kosmeettisia virheitä. Puolueen haku
+rajautuu puolueen omaan kokoon ja vastaa tyhjää kun hahmo ei ole siinä; viereinen apukeino on
+rajattu kiinteään kahdeksaan ja kantaa alkuperäisen oman kirjatun bugin yhdeksännen paikan
+vastaamisesta, niin sen käyttö olisi tuonut bugin polkuun jolla sitä ei ole. Ja haara joka nimeää
+olennon alkuperäisen muodon on ehdolla kuollut tai nukkuva, erillään alkuperäisen omasta
+laajemmasta makrosta joka sisältää myös lamaantuneen, niin sen käyttö olisi nimennyt muodon jota
+lamaantunut mutta vahingoittumaton hahmo ei ole ottanut.
+</p>
+
+<h2>Neljä erikoishyökkäystä, ja syy niille jonkin muun kuin tiedon puute</h2>
+
+<p>
+Hirviötaulukko kaikkine kuusikymmentäneljän luokkineen ja viitenätoista käytettynä lippuna on
+ollut viety aiemmasta virstanpylväästä lähtien. Mikään ei vain ollut muuntanut esinetyyppiä
+luokaksi. Kolme neljästä testistä on tarkka luokkanumero ja neljäs on lippubitti, niin
+rakentamista jossa kaikkia neljää kohdellaan samoin on väärin kolmelle tai yhdelle.
+</p>
+
+<p>
+Esinevalinta ei ole ensimmäinen osuma eikä tasainen valinta: joka osuma ensimmäisen jälkeen
+korvaa nykyisen kolikonheitolla, niin viimeinen osuva esine valitaan puolet ajasta ja
+ensimmäinen vain kun mikään myöhempi ei osunut. Valinta kuluttaa jaetusta generaattorista yhden
+luvun joka osuman jälkeen, ja myrkkyportti kuluttaa tarkalleen yhden riippumatta siitä myrkyttääkö
+se.
+</p>
+
+<p>
+Haavarivi nimeää nyt vain kohteen, ei hyökkääjää eikä verbiä eikä viittaustunnistetta. Neljä
+erikoishyökkäystä on rakennettu: kalmankantaja vetää uhrinsa alas, etana liuottaa osan
+haarniskasta, pirulainen varastaa ruokaa, ja myrkyllinen olento myrkyttää neljännen kerran. Rikko
+joka muutti kalmankantajan testin lipputestiksi kaatoi seitsemän väitettä kolmessa tiedostossa.
+</p>
+
+<h2>Iso kirjain joka kadonnut kauan sitten</h2>
+
+<p>
+Rivi joka kytki nämä nimet ennusti myös oman seuraavan vikansa: haava- ja kuolemarivit lukevat
+nimen muunnoksena eikä mikään täytä sitä. Toinen asia tuli näkyviin samassa kuvassa: olennon
+nimi luki pienellä, ja se ei ole nimeämisvirhe, se on soveltamaton kontrollimerkki. Takahipsu on
+isontamiskontrolli, se kulutetaan ja se ei tulosta itseään, ja tämä projekti mittasi sen vuosien
+mittakaavassa sitten eikä koskaan soveltanut. Nimet on tallennettu pienellä juuri siksi, että
+rivi kantaa kontrollin sen sijaan että taulukko kantaisi isoja kirjaimia.
+</p>
+
+<p>
+Kontrolli oli nimetty, kartoitettu ja testattu formaattikerroksessa, ja moottoripuoli taittoi
+rivinvaihdot eikä muuta, mikä oli oikein niin kauan kuin ainoa rivi joka siitä kulki ei kantanut
+kontrollia eikä muunnosta. Haavarivi oli tänään oikea väärästä syystä: se rakennettiin
+yhdistämällä eikä muotoilemalla, niin se ei koskaan kohtaa kumpaakaan.
+</p>
+
+<p>
+Nyt isontamiskontrolli sovelletaan ja muunnos täyttyy, ja muunnos joka ei voi täyttyä tuottaa
+tyhjää eikä omaa paikanpitäjäänsä pelaajalle asti, mikä on tapaus jonka edellinen versio vuoti
+ja mikä testi ei koskaan kysynyt.
+</p>
+
+<h2>Viisi loitsua puhuu, neljä nimeää syyn</h2>
+
+<p>
+Datapyyhkäisyn löytämät yhdeksän viestiviittausta luokiteltiin yksi kerrallaan ennen kuin
+mitään kytkettiin: viisi tarvitsi kutsujan, neljä tarvitsee jotain jota ei ole olemassa.
+</p>
+
+<p>
+Viisi puhuu tuotannossa nyt. Lumoaminen ja taskuvarkaus tulostavat molemmat rivin joka kuuluu
+ennen sitä jonka ne tulostivat jo. Ammusloitsu tyhjään tilaan tulostaa alkuperäisen kaksi riviä
+oman keksityn lauseen tilalla, ja tämän erottaminen antoi neljän muun loitsuperheen vaihtaa saman
+keksinnön samaan riviin. Tuulen muuttaminen kysyy nyt suuntaa ja lukee sen, kun se vastasi
+hiljaa "ei suunta" ennen. Tavallisesta ajankulusta loppuun palava soihtu tulostaa alkuperäisen
+rivin, kerran per soihtu.
+</p>
+
+<p>
+Neljä kieltäytymistä nimeää neljä eri puuttuvaa asiaa, eikä yksikään niistä ole puuttuva
+kutsuja. Yksi tarvitsisi yleisen kohdennuskehotteen jota noin kymmenen sisarvakiota odottaa
+yhtä lailla. Yksi tarvitsee mittaamattoman törmäystestin. Yksi on tavoitettavissa vain
+kirjoitetun loitsun syöttötilan kautta, jota tämä projekti ei ole koskaan rakentanut. Yksi
+tarvitsee koko komentopolun jota ei ole.
+</p>
+
+<p>
+Ja ajo löysi vahvistetun esiintymän rajoituksesta jonka pyyhkäisyn oma otsikko oli vain
+ennustanut: kaksi loitsuluokkaa julistaa samannimisen jäsenen, ja yhden kytkeminen teki
+molemmista luetuiksi yhteenvedossa, siinä missä toista ei kosketa mikään. Ajo napasi sen
+lukemalla listan uudelleen eikä summaa, ja sekä skripti että sen brief kantavat nyt säännön:
+kun nimi poistuu listalta, tarkista että kytketty julistus on se joka poistui.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       219 / 248
+
+U6Formats.Tests    585 / 585
+U6Export.Tests      90 / 90
+U6Engine.Tests    4673 / 4673
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner <strong>ei</strong>
+ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Datapyyhkäisyn oma toinen puolisko: 189 jäsentä 1588:sta joita mikään tuotantokoodi ei lue,
+     ja neljä yritystä joita menetelmän mittaaminen vei.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

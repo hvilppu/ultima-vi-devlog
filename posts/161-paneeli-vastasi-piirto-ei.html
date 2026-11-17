@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paneeli vastasi, piirto ei | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="161-paneeli-vastasi-piirto-ei.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/161-the-panel-answered-the-draw-did-not.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 161</nav>
+
+<h1>Paneeli vastasi, piirto ei</h1>
+
+<p class="lede">
+Hahmopaneelin tila oli literaali nolla alusta loppuun: napit eivät tehneet mitään, näppäimistö ei
+tavoittanut paneelia lainkaan, ja vieritys unohti itsensä joka klikkauksella. Viisi viipaletta
+peräkkäin korjasi tämän yksi askel kerrallaan, ja keskimmäinen askel löysi oman piirtorutiinin, joka
+jätti tilan kokonaan huomiotta.
+</p>
+
+<h2>Neljän haaran kytkin, mitattuna ennen rakentamista</h2>
+
+<p>
+Portretti- ja varustenäkymät eivät olleet koskaan päätyneet ruudulle, niin mittaus tuli ensin.
+Portrettinäkymä piirtää neljä nappia, varustenäkymä viisi, ja molemmat nuolihaarat sopivat
+piirtosäännön kanssa <strong>neljännen kerran peräkkäin</strong>. Terveysarvolla on kolme väriä
+siellä missä rakennettu versio olisi kirjoittanut yhden.
+</p>
+
+<p>
+Kaksi asiaa oli mittauksen arvoisia sellaisenaan. Inventaarion piirto jättää oman parametrinsa
+huomiotta, ja viisi kutsupaikkaa antaa sille viisi eri asiaa, kaksi niistä nimeää jonkun henkilön ja
+piirtää sitten sen jota paneeli jo näytti. Ja alaspäin vierittävä käsittelijä on löysempi kuin
+molemmat kutsujansa, kolmas käsittelijä samana iltana jonka rajoitin asuu kutsujassa eikä itsessään.
+</p>
+
+<h2>Napit siirtävät tilaa, ja ruutu ei kuuntele</h2>
+
+<p>
+Rivin klikkaus, kaksi nuolta, puolue-nappi ja portretin ja varusteiden vaihto siirtävät nyt
+paneelin omaa tilaa, joka oli literaali nolla tähän asti. Valmius ja epävalmius eivät tarvinneet
+uutta koodia: alkuperäisen kaksi rutiinia osoittautuivat samoiksi säännöiksi samassa
+tarkistusjärjestyksessä, jotka tämä projekti kirjoitti aiemmin jo oikein.
+</p>
+
+<p>
+Mutta tilanäytön piirto kutsuu puolue-listaa ehdoitta eikä koskaan kysy kumpi näkymä on auki. Tila
+oli nyt oikein ja ruutu ei. Napin painaminen muutti sen mitä säännöt vastaisivat ja ei mitään sitä
+mitä ruudulla näkyi. Kuvakaappaus olisi näyttänyt puolue-listan tilasta riippumatta, ja se on juuri
+sellainen vika jota testit eivät rakenteellisesti näe.
+</p>
+
+<h2>Piirto seuraa tilaa, vihdoin</h2>
+
+<p>
+Tilanäytön piirto valitsee nyt näkymän mukaan, soolo-tila pakottaa näytettävän paikan kytkimen
+ulkopuolella eikä yhden haaran sisällä, ja portretin napin painaminen muuttaa vihdoin ruutua eikä
+vain sääntöjen vastausta. Portrettinäkymä piirtää neljä nappia eikä viidettä, kolme ominaisuutta,
+taikuuden, terveyden ja tason sekä kokemuksen rivin, terveysarvo samoilla kolmella värillä jotka
+rakennettiin ja testattiin jo puolue-listalle. Rikkomus joka romahdutti kaksi väriä kaatui
+molemmissa paikoissa, mikä on se mikä todistaa uudelleenkäytön eläväksi eikä vain kommentissa
+siteeratuksi.
+</p>
+
+<p>
+Kaksitoista viestiviittausta kantaa joka otsikon ja muotoilumerkkijonon offsetilla, mitattuna
+pituudella oikeaa vientiä vastaan. Yksikään niistä ei ole kirjoitettu mihinkään suoraan, mikä
+vuotavan tekstin tarkistus vahvisti kaikilla kolmella läpikäynnillä.
+</p>
+
+<h2>Neljä paikkaa jossa vain yksi vastasi</h2>
+
+<p>
+Hiiriosoittimen paneelivyöhyke vastasi vain puolue-näkymää ja pudotti loput. Portretti-,
+varuste- ja loitsukirjanäkymät vastaavat nyt myös, mitattuna alkuperäisen omista kolmesta
+käsittelijästä ja rakennettuna jäsenten päälle jotka olivat jo olemassa.
+</p>
+
+<p>
+Löydös jonka ympärille tämä viipale kirjoitettiin on tilalaskenta. Alkuperäisellä molemmilla
+paikkavalinnoilla on kolme tulemaa: ei osumaa, osuma tyhjään paikkaan, ja osuma esineeseen.
+Tämän projektin varustevalinta taittoi kaksi ensimmäistä yhteen. Siinä yhdessä haarassa jota
+varten se rakennettiin se on harmiton, koska kuluttaja lukee esineen eikä osumaa. Kohdennustilassa
+alkuperäinen lukee paluuarvon sen sijaan, ja klikkaus tyhjään paikkaan on valinta, jonka taitettu
+vastaus olisi niellyt. Kolmella tulemalla on nyt oma vastauksensa, koottuna niistä kahdesta
+jäsenestä jotka olivat jo olemassa.
+</p>
+
+<p>
+Kolme haaraa kieltäydyttiin pikemmin kuin keksittiin, kukin puuttuvaa ainesosaa varten joka
+tarkistettiin hausta eikä oletettu kommentista: inventaarion osuman valmius- ja avaus-päätös
+tarvitsee säiliötyyppitestin, taistelunapin eteneminen tarvitsee pelaajan hallinnan tiedon, ja
+omistajan kuvan toinen valinta tarvitsee säiliön jota paneeli näyttää. Briefin oma hakulista oli
+puutteellinen, ja ajo sanoi sen: se nimesi seitsemän ja kahdeksas, pelaajan hallinta, estää yhtä
+erottelijaa puolikkaasti ihan samalla tavalla.
+</p>
+
+<p>
+Paras asia raportissa on rikkomus joka ei rikkonut mitään. Taistelunapin haaran siirtäminen
+nappirivin jälkeen ei muuttanut yhtäkään vastausta 372 testissä, ja syy on rakenteellinen eikä
+heikko testi: kaksi suorakulmiota eivät leikkaa toisiaan, ja koska napin oma muutos on yksi
+kielletyistä haaroista, järjestystä ei voi havaita paluuarvosta lainkaan. Rikkomus joka ei voi
+epäonnistua on juuri yhtä paljon arvoinen kuin testi joka ei voi, ja sen sanominen on parempaa kuin
+sen laskeminen.
+</p>
+
+<h2>Näppäimistö tavoittaa paneelin ensimmäistä kertaa</h2>
+
+<p>
+Sääntö oli mitattu ja testattu viipale sitten, ja mikään ei kutsunut sitä, koska tällä projektilla
+ei ollut näppäinkarttaa yhdellekään alkuperäisen omassa taulukossa luetelluista näppäimistä. Nyt
+on, saman taulukon päälle: yksi epäsymmetria säilyy, funktionäppäin puolue-näkymässä avaa
+varustenäkymän eikä portrettinäkymää.
+</p>
+
+<p>
+Yksi törmäys oli todellinen ja se ratkaistiin etusijalla näppäintä siirtämättä: puolue-listan oma
+näkymä antaa törmäävän funktionäppäimen eteenpäin kehitysapuvälineelle joka käytti sitä jo, ja
+vain ne kaksi näkymää joiden taulukko vastaa siitä ottavat sen. Loitsukirjan oma ohitusnäppäin
+jää tavoittamatta, ja syy on rakenteellinen eikä huolimattomuus: se näkymä palaa aiemmasta
+haarasta ja sen oma käsittelijä omistaa näppäimet jo.
+</p>
+
+<p>
+Inventaarion vierityksellä oli alkuperäisen omat rajat ja ei paikkaa niiden vastaukselle, niin
+ruudukko näytti ensimmäisen rivin riippumatta klikkauksesta. Sillä on nyt kenttä kahden vierelle
+jotka edellinen viipale antoi kotiin, ja kaksi rajaa pysyvät erillään: käsittelijän oma löysempi
+raja päättää mitä painallus tekee, kutsujan tiukempi raja päättää tarjotaanko nuoli lainkaan.
+</p>
+
+<p>
+Epävalmius toimii paneelista. Osoitin ratkaisi komennon ja ei kantanut mukana mitä esinettä
+osuma koski, niin mikään ei voinut toimia sen varassa. Tulos kantaa esineen nyt. Valmius jää
+tavoittamatta, ja se on oikein eikä puutteellista: mikään tämän projektin tuottama ei ikinä
+lähetä sitä komentoa, se tulee vain klikkauksesta inventaarioruudukkoon, jota osoitin ei
+tarkoituksella tunnista koska säiliötesti sen takana on poissa.
+</p>
+
+<p>
+Yksi rikkomus ei voinut epäonnistua, ja syy on säilyttämisen arvoinen: kytkentä jonka se
+hyökkäsi asuu Unity-kokoonpanossa, jolla ei ole testialustaa, niin vain editori olisi voinut
+napata sen. Moottorin sääntö sen alla on naulattu omalla testillään. Molemmat muut rikkomukset
+kaatuivat tarkalleen muutetulla rivillä.
+</p>
+
+<p>
+Ajo löysi myös vuotavan tekstin tarkistuksen epäonnistumisen dokumentista joka committiin kaksi
+committia aiemmin: formaattimerkkijono oli kopioitu dekompilaatiosta briefiin suoraan kuvauksen
+sijaan. Kuvaus sanoo nyt kaiken sen mitä lainaus sanoi. Tarkistus napasi sen committin jälkeen,
+mikä on tarkistuksen toimimista ja auditin puuttumista ennen sitä committia.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       219 / 248
+
+U6Formats.Tests    585 / 585
+U6Export.Tests      90 / 90
+U6Engine.Tests    4673 / 4673
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner <strong>ei</strong>
+ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Mitä osuma tulostaa: sama paneelin kuvankaappaus, joka osoitti puolue-listan väärässä
+     näkymässä, osoitti myös rivin raakoja esinenumeroita siellä missä alkuperäinen puhuu omilla
+     sanoillaan.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

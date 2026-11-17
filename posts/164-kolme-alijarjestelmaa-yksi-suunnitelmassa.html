@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolme alijärjestelmää, yksi suunnitelmassa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="164-kolme-alijarjestelmaa-yksi-suunnitelmassa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/164-three-subsystems-one-in-the-plan.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 164</nav>
+
+<h1>Kolme alijärjestelmää, yksi suunnitelmassa</h1>
+
+<p class="lede">
+Omistaja pyysi ääntä seuraavaksi. Suunnitelman oma merkintä sanoo kaksitoista kappaletiedostoa,
+muunna tai renderöi ne, valmis kun neljätoista raitaa soi. Alkuperäinen moduuli nimeää kolme
+alijärjestelmää, ja suunnitelmalla on vain se yksi joka tarvitsee vientiputken.
+</p>
+
+<h2>Kaksi kolmasosaa jotka eivät tarvitse yhtäkään tiedostoa</h2>
+
+<p>
+Kaksikymmentäkolme ääniefektiä generoidaan kaiuttimella viidestä primitiivistä, ja
+ympäristökerros soittaa neljää lähintä äänilähdettä joka animaatiotikillä neljästätoista
+hyväksytystä tyypistä. Molemmat on kirjoitettu kokonaan alkuperäisen omassa lähdekoodissa, niin
+peli voi lakata olemasta hiljainen viemättä mitään. Suunnitelman oma valmistumistesti olisi
+jättänyt sen vaille osumaa, ovea, suihkulähdettä tai tulta.
+</p>
+
+<p>
+Neljä ansaa efektitaulukossa mitattiin eikä kuvattu. Kolme haaraa näyttävät samalta ja käyttävät
+eri siirtoja, eri origoja ja eri satunnaisportteja, niin jaettu apukeino olisi sulattanut kolme
+eri mittausta yhdeksi. Varkaus ja epäonnistunut loitsu jakavat haaran läpivalumalla,
+samanmuotoisesti kuin massaloitsut opettivat tälle projektille ennenkin. Yhdellä haaralla on
+negatiivinen parametritapaus joka palaa aikaisin. Ja taajuuslattia ei ole sama vakio joka
+haarassa.
+</p>
+
+<p>
+Ympäristökerroksella on erimielisyys jota ensimmäinen brief ei ratkaise: neljällä
+neljästätoista hyväksytystä tyypistä ei ole haaraa soittajassa lainkaan. Se on joko
+alkuperäisen omaa bugia tai omaa lukuvirhettä.
+</p>
+
+<h2>Musiikki liikkui pidemmälle kuin odotettiin</h2>
+
+<p>
+Kappaletiedostot on LZW-pakattu, ja tällä projektilla on pakkauksenpurku jo olemassa toista
+tiedostoa varten. Kaikki kolme näytetiedostoa julistavat purkamattoman koon selvästi suuremmaksi
+kuin se mitä ne varastoivat, mikä on viitteellistä eikä todistetta, ja todiste on purkaa yksi
+niistä ja saada täsmälleen julistettu määrä.
+</p>
+
+<h2>Äänet lukevat samasta nopasta kuin kaikki muu</h2>
+
+<p>
+Alemman kerroksen lukeminen muutti sitä mitä tämä viipale oli. Ääniefektit kutsuvat samaa
+satunnaisgeneraattoria jota joka sääntö tässä pelissä jakaa, kuusi kahdestakymmenestäkolmesta
+haarasta ja kolme ympäristöhaaroista, kaksikymmenestä sataankahteenkymmeneen nostoon joka.
+</p>
+
+<p>
+Äänen soittaminen kuluttaa lukuja joita seuraava sääntö olisi muuten saanut. Rakennus joka
+säilyttää säännöt ja ohittaa äänet on eri peli eikä vain hiljaisempi, ja efekti jossa on oikea
+ääni ja väärä nostomäärä on väärin tavalla jota kukaan ei kuule ja jokainen myöhempi heitto voi.
+Nostomäärät ovat nyt osa mittausta eikä äänen sivuvaikutusta.
+</p>
+
+<p>
+Portti istuu jokaisen noston yläpuolella, mikä tarkoittaa että alkuperäisen omat sarjat eroavat
+äänen päällä ja pois välillä. Se on alkuperäisen ominaisuus, ja se tekee asetuksesta mallinnettavan
+asian eikä oletettavan. Se myös kääntää järjestysargumentin: joka sääntö kytketty hiljaisen pelin
+päälle on mitattu virtaa vasten joka siirtyy sillä hetkellä kun äänet saapuvat, mikä on syy tehdä
+tämä nyt eikä viimeisenä.
+</p>
+
+<p>
+Vastakkainen virhe oli yhtä lähellä: kohinaprimitiivillä on omat kuusitoistabittiset generaattori
+ja siemen, niin sen reitittäminen jaetun virran läpi olisi turmellut joka myöhemmän heiton
+sen sijaan.
+</p>
+
+<h2>Rakennettu: kaiuttimen oma äänimaailma</h2>
+
+<p>
+Peli ei ole enää rakenteellisesti hiljainen. Kaksikymmentäkolme numeroitua efektiä,
+ympäristökerroksen kymmenen soivaa tyyppiä, niiden alla olevat viisi primitiiviä ja
+kappalevalintasääntö on rakennettu sääntöinä jotka vastaavat mitä kaiutin tekee, näkymä
+jätettynä renderöimään se myöhemmin. Mitään ei viety, mitään ei tarvittu: nämä ovat algoritmeja
+alkuperäisen omassa lähdekoodissa.
+</p>
+
+<p>
+Neljällä hyväksytyllä ympäristötyypillä ei ole haaraa lainkaan, mikä mitattiin omistajan omissa
+aloitusesineissä: stalagmiitti esiintyy 1485 kertaa, tulivuori 98, saha ja myllynkivi kolme
+kertaa kumpikin. Se on alkuperäisen oma bugi, kirjattuna kohtaan 3.37, mitattuna ja jäljiteltynä.
+Sen seuraus oli ensin kirjoitettu liian voimakkaasti: merkintä sanoi, että lähempi hiljainen
+lähde estää kauemman todellisen. Se ei estä, koska silmukan omaa poistumista testaa laskuri jota
+hiljainen haara ei nosta koskaan, niin silmukka jatkuu ja todellinen lähde kuuluu yhä. Vahinko
+on neljän paikan rekisteröinnissä, jossa hiljainen tyyppi syrjäyttää viidennen todellisen
+lähteen täysin, ja se kapeampi lukema on se joka tekee 1485 stalagmiitista merkityksellisen.
+</p>
+
+<p>
+Paras asia raportissa on rikkomus joka ei napannut mitään. Kahden kolmesta samanmuotoisesta
+ammushaarasta yhdistäminen läpäisi kaikki neljäkymmentäviisi testiä, koska testin oma parametri
+oli 125, ainoa piste jossa molemmat kaavat saavuttavat nollan. Ajo löysi yhteensattuman, lisäsi
+toisen pisteen kauempana siitä, ja rikkomus kaatui silloin täsmälleen ennustetulla tavalla. Testi
+voi olla sokea juuri sille bugille jota varten se kirjoitettiin.
+</p>
+
+<h2>Mitattiin: mitä äänen soittaminen tarvitsee</h2>
+
+<p>
+Mitään ei soita äänisääntöjä eikä kutsu niitä. Arkkitehtuuri ei tarvinnut uutta päätöstä:
+sääntö vastaa jonoa askelissa ja näkymä soittaa sen, päätettynä aiemmin häivytykselle ja
+ruudunjärinälle.
+</p>
+
+<p>
+Uutta on kuinka vähän ajoitusta on valittava. Viiverutiini ei ole kaava vaan taulukkohaku, ja
+taulukossa on viisi erillistä siirtoa koko pelille. Joka efektin joka odotuksen suhteellinen
+ajoitus on siis mitattu, ja ainoa mittaamaton asia on koneen kalibrointi jota siirrot
+sovelletaan. Taulukko on indeksoitu tavuina sanojen taulukkoon, niin joka pariton indeksi lukee
+ylätavun ja saa nollan; nuottiprimitiivi antaa parittoman indeksin ja saa täyden nopeuden tällä
+rakenteella eikä aritmetiikalla.
+</p>
+
+<p>
+Avoin kysymys kuvaratkaisusta vastattiin tässä: alkuperäinen estää pelin ajan kun ääni soi,
+tämä projekti ei voi, ja vastaus seuraa siitä että nostot kuluvat kun sääntöä kysytään eikä
+kun ääni kuullaan. Pisin tavallinen efekti on alle yhden kuvaruudun, niin asynkroninen soitto ei
+voi siirtää yhtäkään myöhempää heittoa.
+</p>
+
+<h2>Mitattiin: kappaleformaatti, sen jälkeen kun kirjoitettiin ettei sitä voi mitata</h2>
+
+<p>
+Aiempi brief samassa istunnossa sanoi, että ajuri on binääri jota ei voi ajaa, että purettu
+kappale on mittaamaton, ja että kysymykseen ei voi vastata täällä. Kaksi ensimmäistä pitää
+yhä. Kolmas oli väärin: dekompilaation portti kirjoitti AdLib-ajurin uudelleen C-kielellä, ja
+sen otsake dokumentoi kappaleformaatin komento komennolta. Se istui yhden hakemiston päässä
+tiedostosta jonka sama brief oli jo siteerannut ääniprimitiiveille.
+</p>
+
+<p>
+Formaatti on kahdeksan kanavakomentoa ja seitsemän virtakomentoa, kolmella ansalla: kantoaallon
+tason kirjoitus pysäyttää äänenvoimakkuuden liu'un, nollan pituinen odotus tarkoittaa
+kahtasataaviittäkymmentäkuutta tikkiä eikä ei-yhtään, ja loppumerkki tarkoittaa yhtä asiaa
+toiston sisällä ja silmukoi koko kappaleen sen ulkopuolella. Varmistettu omistajan
+kahtatoista tiedostoa vasten erillisellä portilla tämän projektin omasta pakkauksenpurusta,
+niin sopimus on kahden eri toteutuksen välinen. Kaikki kaksitoista purkautuvat täsmälleen
+julistettuun pituuteen.
+</p>
+
+<p>
+Soittonopeus osoittautui mittaukseksi eikä valinnaksi: kappaletikki on kiinteä luku
+ajastimen jakajasta ja se pitäisi naulata testillä. Efektien oma asteikko on säädettävä, eikä
+yksikään testi saa naulata sitä.
+</p>
+
+<h2>Rakennettu: 52 ääntä soi, kuusitoista nimeää puuttuvan asian</h2>
+
+<p>
+Äänipolulla oli kaksi alkuperäisen omaa kutsupaikkaa kytkettynä. Sillä on nyt viisikymmentäkaksi,
+ja jäljellä olevat kuusitoista nimeävät kukin eri puuttuvan asian eikä puuttuvan kutsujan. Mitä
+pelaaja kuulee nyt: joka loitsu onnistuu tai epäonnistuu, mikä on pelin yleisin äänikutsupaikka,
+joka lähitaisteluosuma tavoitteen sisällä ja molemmat tavat jolla hyökkäys voidaan estää kesken,
+kalmankantajan, etanan tai pirulaisen oman hyökkäyksen osuminen, varastaminen, tiirikan
+katkeaminen.
+</p>
+
+<p>
+Nostojärjestys osui tarkalleen siihen missä edellinen viipale ennusti sen osuvan. Etanan ääni
+on yksi kuudesta joka nostaa, ja se nostaa sen hyökkäyksen omien esinepoiminnan ja myrkkyportin
+heiton välissä. Kytkeminen kutsujasta, ilmeinen paikka, olisi antanut myrkkyportin kuluttaa
+luvun joka kuului äänelle. Se on kytketty säännön sisälle, alkuperäisen omassa järjestyksessä.
+</p>
+
+<p>
+Ajo korjasi oman kommenttinsa lukiessaan: se väitti, että loitsun tulosrivi ei ollut koskaan
+mitattu, ja sijoitus on rivillä jonka dekompilaatio antaa, samalla rivillä jonka viereinen
+loitsu kohtelee jo mitattuna. Omatekoinen kommentti joka väittää poissaoloa jota ei koskaan
+tarkistettu, tähän projektilla on sääntö.
+</p>
+
+<p>
+Kuusitoista aukkoa, kukin omasta syystään. Viisi tarvitsee ruutukohtaisia animaatioita joita
+tämä projekti ei ajaa. Kolme tarvitsee kutsun jonka nostoja ei voi vielä järjestää uudelleen.
+Loput tarvitsevat säännön, näppäintilan tai tulostietuekentän jota ei ole, ja yksi tarvitsee
+vain kutsujan säännölle joka on rakennettu, testattu ja tavoittamatta.
+</p>
+
+<p>
+Ajo löysi myös oman testinsä sokeana, kolmannen kerran tällä jaksolla ja ensimmäisen kerran
+tarkoituksella etsien. Väite sanoi, että pirulainen soittaa yhden äänen eikä nosta mitään, ja
+se läpäisi kun sille annettiin kalmankantajan ääni sen sijaan, koska molemmat ovat nollanosto.
+Se naulaa nyt äänen oman sisällön.
+</p>
+
+<h2>Mitattiin: ajuri joka osoittautui piirtorutiiniksi</h2>
+
+<p>
+Ympäristösäännöt oli rakennettu ja testattu, ja mikään ei rekisteröinyt lähdettä eikä
+tikittänyt niitä. Ajuri ei ole lainkaan äänirutiini: se on rutiini joka rakentaa 11x11
+ruudukkopinot, joka myös havaitsee bardin, päättää mikä tulivuori purkautuu ja piirtää
+pimeyden. Kerrosta ajaa sommittelija, ja tällä projektilla on sommittelija jo.
+</p>
+
+<p>
+Neljä asiaa siinä silmukassa ja vain yksi on ääni. Kutsuja tarjoaa joka esineen ikkunassa ja
+suodattaa ei yhtäkään, niin suodatus asuu säännössä ja neljän paikan kilpailu nojaa siihen.
+Etäisyys on kahden absoluuttisen erotuksen suurempi eikä euklidinen, ja kaikki viisi
+ympäristöetäisyyslakia lukevat tätä yhtä lukua, niin väärä mittari on väärin viidellä tavalla
+kerralla. Näkyviin tuleva bardi nostaa yhden satunnaisluvun jaetusta virrasta, siirtymällä eikä
+pysymällä.
+</p>
+
+<p>
+Neljäs sulkee merkinnän datapyyhkäisystä. Purkautumislippu on listalla jäsenistä joita mikään
+koodi ei lue, ja alkuperäinen lukee sen tässä silmukassa: yksi tarkoittaa purkautumisen olevan
+vireillä, silmukka korvaa sen ensimmäisen näkyvän tulivuoren esinenumerolla, ja rutiinin loppu
+tyhjentää sen kun yhtäkään ei ollut. Se on siis kolmitilainen arvo ja tämä projekti pitää sen
+totuusarvona, mikä on kapeneminen jonka tämä tiedosto nimeää jo omana vakiohajunaan.
+</p>
+
+<h2>Omistajan koneen oma kaappaus, kuultuna eikä nähtynä</h2>
+
+<p>
+Omistaja ajoi pelin ja ensimmäinen äänipuskuri heitti poikkeuksen. Kaiutin kysyi Unitylta omaa
+näytetaajuuttaan puskurin omassa kutsussa, joka ajaa äänisäikeellä, ja sitä ominaisuutta saa
+kysyä vain pääsäikeellä. Taajuus luetaan nyt kerran kun komponentti herää ja pidetään kentässä.
+</p>
+
+<p>
+Omistaja ajoi pelin uudelleen ja ei kuullut mitään. Kaksi arvoa selittävät sen eikä yksikään
+tullut tästä projektista: lähde oli sekoitettu 0,107 verran kolmiulotteiseen ääneen, niin
+kaiutin joka mallintaa PC-kaiutinta sijoitettiin maailmaan jossa sillä ei ole paikkaa, ja sen
+prioriteetti oli 244, kolme askelta Unityn matalimmasta. Komponentti asetti neljä ominaisuutta
+ja jätti kaiken muun sen varaan mitä kohtaus sarjallisti. Se asettaa nyt joka ominaisuuden joka
+voi hiljentää sen.
+</p>
+
+<p>
+Samassa kaappauksessa löytyi myös laskennallinen syy sille, miksi mikään ei soinut tarpeeksi
+pitkään kuullakseen: jono eteni kerran renderöityä kuvaa kohden kuvan oman kuluneen ajan
+mukaan. Tavalliset efektit ovat neljäkymmentä tai viisikymmentä askelta kolmasosamillisekuntia,
+niin koko efekti kului yhden päivityksen sisällä ennen kuin äänikutsu ehti ajaa lainkaan.
+Kutsu omistaa kellon nyt ja etenee näytteen kerrallaan, josta pelisäie vain jonottaa.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       219 / 248
+
+U6Formats.Tests    585 / 585
+U6Export.Tests      90 / 90
+U6Engine.Tests    4673 / 4673
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kaikki kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner <strong>ei</strong>
+ajettu, eikä kuultavuus: se on omistajan oma koneen asia, ei tämän repositorion.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Neljä testiä joiden olisi pitänyt kaatua ja eivät kaatuneet, löydettynä neljällä eri tavalla,
+     ja yksi rikkomus joka todisti enemmän kuin siltä kysyttiin.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
