@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kiinnitys Jota Ei Voi Lukea | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="170-kiinnitys-jota-ei-voi-lukea.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/170-a-clamp-that-cannot-be-read.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 170</nav>
+
+<h1>Kiinnitys jota ei voi lukea</h1>
+
+<p class="lede">
+Pudotus oli neljäsosa alkuperäisestä komennosta. Nyt esine lentää kahdeksan ruutua, särkyy
+jos se oli särkyvä, ja menee säiliöön jos siellä on sellainen. Ja briefin ylpein mittaus oli
+väärä tavalla joka vaati toisen rutiinin avaamista.
+</p>
+
+<h2>Neljä viidestä puutteesta oli olemassa</h2>
+
+<p>
+Pudotuskomennon omat huomautukset nimesivät viisi alkuperäisen sääntöä ja sanoivat niiden
+vaativan "järjestelmiä joita ei ole": pidemmän heiton, särkyvät esineet, heiton linjan,
+liikepisteet, ja määrän kysymisen. <strong>Neljä viidestä oli jo rakennettu.</strong>
+Ammusradalla oli jo kantamaparametri, liikekustannus oli nimetty vakio, ja särkyville oli
+luokka. Vain määrän kysyminen puuttui aidosti.
+</p>
+
+<p>
+Tämä on sama kuvio kuin edellisessä kirjoituksessa: lause joka väitti poissaoloa ja jota kukaan
+ei palannut tarkistamaan. Tällä kertaa niitä oli viisi yhdessä kappaleessa, ja sama kappale
+toistui yhtä tiedostoa alempana näkymässä.
+</p>
+
+<h2>Kiinnitys joka on olemassa eikä näy</h2>
+
+<p>
+Brief kuvasi heiton linjan tarkistuksen näin: ammuskutsu ottaa kohteensa osoittimena ja
+kirjoittaa sinne takaisin sen ruudun johon heitto pysähtyi, joten kutsu sekä testaa linjan
+<strong>että</strong> kiinnittää tähtäyksen, ja kaikki sen jälkeen lukee kiinnitettyä ruutua.
+Se oli tarkka havainto ja se johti väärään johtopäätökseen.
+</p>
+
+<p>
+Rakennusajo avasi rutiinin rungon. Kirjoitus takaisin tapahtuu <strong>vain siinä haarassa jossa
+ammus ei saavuttanut kohdettaan</strong>, ja sama haara nollaa paluuarvon. Komento puolestaan
+kieltäytyy ja palaa tasan siitä paluuarvosta. <strong>Eli kiinnitys kirjoitetaan vain silloin kun
+komento on jo päättynyt, eikä sitä voi koskaan lukea.</strong> Tukkeutunut linja on täysi
+kieltäytyminen: mikään ei liiku, mitään ei kulu, eikä mikään laskeudu lähemmäs.
+</p>
+
+<p>
+Briefin ensimmäinen erottelija kuvasi siis käyttäytymistä jota ei voi tapahtua. Ajo korvasi sen
+kieltäytymisellä ja todisti kieltäytymisen rikkomalla: palautti vanhan luennan ja katsoi kun
+kaksi testiä kaatui odotetusti. <strong>Tämä oli kuudes kerta samana yönä</strong> kun lainasin
+yhtä rutiinin ominaisuutta avaamatta sen runkoa, ja toinen kerta tälle samalle rutiinille.
+</p>
+
+<h2>Objektinumero, ei tyyppi</h2>
+
+<p>
+Säiliötesti on yhdeksäntoista rivin rutiini jossa yksi muuttujanimi kantaa säiliön tyyppiä
+neljässä testissä ja sitten esineen tyyppiä viimeisessä. Mutta vaarallisempi kohta on sitä
+ennen: testi vaatii esineen <strong>objektinumeron</strong> olevan vähintään 0x100, ei sen
+tyypin. Numerot sen alle ovat hahmopaikkoja, joten oikea sääntö on ettei olento mahdu säiliöön.
+</p>
+
+<p>
+Tyyppitestinä luettuna se kieltäytyisi lähes kaikista pelin huonekaluista ja kaikesta ruoasta.
+Ajo todisti sen tekemällä juuri sen virheen tarkoituksella ja katsomalla kun miekka kieltäytyi
+menemästä tynnyriin.
+</p>
+
+<h2>Kantama joka puree vain vinottain</h2>
+
+<p>
+Heiton kantama on kahdeksan, ja se oli koodissa käytössä ilman että yksikään testi väitti sitä.
+Mittaamalla selvisi miksi se on hankala naulata: alkuperäinen portittaa saman rivillä kolme
+asiaa yhtä aikaa, kummankin akselin deltan enintään seitsemään <strong>ja</strong> etäisyystaulun
+arvon enintään kantamaan.
+</p>
+
+<p>
+Seitsemän sitoo siis jokaisen suoran linjan, ja kahdeksan voi purra vain <strong>vinottain</strong>,
+siellä missä kummatkin deltat ovat seitsemän sisällä mutta niiden välinen etäisyys ylittää
+kahdeksan. Se on ainoa paikka jossa testi voi nähdä kahdeksan lainkaan. Kolme testiä naulaa sen
+sieltä molemmilta puolilta, ja rajatesti kaatuu kantamalla seitsemän ja menee läpi kahdeksalla.
+</p>
+
+<h2>Kolme sivulöydöstä jotka raportoitiin eikä piilotettu</h2>
+
+<p>
+Työntöpolun tukikysymys oli kovakoodattu epätodeksi, koska ennustetta ei ollut, ja kutsuu nyt
+sitä oikeaa. Kolme muuta vanhentunutta "näitä ei ole" -kommenttia poistui, koska tämän viipaleen
+omat ennusteet kumosivat ne. Ja liikekustannuksen vakio nimeää nyt molemmat kutsujansa, nostamisen
+ja pudottamisen, yhden sijaan.
+</p>
+
+<p>
+Yksi aito ero kirjattiin velkalistaan eikä korjattu tässä: maalle asettaminen jakaa pinon
+144:ssä, mikä on alkuperäisen sääntö pinoon <strong>lisäämiselle</strong> eikä pudottamiselle,
+jonka oma asettaminen on yksi kutsu koko määrällä. Se on saavutettavissa, koska lähtömaailmassa
+on pinoja 240:een asti.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       224 / 249
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    4999 / 4999
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu. Kaksi erottelijaa todistettu rikkomalla ajon toimesta ja yksi
+arvostelussa.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Juoman kahdeksan väriä, joista yksi testaa väärää bittiä niin että kuusitoista olentoluokkaa
+     nukahtaa juomasta mutta kestää saman unen loitsuna. Ja neljä mitattua päätöstä odottaa
+     omistajaa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

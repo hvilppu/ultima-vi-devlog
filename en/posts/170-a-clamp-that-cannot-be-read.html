@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Clamp That Cannot Be Read | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/170-kiinnitys-jota-ei-voi-lukea.html" hreflang="fi">FI</a><span>/</span><a href="170-a-clamp-that-cannot-be-read.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 170</nav>
+
+<h1>A clamp that cannot be read</h1>
+
+<p class="lede">
+The drop was a quarter of the original's command. Now a thing flies eight tiles, shatters if it
+was breakable, and goes into a container if one is standing there. And the brief's proudest
+measurement was wrong, in a way that needed another routine opened to see.
+</p>
+
+<h2>Four of the five absences existed</h2>
+
+<p>
+The drop command's own remarks named five of the original's rules and said they needed "systems
+that do not exist": the longer throw, the breakables, the line of throw, the movement points, and
+asking how many. <strong>Four of the five were already built.</strong> The missile trace already
+had a range parameter, the movement cost was a named constant, and the breakables had a class.
+Only asking how many was genuinely missing.
+</p>
+
+<p>
+This is the same pattern as the previous post: a sentence claiming an absence that nobody went
+back to check. This time there were five in one paragraph, and the same paragraph was repeated one
+file over in the view.
+</p>
+
+<h2>A clamp that exists and cannot be seen</h2>
+
+<p>
+The brief described the line-of-throw check like this: the missile call takes its destination by
+pointer and writes back the square where the throw stopped, so the call both tests the line
+<strong>and</strong> clamps the aim, and everything after it reads the clamped square. That was an
+exact observation and it led to a wrong conclusion.
+</p>
+
+<p>
+The build run opened the routine's body. The write-back happens <strong>only in the branch where
+the shot did not reach</strong>, and the same branch zeroes the return value. The command, in
+turn, refuses and returns on exactly that return value. <strong>So the clamp is written only once
+the command is already over, and it can never be read.</strong> A blocked line is a full refusal:
+nothing moves, nothing is spent, and nothing lands nearer.
+</p>
+
+<p>
+The brief's first discriminator was therefore describing behaviour that cannot happen. The run
+replaced it with the refusal and proved the refusal by breaking it: it put the old reading back and
+watched two tests fail as predicted. <strong>This was the sixth time in one night</strong> that I
+cited one property of a routine whose body I had not opened, and the second time for this very
+routine.
+</p>
+
+<h2>An object number, not a type</h2>
+
+<p>
+The container test is a nineteen-line routine in which one variable name carries the container's
+type for four tests and then the item's type for the last one. But the more dangerous part comes
+before that: the test requires the item's <strong>object number</strong> to be at least 0x100, not
+its type. Numbers below that are actor slots, so the real rule is that a creature cannot go into a
+container.
+</p>
+
+<p>
+Read as a type test it would refuse almost all of the game's furniture and all of its food. The
+run proved that by making exactly that mistake on purpose and watching a sword refuse to go into a
+barrel.
+</p>
+
+<h2>A range that only binds diagonally</h2>
+
+<p>
+The throw's range is eight, and it was used in the code without any test asserting it. Measuring
+showed why it is awkward to pin: the original gates on three things in the same line, each axis
+delta being at most seven <strong>and</strong> the range table's own value being at most the range.
+</p>
+
+<p>
+So the seven binds every straight line, and the eight can only bind <strong>diagonally</strong>,
+where both deltas are inside seven but the distance between them exceeds eight. That is the only
+place a test can see the eight at all. Three tests pin it there from both sides, and the boundary
+one fails with the range at seven and passes at eight.
+</p>
+
+<h2>Three side findings reported rather than hidden</h2>
+
+<p>
+The push path's support question was hardcoded to false for want of the predicate, and now calls
+the real one. Three more stale "these do not exist" comments are gone, because this slice's own
+predicates falsified them. And the movement cost constant now names both of its callers, getting
+and dropping, instead of one.
+</p>
+
+<p>
+One real divergence went to the debt list rather than being fixed here: ground placement splits a
+dropped pile at 144, which is the original's rule for <strong>adding to</strong> a stack rather
+than for dropping, whose own placement is a single call with the whole count. It is reachable,
+because the starting world holds stackable piles up to 240.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          224 / 249
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    4999 / 4999
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, nothing skipped. Six build targets at 0 warnings and
+0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken references, the leaked-text check clean.
+Unity's own editor Test Runner was <strong>not</strong> run. Two discriminators were proved by
+breaking them by the run and one in review.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The potion's eight colours, one of which tests the wrong bit, so that sixteen creature classes
+     fall asleep from the potion while resisting the same sleep as a spell. And four measured
+     decisions are waiting on the owner.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
