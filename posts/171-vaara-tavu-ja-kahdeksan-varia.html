@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Väärä Tavu Ja Kahdeksan Väriä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="171-vaara-tavu-ja-kahdeksan-varia.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/171-the-wrong-byte-and-eight-colours.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 171</nav>
+
+<h1>Väärä tavu ja kahdeksan väriä</h1>
+
+<p class="lede">
+Juoma on yksi objektityyppi jonka kehys on sen väri, ja kahdeksan haaraa. Jokainen vaikutus oli
+jo rakennettu. Yksi lukijapari ei ollut, ja sitä etsiessä löytyi oma vika: myrkytys kirjoitettiin
+väärälle tavulle, joten myrkytetty hahmo omistajan aidossa tallennuksessa luettiin
+myrkyttämättömänä.
+</p>
+
+<h2>Kaksi objektia neljän rivin sisällä</h2>
+
+<p>
+Rutiini ottaa juoman, kysyy kohteen, ja sitten tulostaa <strong>kohteen</strong> nimen ja lukee
+<strong>juoman</strong> kehyksen neljän peräkkäisen rivin sisällä. Toteutus joka lukee yhtä
+objektia molempiin kääntyisi ja näyttäisi oikealta: se vain kaataisi joko väärän nimen tai
+väärän värin. Se on oma erottelijansa, ja se on ainoa testi joka sen kaataa.
+</p>
+
+<h2>Pullo tuhoutuu vaikka mitään ei tapahtuisi</h2>
+
+<p>
+Poisto on valinnan <strong>jälkeen</strong> ja ehdoton. Jokainen haara joka kieltäytyy valuu silti
+poistoon, joten punainen juoma myrkyttämättömälle tuhoaa pullon eikä tee muuta. Vain ne kaksi
+kieltäytymistä jotka ovat ennen valintaa säästävät sen.
+</p>
+
+<p>
+Ajo todisti sen rikkomalla: teki kulutuksesta ehdollisen sille ettei haara kieltäytynyt, ja kolme
+testiä kaatui kerralla. Tämä on se kohta josta järkevä toteutus poikkeaisi omin päin, koska
+"kieltäytyi, siis ei kulunut" on se mitä kuka tahansa olettaisi.
+</p>
+
+<h2>Vika jolla on vain yksi testattava suunta</h2>
+
+<p>
+Sininen juoma testaa onko kohde kuolematon, kun jokainen muu nukuttaminen koko ohjelmassa testaa
+uni-immuniteettia. Oikea makro oli neljätoista riviä väärästä samassa otsikossa ja kahdessa
+oikeassa käytössä.
+</p>
+
+<p>
+Seuraus mitattiin omistajan omasta viedystä hirviötaulusta ja se on <strong>yksisuuntainen</strong>:
+kuusitoista 64 luokasta on uni-immuuneja eikä kuolemattomia, eli ne kestävät uniloitsun ja
+unikentän ja <strong>nukahtavat juomasta</strong>. Eikä yksikään kuolematon luokka ole ilman
+uni-immuniteettia. Siis <strong>kuolemattoman kestäminen ei todista mitään</strong>, koska
+kumpikin luenta on siitä samaa mieltä; vain uni-immuuni ei-kuolematon nukahtaminen erottaa vian
+oikeasta toteutuksesta. Testi on kirjoitettu siihen suuntaan ja todistettu rikkomalla.
+</p>
+
+<h2>Ja oma vikamme, joka löytyi kolmannesta suunnasta</h2>
+
+<p>
+Juoman unihaara tarvitsi lukijaparin nukkumiselle, jota ei ollut. Rakennusajo etsi mille tavulle
+se kuuluu, ja löysi matkalla että <strong>myrkkylukija ja -kirjoittaja käyttivät objektin
+tilatavua</strong>, kun alkuperäinen pitää myrkytystä hahmon tilatavulla yhdessä suojauksen,
+halvauksen, unen, kuoleman ja pelaajan ohjauksen kanssa. Kaikki viisi oli jo kytketty sinne
+oikein; vain myrkytys ei.
+</p>
+
+<p>
+Selkein todiste jakamisesta on alkuperäisen oma ylösnousemusmakro, joka tyhjentää kuoleman,
+myrkytyksen, unen ja halvauksen <strong>samasta tavusta</strong> yhdellä kirjoituksella.
+</p>
+
+<p>
+<strong>Ajo raportoi sen sen sijaan että olisi kiertänyt sen hiljaa</strong>, ja se on se käytös
+joka kannattaa pitää. Sitten se arvioi korjauksen laajuuden seitsemääntoista tiedostoon ja jätti
+sen tekemättä. Mitattuna se on <strong>kolme viittausta yhdessä tiedostossa</strong>: ne
+seitsemäntoista ovat kutsujia jotka menevät lukijoiden läpi eivätkä muutu. Korjattu arvostelussa.
+</p>
+
+<h2>Miksi mikään ei huomannut</h2>
+
+<p>
+Koko suite meni läpi väärällä tavulla, kaikki viisituhatta testiä. Vika oli itsensä kanssa
+johdonmukainen: myrkytys kirjoitettiin ja luettiin samasta väärästä paikasta, joten mikään
+pelkästään tämän projektin sisällä pyörivä ei voinut nähdä sitä.
+</p>
+
+<p>
+Se rikkoutuu vasta rajalla alkuperäisen omaan dataan. Bitti saapuu hahmon tilatavulle
+<strong>omistajan oman tallennuksen tietueesta</strong>, joten myrkytetty hahmo aidossa
+tallennuksessa luettiin myrkyttämättömänä, ja tällä puolella myrkytetty olisi tallentunut bitti
+väärässä tavussa.
+</p>
+
+<p>
+Siksi korjaus tuli oman testinsä kanssa, sellaisen joka olisi kaatunut ennen sitä: myrkyttämisen
+täytyy näkyä hahmon tavulla ja jättää objektin tavu koskematta, molempiin suuntiin. Todistettu
+panemalla vika takaisin ja katsomalla kun tasan se yksi testi kaatui.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       224 / 249
+käytettävät tyypit jotka vastaavat   70 / 85
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    5016 / 5016
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu. Kaksi erottelijaa todistettu rikkomalla ajon toimesta ja yksi
+arvostelussa.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Neljä mitattua päätöstä odottaa omistajaa: tallennuksen kytkeminen peliin, jonka koodi on
+     rakennettu ja jota peli ei voi kutsua; olento- ja objektiavaruuksien yhdistäminen; kirjan
+     tekstin pinta; ja ääni. Niiden jälkeen sekstantti, kaivaminen ja sauva.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

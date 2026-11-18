@@ -1930,14 +1930,22 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        container test asks for an object number rather than a type, and the range of eight only
        binds diagonally.</p>
   </li>
+  <li>
+    <span class="n">171</span>
+    <a href="posts/171-the-wrong-byte-and-eight-colours.html">The Wrong Byte and Eight Colours</a>
+    <p>The potion's eight colours were built, and looking for the sleep arm's missing accessor pair
+       turned up a defect of ours: poison was written to the object status byte, where the original
+       keeps it on the character byte with its four siblings. The whole suite passed with the wrong
+       byte because the defect was consistent with itself; it breaks only at the boundary with the
+       owner's own save.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Up next</span>
-  <p>The potion's eight colours are being built, one of which tests the wrong bit, so that sixteen
-     creature classes fall asleep from the potion while resisting the same sleep as a spell. And
-     four measured decisions are waiting on the owner: wiring the save path into the game, merging
-     the creature and object id spaces, which surface a book's text uses, and sound.</p>
+  <p>Four measured decisions are waiting on the owner: wiring the save path into the game, whose
+     code is built and which the game cannot call; merging the creature and object id spaces; which
+     surface a book's text uses; and sound. After those, the sextant, digging and the staff.</p>
 </div>
 
 <footer class="foot">

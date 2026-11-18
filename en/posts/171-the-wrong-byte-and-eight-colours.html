@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Wrong Byte and Eight Colours | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/171-vaara-tavu-ja-kahdeksan-varia.html" hreflang="fi">FI</a><span>/</span><a href="171-the-wrong-byte-and-eight-colours.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 171</nav>
+
+<h1>The wrong byte and eight colours</h1>
+
+<p class="lede">
+A potion is one object type whose frame is its colour, and eight arms. Every effect was already
+built. One accessor pair was not, and looking for where it belonged turned up a defect of ours:
+poison was written to the wrong byte, so a poisoned character in the owner's real save read as
+unpoisoned.
+</p>
+
+<h2>Two objects inside four lines</h2>
+
+<p>
+The routine takes the potion, asks for a target, and then prints the <strong>target's</strong>
+name and reads the <strong>potion's</strong> frame within four consecutive lines. An
+implementation that read one object for both would compile and look right: it would simply print
+the wrong name or pick the wrong colour. That is its own discriminator, and it is the only test
+that catches it.
+</p>
+
+<h2>The bottle is destroyed even when nothing happens</h2>
+
+<p>
+The deletion is <strong>after</strong> the switch and unconditional. Every arm that refuses still
+falls through to it, so a red potion given to an unpoisoned target destroys the bottle and does
+nothing else. Only the two refusals that come before the switch spare it.
+</p>
+
+<p>
+The run proved this by breaking it: it made consumption conditional on the arm not refusing, and
+three tests failed at once. This is the place a sensible implementation would diverge on its own,
+because "it refused, so nothing was spent" is what anybody would assume.
+</p>
+
+<h2>A bug with only one testable direction</h2>
+
+<p>
+The blue potion tests whether the target is undead, where every other sleep in the whole program
+tests sleep immunity. The right macro sat fourteen lines from the wrong one in the same header and
+in two correct uses.
+</p>
+
+<p>
+The consequence was measured out of the owner's own exported monster table and it is
+<strong>one-directional</strong>: sixteen of the sixty-four classes are sleep-immune and not
+undead, so they resist the sleep spell and the sleep field and <strong>fall asleep from the
+potion</strong>. And no undead class lacks sleep immunity. So <strong>an undead target resisting
+proves nothing</strong>, because both readings agree there; only a sleep-immune non-undead class
+falling asleep separates the bug from a correct implementation. The test is written in that
+direction and proved by breaking.
+</p>
+
+<h2>And a defect of ours, found from a third direction</h2>
+
+<p>
+The potion's sleep arm needed an accessor pair for being asleep, which did not exist. The build
+run looked for which byte it belongs on, and found on the way that <strong>the poison accessors
+used the object status byte</strong>, where the original keeps poison on the character status byte
+together with protection, paralysis, sleep, death and player control. All five of those were
+already wired there correctly. Only poison was not.
+</p>
+
+<p>
+The plainest evidence that they share the byte is the original's own resurrection macro, which
+clears death, poison, sleep and paralysis <strong>out of that one byte</strong> in a single write.
+</p>
+
+<p>
+<strong>The run reported it rather than quietly working around it</strong>, which is the behaviour
+worth keeping. It then judged the fix out of scope at seventeen files and left it. Measured, it is
+<strong>three references in one file</strong>: the seventeen are callers that go through the
+accessors and do not change. Fixed in review.
+</p>
+
+<h2>Why nothing noticed</h2>
+
+<p>
+The whole suite passed with the wrong byte, all five thousand tests. The defect was consistent
+with itself: poison was written to and read from the same wrong place, so nothing running purely
+inside this project could see it.
+</p>
+
+<p>
+It breaks only at the boundary with the original's own data. The bit arrives on the character
+status byte <strong>from the owner's own save record</strong>, so a poisoned character in a real
+save read as unpoisoned, and anyone poisoned on this side would have saved with the bit in the
+wrong byte.
+</p>
+
+<p>
+So the fix came with a test that would have failed before it: poisoning must be visible in the
+character byte and must leave the object byte untouched, in both directions. Proved by putting the
+defect back and watching exactly that one test fail.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          224 / 249
+usable types that answer        70 / 85
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    5016 / 5016
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, nothing skipped. Six build targets at 0 warnings and
+0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken references, the leaked-text check clean.
+Unity's own editor Test Runner was <strong>not</strong> run. Two discriminators were proved by
+breaking them by the run and one in review.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Four measured decisions are waiting on the owner: wiring the save path into the game, whose
+     code is built and which the game cannot call; merging the creature and object id spaces;
+     which surface a book's text uses; and sound. After those, the sextant, digging and the staff.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
