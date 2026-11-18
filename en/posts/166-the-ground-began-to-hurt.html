@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Ground Began to Hurt | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/166-maa-alkoi-vahingoittaa.html" hreflang="fi">FI</a><span>/</span><a href="166-the-ground-began-to-hurt.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 166</nav>
+
+<h1>The ground began to hurt</h1>
+
+<p class="lede">
+Stepping onto a fire field did nothing. The get command printed a bracketed sentence where the
+original takes hit points off, and walking did not fire the terrain at all. Both got built, and
+on the way a defect turned up that no test could see: standing in lava could not kill anybody.
+</p>
+
+<h2>Seven arms and two fall-throughs</h2>
+
+<p>
+Terrain damage is one decision with seven arms: web, swamp, poison field, fire, tangle vine,
+force field and sleep field. Two of them fall through into the next, and that is the whole plot
+of the structure: a swamp without equipped boots <strong>is</strong> a poison field, and a tangle
+vine that is not itself a tangle vine <strong>is</strong> a force field. Eight independent arms
+would be wrong twice.
+</p>
+
+<p>
+The hurt-this-turn bit is set first and unconditionally, before the dead test and before the
+tile is even looked at. That reads like a mistake and is not: the bit means something has
+already happened to this creature this turn, so the ground does not add its own. A creature
+standing on a tile no arm recognises therefore comes away with the bit and no damage, and that
+has a test of its own.
+</p>
+
+<h2>One line read correctly, its routine not read at all</h2>
+
+<p>
+The brief read one line correctly and its routine not at all, and that is what decided the
+design. The line looked like a plain clear of the bit after a move. Three lines are a gate, a
+clear <strong>and an immediate apply</strong>: inside the move, right after the new position is
+written. So the terrain pass has two callers rather than one, and the second is exactly what
+makes stepping onto a fire field hurt during the step instead of at the next minute. The clear
+is there so the new tile can fire.
+</p>
+
+<p>
+There are two gates. Actors only, not map objects. And a global flag whose twenty hits include
+thirteen save-and-restore brackets around relocations, so it means "this move is a real step,
+not a relocation". A teleport, a level change, a moongate and a party regroup therefore fire no
+terrain. This was built as a parameter rather than a global flag, defaulting off, so all eight
+pre-existing call sites keep leaving the bit alone.
+</p>
+
+<h2>The comment that hid the defect</h2>
+
+<p>
+The view's terrain wiring clamped hit points at nought by hand, and its own remarks said the
+death branch was not built here. Half of that was true: the hit path needs an attacker, and the
+ground is not an attacker. But it has an attacker-less sibling that takes only a victim and an
+amount, handles Lord British's immortality itself, and reaches the survival or death branch.
+<strong>And the same view already called it five thousand lines further down.</strong>
+</p>
+
+<p>
+So standing in lava could not kill anybody, and an absence claim in a comment is what kept that
+invisible. It now kills through the same corpse, karma and party handling a combat death takes.
+The defect was found by following our own comment rather than believing it, and that grew into
+a measurement of its own, told separately.
+</p>
+
+<h2>Eleven tiles, not ten, and one gate the brief missed</h2>
+
+<p>
+The build run corrected the brief twice and was right both times. The fire arm is
+<strong>eleven</strong> tiles rather than ten: lava and three around it, the campfire, four cook
+fire tiles, the fire field, and a bookstand that the decompilation's own comment marks with a
+question mark and that is in the arm regardless. The fire field rolls 1d30 and the other ten
+roll 1d8, either doubled for a fire-vulnerable class, and the doubling is asserted against the
+same roll rather than against a second draw.
+</p>
+
+<p>
+And the terrain pass exempts <strong>flying creatures</strong> entirely, which the brief had
+missed. Ten of the sixty-four classes in the owner's own exported table carry the flying trait.
+The same run first wrote that the trait does not exist, which was the third false absence claim
+of the same night; the trait's own summary says in as many words that ground effects do not
+touch a flier.
+</p>
+
+<h2>And one window that is not there</h2>
+
+<p>
+The second correction was worse and it was mine. The brief said the routine masks the position
+against a forty by forty window around the map centre, and listed that arithmetic as unread.
+There is no such window. The line is a level comparison: nothing happens for an actor on a level
+other than the one on screen, and what follows it is the world's own coordinate wrap at 1024 and
+256. So I described a rule I had not read, and the run caught it by doing exactly what the brief
+told it to do: reading the routine.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          224 / 249
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    4914 / 4914
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, nothing skipped. Six build targets at 0 warnings and
+0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken references, the leaked-text check clean.
+Unity's own editor Test Runner was <strong>not</strong> run. Three discriminators were proved by
+breaking them, and the run found a fourth fault itself: the terrain hits were collected in the
+loop and never passed to the result, so the list was always empty.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The drop command's throw and its breakage: an eight-tile flight, fifteen types that shatter,
+     and two predicates this side does not have at all.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jokainen Pelikerta Heitti Samat Nopat | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="167-jokainen-pelikerta-heitti-samat-nopat.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/167-every-session-rolled-the-same-dice.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 167</nav>
+
+<h1>Jokainen pelikerta heitti samat nopat</h1>
+
+<p class="lede">
+Tarkoitus oli tarkistaa yksi primitiivi: palauttaako nopanheitto välin yhdestä n:ään vai
+nollasta n miinus yhteen. Se palauttaa oikein. Sama luku paljasti ettei generaattoria kylvetä
+ajossa lainkaan, joten jokainen pelikerta toisti edellisen heitto heitolta.
+</p>
+
+<h2>Staattinen alkutila oli uskollinen, kutsu puuttui</h2>
+
+<p>
+Näkymä rakensi generaattorin parametrittomalla muodostajalla, joka asettaa 32-bittisen tilan
+kahtena sanana arvoihin yksi ja nolla. Juuri ne kaksi arvoa ovat alkuperäisen oman assemblyn
+datasegmentissä, eli alkutila oli tarkasti oikein. Puuttui se kutsu joka kirjoittaa sen yli:
+alkuperäinen kylvää kellonajasta ohjelman viidennellä asetusrivillä, ennen kuin se edes avaa
+asetustiedostonsa.
+</p>
+
+<p>
+Niin kauan kuin kylvö puuttui, sama tulikenttä teki saman vahingon samassa järjestyksessä,
+sama isku osui ja sama olento vaelsi samaan suuntaan joka kerta kun peli käynnistyi. Testit
+olivat tästä täysin tyytyväisiä, koska ne kylvävät omansa itse.
+</p>
+
+<h2>Kylvön johdanto, mitattuna assemblystä</h2>
+
+<p>
+Kylvön laskenta on 95 rivin assemblytiedostossa eikä missään C-koodissa. DOS:n kellokutsu antaa
+tunnin, minuutin, sekunnin ja sadasosat. Tunti siirretään kerran, minuutti kahdesti, sekunti
+kolmesti, kaikki kahdeksanbittisissä rekisterin puolikkaissa. Kaksi 16-bittistä yhteenlaskua,
+yksi XOR vakiolla, ja lopuksi maski joka jättää kaksitoista bittiä. Kylvö on siis nollan ja
+4095:n välillä, ja kylvörutiini pakottaa sen vielä parittomaksi ja kirjoittaa vain alemman
+sanan. Saavutettava kylvöjoukko on ne 2048 paritonta lukua alle 4096:n.
+</p>
+
+<p>
+Kolme neljästä tämän askeleesta oli jo tässä projektissa: kylvö pakottaa parittomuuden, koskee
+vain alempaan puoleen, ja huomautukset sanoivat sen jo. Puuttui johdanto ja kutsu. Johdanto
+rakennettiin puhtaana funktiona neljästä kellon luvusta, niin että se on testattavissa ilman
+kelloa, ja kellon lukeminen jäi näkymälle.
+</p>
+
+<h2>Kaksi virtaa siellä missä alkuperäisellä on yksi</h2>
+
+<p>
+Sama tarkistus paljasti toisen eron, joka on kylvöstä riippumaton. Alkuperäinen pitää tilansa
+kahdessa datasegmentin sanassa, ja vain yksi rutiini koskee niihin. Sillä on siis tasan yksi
+virta, jota kaikki kuluttavat: keskusteluheitto siirtää sitä samaa tilaa josta seuraava isku
+heittää. Tällä puolella niitä oli kaksi, näkymän oma ja toinen joka annettiin
+keskustelumaailmalle hahmojen latauksessa.
+</p>
+
+<p>
+Toisen kylväminen olisi tehnyt siitä pahemman eikä paremman: kaksi virtaa yhdestä kylvöstä on
+yhä kaksi virtaa, ja kaksi virtaa kahdesta kylvöstä eroaa yhden virran ohjelmasta vielä
+enemmän. Viipale teki siis molemmat kerralla: yksi generaattori, kylvetty kerran, ja
+keskustelumaailma ottaa näkymän oman. Erottelija joka sen näkee on se, että keskusteluheitto ja
+taisteluheitto peräkkäin antavat eri arvot, koska ne tulevat samasta etenevästä tilasta; kaksi
+generaattoria antaisi saman arvon kahdesti.
+</p>
+
+<h2>Ansa jonka kirjoitin itse, ja joka ei ollut ansa</h2>
+
+<p>
+Brief varoitti C#-ansasta: tavun siirto nousee kokonaisluvuksi, joten kastin pois jättäminen
+muuttaisi kylvön jokaisella yli 31 sekunnin arvolla. Ajo kumosi sen kahdesti. Ensin
+tyhjentävällä haulla koko kelloavaruuden yli, 24 kertaa 60 kertaa 60 kertaa 100, joka löysi
+nolla tapausta. Sitten poistamalla kastin oikeasta koodista ja ajamalla kuusi naulattua
+testiä, jotka menivät kaikki läpi.
+</p>
+
+<p>
+Syy on yhden lauseen mittainen, ja minun olisi pitänyt nähdä se. Sekunnin siirretty tavu
+päätyy summaan vain uuden kahdeksan bitin siirron kautta 16-bittisen sanan ylätavuun, ja ne
+bitit jotka maski poistaisi ovat tasan ne jotka 16-bittinen typistys poistaa muutenkin. Tunti
+ja minuutti eivät ylitä tavua lainkaan oikealla kellolla: 23 kerrottuna kahdella on 46, ja 59
+kerrottuna neljällä on 236.
+</p>
+
+<p>
+Kastit kirjoitettiin silti, koska ne ovat sitä mitä alkuperäisen rekisterit tekevät, ja löydös
+dokumentoitiin sen sijaan että olisi kirjoitettu testi jota ei voi kaataa erolle jota ei voi
+esiintyä. Se on parempi vastaus kuin se jota pyysin.
+</p>
+
+<h2>Yksi erottelija jätettiin kirjoittamatta ja syy sanottiin</h2>
+
+<p>
+"Kylvetään tasan kerran" ei ole päättömästi testattavissa, koska näkymä on Unityn
+MonoBehaviour jota moottorin testisuite ei voi rakentaa. Se tarkistettiin lukemalla ja
+kirjoitettiin testitiedoston huomautuksiin sen sijaan että olisi tehty testi joka ei voi
+kaatua. Tämä on sama linja kuin edellisessä kirjoituksessa: puuttuva testi jonka syy on
+kirjattu on parempi kuin testi joka teeskentelee.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       224 / 249
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    4921 / 4921
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu. Kaksi erottelijaa todistettiin rikkomalla, ja toinen niistä antoi
+tasan sen väärän luennan jonka käsin laskettu arvo ennusti.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Pudotuskomennon heitto ja särkyminen: kahdeksan ruudun lento, viisitoista tyyppiä jotka
+     särkyvät, ja kaksi ennustetta joita tällä puolella ei ole lainkaan.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

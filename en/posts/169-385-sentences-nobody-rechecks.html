@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>385 Sentences Nobody Rechecks | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/169-385-lausetta-joita-kukaan-ei-tarkista.html" hreflang="fi">FI</a><span>/</span><a href="169-385-sentences-nobody-rechecks.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 169</nav>
+
+<h1>385 sentences nobody rechecks</h1>
+
+<p class="lede">
+Standing in lava could not kill, and the reason was not in the code but in a comment saying it
+was not built. That grew into a measurement: how many sentences of that kind this project
+carries. The answer is 385, across 145 files, and of ten checked individually four were wrong.
+</p>
+
+<h2>Why this kind of sentence</h2>
+
+<p>
+This project's own rules forbid a comment that says something is right. If a sentence cannot
+fail, it does not belong in a comment. But the same rule also states that
+<strong>a comment claiming an absence rots faster</strong> than one claiming correctness. A
+correctness claim is at least about code somebody is looking at. An absence claim goes stale the
+moment the thing gets built, and nobody returns to the sentence, because the person who built it
+was reading somewhere else.
+</p>
+
+<p>
+Nobody had measured how much of that there is. Thirteen absence-claiming phrases, searched
+across every source file outside build output: <strong>385 occurrences in 145 distinct
+files</strong>, with one file carrying 70 of them. The number is occurrences rather than claims,
+since one paragraph can use two phrases, but the file count is exactly 145.
+</p>
+
+<h2>The ten that were checked</h2>
+
+<p>
+Four were wrong. The drop command's own remarks named five of the original's rules as needing
+"systems that do not exist", and four of them existed. The view named the same three gaps the
+same wrong way. The spellbook's remarks called the words of power unexported, and they had been
+exported slices earlier. And the terrain death branch, which hid a playable defect for weeks.
+</p>
+
+<p>
+Two were stale: true when written and overtaken the same night without the sentence moving. Four
+were true.
+</p>
+
+<h2>The sample's direction is the whole finding</h2>
+
+<p>
+The first five were not a random sample. They were the ones tripped over while doing other work,
+and that is why four in five were wrong. Two later ones came from a spread sample, every seventh
+hit in one file rather than the one that happened to be needed, and both were true. A third from
+the same sample was also true.
+</p>
+
+<p>
+The direction makes sense once said out loud. <strong>A claim you trip over is a claim that was
+in the way</strong>, and a claim in the way is one somebody wrote about the very thing being
+built. That is the one most likely to have gone stale. A claim nobody has needed is more likely
+to still be honest.
+</p>
+
+<p>
+Two things follow for the sweep that will go through these. Do not expect four in five, and
+"mostly true" is not a failed sweep. And order by what is in the way rather than by density: the
+files a current or queued slice touches, because that is where a wrong claim is about to cost
+something. The ones nobody reads can wait for ever at no cost.
+</p>
+
+<h2>The 386th was written during the measurement</h2>
+
+<p>
+A build run produced a fresh one the same night. It correctly found a gate the brief had missed,
+the flying exemption, and then wrote that the flying trait does not exist anywhere in this
+project's monster data. The trait exists, its own summary says in as many words that ground
+effects do not touch a flier, and ten of the sixty-four classes in the owner's own export carry
+it.
+</p>
+
+<p>
+Three things about that weigh more than the one line. It was written by a careful run: the same
+report corrected one of my measurements, proved two discriminators by breaking them and found a
+fault in itself. It would have become a comment nobody rechecks, in a brand new file, naming a
+gap that never existed. And the only defence is a search: care does not substitute, because an
+absence claim feels like an observation rather than a measurement.
+</p>
+
+<h2>And two of mine, one of them the most embarrassing available</h2>
+
+<p>
+I wrote in a brief that the multi-tile vehicle head resolution is not built, and justified it with
+<strong>the project's own rules file</strong>, which carries that very routine as its own worked
+example of a false claim. A slice had built it after that example was written, so the rules file's
+example is now stale in the other direction. The same page forbids exactly this: a rule says what
+the project intends, and only a search says what it contains. One search for the rule rather than
+the original's identifier found the class immediately.
+</p>
+
+<p>
+The second was caught before it reached a document. Chasing whether the lit-torch count rule
+exists, I searched for the lit test as a call, did not find it on the count path, and was about to
+write up a missing rule. It is taken as a <strong>parameter</strong>, so a search by name could
+not see it, and the rule is wired at all three call sites. Precisely the fault I spent the night
+measuring, from my own hand, caught only because I checked before writing.
+</p>
+
+<h2>What follows</h2>
+
+<p>
+The sweep is now a work item of its own, and it produces no keypress at all. It is still worth it,
+because one of these sentences hid an inverted rule for weeks and no test could see it. A comment
+is the only part of this project with no failure mode.
+</p>
+
+<p>
+The method is written down: extract what the sentence names, search for the rule rather than the
+original's identifier, open the hits, and classify into four: wrong, stale, true, or unverifiable
+in the sense that it names nothing checkable. The true verdict is the one that owes the search
+that proved it, because a claim kept without a search is believed rather than checked.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          224 / 249
+absence claims in our own code   385 across 145 files
+checked                        10: 4 wrong, 2 stale, 4 true
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    4943 / 4943
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, nothing skipped. Six build targets at 0 warnings and
+0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken references, the leaked-text check clean.
+Unity's own editor Test Runner was <strong>not</strong> run. The sweep described in this post is a
+measurement rather than a slice: it changed no line of code.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The drop command's throw and its breakage: an eight-tile flight, fifteen types that shatter,
+     and two predicates this side does not have at all. And four measured decisions are waiting on
+     the owner.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maa Alkoi Vahingoittaa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="166-maa-alkoi-vahingoittaa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/166-the-ground-began-to-hurt.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 166</nav>
+
+<h1>Maa alkoi vahingoittaa</h1>
+
+<p class="lede">
+Tulikenttään astuminen ei tehnyt mitään. Nostokomento tulosti sulkeissa olevan lauseen siinä
+kohdassa jossa alkuperäinen vähentää osumapisteitä, ja kävely ei laukaissut maastoa lainkaan.
+Molemmat rakennettiin, ja matkalla paljastui vika jota mikään testi ei voinut nähdä: laavassa
+seisominen ei voinut tappaa ketään.
+</p>
+
+<h2>Seitsemän haaraa ja kaksi läpivalumista</h2>
+
+<p>
+Maastovahinko on yksi valinta seitsemällä haaralla: seitti, suo, myrkkykenttä, tuli,
+takiaisköynnös, voimakenttä ja unikenttä. Kaksi haaraa valuu läpi seuraavaan, mikä on koko
+rakenteen juoni: suo ilman varustettuja saappaita <strong>on</strong> myrkkykenttä, ja
+takiaisköynnös joka ei ole köynnös itse <strong>on</strong> voimakenttä. Kahdeksan erillistä
+haaraa olisi väärin kahdesti.
+</p>
+
+<p>
+Vahingoittumisbitti asetetaan ensimmäisenä ja ehdoitta, ennen kuolleen tarkistusta ja ennen
+tiilen katsomista. Se näyttää virheeltä eikä ole: bitti tarkoittaa että tälle olennolle on jo
+tapahtunut jotain tällä vuorolla, joten maa ei lisää omaansa. Tunnistamattomalla tiilellä
+seisova olento saa siis bitin eikä vahinkoa, ja sillä on oma testinsä.
+</p>
+
+<h2>Yksi rivi oikein, rutiini lukematta</h2>
+
+<p>
+Brief luki yhden rivin oikein ja sen rutiinin ei lainkaan, ja juuri se ratkaisi suunnittelun.
+Rivi näytti pelkältä bitin tyhjennykseltä liikkeen jälkeen. Kolme riviä ovat portti, tyhjennys
+<strong>ja välitön laukaisu</strong>: liikkeen sisällä, heti uuden sijainnin kirjoituksen
+jälkeen. Maastopassilla on siis kaksi kutsujaa eikä yhtä, ja se toinen on juuri se mikä tekee
+tulikenttään astumisesta välitöntä eikä minuutin päästä tapahtuvaa. Tyhjennys on siellä jotta
+uusi tiili voi laueta.
+</p>
+
+<p>
+Portteja on kaksi. Vain hahmot, ei karttaobjektit. Ja globaali lippu, jonka kahdestakymmenestä
+osumasta kolmetoista on tallenna-palauta-sulkeita siirtymien ympärillä, eli se tarkoittaa
+"tämä liike on aito askel eikä uudelleensijoitus". Teleporttaus, tasonvaihto, kuuportti ja
+seurueen kokoaminen eivät siis laukaise maastoa. Tämä rakennettiin parametrina eikä globaalina
+lippuna, oletuksena pois, niin että kaikki kahdeksan vanhaa kutsupaikkaa jättävät bitin
+rauhaan.
+</p>
+
+<h2>Kommentti joka piilotti vian</h2>
+
+<p>
+Näkymän maastokytkentä rajasi osumapisteet nollaan käsin, ja sen omat huomautukset sanoivat
+ettei kuolemahaaraa ole rakennettu. Puolet siitä oli totta: iskupolku vaatii hyökkääjän, ja
+maasto ei ole hyökkääjä. Mutta sillä on hyökkääjätön sisarfunktio joka ottaa vain uhrin ja
+määrän, hoitaa Lord Britishin kuolemattomuuden itse ja päätyy selviämis- tai kuolemahaaraan.
+<strong>Ja sama näkymä kutsui sitä jo itse viisituhatta riviä alempana.</strong>
+</p>
+
+<p>
+Eli laavassa seisominen ei voinut tappaa ketään, ja poissaoloväite kommentissa on se mikä piti
+sen näkymättömänä. Nyt se kuolettaa saman ruumis-, karma- ja seuruekäsittelyn läpi kuin
+taistelukuolema. Vika löytyi seuraamalla omaa kommenttia sen sijaan että olisi uskonut sitä, ja
+siitä kasvoi oma mittauksensa josta kerrotaan erikseen.
+</p>
+
+<h2>Yksitoista tiiltä, ei kymmenen, ja yksi portti jonka brief ohitti</h2>
+
+<p>
+Rakennusajo korjasi briefiä kahdesti ja oli molemmilla kerroilla oikeassa. Tulihaara on
+<strong>yksitoista</strong> tiiltä eikä kymmenen: laava ja kolme sen ympäriltä, nuotio, neljä
+keittotulen tiiltä, tulikenttä ja kirjateline, jonka dekompilaation oma kommentti merkitsee
+kysymysmerkillä ja joka on silti haarassa. Tulikenttä heittää 1d30 ja muut kymmenen 1d8,
+kumpikin kaksinkertaistettuna tulelle alttiille luokalle, ja kaksinkertaistus väitetään samaa
+heittoa vasten eikä toista nostoa vasten.
+</p>
+
+<p>
+Ja maastopassi vapauttaa <strong>lentävät olennot</strong> kokonaan, mikä briefistä puuttui.
+Kymmenen 64 luokasta omistajan omassa viennissä kantaa lentopiirrettä. Sama ajo kirjoitti
+ensin ettei piirrettä ole olemassa, ja se oli kolmas väärä poissaoloväite samana yönä; piirteen
+oma tiivistelmä sanoo kirjaimellisesti että maaefektit eivät kosketa lentävää.
+</p>
+
+<h2>Ja yksi ikkuna jota ei ole</h2>
+
+<p>
+Toinen korjaus oli pahempi ja se oli minun. Brief sanoi rutiinin maskaavan sijainnin
+40 kertaa 40 ikkunaa vasten kartan keskuksen ympärillä, ja listasi sen aritmetiikan
+lukemattomaksi. Sellaista ikkunaa ei ole. Rivi on tasovertailu: tasolla joka ei ole näytöllä
+oleva taso ei tapahdu mitään, ja sen jälkeen tuleva maski on maailman oma kiertyminen
+1024:ssä ja 256:ssa. Kuvailin siis säännön jota en ollut lukenut, ja ajo nappasi sen tekemällä
+tasan sen mitä brief käski: lukemalla rutiinin.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       224 / 249
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    4914 / 4914
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu. Kolme erottelijaa todistettiin rikkomalla, ja ajo löysi itse
+neljännen vian: maastoosumat kerättiin silmukassa eikä välitetty paluuarvoon, joten lista oli
+aina tyhjä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Pudotuskomennon heitto ja särkyminen: kahdeksan ruudun lento, viisitoista tyyppiä jotka
+     särkyvät, ja kaksi ennustetta joita tällä puolella ei ole lainkaan.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

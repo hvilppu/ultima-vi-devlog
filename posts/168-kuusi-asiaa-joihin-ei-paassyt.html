@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuusi Asiaa Joihin Ei Päässyt | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="168-kuusi-asiaa-joihin-ei-paassyt.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/168-six-things-nothing-could-reach.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 168</nav>
+
+<h1>Kuusi asiaa joihin ei päässyt</h1>
+
+<p class="lede">
+Käyttökomento vastasi "ei rakennettu" kahdellekymmenellekahdelle tyypille. Kuudella niistä oli
+sääntö rakennettuna ja testattuna tässä projektissa, yhdellä niistä jo toisen näppäimen takana.
+Mittaus oli koko löydös, ja se tehtiin ennen kuin mitään kirjoitettiin.
+</p>
+
+<h2>85 tyyppiä, ja luku joka laskee itse</h2>
+
+<p>
+Alkuperäisen käytettävien lista on tasan 85 merkintää, yhdeksän riviä, ei duplikaatteja, ja sen
+lukeva silmukka lukee tasan 85. Tämä projekti vastasi jo samaa lukua ja väitti sen omassa
+testissään. Ajamalla kaikki 85 oman kytkentämme läpi, riimujen väli mukaan lukien:
+<strong>63 pääsi nimettyyn käsittelijään ja 22 vastasi "ei rakennettu"</strong>.
+</p>
+
+<p>
+Näkymän puoli ei ollut ohut kohta. Sillä on haara kaikille 26 käsittelijälle, eli jokainen
+käsittelijä joka on olemassa on saavutettavissa. Aukko oli kokonaan siinä mikä tyyppi kuvautuu
+mihin käsittelijään.
+</p>
+
+<p>
+Ja ne 22 eivät olleet yksi asia. Neljä ajoneuvoa, joiden kyytiin nousu ja siitä poistuminen on
+rakennettu, testattu ja <strong>Enter-näppäimen takana</strong>. Ruutitynnyri, joka oli valmis
+yhtä lukkoa lukuun ottamatta. Soihtu, joka oli puolivalmis. Kaksi hevosta, joita ei ole
+rakennettu eivätkä ole ajoneuvotyyppejä tällä puolella. Ja viisitoista aidosti rakentamatonta,
+jotka on nimetty eikä laskettu.
+</p>
+
+<p>
+Nyt <strong>69 / 85</strong>, ja luku on naulattu testiin joka ajaa jokaisen 85 tyypin
+kytkennän läpi ja laskee ne. Seuraavan viipaleen edistyminen näkyy siis lukuna eikä ole
+väitettävä.
+</p>
+
+<h2>Ajoneuvohaara on yksi portti ja 43 rivin jakaja</h2>
+
+<p>
+Brief sanoi ensin että haara on "yksi portti ja yksi kutsu". Portti on yksi rivi ja kutsu on 43
+rivin jakaja, joka menee molempiin suuntiin: jos olet tässä samassa ajoneuvossa se yrittää
+poistumista, muuten nousua, neljällä kieltäytymisellä välissä. Kauppakirjatarkistus laivalle ja
+kaislaveneelle joiden laatu ei ole nolla. Täytetty ilmapallo muuttuu tyhjennetyksi kun siitä
+poistutaan. Merellä laivasta poistutaan sen kantamaan kaislaveneeseen, ja kaislaveneestä
+laivaan nousu lastaa kaislaveneen laivaan.
+</p>
+
+<p>
+Johtopäätös selvisi silti, koska jokainen näistä kuudesta haarasta on jo rakennettu ja
+Enter-näppäin kutsuu samaa jakajaa samassa muodossa. Käyttöhaara lisää siis todella vain
+porttinsa. Yhtä asiaa lukuun ottamatta: monitiilisen ajoneuvon pään ratkaisu tarvitsee aidon
+haun ruudun objekteista, ja katsekomennon oma hakudelegaatti on tarkoituksella tyhjä, joten
+käyttöhaara tarvitsi omansa.
+</p>
+
+<h2>Tynnyrin lukko oli viipaleen ainoa uusi sääntö</h2>
+
+<p>
+Alkuperäisellä on yksi palava sytytyslanka koko maailmassa, yhtenä laskurina ja yhtenä
+objektiviitteenä. Toinen tynnyri kieltäytyy kunnes ensimmäisen kolme minuuttia on kulunut.
+</p>
+
+<p>
+Erottelijan toinen puoli on se joka merkitsee, koska salpa läpäisee ensimmäisen: toinen tynnyri
+kieltäytyy palavan langan aikana <strong>ja syttyy kun ensimmäinen on sammunut</strong>. Ajo
+todisti sen rikkomalla, tekemällä kellon askeleesta tyhjän toimen, ja kaatui tasan siihen
+väitteeseen joka sanoo lukon aukeavan.
+</p>
+
+<h2>Soihdun valmistelu ei ole ehdoton askel</h2>
+
+<p>
+Brief esitti soihdun neljännen askeleen ehdottomana: valmistele se vapaaseen käteen. Ajo luki
+rutiinin ja korjasi. Askel on käännetty testiin "ei kartalla" ja sitten vielä testiin "repussa
+tai säiliössä". <strong>Kartalla olevasta pinosta irrotettu soihtu jää siis kartalle ja syttyy
+paikalleen</strong>; vain repusta tai säiliöstä tullut päätyy käteen.
+</p>
+
+<p>
+Ja samoista riveistä kolme lukua joita briefissä ei ollut: sytytetty soihtu saa kehyksen yksi,
+määrän 200 joka on sen jäljellä oleva palamisaika, ja kellon virkistyksen jotta valo päivittyy.
+200 on nimetty rakentamattomaksi sitaattinsa kanssa, koska mikään ei vielä kuluta soihtua
+loppuun eikä arvon keksiminen ilman kuluttajaa olisi rakentamista. Se sääntö joka kuluttaa
+sytytettynä olemisen lipun on sen sijaan rakennettu: määrätuloste tulostaa artikkelin eikä lukua
+sytytetylle soihdulle, koska sen määrä ei ole lukumäärä.
+</p>
+
+<h2>Vuotavan tekstin tarkistus ansaitsi palkkansa</h2>
+
+<p>
+Ajo oli lainannut alkuperäisen omia tekstirivejä sanasta sanaan testien kommentteihin. Tarkistus
+nappasi yhdeksän löydöstä, ja ne kirjoitettiin uudelleen offsetiksi ja kuvaukseksi projektin
+omaan tapaan. Uusinta-ajo puhdas. Tämä on se tarkistus joka vertaa jokaista merkkijonoa koko
+repositoriossa dekompilaation omiin merkkijonoihin eikä vain yhden istunnon muutoksia, ja se on
+nyt napannut sekä rakennusajon kommentit että yhden omista briefeistäni.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       224 / 249
+käytettävät tyypit jotka vastaavat   69 / 85
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    4943 / 4943
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu. Kaksi erottelijaa todistettiin rikkomalla.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Pudotuskomennon heitto ja särkyminen: kahdeksan ruudun lento, viisitoista tyyppiä jotka
+     särkyvät, ja kaksi ennustetta joita tällä puolella ei ole lainkaan.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

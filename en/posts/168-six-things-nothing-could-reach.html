@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Six Things Nothing Could Reach | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/168-kuusi-asiaa-joihin-ei-paassyt.html" hreflang="fi">FI</a><span>/</span><a href="168-six-things-nothing-could-reach.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 168</nav>
+
+<h1>Six things nothing could reach</h1>
+
+<p class="lede">
+The use command answered "not built yet" for twenty-two types. Six of those had their rule built
+and tested in this project, and one group of them was already reachable from a different key.
+The measurement was the whole finding, and it was taken before anything was written.
+</p>
+
+<h2>Eighty-five types, and a count that counts itself</h2>
+
+<p>
+The original's usable list is exactly 85 entries, nine rows, no duplicates, and the loop that
+reads it reads exactly 85. This project already matched that number and asserted it in a test of
+its own. Running all 85 through our own dispatch, the rune range included:
+<strong>63 reached a named handler and 22 answered "not built yet"</strong>.
+</p>
+
+<p>
+The handler side was not the thin part. It has an arm for all 26 handlers, so every handler that
+exists is reachable. The gap was entirely in which type maps to which handler.
+</p>
+
+<p>
+And the 22 were not one thing. Four vehicles, whose boarding and leaving is built, tested and
+<strong>reachable from the Enter key</strong>. A powder keg, complete except for one lock. A
+torch, half built. Two horses, not built and not vehicle types on this side either. And fifteen
+genuinely unbuilt, named rather than counted.
+</p>
+
+<p>
+Now <strong>69 of 85</strong>, and the count is pinned by a test that runs every one of the 85
+through the dispatch and counts them. The next slice's progress will therefore be a number rather
+than a claim.
+</p>
+
+<h2>The vehicle arm is one guard and a 43-line dispatcher</h2>
+
+<p>
+The brief first said the arm is "one guard and one call". The guard is one line and the call is a
+43-line dispatcher that goes both ways: if you are aboard this very vehicle it tries to leave,
+otherwise to board, with four refusals in between. A deed check for a ship or skiff whose quality
+is not nought. An inflated balloon becoming a deflated one when you leave it. At sea, leaving a
+ship onto the skiff it was carrying, and boarding a ship from a skiff stowing the skiff aboard.
+</p>
+
+<p>
+The conclusion survived anyway, because every one of those six branches is already built and the
+Enter key calls the same dispatcher in the same shape. So the use arm really does add only its
+guard. With one exception: resolving a multi-tile vehicle to its head object needs a real search
+of a square's objects, and the look command's own search delegate is deliberately empty, so the
+use arm needed its own.
+</p>
+
+<h2>The keg's lock was the slice's only new rule</h2>
+
+<p>
+The original has one burning fuse in the whole world, as one counter and one object reference. A
+second keg refuses until the first one's three minutes are up.
+</p>
+
+<p>
+The second half of the discriminator is the half that matters, because a latch passes the first:
+a second keg refuses while the fuse burns <strong>and lights once the first has gone out</strong>.
+The run proved it by breaking it, making the clock's own step a no-op, and failed on exactly the
+assertion that says the lock clears.
+</p>
+
+<h2>Readying a torch is not an unconditional step</h2>
+
+<p>
+The brief presented the torch's fourth step as unconditional: ready it in a free hand. The run
+read the routine and corrected it. The step is wrapped in a test for not being on the map, and
+then again in a test for being in a pack or a container. <strong>So a torch split off an on-map
+pile stays on the map and lights in place</strong>; only one that came from a pack or container
+ever reaches a hand.
+</p>
+
+<p>
+And three numbers from the same lines that the brief did not have: a lit torch gets frame one, a
+quantity of 200 which is its remaining burning time, and a clock refresh so the light updates.
+The 200 is named as unbuilt with its citation, because nothing burns a torch down yet and
+inventing the value without a consumer would be guessing rather than building. The rule that
+consumes the lit flag is built: the count printer prints the article rather than a count for a
+lit torch, because its quantity is not a count.
+</p>
+
+<h2>The leaked-text check earned its keep</h2>
+
+<p>
+The run had quoted the original's own text rows verbatim into test comments. The check caught
+nine findings, and they were rewritten as an offset and a description in this project's own
+convention. The re-run was clean. This is the check that compares every string literal in the
+whole repository against the decompilation's own literals rather than one session's diff, and it
+has now caught both a build run's comments and one of my own briefs.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          224 / 249
+usable types that answer        69 / 85
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    4943 / 4943
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, nothing skipped. Six build targets at 0 warnings and
+0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken references, the leaked-text check clean.
+Unity's own editor Test Runner was <strong>not</strong> run. Two discriminators were proved by
+breaking them.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The drop command's throw and its breakage: an eight-tile flight, fifteen types that shatter,
+     and two predicates this side does not have at all.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

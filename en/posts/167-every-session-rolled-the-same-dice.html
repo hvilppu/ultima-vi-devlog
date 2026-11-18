@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Every Session Rolled the Same Dice | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/167-jokainen-pelikerta-heitti-samat-nopat.html" hreflang="fi">FI</a><span>/</span><a href="167-every-session-rolled-the-same-dice.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 167</nav>
+
+<h1>Every session rolled the same dice</h1>
+
+<p class="lede">
+The intent was to check one primitive: does the die roll return one to n, or nought to n minus
+one. It returns the right range. The same reading turned up that the generator is never seeded
+in the running game, so every session replayed the previous one roll for roll.
+</p>
+
+<h2>The static state was faithful, the call was missing</h2>
+
+<p>
+The view built the generator with the no-argument constructor, which sets the 32-bit state, held
+as two words, to one and nought. Those are exactly the two values declared in the original's own
+assembly data segment, so the starting state was precisely right. What was missing is the call
+that overwrites it: the original seeds from the time of day on the fifth line of its own setup,
+before it even opens its configuration file.
+</p>
+
+<p>
+For as long as the seeding was missing, the same fire field did the same damage in the same
+order, the same blow landed and the same creature wandered the same way every time the game
+started. The tests were entirely happy with this, because they seed their own.
+</p>
+
+<h2>The derivation, measured out of the assembly</h2>
+
+<p>
+The seed's arithmetic lives in a 95-line assembly file and in no C at all. The DOS clock call
+gives the hour, the minute, the second and hundredths. The hour is shifted once, the minute
+twice, the second three times, all in eight-bit halves of registers. Then two sixteen-bit
+additions, one exclusive or with a constant, and finally a mask that keeps twelve bits. So the
+seed is between nought and 4095, and the seeding routine then forces it odd and writes only the
+low word. The reachable set is the 2048 odd numbers below 4096.
+</p>
+
+<p>
+Three of those four steps were already in this project: seeding forces odd, touches only the low
+half, and the remarks already said so. What was missing was the derivation and the call. The
+derivation was built as a pure function of four clock numbers, so it is testable with no clock,
+and reading the clock was left to the view.
+</p>
+
+<h2>Two streams where the original has one</h2>
+
+<p>
+The same check turned up a second divergence, independent of the seeding. The original keeps its
+state in two words of one data segment, and only one routine touches them. So it has exactly one
+stream, consumed by everything: a conversation roll advances the same state the next blow rolls
+from. On this side there were two, the view's own and a second handed to the conversation world
+when the characters load.
+</p>
+
+<p>
+Seeding one of them would have made it worse rather than better: two streams from one seed is
+still two streams, and two streams from two seeds diverges from a one-stream program even
+further. So the slice did both at once: one generator, seeded once, with the conversation world
+taking the view's own. The discriminator that can see it is that a conversation roll and a
+combat roll drawn in sequence give two different values, because they come from one advancing
+state; two generators would give the same value twice.
+</p>
+
+<h2>A hazard I wrote myself, which was not one</h2>
+
+<p>
+The brief warned of a C# hazard: a shift on a byte promotes to an integer, so omitting the cast
+back would change the seed for every second above thirty-one. The run refuted that twice. First
+with an exhaustive search across the whole clock domain, 24 by 60 by 60 by 100, which found zero
+cases. Then by removing the cast from the real code and running the six pinned tests, all of
+which still passed.
+</p>
+
+<p>
+The reason is one sentence long and I should have seen it. The second's shifted byte only reaches
+the sum through a further eight-bit shift into the high half of a sixteen-bit word, and the bits
+the mask would remove are exactly the bits the sixteen-bit truncation removes anyway. The hour
+and the minute never overflow a byte at all for a real clock: 23 doubled is 46, and 59
+quadrupled is 236.
+</p>
+
+<p>
+The casts were written anyway, because they are what the original's registers do, and the
+finding was documented instead of pinning a difference that cannot occur with a test that cannot
+fail. That is a better answer than the one I asked for.
+</p>
+
+<h2>One discriminator deliberately not written, with its reason</h2>
+
+<p>
+"Seeded exactly once" is not testable headlessly, because the view is a Unity MonoBehaviour that
+the engine's test suite cannot construct. It was verified by reading and written into the test
+file's remarks rather than faked. This is the same line as the previous post: a missing test with
+its reason recorded beats a test that pretends.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          224 / 249
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    4921 / 4921
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, nothing skipped. Six build targets at 0 warnings and
+0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken references, the leaked-text check clean.
+Unity's own editor Test Runner was <strong>not</strong> run. Two discriminators were proved by
+breaking them, and one of those produced exactly the wrong reading the hand arithmetic had
+predicted.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The drop command's throw and its breakage: an eight-tile flight, fifteen types that shatter,
+     and two predicates this side does not have at all.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
