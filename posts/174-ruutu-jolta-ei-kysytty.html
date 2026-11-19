@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ruutu Jolta Ei Kysytty | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="174-ruutu-jolta-ei-kysytty.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/174-the-square-nobody-asked.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 174</nav>
+
+<h1>Ruutu jolta ei kysytty</h1>
+
+<p class="lede">
+Alkuperäisessä jokainen askel kysyy ruudulta kaksi asiaa: pääseekö maaperälle, ja kuka siellä
+seisoo. Tällä projektilla oli neljä erillistä liikkumapolkua ja kaikki neljä kysyivät vain
+ensimmäisen. Nyt kaikki neljä kysyvät molempia, ja peto ruudulla pysäyttää vihdoin. Sen ympärillä
+laskeutui paljon muuta: saapuva kyläläinen nukkuu nyt sängyssä sen sijaan että makaisi tyhjän
+päällä, laiturille ja laivan kannelle pääsee kävelemällä, hevosopcode vastaa sen sijaan että
+heittäisi poikkeuksen, ja olento joka tarttuu loitsuaseeseen todella loitsii. Ja matkalla
+projekti pyyhkäisi omia väitteitään kahteen otteeseen, isommalla näytteellä molemmilla kerroilla,
+ja löysi lisää vanhentuneita lauseita ennen kuin kukaan ehti rakentaa niiden päälle.
+</p>
+
+<h2>Ruutu jolta ei kysytty</h2>
+
+<p>
+Avatarin oma askel kysyi ruudulta vain yhtä luokkaa, joka ottaa tiilipankin, objektin indeksin ja
+pohjatiilet eikä yhtäkään toimijaa. Sen oma kommentti sanoi suoraan että seinät, vesi ja huonekalut
+pysäyttävät askeleen, mikä on tarkka siitä mitä se tekee ja hiljaa siitä mitä se ei tee.
+Alkuperäinen pysäyttää toimijan tämän oman tiilen esteellisyyslipulla eikä sillä että se on
+toimija, minkä takia toimijatestiä etsivä lukija ei löydä sitä ollenkaan.
+</p>
+
+<p>
+Ensimmäinen laskenta omistajan vientiä vastaan: kahdestasadasta elävästä hahmosta 185 seisoo
+esteellisellä tiilellä ja pysäyttäisi kävelijän alkuperäisessä, 3 seisoo läpäisevällä tiilellä eikä
+pysäyttäisi sielläkään, ja 12:lla ei ole käytettävää tiiltä. Laskenta oli väärä, ja korjaus kasvatti
+vikaa eikä pienentänyt sitä. <strong>Oikea sääntö: toimija pysäyttää koska se on toimija, oli sen
+oma tiili mitä tahansa, paitsi jos se on yksi viidestä pienestä otustyypistä ja eri tyyppiä kuin
+liikkuja itse.</strong> Tiilitesti päättää vain kumpaa reittiä pitkin sääntöön päästään. Kahdesta
+sadasta vain yksi, hiiri, on yksi viidestä otustyypistä; toinen poikkeus on paikka nolla, tyhjä
+paikanpitäjä origossa. <strong>198 kahdestasadasta pysäyttää.</strong> Todistettu rikkomalla: koira
+on läpäisevällä tiilellä eikä ole otus, ja pysäyttää siltikin; pudotettaessa hiiri otuslistalta
+kaatuu juuri se testi joka nimeää sen.
+</p>
+
+<p>
+Avatarin oma askel kysyy nyt molempia. Seuraavaksi mitattiin sama kolmen muun liikkumapolun
+kohdalla, seuraa, virkamatka ja ajoneuvo, ja kaikki neljä kysyivät samalta yhdeltä luokalta eikä
+yksikään siltä toimijaa. Puolue seuraa ja kyläläisen virkamatka saivat nyt oman sovittimensa, joka
+kantaa saman oman-tiilen laskun joka asui ennen näkymän sisällä, ja kaikki neljä kutsupaikkaa
+kulkevat sen läpi eivätkä toista sitä. Ajoneuvopolku jätettiin tarkoituksella kytkemättä: laiva,
+lautta ja ilmapallo kysyvät kosteutta ja seinää, toimijaluokka kantaa vain kävelijän
+esteellisyyslipun, ja väärän lipun kytkeminen vastaisi väärään kysymykseen. Yksi pienempi aukko
+nimettiin eikä paikattu: virkamatkalla olevaa kyläläistä ei estä kykenevä puolueenjäsen joka ei ole
+johtaja, koska tarkistus ei kysy onko liikkuja pelaajan ohjaama.
+</p>
+
+<p>
+Ja yksi aukko odottaa jo seuraavaa viipaletta. Alkuperäinen johtaa lentämisen, uimisen ja
+haamumaisuuden olennon omasta luokasta, ei ajoneuvosta, ja täällä liikkujan tyyppi tulee yhä
+pelkästä ajoneuvosta. Liikkuja on nyt viiden lipun joukko, täsmälleen alkuperäisen viiden ehdon
+mukaan, eikä yksi nimi valittavana, mutta mikään ei kutsu sitä olennon kautta. Neljätoista
+kahdestasadasta elävästä hahmosta lentää, kaikki siivekkäitä gargoyleja, ja ne kävelevät yhä
+kävelijän sääntöä vastaan.
+</p>
+
+<h2>Saapuu, ja nyt tekee jotain</h2>
+
+<p>
+Alkuperäisen omassa vuorokehyksessä jokainen aikataulumoodi jolla ei ole omaa haaraa kuluttaa
+viisi pistettä oletuksena, ja vasta sitten varajärjestelmä vie kymmenen toimijalta jonka pisteet
+eivät liikkuneet lainkaan. Täällä oletusta ei ollut, niin joka ainoa aikataulutettu käytös putosi
+varajärjestelmään ja maksoi kaksinkertaisesti. Mitattu omistajan omasta <code>schedules.bin</code>-
+tiedostosta: 563 merkintää, 18 käytöstä, joista 328 on asentoja jolla ei ole vuoroarvaa
+alkuperäisessäkään, 214:llä on todellinen sääntö ja 21 on muualla. Oletuksen viisi, ratsastetun
+toimijan puolitus ja yhteiset vaanimis- ja odottelusäännöt ovat nyt rakennettuja.
+</p>
+
+<p>
+328 asentoa sai tällä viipaleella ensimmäisen näkyvän puolensa. Nukkumaan käsketty kyläläinen
+makaa sängyssä, istumaan käsketty istuu, syömään käsketty kääntyy lautastaan kohti, luuttua
+soittamaan käsketty soittaa. Sama rakenne käyttää uudelleen ruudun oman objektilistan, nukkumisen
+oman lipun ja muodonmuutoksen, täsmälleen samalla tavalla kuin leirin tajuton vartija.
+</p>
+
+<p>
+Rakennusajo korjasi omaa taulukkoani kolmesti tekstistä jonka olin lukenut rivi riviltä. Nukkumisen
+lippu asetetaan ennen aluetestiä, niin alueen ulkopuolella lippu jää päälle vaikka sängynetsintä
+ohitetaan. Nukkumisen ja muodon palautuksen alkuosa suoritetaan ennen <em>joka</em> toiminnon omaa
+aluetestiä, siis myös vaanimisella, vaeltamisella ja viljelyllä eikä vain kuudella asennolla. Ja
+seisomisella ja vartioinnilla ei ole aluetestiä ollenkaan. Olin yleistänyt "jokainen varsi" neljästä
+jotka todella sitä tekevät.
+</p>
+
+<h2>Valtaistuimelle asti</h2>
+
+<p>
+Istuinhaku vastasi ei joka ainoaan valtaistuimeen, ja syy oli kommentissa: oma kattavan ruudun
+osaoffsetti ei välttämättä vastaa alkuperäisen vastaavaa. Se kysymys oli vastattu toisessa briefissä
+jo viikkoja sitten, samalla taulukolla, eikä kommentti ehtinyt päivittyä. Postausviipale luki
+kommentin, uskoi sitä ja kirjoitti rinnalle oman tuoli-ja-valtaistuin-haun. <strong>Laskettu:
+<code>originalBugs.md</code> 2.10 mittasi että 7 kahdeksastakymmenestäyhdestä istumismerkinnästä
+nimeää valtaistuimen.</strong> Haku korjattiin ottamaan huomioon kattavat osat eikä pelkkää
+ruutulistaa, vanha rinnakkaishaku poistettiin, ja löytyi sääntö jota kumpikaan brief ei kantanut:
+<strong>valtaistuin istuttaa aina etelään päin omasta tallennetusta kehyksestä riippumatta, tuoli
+käyttää omaa kehystään.</strong> Seitsemän valtaistuinta ja 74 tuolia, ei yhtäkään ratkaisematta.
+</p>
+
+<h2>Laiturille, selkään, loitsuun</h2>
+
+<p>
+Maaperän tuomio on alkuperäisessä lähtöarvo eikä päätös, ja objekti voi kumota sen. Kävelijän
+törmäyskoodi palautti epäonnistumisen esteelliselle maaperälle ennen kuin se katsoi yhtäkään
+objektia, niin laituri, aallonmurtaja ja laivan kansi olivat kaikki kävelemättömiä, ja juuri tätä
+polkua pitkin kulkee Avatarin oma askel, puolueen seuraaminen ja joka ainoa virkamatka. Sääntö
+puuttui muodosta eikä yhdestä ehdosta, mikä on syy siihen että briefi vaati koko muodon korjaamista
+eikä toisen poikkeuksen liittämistä: luokka osasi vain estää tai ohittaa, ei koskaan sallia, vaikka
+alkuperäisellä on kaksi haaraa jotka sallivat. Tämän oman väitteen hyökkäsin ensin omaa
+heikkoutta vastaan, koska se oli tämän istunnon vahvin ja oli muuttamassa koko pelin käytetyintä
+sääntöä. Se kesti: hyökkäys löysi vielä vahvemman perusteen, että luokka ei rakenteellisesti pysty
+ilmaisemaan sallimista ollenkaan.
+</p>
+
+<p>
+Mitattu omistajan vientiä vastaan: yhdeksän aikataulukohdetta seisoo esteellisellä maaperällä,
+kaikilla kymmenellä ruudulla on tasan yksi objekti, ja se on yhtä objektityyppiä, jonka kaikki neljä
+kehystä kantavat sillan lippua. Laajemmin 42 kahdestatuhannestakahdeksasta tiilestä kantaa sitä,
+laivan runkokehykset, aallonmurtaja ja lautta mukaan lukien. Yksi luku muuttui korjauksen seurauksena
+ja se on tulos: ajoneuvopolun kävelijäruutujen määrä nousi 293629:stä 293631:een, koska kahdella
+ruudulla ketju sisältää sillan ja esteen peräkkäin ja ketjun järjestyksellä on merkitystä.
+</p>
+
+<p>
+Kolme pienempää asiaa laskeutui samaan aikaan. Kolme keskustelua kutsuu hevosopcodea ja se heitti
+poikkeuksen jota kukaan ei napannut; nyt se siirtää kyläläisen ruudukon keskelle, kirjoittaa
+ratsastetun hevosen muodon kyläläisen omasta suunnasta, ja luo tuoreen takapuolen askelen taakse,
+koska mikään hevosolio ei ole tässä polussa mukana. Ei vartijoita: opcode kutsuu suoraan
+ratsastusrutiinia eikä käyttökomentoa, joten kaikki viisi käyttökomennon kieltäytymistä jäävät
+tarpeettomiksi. Ja olento joka valitsee aseeksi kirjan tai latauksen loitsii nyt sen sijaan että
+tekisi mitään: ratkaisu oli jo rakennettu ja testattu, vain kutsupaikka puuttui. Kolmestasadasta
+kahdesta elävästä hahmosta 33 kuuluu loitsua kantavaan luokkaan, neljätoista niistä samoja
+siivekkäitä gargoyleja joita lentämisaukko koskee.
+</p>
+
+<h2>Nimi ja kasvot, ja se mistä ne molemmat tulivat</h2>
+
+<p>
+Katsomiskomento osasi jo piirtää kasvot, mutta haara oli tyhjä <code>break</code>, ja kommentti
+selitti miksi: näkymän yhden rivin tilalokilla ei ole paikkaa muotokuvalle. Se oli totta
+kirjoitushetkellään. Keskusteluikkunalla on nyt oma tekstipaneelinsa, joten haara täytettiin: katse
+piirtää kasvot, odottaa näppäintä siinä missä kumpikaan keskustelun omista kutsupaikoista ei odota,
+ja pään-ratkaisu saa väitetyn ensimmäisen kutsupaikkansa.
+</p>
+
+<p>
+Väitetyn, koska se oli virhe. Briefi sanoi tämän antavan pään-ratkaisulle ensimmäisen
+kutsupaikkansa koskaan, ja että projekti on kirjannut sen kahdesti vaille yhtäkään. Sillä oli jo
+yksi: haku löysi kutsurivin, ja tulos hylättiin kommenttina koska suurin osa ympäröivistä riveistä
+todella olikin kommentteja. Sama haku, sama rivi, väärä lukutapa. Peruutettu.
+</p>
+
+<p>
+Haku jätti käteen toisen, oikean löydön. Olentomaailman ja hahmotaulun numeroavaruudet ovat
+erillisiä, ja katsekomento purki toimijaoffsetin aikaisin, niin tavallisen objektin raaka indeksi
+jakoi numeroavaruuden hahmonumeroiden kanssa. Ensimmäinen mittaus luki tämän väärin suuntaan:
+väitti kahdeksantoista keskustelun näyttävän jonkun toisen tavarat. <strong>Ei näytä.</strong>
+Kantaja-kutsu lukee objektin omistajakenttää, ja omistaja alle 256 ON hahmonumero, alkuperäisen
+oman kirjoittajan takaamana rutiinilla joka varmistaa sen tallennuksessa. Nämä kahdeksantoista
+käyttävät omia varusteitaan oikein. Mikä oikeasti oli rikki: katse purki offsetin, niin objekti
+jonka raaka indeksi sattui vastaamaan oikean hahmon numeroa luki tuon hahmon repun. Ja hahmo
+seitsemän sai yleisen kasvokuvan omansa sijaan, koska indeksissä seitsemän istuu haamutyyppi.
+Molemmat korjattu yhdellä jaetulla ratkaisulla moottorissa, jota molemmat piirtotavat ja katse
+käyttävät nyt, niin polut eivät voi enää eriytyä.
+</p>
+
+<p>
+Keskusteluikkuna piirtää nyt myös nimen, lukemalla sen samalla rutiinilla kuin alkuperäinen: puolueen
+jäsenelle paikasta, muulle skriptin omasta otsikosta, ei taulukosta jota sen olisi ollut helppo
+olettaa. Kaksi alkuperäisen omaa omituisuutta säilyivät korjaamattomina ja molemmat ovat jo
+<code>originalBugs.md</code>:ssä: hahmo nollan nimi tulee eri numerosta kuin sen kasvot, ja
+tapaamistesti lukee "lippu on nolla" kun sen pitäisi lukea "tapaamisbitti on nollattu", koska
+kieltäminen sitoutuu ennen maskausta.
+</p>
+
+<h2>Tuhat taistelua ilman poikkeusta</h2>
+
+<p>
+M14:n oma hyväksymisehto on taisto rotan ja luurangon välillä joka päättyy kuten alkuperäisessä, ja
+sarja joka ajaa tuhat simuloitua taistelua ilman poikkeusta. Molemmat vaativat jotain joka
+puuttui: vuorologiikka asui näkymässä, 123 riviä Unity-riippuvuutta joka osoittautui olevan tasan
+yksi uudelleenpiirtolippu. Vuoro siirrettiin moottoriin, ja sarja kasvoi vain viidellä testillä, ei
+yhdelläkään muualla, mikä on juuri se mitä siirron ei pitäisi muuttaa.
+</p>
+
+<p>
+Rotta ja luuranko mitattiin omistajan omasta olentotaulukosta eikä simuloimalla omia sääntöjä
+itseään vastaan. Luuranko voittaa: kaksi ja puoli kertaa enemmän osumapisteitä, korkeampi ketteryys,
+voimalla hyökkäys jota rotalla ei ole. Rotta ei voi paeta: pako vaatii älyn vähintään viisi ja
+rotan on neljä. Ja rotan myrkky <em>tekee</em> jotain, vaikka ensimmäinen arvaus oli että se ei
+tekisi mitään immuunille luurangolle: alkuperäisen myrkkyportti testaa vain hyökkääjän oman
+myrkyllisyyden ja yhden neljästä heiton, ei puolustajan immuniteettia koskaan. Immuuni olento voi
+siis saada myrkytetyn tilansa päälle ja yksinkertaisesti olla vahingoittumatta siitä. Tuhat
+taistoa: 86 millisekuntia, enimmillään 25 kierrosta, keskimäärin 5.7, ja kaksi aiemmin tunnettua
+vikaa löydettiin matkalla, vaeltamisvaste jolla ei ollut suoritusta ja vuoron sulkeminen ennen
+liikettä jota se maksoi, molemmat nyt korjattuina.
+</p>
+
+<h2>Väitteet jotka olivat vanhentuneet</h2>
+
+<p>
+Edellinen kirjoitus listasi viisi omaa virhettä samalta päivältä. Tämä viipale löysi lisää, kahdella
+systemaattisella pyyhkäisyllä eikä sattumalta.
+</p>
+
+<p>
+Ensimmäinen pyyhkäisi olentomaailman oman tiedoston poissaoloväitteet: 75 avattua, <strong>6
+vanhentunutta</strong>, kaikki samassa muodossa, tosia kirjoitushetkellään ja ohitettuja sen jälkeen
+kun jotain rakennettiin. Toinen pyyhkäisi koko <code>Assets/Scripts</code>-puun samoilla
+poissaolon sanoilla, suodattamatta ja katkaisematta: <strong>265 väitettä avattuna 110
+tiedostosta, yhdeksän vanhentunutta.</strong> Yksi niistä oli kahdessa tiedostossa kopioituna, ja
+molemmat korjattiin yhdessä.
+</p>
+
+<p>
+Ja kaksi yksittäistä väitettä peruutettiin omasta aloitteesta, ei pyyhkäisyllä vaan lukemalla.
+Pään-ratkaisun "ensimmäinen kutsupaikka koskaan" oli väärin, hakutulos jo omassa vastauksessa,
+hylätty kommentiksi liian nopeasti. Ja rotan myrkyn "ei tee mitään" oli väärin, pääteltynä
+piirretaulukosta eikä luettuna käsittelijästä. Molemmat ovat samaa muotoa: ei puuttuva haku, vaan
+haun vastauksen heittäminen pois tai piirretaulukon ottaminen käsittelijän sijaan. Väitteet eivät
+mene väärin, ne menevät vanhaksi tai ne syntyvät väärin alusta alkaen, ja ainoa keino erottaa ne
+toisistaan on avata rivi jota väite koskee.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>estävät olennot (200:sta)              198 / 200
+asennon saavat skriptatut npc:t        328 / 563
+istuttavat valtaistuimet                 7 / 81
+loitsivat olennot (200:sta)             33 / 200
+virstanpylväät valmiina                 14 / 24
+työkohdat valmiina                     230 / 254
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     110 / 110
+U6Engine.Tests    5287 / 5287
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Mikään näistä ei ole nähty ruudulla: ne muuttavat
+piirtoa ja liikettä, moottorin säännöt todistettiin rikkomalla ne kymmenin tavoin, ja Unityn
+editorin oma Test Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Olento-liikkujan oma tyyppi on rakennettu viiden lipun joukkona, täsmälleen alkuperäisen
+     viiden ehdon mukaan, ja mikään ei kutsu sitä: lentävä gargoyli kävelee yhä kävelijän
+     sääntöä vastaan. Sen jälkeen partio- ja vartiointivarsi, tappeluvarsi ja ruutitynnyrin
+     räjähdys, kaikki mitattuina ja odottamassa Handoffissa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

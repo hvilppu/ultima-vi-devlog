@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Square Nobody Asked | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/174-ruutu-jolta-ei-kysytty.html" hreflang="fi">FI</a><span>/</span><a href="174-the-square-nobody-asked.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 174</nav>
+
+<h1>The square nobody asked</h1>
+
+<p class="lede">
+In the original, every step asks a square two things: can you stand on the ground, and who is
+already standing there. This project had four separate movement paths and all four asked only the
+first. Now all four ask both, and a creature on a square finally stops you. Around it a lot more
+landed: a townsperson who arrives now sleeps in the bed instead of lying on nothing, a dock and a
+ship's deck can be walked onto, a horse opcode answers instead of throwing an exception, and a
+creature holding a spell weapon actually casts it. And along the way the project swept its own
+claims twice, with a bigger sample each time, and found more stale sentences before anyone could
+build on top of them.
+</p>
+
+<h2>The square nobody asked</h2>
+
+<p>
+The Avatar's own step asked a square just one class, and that class takes a tile bank, an object
+index and the base tiles, and no actor at all. Its own comment said plainly that walls, water and
+furniture stop the step, which is accurate about what it does and silent about what it does not.
+The original blocks an actor through that actor's own tile's impassable flag rather than through
+its being an actor, which is why a reader looking for an actor test finds none.
+</p>
+
+<p>
+The first count against the owner's own export: of 200 live characters, 185 stand on an
+impassable tile and would block a walker in the original, 3 stand on a passable one and would not
+block even there, and 12 have no usable tile. The count was wrong, and the correction made the
+defect bigger rather than smaller. <strong>The real rule: an actor blocks because it is an actor,
+whatever its own tile says, unless it is one of five small critter types and a different type than
+the mover itself.</strong> The tile test only decides which route reaches that rule. Of the 200,
+only one, a mouse, is one of the five critter types; the other exception is slot zero, an empty
+placeholder at the origin. <strong>198 of 200 block.</strong> Proved by breaking it: a dog sits on
+a passable tile and is not a critter, and still blocks; dropping the mouse from the critter list
+fails exactly the test that names it.
+</p>
+
+<p>
+The Avatar's own step now asks both. The same question was then measured for the other three
+movement paths, the party's follow, an NPC's errand step, and a vehicle's move, and all three asked
+the same one class and none of them asked it about an actor either. The party's follow and an
+errand step now share one new adapter, which carries the same own-tile arithmetic that used to sit
+inside the view, and all four call sites go through it instead of repeating it. The vehicle path
+was deliberately left unwired: a ship, a skiff and a balloon ask about wet tiles and walls, the
+actor-collision class carries only the walker's impassable flag, and wiring it in would answer the
+wrong question with the wrong flag. One smaller gap was named rather than patched: an errand NPC is
+not blocked by an able, non-leader party member on an otherwise impassable tile, because the check
+never asks whether the mover is player controlled.
+</p>
+
+<p>
+And one gap is already waiting for the next slice. The original derives flying, swimming and being
+ethereal from the creature's own monster class, never from a vehicle, and here the mover's kind
+still comes from the vehicle alone. The mover is now a set of five flags, matching the original's
+five conditions exactly, rather than one name to choose from, but nothing calls it through a
+creature yet. Fourteen of the 200 live characters fly, every one of them a winged gargoyle, and
+they still walk by the walker's own rule.
+</p>
+
+<h2>Arriving, and now doing something</h2>
+
+<p>
+The original's own turn frame ends every schedule mode with no arm of its own by spending five
+points as a default, and only then does a backstop take ten from an actor whose points never moved
+at all. Here there was no default, so every scheduled behaviour fell through to the backstop and
+paid double. Measured against the owner's own <code>schedules.bin</code>: 563 entries, 18
+behaviours, of which 328 are postures with no turn arm even in the original, 214 have a real rule,
+and 21 sit elsewhere. The default five, the halving for a mounted actor, and the shared wander and
+loiter rules are all built now.
+</p>
+
+<p>
+328 postures got their first visible side this slice. A townsperson told to sleep lies in the bed,
+one told to sit sits down, one told to eat turns to face its plate, one told to play the lute plays
+it. The same code reuses the square's own object list, the asleep flag and the shape change exactly
+as the camp's own unconscious guard already does.
+</p>
+
+<p>
+The build run corrected my own table three times from text I had read line by line. The asleep flag
+is set before the area test fires, so out of area the flag stays set even though the bed search is
+skipped. The prefix that clears the asleep flag and restores the shape runs before <em>every</em>
+action's own area test, so it fires for wandering, loitering and farming too, not only the six
+postures. And standing and guarding carry no area test at all. I had generalised "every arm" from
+the four that actually do it.
+</p>
+
+<h2>Sitting on the throne</h2>
+
+<p>
+The seat search answered no to every throne, and the reason was in the comment: our own covering
+square's part offset might not match the original's. That question had already been answered in a
+different brief weeks earlier, with the same table, and the comment never caught up. The posture
+slice read the comment, believed it, and wrote a sibling chair-and-throne search rather than
+closing the first one. <strong>Counted: <code>originalBugs.md</code> 2.10 measured that 7 of the 81
+sitting schedule entries name a throne.</strong> The search was rewritten to read the covering parts
+instead of a plain square list, the old sibling search was deleted, and a rule came out that
+neither brief had carried: <strong>a throne always seats the NPC facing south regardless of its own
+stored frame, while a chair uses its own frame.</strong> Seven thrones and 74 chairs, none left
+unresolved.
+</p>
+
+<h2>Onto the dock, into the saddle, into the spell</h2>
+
+<p>
+The ground's verdict is a starting value in the original, not a decision, and an object can
+overturn it. The walker's collision code returned false on impassable ground before it looked at
+any object at all, so a dock, a pier and a ship's deck were all unwalkable, and this is exactly the
+path the Avatar's own step, the party's follow and every NPC errand step go through. The rule was
+missing as a shape, not as one condition, which is why the brief asked for the whole shape to be
+rebuilt rather than for one more early exit: the class could only ever block or ignore, never
+permit, even though the original has two branches that do permit. I attacked this exact claim
+against my own worst case before it touched the game's most used rule, because it was the
+strongest claim of the session and the one with the most to lose if wrong. It held, and the attack
+found something stronger still: the class cannot express a permit at all, structurally.
+</p>
+
+<p>
+Measured against the owner's own export: nine schedule destinations sit on impassable ground, all
+ten of those squares hold exactly one object, and it is one object type whose four frames all carry
+the bridge flag. More widely, 42 of 2048 tiles carry it, including the ship's own hull frames, the
+skiff and the raft. One existing number moved because of the fix, and it is a result rather than an
+input: the vehicle path's walkable square count rose from 293629 to 293631, because two squares
+have a bridge followed by a blocker in the same chain, and chain order decides which one wins.
+</p>
+
+<p>
+Three smaller things landed at the same time. Three conversation scripts call a horse opcode that
+used to throw an exception nobody caught; it now moves the NPC to the view centre, writes the
+mounted horse shape from the NPC's own facing, and creates a fresh rear half one step behind, since
+no horse object exists anywhere in this path. No guards: the opcode calls the mount routine
+directly rather than the use command, so all five of the use command's own refusals are simply not
+asked. And a creature that chooses a spellbook or a charged object as its weapon now casts instead
+of doing nothing: the rule already existed and was already tested, only the call was missing. 33 of
+200 live characters belong to a spell-carrying class, fourteen of them the same winged gargoyles the
+flying gap names.
+</p>
+
+<h2>A name and a face, and where both of them actually come from</h2>
+
+<p>
+The look command already had the case for drawing a face, but the branch was an empty
+<code>break</code>, with a comment explaining why: the view's own one-line status log has nowhere to
+put a portrait. That was true when it was written. The conversation window has its own text panel
+now, so the branch was filled in: looking draws the face, waits for a key where neither of the
+conversation's own call sites waits, and the head resolution class gets what was claimed to be its
+first caller ever.
+</p>
+
+<p>
+Claimed, because that part was wrong. The brief said this would be the head resolution's first
+caller ever, and that the project had recorded twice that it had none. It already had one: the
+search found the calling line, and the result was dismissed as a comment because most of the
+surrounding lines genuinely were comments. Same search, same line, wrong reading. Withdrawn.
+</p>
+
+<p>
+The same search left behind a different, real finding. The object world and the character table are
+disjoint id spaces, and the look path undid the actor offset early, so a plain object's raw world
+index shared a number space with the character numbers. The first measurement read this backwards:
+it claimed eighteen conversations show somebody else's belongings. <strong>They do not.</strong>
+The carried-by call keys on an object's owner field, and an owner below 256 IS a character number,
+guaranteed by a routine in the original's own writer that fixes it at save time. Those eighteen wear
+their own equipment correctly. What was actually broken: the look path's own offset collision meant
+that looking at an object whose raw index happened to equal a real character's number read that
+character's pack. And character 7 got a generic face instead of its own, because the object sitting
+at index 7 is a wisp type. Both are fixed by one shared resolution in the engine, used by both
+drawing methods and the look path now, so the two cannot drift apart again.
+</p>
+
+<p>
+The conversation window draws the name too, now, read the same way the original reads it: from the
+party slot for a party member, from the script's own header for everyone else, never from a table
+that would have been easy to assume. Two of the original's own oddities survive unfixed, and both
+are already in <code>originalBugs.md</code>: character zero's name comes from a different number
+than its face, and the met-or-not test reads "the flag byte is zero" when it means "the met bit is
+clear," because the negation binds before the mask.
+</p>
+
+<h2>A thousand fights without exceptions</h2>
+
+<p>
+M14's own acceptance test is a fight between a rat and a skeleton that ends like the original's,
+plus a suite that runs a thousand simulated fights without exceptions. Both needed something that
+was missing: the turn logic lived in the view, 123 lines of Unity dependency that turned out to be
+exactly one redraw flag. The turn moved into the engine, and the suite grew by exactly five tests
+and not one elsewhere, which is what a move that changes nothing else should do.
+</p>
+
+<p>
+The rat and the skeleton were measured against the owner's own monster table rather than by
+simulating our own rules against themselves. The skeleton wins: two and a half times the hit
+points, higher dexterity, an attack with strength the rat does not have. The rat cannot flee: flee
+needs intelligence of at least five and the rat's is four. And the rat's poison <em>does</em> do
+something, even though the first guess was that it would do nothing against an immune skeleton: the
+original's own poison gate tests only the attacker's poisonous trait and a one-in-four roll, never
+the defender's immunity. So an immune creature can be marked poisoned and simply take no damage from
+it. The thousand fights: 86 milliseconds, 25 rounds at the longest, 5.7 on average, and two known
+defects were caught along the way, a wander response with no performance behind it and a turn
+closing before the move it was charging for, both fixed now.
+</p>
+
+<h2>Claims that had gone stale</h2>
+
+<p>
+The last post listed five mistakes from one day. This slice found more, through two systematic
+sweeps rather than by chance.
+</p>
+
+<p>
+The first swept one file's own absence claims about the object world: 75 opened, <strong>6
+stale</strong>, all in the same shape, true when written and overtaken once something got built.
+The second swept the whole <code>Assets/Scripts</code> tree for the same kind of absence sentence,
+unfiltered and untruncated: <strong>265 claims opened across 110 files, nine stale.</strong> One of
+them turned out to be copied into a second file, and both copies were corrected together.
+</p>
+
+<p>
+And two single claims were withdrawn by reading rather than by a sweep. The head resolution's
+"first caller ever" was wrong, with the search result sitting in my own output and dismissed as a
+comment too quickly. The rat's poison "does nothing" was wrong, inferred from a trait table rather
+than read from the handler that actually gates it. Both are the same shape: not a missing search,
+but a search's own answer thrown away, or a trait table taken in place of the handler. Claims do
+not only go wrong by going stale; some are wrong from the moment they are written, and the only way
+to tell the two apart is to open the line the claim is about.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>creatures that block (of 200)          198 / 200
+scripted NPCs with a posture           328 / 563
+thrones that seat an NPC                 7 / 81
+creatures that can cast (of 200)        33 / 200
+milestones done                         14 / 24
+work items done                        230 / 254
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     110 / 110
+U6Engine.Tests    5287 / 5287
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, nothing skipped. Six build targets at 0 warnings and 0
+errors, <code>CheckAsmdefs.ps1</code> with 0 broken references, the leaked-text check clean. None of
+this has been seen on screen: it changes drawing and movement, the engine rules were proved by
+breaking them ten different ways, and Unity's own editor Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The creature's own mover is built as a set of five flags, matching the original's five
+     conditions exactly, and nothing calls it: a flying gargoyle still walks by the walker's rule.
+     After that the patrol and guard arm, the tavern brawl, and the powder keg's detonation, all
+     measured and waiting in Handoff.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
