@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Fuse That Never Burned Down | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/175-lanka-joka-ei-koskaan-palanut-loppuun.html" hreflang="fi">FI</a><span>/</span><a href="175-the-fuse-that-never-burned-down.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 175</nav>
+
+<h1>The fuse that never burned down</h1>
+
+<p class="lede">
+The schedule is finished now: all eighteen behaviours have an arm of their own, or a measured
+reason not to need one. A guard finally walks its own post, a brawler picks a fight with whoever
+is nearest, and a townsperson told to converse walks up to you and opens a conversation unasked.
+A powder keg whose fuse was already lit finally burns all the way down: the blast reaches the
+kegs beside it and blows one door off every square it touches. And a flying creature now stops at
+another flying creature, where it used to slide right through. In between, this stretch spent a
+good part of its time correcting its own numbers, four of them my own brief's mistakes, and the
+build runs caught every one of the four.
+</p>
+
+<h2>A guard walks its own post</h2>
+
+<p>
+Twelve schedule entries name a guard's direction, and none of them did anything before this
+slice. The arm is built now, to four measured rules: exactly half the time the guard waits and
+spends five points, where every other arm uses one chance in eight; the direction comes from the
+schedule mode only when the guard is standing exactly on its scheduled square, and from its
+current facing otherwise, and that mode comparison is what tells a guard apart from a patroller; a
+blocked step turns through exactly 180 degrees and restores the failed attempt's points first, so
+it costs one move and not two; and the second attempt's result is never read at all, so a guard
+blocked both ways simply stays put.
+</p>
+
+<p>
+The rate is measured and recorded on both sides in the comment: this seed's coin reads 0.4994,
+and the one-in-eight constant, run rather than predicted, reads 0.124175, well clear of the coin.
+Two other rate bands had already been redone earlier the same day for having been padded out to
+clear a theoretical figure instead of a measured one, and this is not one of those.
+</p>
+
+<p>
+<code>RestorePoints</code> moved out of the combat AI to sit beside <code>Spend</code>, because a
+patrol is not combat, and its five existing callers came along with the count unchanged. The same
+move as the alligator constant that the mover brief pulled out of the slime spell earlier.
+</p>
+
+<h2>The brawl, the conversation, and a finished schedule</h2>
+
+<p>
+The last two scheduled behaviours are built, and after them all eighteen have an arm or a measured
+reason not to need one. The brawl is loitering with a punch in it: one turn in four it looks for an
+opponent within five squares of the <em>brawl spot</em>, not of itself, closes in if the opponent
+is far, and if one is already adjacent it lands a blow and walks back to its own spot. Everything
+else falls through to ordinary loitering. The opponent pick needed nothing new, because the target
+choice already skips the alignment filters for the same five modes the original skips them for,
+the brawl among them. The blow sets the victim's hurt-this-turn bit and deals no damage.
+</p>
+
+<p>
+Conversing walks the NPC to the nearest visible party member and opens a conversation on arrival,
+and it shares its code with the thief mode. The mode is overwritten to loiter before the thief
+test runs, which is <code>originalBugs.md</code> 2.30 imitated: the entry arm is never branched on
+at all, because the original cannot tell the two modes apart once the overwrite has run. A fault
+test that skipped the overwrite for a thief, which is the forbidden working theft, fails its own
+assertion: the theft must never actually run, and it does not.
+</p>
+
+<p>
+The build run corrected my brief by reading six lines further than I had. I wrote that the hit
+display is wholly gated by one flag. It is not: a sleeping victim wakes outside that gate, the
+wake also restores the original shape, and the flag resets itself at the end of the turn, so it is
+a one-shot suppressor rather than a setting. The wake is the visible half now that the postures
+exist: a brawler's punch gets a sleeping townsperson up.
+</p>
+
+<p>
+Three near misses the run caught in its own tests are worth recording plainly. A rate test
+compared a second stream from the same random generator to itself instead of driving the actual
+code. A gate test put the actor and the opponent on the same square, so it could not tell the two
+cases apart. And a destination test put the opponent exactly on the target square, so swapping the
+two destinations the other way round would have been invisible. All three were found and fixed
+before the suite was trusted.
+</p>
+
+<h2>The fuse that never burned down</h2>
+
+<p>
+A lit powder keg burned and nothing happened. The detonation is built now and the chain is closed
+end to end rather than left as a rule nobody calls: the fuse now answers which keg is due, the
+world clock ticks it and skips it during a time stop the same way the original's own early return
+does, and the view detonates it and applies each hit through the same damage path the fireball's
+wind already uses.
+</p>
+
+<p>
+The rule itself, as measured. A keg in a pack explodes at its carrier's own square, walking the
+holder chain until something is sitting on the map, which is the branch a build skips because a
+keg on the ground is the obvious case. The keg is deleted before the hit list is built, so it is
+never in its own list. One to sixty points of damage per hit, to single objects only, so a stack
+survives a blast that hurts the person standing beside it. And the chain reaction is five wide and
+four tall, because the column loop is inclusive and the row loop is not, so the square two rows
+below is never visited: a five-by-five build fails exactly that one test case and nothing else.
+The door cascade tries four types in a fixed order and blows the first acceptable one, proved on a
+square that holds a magically locked steel door and an ordinary oaken one at once and loses the
+oaken one.
+</p>
+
+<p>
+The build run also did a structural cleanup that was already due, rather than pushing it further
+out: three explosion-scan helpers were local functions inside the spellbook cast, and the keg
+needed the same ones, so they became instance methods, and there is now one definition instead of
+two. The same kind of move this project's own order-of-work rule asks for while the file is still
+one file.
+</p>
+
+<p>
+And it corrected my brief. I asked for "something in the running world that owns an instance of
+the fuse," and the view has held one since an earlier slice, and had already lit it. What was
+missing was only the clock's call and the detonation itself, which makes the defect sharper than I
+wrote it: the fuse was lit and simply never burned down. I counted an owner as absent without
+grepping for the field first.
+</p>
+
+<p>
+The explosion's equivalence to the original's own routine was re-derived rather than taken on
+trust from a documented return value: sixteen trails on a fixed offset pattern, and both offset
+tables match the original's order exactly; the centre tile's own actors are appended under three
+conditions, all three present; the break on a candidate tile that blocks missiles, present through
+the same tile bit; and the documented terminator, absent from the returned content. And the damage
+skip condition the brief had left unmeasured is in the original's own comment: four is gold, where
+the whole amount is the count; two is a stack; zero is a single object, so the blast only ever
+damages the zero type, and a ready primitive elsewhere in the engine already answers exactly that,
+so no second table had to be written.
+</p>
+
+<p>
+The fumarole's two arms are left for the next slice, both named rather than left as an uncalled
+coin again: wiring them needs reading the eruption flag's own lifecycle and working out where the
+end of turn sits in this project's own loop.
+</p>
+
+<h2>A creature stops another creature</h2>
+
+<p>
+A flying creature flew over terrain once the mover's own facts were wired in, and it still flew
+over other creatures. The actor half is built now: the collision entry gains its own wall bit and
+whether its class flies, and the flier's branch lets an object through on a non-wall tile and
+drops a non-flying actor into the same common tail, which stays unchanged. Being ethereal was
+checked rather than assumed: the original's own ethereal branch only ever exempts an object and
+never an actor, so the existing fallback already answered correctly and there was nothing to add.
+</p>
+
+<p>
+Fourteen live winged gargoyles are the only flying class in the running world. Of the five small
+critter types, two fly, and neither is live in the owner's world, and the one live critter does
+not fly, so the tail already exempts it correctly today. The headline rule therefore does not meet
+a player today; it only becomes reachable through the creature generator and egg hatching. What
+does meet a player today is the half the previous slice built: an ordinary actor blocks a flier,
+because the gargoyles are live and every townsperson is an ordinary actor.
+</p>
+
+<p>
+And a number I had been repeating all day is wrong. 198 of 200 that block a walker is the
+original's own count, whose tail blocks an actor outright regardless of its own tile. Measured
+here twice, once by the build run against the real character file through the production call and
+once by me independently: it is 187 for an ordinary mover and 184 for the Avatar. The arithmetic
+is 200 live, minus 12 with no usable own tile, minus the one live small critter, and for the Avatar
+minus the three able non-leader party members the swap exception exempts. Those twelve are the
+remaining divergence from the original, and they are ours: the adapter skips a character whose
+tile cannot be read rather than inventing a rule. 198 was a pure object-type classification that
+folded in neither exemption, and I repeated it across several commit messages and a later brief as
+though it described this project. All four numbers are now pinned by one test.
+</p>
+
+<p>
+A smaller miscount of my own turned up in the same wiring work. My brief said the view has 41 of
+these call sites and 39 that must not change. It is 40 appearances, two of them inside comments,
+so the real count is 38 call sites and 36 that must not change. I had the grep output on screen and
+counted the lines by eye instead of running <code>wc -l</code>, which this project's own rules say
+to do first and say costs nothing, and I had not separated the comment hits from the code, the
+same distinction I had been applying to everyone else's claims all day.
+</p>
+
+<h2>What the save milestone's "done" mark does not say</h2>
+
+<p>
+M18 is marked done except for one parity test, and the mark is defensible on its own terms: the
+milestone's gate is a parity test rather than a player-facing feature, as its own first bullet
+says, and the tools side meets it. The loader builds a live world from the owner's own save files,
+and fourteen tests prove the writer against those same files, sixty nine files and every object
+exactly once.
+</p>
+
+<p>
+What the mark does not show is that in the game, saving is wired and loading is not. And that
+entry went stale inside the same day, because I wrote in it that the loader sits in a Tools
+assembly Unity cannot see. Its readers do not: both are in the engine. I looked at the loader and
+drew a conclusion about its dependencies without searching for where they live, which is this very
+day's own recurring mistake. What is on the wrong side is only the format bridge, and the decision
+is made rather than open: the two writers move into the engine beside the parsers that read their
+output and write to memory, because new constructors would mean writing the same hundred and
+seventeen lines of field mapping a second time in the other direction, which is two copies of one
+piece of knowledge.
+</p>
+
+<p>
+Found by chasing a symptom rather than by looking for it. <code>U6DefaultCommand</code> has a
+<code>ClearForLoad</code> with two test references and no production caller, and the view's own
+comment says it is waiting for a game load. It is waiting for a load that does not exist.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>scheduled behaviours with an arm       18 / 18
+guard patrol schedule entries              12
+brawl schedule entries                     10
+converse schedule entries                   3
+creatures that block, ordinary mover   187 / 200
+creatures that block, the Avatar       184 / 200
+live characters that fly                14 / 200
+collision call sites in the view       38 / 40
+milestones done                        14 / 24
+work items done                       233 / 257
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5366 / 5366
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, nothing skipped. Six build targets at 0 warnings and
+0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken references, the leaked-text check clean.
+None of this has been seen on screen: it changes computation and movement, the engine rules were
+proved by breaking them ten different ways, and Unity's own editor Test Runner was
+<strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Four things are waiting in Handoff, all measured: the fumarole's eruption, which has a coin
+     built and two arms left; loading a saved game at runtime, whose shape is decided now and
+     which waits for its own slice; the big fliers' own wall rule; and the mouse's own squeeze
+     through holes and bars.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

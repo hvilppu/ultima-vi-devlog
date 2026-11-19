@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lanka Joka Ei Koskaan Palanut Loppuun | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="175-lanka-joka-ei-koskaan-palanut-loppuun.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/175-the-fuse-that-never-burned-down.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 175</nav>
+
+<h1>Lanka joka ei koskaan palanut loppuun</h1>
+
+<p class="lede">
+Aikataulu on nyt valmis: kaikilla kahdeksallatoista käytöksellä on oma varsi tai mitattu syy
+ilman sitä. Vartija kävelee vihdoin omaa reittiään, tappelija hakee lähimmän riidan, ja
+keskusteluun käsketty kyläläinen kävelee luoksesi ja aloittaa puheen kysymättä. Ruutitynnyri
+jonka lanka oli jo sytytetty palaa vihdoin loppuun: räjähdys leviää viereisiin tynnyreihin ja
+puhaltaa yhden oven joka ruudulta. Ja lentävä olento pysähtyy nyt toisen lentävän olennon eteen,
+missä se ennen lipui läpi. Niiden välissä tämä viipale käytti ison osan ajastaan omien lukujensa
+korjaamiseen, neljä niistä oli omia briefivirheitäni, ja rakennusajot löysivät kaikki neljä.
+</p>
+
+<h2>Vartija kävelee omaa reittiään</h2>
+
+<p>
+Kaksitoista aikataulumerkintää nimeää vartijan suunnan, eikä yksikään niistä tehnyt mitään ennen
+tätä viipaletta. Varsi on nyt rakennettu neljän mitatun säännön mukaan: tasan puolet kerroista
+vartija odottaa ja kuluttaa viisi pistettä, kun jokainen muu varsi käyttää yhtä kahdeksasta;
+suunta otetaan moodista vain kun vartija seisoo tarkalleen omalla aikataulutetulla ruudullaan, ja
+muulloin nykyisestä suunnasta, ja juuri tämä moodivertailu erottaa vartijan partioijasta; estetty
+askel kääntää suunnan tasan 180 astetta ja palauttaa epäonnistuneen yrityksen pisteet ensin, niin
+se maksaa yhden liikkeen eikä kahta; ja toisen yrityksen tulosta ei lueta ollenkaan, niin
+molempiin suuntiin estetty vartija pysyy paikallaan.
+</p>
+
+<p>
+Nopeuden mittaus on kirjattu koodin kommenttiin molemmin puolin: tämän siemenen kolikko lukee
+0.4994, ja yhden kahdeksasosan vakio, ajettu eikä ennustettu, lukee 0.124175, selvästi kolikon
+ulkopuolella. Kaksi muuta nopeusvälilyötiin jo aiemmin samana päivänä, koska ne oli venytetty
+kattamaan teoreettinen luku eikä mitattu, ja tämä ei ole sellainen.
+</p>
+
+<p>
+<code>RestorePoints</code> siirrettiin pois taistelutekoälystä <code>Spend</code>:n viereen,
+koska partio ei ole taistelua, ja sen viisi olemassa olevaa kutsujaa seurasivat mukana laskun
+muuttumatta. Sama siirto kuin alligaattorivakiolle, jonka liikkujabriefi siirsi pois limalumasta
+aiemmin.
+</p>
+
+<h2>Tappelu, keskustelu, ja aikataulu valmiina</h2>
+
+<p>
+Kaksi viimeistä aikataulukäytöstä ovat rakennettuja, ja sen jälkeen kaikilla kahdeksallatoista on
+varsi tai mitattu syy ilman sitä. Tappelu on vaanimista jossa on nyrkki mukana: neljäsosan
+vuoroista se etsii vastustajaa viiden ruudun sisällä <em>tappelupaikasta</em>, ei itsestään,
+lähestyy jos tämä on kaukana, ja jos vastustaja on jo vieressä, lyö ja kävelee takaisin omalle
+paikalleen. Kaikki muu putoaa tavalliseen vaanimiseen. Vastustajan valinta ei tarvinnut mitään
+uutta, koska kohteen valinta jo ohittaa yhteenkuuluvuussuodattimet samoille viidelle moodille
+joille alkuperäinen ohittaa ne, tappelu mukaan lukien. Lyönti asettaa uhrin "tällä vuorolla
+satutettu" -lipun ja ei tee vahinkoa.
+</p>
+
+<p>
+Keskustelu kävelee kyläläisen lähimmän näkyvän puolueenjäsenen luo ja avaa keskustelun
+saapuessaan, ja se on jaettu varkaan moodin kanssa. Moodi ylikirjoitetaan vaanimiseksi ennen
+varkaustestiä, ja se on <code>originalBugs.md</code> 2.30 jäljiteltynä: tulohaaraa ei
+haaroiteta ollenkaan, koska alkuperäinen ei pysty erottamaan kahta ylikirjoituksen jälkeen. Yksi
+vikatesti, joka ohittaisi ylikirjoituksen varkaalle ja saisi varkauden toimimaan, kaatuu omaan
+testiinsä: varkaus ei saa koskaan toimia, ja niin ei tapahdu.
+</p>
+
+<p>
+Rakennusajo korjasi briefiäni lukemalla kuusi riviä pidemmälle kuin minä. Kirjoitin että
+osumanäyttö on kokonaan yhden lipun takana. Ei ole: nukkuva uhri herää tämän lipun ulkopuolella,
+herääminen palauttaa myös alkuperäisen muodon, ja lippu palautuu itse vuoron lopussa, niin se on
+kertaluonteinen vaimennin eikä asetus. Herääminen on nyt näkyvä puoli, koska asennot on rakennettu:
+tappelijan nyrkki herättää nukkuvan kyläläisen.
+</p>
+
+<p>
+Kolme läheltä piti -tilannetta rakennusajo löysi omista testeistään, ja ne on syytä kirjata
+suoraan: nopeustesti vertasi toista satunnaislukugeneraattorin virtaa itseensä sen sijaan että
+olisi ajanut toteutusta; porttitesti asetti toimijan ja vastustajan samalle ruudulle niin että
+testi ei voinut erottaa kumpaa tapausta se mittasi; ja kohdetesti asetti vastustajan tasan
+kohteen paikalle niin että kahden kohteen vaihtuminen toisin päin olisi ollut näkymätön.
+Kaikki kolme löydettiin ja korjattiin ennen kuin sarjaan luotettiin.
+</p>
+
+<h2>Lanka joka ei koskaan palanut loppuun</h2>
+
+<p>
+Sytytetty ruutitynnyri paloi ja mitään ei tapahtunut. Räjähdys on nyt rakennettu ja ketju suljettu
+päästä päähän, ei jätetty säännöksi jota kukaan ei kutsu: lanka vastaa nyt kysymykseen mikä
+tynnyri on erääntynyt, maailmankello tikittää sitä ja ohittaa sen ajan pysähdyksen aikana samalla
+tavalla kuin alkuperäisen varhainen palautus, ja näkymä räjäyttää ja kohdistaa iskut samaa
+vahinkopolkua pitkin jota tulipallon tuuli jo käyttää.
+</p>
+
+<p>
+Sääntö itse, mitattuna: pakkauksessa oleva tynnyri räjähtää kantajan omalla ruudulla, kävelemällä
+omistajaketjua kunnes jokin on kartalla, mikä on haara jonka rakennus ohittaa koska maassa oleva
+tynnyri on se ilmeinen tapaus. Tynnyri poistetaan ennen iskulistan rakentamista, niin se ei
+ikinä ole omassa listassaan. Yhdestä kuuteenkymmeneen vahinkopistettä per isku, vain yksittäisiin
+objekteihin, niin pino säilyy räjähdyksestä joka satuttaa vierellä seisovan. Ja ketjureaktio on
+viisi leveä ja neljä korkea, koska sarakesilmukka on mukaanlukeva eikä rivisilmukka, niin kaksi
+riviä alempana oleva ruutu ei koskaan käydä läpi: viidestä viiteen rakennettu toteutus epäonnistuu
+tasan tämän yhden testitapauksen kohdalla eikä missään muussa. Ovikasauma kokeilee neljää tyyppiä
+kiinteässä järjestyksessä ja räjäyttää ensimmäisen hyväksyttävän, mikä todistetaan ruudulla joka
+sisältää yhtä aikaa maagisesti lukitun teräsoven ja tavallisen tammioven ja menettää tammioven.
+</p>
+
+<p>
+Rakennusajo teki samalla rakenteellisen siivouksen joka oli jo erääntynyt sen sijaan että
+siirtäisi sen eteenpäin: kolme räjähdyksen etsintäapumetodia olivat loitsukirjan heiton omia
+paikallisia funktioita, ja tynnyri tarvitsi samat, niin niistä tuli instanssimetodeja ja
+määritelmä on nyt yksi kahden sijaan. Juuri sellainen siirto jonka tämän projektin oma
+työjärjestyssääntö sanoo tehtäväksi silloin kun tiedosto on vielä yksi.
+</p>
+
+<p>
+Ja se korjasi briefiäni. Pyysin "jotakin käynnissä olevassa maailmassa, joka omistaa langan
+instanssin", ja näkymä on kantanut sellaista aiemmasta viipaleesta lähtien, ja oli jo sytyttänyt
+sen. Puuttumassa oli vain kellon kutsu ja itse räjähdys, mikä tekee viasta terävämmän kuin
+kirjoitin sen: lanka oli sytytetty ja yksinkertaisesti ei palanut loppuun koskaan. Laskin omistajan
+puuttuvaksi grepaamatta kenttää ensin.
+</p>
+
+<p>
+Räjähdyksen vastaavuus alkuperäisen omaan rutiiniin johdettiin uudelleen eikä oletettu dokumentoidun
+paluuarvon perusteella: kuusitoista jälkeä kiinteällä siirtymäkaavalla, ja molemmat siirtymätaulukot
+täsmäävät alkuperäisen järjestykseen; keskiruudun omat toimijat liitetään kolmen ehdon alla, läsnä
+kaikki kolme; katkaisu kun ehdokasruutu estää ammukset, läsnä samalla tiililipulla; ja
+dokumentoitu terminaattori poissa palautetusta sisällöstä. Ja vahingon ohitusehto, jota brief oli
+jättänyt mittaamatta, on alkuperäisen omassa kommentissa: neljä on kultaa jossa koko määrä on
+laskuri, kaksi on pino, nolla on yksittäinen objekti, niin räjähdys satuttaa vain nollan tyyppiä,
+ja tälle oli jo valmis primitiivi muualla moottorissa eikä toista taulukkoa tarvinnut kirjoittaa.
+</p>
+
+<p>
+Fumarolin kaksi haaraa jäivät seuraavaan viipaleeseen, molemmat nimettynä eikä jätettynä
+kutsumattomaksi kolikoksi uudelleen: niiden kytkeminen vaatii purkaustilan elinkaaren lukemista ja
+sen selvittämistä missä vuoron loppu istuu tämän projektin omassa silmukassa.
+</p>
+
+<h2>Peto joka pysäyttää toisen pedon</h2>
+
+<p>
+Lentävä olento lensi maaston yli sen jälkeen kun liikkujan mittaustieto kytkettiin, ja lensi yhä
+toisten olentojen yli. Toimijapuoli on nyt rakennettu: törmäysmerkintä saa oman seinälippunsa ja
+tiedon lentääkö sen luokka, ja lentäjän haara päästää objektin läpi ei-seinätiilellä ja pudottaa
+lentämättömän toimijan samaan yhteiseen häntään, joka pysyy muuttumattomana. Haamumaisuus
+tarkistettiin eikä oletettu: alkuperäisen haamuhaara vapauttaa aina vain objektin eikä koskaan
+toimijaa, niin olemassa oleva varatie vastaa jo oikein eikä lisättävää ollut.
+</p>
+
+<p>
+Neljätoista elävää siivekästä gargoylea on ainoa lentävä luokka joka on käynnissä olevassa
+maailmassa. Viiden pienen otustyypin joukosta kaksi lentää, ja kumpikaan ei ole käynnissä
+omistajan maailmassa, ja ainoa käynnissä oleva otus ei lennä, niin häntä vapauttaa sen oikein
+jo tänään. Otsikon sääntö ei siis kohtaa pelaajaa tänään, se tulee tavoitettavaksi vasta
+olentogeneraattorin ja munan kuoriutumisen kautta. Mikä kohtaa pelaajan tänään on puoli jonka
+edellinen viipale rakensi: tavallinen toimija pysäyttää lentäjän, koska gargoylet ovat käynnissä
+ja joka kyläläinen on tavallinen toimija.
+</p>
+
+<p>
+Ja luku jota olen toistanut koko päivän on väärä. 198 kahdestasadasta, jotka pysäyttävät kävelijän,
+on alkuperäisen oma luku, jonka häntä pysäyttää toimijana aina riippumatta sen omasta tiilestä.
+Mitattu tässä kahdesti, kerran rakennusajon toimesta omaa hahmotiedostoa vastaan tuotantokutsun
+läpi ja kerran minun toimestani riippumattomasti: se on 187 tavalliselle kulkijalle ja 184
+Avatarille. Aritmetiikka on 200 käynnissä, miinus 12 joiden omaa tiiltä ei voi lukea, miinus yksi
+käynnissä oleva pieni otus, ja Avatarille miinus kolme kykenevää puolueenjäsentä jotka
+vaihtopoikkeus vapauttaa. Nämä kaksitoista ovat jäljellä oleva poikkeama alkuperäisestä ja ne ovat
+omiamme: sovitin ohittaa hahmon jonka omaa tiiltä ei voi lukea sen sijaan että keksisi säännön.
+198 oli puhdas objektityyppiluokittelu joka ei laskenut kumpaakaan mukaan, ja toistin sitä
+useissa commit-viesteissä ja myöhemmässä briefissä kuin se kuvaisi tätä projektia. Kaikki neljä
+lukua on nyt yhden testin kiinnittämänä.
+</p>
+
+<p>
+Pienempi oma laskuvirhe löytyi samalla kutsupaikan kytkemisestä. Briefini sanoi näkymällä olevan
+41 näitä kutsupaikkoja ja 39 joita ei saa muuttaa. Se on 40 esiintymää, kaksi niistä kommentin
+sisällä, niin oikea luku on 38 todellista kutsupaikkaa ja 36 joita ei saa muuttaa. Minulla oli
+grep-tuloste ruudulla ja laskin rivit silmällä sen sijaan että olisin ajanut <code>wc -l</code>:n,
+jonka tämän projektin omat säännöt sanovat tehtäväksi ensin ja joka ei maksa mitään, eikä erottanut
+kommenttiosumia koodista, sama erottelu jota olin soveltanut muiden väitteisiin koko päivän.
+</p>
+
+<h2>Mitä tallennuksen "valmis"-merkki ei sano</h2>
+
+<p>
+M18 on merkitty valmiiksi lukuun ottamatta yhtä pariteettitestiä, ja merkintä on puolustettavissa
+omilla ehdoillaan: virstanpylvään portti on pariteettitesti eikä pelaajan oma ominaisuus, kuten
+sen ensimmäinen kohta sanoo, ja työkalupuoli täyttää sen. Lataaja rakentaa elävän maailman
+omistajan omista tallennustiedostoista, ja neljätoista testiä todistaa kirjoittajan samoja
+tiedostoja vastaan, kuusikymmentäyhdeksän tiedostoa ja joka objekti tasan kerran.
+</p>
+
+<p>
+Mitä merkinnästä ei näe: pelissä tallentaminen on kytketty ja lataaminen ei. Ja se kohta
+ehti vanhentua saman vuorokauden sisällä, koska kirjoitin siihen että lataaja on
+Tools-kokoonpanossa jota Unity ei näe. Sen lukijat eivät ole: molemmat ovat moottorissa.
+Katsoin lataajaa ja päättelin sen riippuvuuksista greppaamatta mistä ne löytyvät, mikä on tämän
+saman päivän oma toistuva virhe. Väärällä puolella on vain muotosilta, ja päätös on nyt tehty
+eikä auki: kirjoittajat siirtyvät moottoriin jäsentäjiensä viereen ja kirjoittavat muistiin,
+koska uudet konstruktorit tarkoittaisivat saman noin 117 rivin kenttäkuvauksen kirjoittamista
+toiseen suuntaan, eli kahta kopiota yhdestä tiedosta.
+</p>
+
+<p>
+Löytyi oireesta eikä etsimällä. <code>U6DefaultCommand</code>:lla on <code>ClearForLoad</code>,
+johon viittaa kaksi testiä eikä yhtäkään tuotantokutsua, ja näkymän oma kommentti sanoo sen
+odottavan pelin latausta. Se odottaa latausta jota ei ole.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>aikataulukäytökset joilla on varsi      18 / 18
+vartijan partiomerkintöjä                   12
+tappeluvarsi, merkintöjä                    10
+keskusteluvarsi, merkintöjä                  3
+estävät olennot, tavallinen kulkija     187 / 200
+estävät olennot, Avatar                 184 / 200
+lentävät elävät hahmot                   14 / 200
+törmäyskutsupaikat näkymässä            38 / 40
+virstanpylväät valmiina                  14 / 24
+työkohdat valmiina                      233 / 257
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5366 / 5366
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Mikään näistä ei ole nähty ruudulla: ne
+muuttavat laskentaa ja liikettä, moottorin säännöt todistettiin rikkomalla ne kymmenin tavoin, ja
+Unityn editorin oma Test Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Neljä asiaa odottaa, kaikki mitattuina: fumarolin purkaus, jolla on kolikko
+     rakennettuna ja kaksi haaraa jäljellä; tallennetun pelin lataaminen ajonaikana, jonka muoto
+     on nyt päätetty ja joka odottaa omaa viipalettaan; isompien lentäjien oma seinäsääntö;
+     ja hiiren oma pujahdus reikien ja ritilöiden läpi.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
