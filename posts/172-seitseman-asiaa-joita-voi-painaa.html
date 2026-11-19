@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seitsemän Asiaa Joita Voi Painaa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="172-seitseman-asiaa-joita-voi-painaa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/172-seven-things-you-can-press.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 172</nav>
+
+<h1>Seitsemän asiaa joita voi painaa</h1>
+
+<p class="lede">
+Neljä mitattua päätöstä odotti omistajaa, ja hän antoi tehdä ne itse. Niiden jälkeen laskeutui
+seitsemän asiaa joita pelaaja voi painaa: tallennus, sekstantti, kaivaminen, sauva, kuukivien
+pallo, hevonen ja kirjan teksti. Käytettävistä tyypeistä vastaa nyt 78 kahdeksastakymmenestäviidestä.
+</p>
+
+<h2>Tallennus kirjoitti maailman, ja ensin se melkein tuhosi sen lähteen</h2>
+
+<p>
+Koko tallennuskoodi oli rakennettu ja testattu, eikä peli voinut kutsua sitä: luokat olivat
+työkalupuolella, jota Unity ei näe. Siirto oli kolme tiedostoa.
+</p>
+
+<p>
+Ja sitten se vaarallinen kohta. Omistajan <code>SAVEGAME</code>-hakemisto on se paikka josta koko
+viennin lähtötila luetaan. Oma <code>Ctrl-S</code> kirjoittaa samaan hakemistoon. Yksi painallus
+olisi korvannut lähtötilan pelatulla tallennuksella, ja ainoa asia joka olisi huomauttanut on
+testi joka väittää ettei yhtäkään 2048 lipusta ole asetettu. Näkymä kopioi hakemiston nyt sivuun
+kerran ennen ensimmäistä kirjoitusta ja <strong>kieltäytyy tallentamasta jos kopiota ei saa
+tehtyä</strong>.
+</p>
+
+<h2>Räjähdys ei suojannut ketään</h2>
+
+<p>
+Olento- ja objektiavaruuksien yhdistäminen oli toinen päätös, ja se sai oman luokkansa jossa
+<strong>järjestyksellä ei ole oletusarvoa</strong>: kutsuja joka ei päätä kumpi puoli on ensin ei
+käänny. Se kuulostaa pedantilta. Se löysi vian samana päivänä.
+</p>
+
+<p>
+Räjähdysskannaus pysähtyy ensimmäiseen ammukset estävään ehdokkaaseen. Näkymä syötti sille hahmot
+ensin, joten <strong>yksikään objekti ei voinut koskaan tulla ennen hahmoa</strong>, eikä mikään
+ruudulla voinut suojata mitään. Kommentti sanoi suoraan ettei järjestystä ole mitattu, ja se oli
+rehellinen kirjoitushetkellään. Mittaus osoitti sen päinvastaiseksi.
+</p>
+
+<p>
+Se on silti ero, ja sekä kommentti että testi sanovat sen: objektit ensin suojaa jokaisen hahmon
+ruudulla jolla on yksi estävä objekti, kun alkuperäinen suojaa vain sen joka on sen takana ruudun
+omassa ketjussa. <strong>Objektit ensin säilyttää käyttäytymisen olemassaolon ja yliampuu sen;
+hahmot ensin poisti sen.</strong>
+</p>
+
+<h2>Nolla astetta on pohjoista</h2>
+
+<p>
+Sekstantti tulostaa leveys- ja pituusasteen, ja aritmetiikassa on neljä kohtaa jotka on helppo
+kirjoittaa väärin. Kirjaintesti on <em>aidosti</em> suurempi kuin nolla, joten kahdeksan riviä
+origosta etelään tulostaa nolla pohjoista eikä mikään koskaan nolla etelää. Jako on aritmeettinen
+siirto eikä jakolasku, mikä erottaa yhden ruudun origosta pohjoiseen: siirto sanoo yksi, jako
+sanoo nolla.
+</p>
+
+<p>
+Ja kolmas on ansa. Tasonvaihdolla on oma koordinaattimuunnoksensa joka säilyttää tiilen paikan
+lohkonsa sisällä, ja tulostus käyttää pelkkää siirtoa. Ne eroavat enintään kahdella asteella.
+<strong>Muunnos näyttää oikealta kaavalta ja on eri rutiini</strong>, joten testi naulaa eron,
+ettei kukaan korvaa toista toisella.
+</p>
+
+<h2>Kaivamisen heitot, ja raja joka ei erotellut mitään</h2>
+
+<p>
+Kaivaminen toimii melkein missään: neljällä tiilellä tasoilla 1-4, plus yksi kovakoodattu ruutu
+pinnalla. Lähde on yksi 32:sta ja kultahippu yksi kymmenestä <em>niistä kaivuista jotka eivät
+olleet lähde</em>, eli hipun todellinen osuus on 31/320.
+</p>
+
+<p>
+Todistin sen rikkomalla: vaihdoin heitot päittäin, ja <strong>kaikki kaksitoista testiä menivät
+läpi</strong>. Vaihto jättää "ei löytynyt mitään" -osuuden tasan 279/320:een ja siirtää kahta
+muuta vain sadalla 32000:ssa. Rajani olivat kolmesataa leveitä. Mittasin 320000 kaivulla: 9758,
+31642, 278600. Järjestys naulataan nyt tasan neljänkymmenen lopputuloksen jonolla yhdestä
+siemenestä, ja uudelleenvaihto kaataa sen.
+</p>
+
+<h2>Kolme ruutua joita ei voi tavoittaa, ja ne ovat suunnittelu</h2>
+
+<p>
+Kuukivien pallo avaa punaisen portin siihen mihin osoitat viisi kertaa viisi -ruudun sisällä, ja
+kaava antaa portin laaduksi arvot 1-25. Kolmea niistä ei voi koskaan tuottaa, koska ryhmän oman
+rivin kolme keskimmäistä ruutua menevät haaraan joka tarkoittaa "pysy paikallasi".
+</p>
+
+<p>
+Se näytti vialta. Se ei ole: kohdetaulut on kirjoitettu viitenä viiden rivinä, eli pallon omana
+ruudukkona, <strong>ja juuri niiden kolmen kohdalla taulut ovat nollia</strong>. Kaava ja taulu
+ovat täydellisesti samaa mieltä. Epäily peruttiin eikä mitään mennyt vikalistaan.
+</p>
+
+<h2>Hevonen, jota kukaan ei ollut listannut</h2>
+
+<p>
+Kysyin dispatchilta itseltään mitkä käytettävät tyypit vielä vastaavat "ei rakennettu", enkä
+koonnut listaa grepillä. Yksitoista. Suunnitelman oma luettelo nimesi kolmetoista tyyppiä eikä
+mainitse <strong>kumpaakaan hevosta</strong>, vortex-kuutiota eikä gargish-sanastoa.
+</p>
+
+<p>
+Ratsastettu hevonen on kaksi objektia, ja takapuoli on askel taaksepäin suunnasta. Ratsastaja ei
+saa ajoneuvoa: ratsastaja <em>muuttuu</em> ratsastetuksi hevoseksi, mikä on syy siihen että
+laskeutuminen tarvitsee alkuperäisen muodon takaisin tallennuksesta.
+</p>
+
+<p>
+Ja paras kohta on absurdin näköinen rivi. Alkuperäinen asettaa hevosen tyypin <em>kullaksi</em>
+juuri ennen poistoa, ja oma kommentti kertoo miksi: niin ettei poisto vie myös takapuolta, jonka
+nousu on kohta käyttämässä uudelleen. Brief vaati vastauksen ennen rivin kopiointia.
+<strong>Vastaus oli kieltävä</strong>: tämän projektin hahmopoisto ei käy olennon lisätiiliä läpi
+lainkaan, joten uudelleentyypitys torjuisi kävelyn jota ei ole. Jätettiin pois ja syy kirjattiin.
+</p>
+
+<h2>Kirjan teksti, ja se mikä sen piilottaa</h2>
+
+<p>
+Kirja käyttää nyt samaa sivuttavaa tekstikennoa kuin keskustelu, ja sen teksti tulostuu. Mutta se
+mikä tästä tuli esiin on oma kirjoituksensa, ja se on seuraava.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>virstanpylväät valmiina        13 / 24
+työkohdat valmiina       225 / 250
+käytettävät tyypit jotka vastaavat   78 / 85
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    5121 / 5121
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner
+<strong>ei</strong> ajettu, joten se onko näppäin oikeasti painettavissa on vain editorista
+nähtävissä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Viisi kertaa samana päivänä mittaus osoittautui väärässä, ja neljä niistä oli omassa
+     koodissamme olevia lauseita jotka olivat olleet tosia kirjoitushetkellään. Yksi niistä
+     käänsi kokonaisen viipaleen ympäri ja paljasti säännön jota täällä ei ollut.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

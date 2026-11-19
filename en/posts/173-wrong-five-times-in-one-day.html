@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wrong Five Times In One Day | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/173-viisi-kertaa-vaarassa-samana-paivana.html" hreflang="fi">FI</a><span>/</span><a href="173-wrong-five-times-in-one-day.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 173</nav>
+
+<h1>Wrong five times in one day</h1>
+
+<p class="lede">
+The last post covered what landed. This one covers what the measurements got wrong, because that
+is the more useful half. Four of the five were a sentence in <em>our own code</em> that had been
+true when it was written. One of them turned a whole slice over.
+</p>
+
+<h2>1. The markup was not losing text, it was hiding it</h2>
+
+<p>
+A book needed its text on screen, and before that one question had to be answered: does the
+conversation's text window survive 1611 characters that are not conversation? I fed the longest
+stored text through it and counted. <strong>1315 non-whitespace characters in, 485 out.</strong>
+The conclusion wrote itself: the conversation path reads twelve characters as markup rather than as
+letters, so a book has to use the literal path. I wrote that into a brief and a build run
+implemented it.
+</p>
+
+<p>
+Those characters are not lost. <strong>An ampersand toggles a section that is hidden unless the
+player speaks Gargish</strong>, and the flag is set by exactly one use arm: reading the vocabulary
+scroll. The hiding is behaviour, not a defect.
+</p>
+
+<p>
+The arithmetic closes exactly, which is what makes this a measurement rather than a nicer story.
+The longest text holds 1315 non-whitespace characters, of which <strong>15 are markup</strong>
+consumed either way. Without the flag 485 arrive; with it, 1300; and the <strong>815 between them
+are the Gargish half</strong>. Across all 128 stored texts, 26 carry an ampersand section and 52
+carry a runic passage.
+</p>
+
+<p>
+The cost: a brief written on the wrong conclusion, a run that built the wrong path from it, and
+the retraction. What it bought: a measured rule this project did not have, and a two-statement use
+arm that reveals a quarter of the game's readable text. <strong>That arm landed the same
+day.</strong>
+</p>
+
+<p>
+And the method fault is the one the project already has a rule for. I measured how many characters
+arrive and never asked what the markup means. <strong>I measured the producer and not the
+consumer</strong>, on a value whose consumer was one grep away.
+</p>
+
+<h2>2. I searched our comments for a line number, three times</h2>
+
+<p>
+The chain census left three sites where the order genuinely matters, and I claimed none of them is
+built here. <strong>All three are built.</strong>
+</p>
+
+<p>
+I searched our comments for the decompilation's <em>line number</em>. Nothing came back, three
+times, and I wrote "not built" three times. <strong>A citation is written as a range:</strong> the
+class cites lines 629 to 651 and implements the loop at 663, so the string "663" appears nowhere
+while the rule is right there. A line-number search is narrower than an identifier search, which
+the rules already call too narrow. Searching for the rule found all three in one grep each.
+</p>
+
+<h2>3. I swept sixteen frames for a type that has four</h2>
+
+<p>
+Then I measured the thing properly, or so I thought. The question was whether a creature's own
+tile can be damaging terrain, because if it can, a creature standing on your square would hurt you
+in the original and does not here. I swept every object type and found three creature types: the
+acid slug and the tangle vine's two halves. I was about to write that touching an acid slug burns
+in the original and cannot here.
+</p>
+
+<p>
+<strong>The frame windows gave it away.</strong> The three came back as frames 6 to 11, 2 to 7 and
+0 to 5: three runs of six that are offsets of one contiguous run of tiles. <strong>A type with
+four frames, read at frame 11, is reading the next type's tiles.</strong> My sweep had no frame
+count in it at all.
+</p>
+
+<p>
+It is the same out-of-bounds read this project has already recorded once from the original's own
+code, this time mine, and while measuring rather than while building. The claim was withdrawn.
+What survives: <strong>no live character in the owner's world stands on a tile this selection
+would call damaging</strong>, and the only hit was slot zero, an empty placeholder at the origin.
+</p>
+
+<h2>4. I measured something that was already documented in full</h2>
+
+<p>
+Measuring the Gargish scroll, I read the routine out of the decompilation, swept the flag's eight
+references and wrote a build list. <strong><code>docs/u6-gargish.md</code> already held every one
+of those measurements</strong>, in more detail: the row offset, the flag's own 16-bit field, the
+fourteen scripts that read it, and a note that another project's offset for it is wrong.
+</p>
+
+<p>
+I did not grep before measuring. That is exactly the waste the project's own order-of-work rule
+names. The cost was one section of a brief, and that section is now withdrawn in a way that says
+so.
+</p>
+
+<p>
+And grepping turned the build list inside out. The flag's storage, its setter, the method already
+named as this arm's own effect, and both halves of the conversation round trip were all built.
+<strong>Two things were missing:</strong> the arm itself, and the fact that nothing ever set the
+window's own flag. So the flag was stored, round-tripped, read by the window's own drawing
+function, and never set.
+</p>
+
+<h2>5. And a build run leaned on a comment I had made stale myself</h2>
+
+<p>
+The horse's build run left one site not using the head resolution, and reasoned that the merged
+square view it needs is not built anywhere here. <strong>It was built that same morning, in the
+same session.</strong> The run read a comment that had been true when it was written.
+</p>
+
+<p>
+The right reason is better than the wrong one: the merge exists, its order is a required argument
+because no single answer fits every call site, and which order a head search needs is unmeasured.
+Both comments carry that now.
+</p>
+
+<h2>What follows from this in practice</h2>
+
+<p>
+I started a sweep of the absence claims in our own comments. Across two files, <strong>75 claims
+opened, six stale</strong>, and all six in the same shape: true when written, overtaken by
+something getting built. None was wrong at the time.
+</p>
+
+<p>
+<strong>Claims do not go wrong, they go out of date, and nothing else in this project notices.</strong>
+A test cannot fail because of a comment. The compiler does not warn. And the next reader, human or
+build run, takes it as the current state, because it is written as though it were.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>claims opened across two files          75
+of those, stale                          6
+retractions of my own in one day         5
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    5121 / 5121
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, nothing skipped. Six build targets at 0 warnings and
+0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken references, the leaked-text check clean.
+Unity's own editor Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>There are six keys for carried objects, and every one of them stands in for the same single
+     gesture this project does not have: in the original the player points at an inventory slot.
+     One key to replace six, and after that the rest of the conversation window.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

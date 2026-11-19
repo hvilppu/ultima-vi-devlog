@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seven Things You Can Press | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/172-seitseman-asiaa-joita-voi-painaa.html" hreflang="fi">FI</a><span>/</span><a href="172-seven-things-you-can-press.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 172</nav>
+
+<h1>Seven things you can press</h1>
+
+<p class="lede">
+Four measured decisions were waiting on the owner, and he asked for them to be made here instead.
+After them, seven things landed that a player can press: saving, the sextant, digging, the staff,
+the orb of the moons, the horse and a book's text. Seventy-eight of the eighty-five usable types
+now answer.
+</p>
+
+<h2>Saving wrote the world, and first it nearly destroyed the world's own source</h2>
+
+<p>
+The whole save path was built and tested and the game could not call it: the classes sat on the
+tool side, which Unity cannot see. The move was three files.
+</p>
+
+<p>
+And then the dangerous part. The owner's <code>SAVEGAME</code> directory is where the entire
+export's starting state is read from. Our own <code>Ctrl-S</code> writes to that same directory.
+One keypress would have replaced the starting state with a played save, and the only thing that
+would have objected is a test asserting that none of 2048 flags is set. The view now copies the
+directory aside once before its first write and <strong>refuses to save if it cannot make the
+copy</strong>.
+</p>
+
+<h2>The explosion shielded nobody</h2>
+
+<p>
+Merging the creature and object id spaces was the second decision, and it got a class where
+<strong>the order has no default</strong>: a caller that does not decide which side comes first
+will not compile. That sounds pedantic. It found a defect the same day.
+</p>
+
+<p>
+The explosion scan stops at the first candidate whose tile blocks missiles. The view fed it every
+actor first, so <strong>no object could ever come before an actor</strong>, and nothing on a square
+could shield anything. The comment said outright that the order was not measured, and it was
+honest when it was written. Measuring it turned the answer over.
+</p>
+
+<p>
+It is still a divergence, and both the comment and the test say so: objects first shields every
+actor on a square holding one blocking object, where the original shields only whoever sits behind
+it in that square's own chain. <strong>Objects first keeps the behaviour in existence and
+over-applies it; actors first had removed it.</strong>
+</p>
+
+<h2>Nought degrees is northern</h2>
+
+<p>
+The sextant prints a latitude and a longitude, and four things in that arithmetic are easy to get
+wrong. The letter test is <em>strictly</em> greater than nought, so the eight rows south of the
+origin print nought north and nothing ever prints nought south. The divide is an arithmetic shift
+rather than a division, which separates one square north of the origin: the shift says one, the
+division says nought.
+</p>
+
+<p>
+The third is a trap. Changing level has its own coordinate conversion that keeps a tile's place
+inside its chunk, and the print uses a plain shift. They differ by up to two degrees.
+<strong>The conversion looks like the right formula and is a different routine</strong>, so a test
+pins the difference to stop anyone substituting one for the other.
+</p>
+
+<h2>The dig's two rolls, and a band that separated nothing</h2>
+
+<p>
+Digging works almost nowhere: four tiles on levels 1 to 4, plus one hard-coded square on the
+surface. A fountain is one in 32 and a gold nugget one in ten <em>of the digs that were not a
+fountain</em>, so a nugget's real share is 31 in 320.
+</p>
+
+<p>
+I proved that by breaking it: I swapped the two rolls, and <strong>all twelve tests
+passed</strong>. The swap leaves the "found nothing" share at exactly 279 in 320 and moves the
+other two by only a hundred in 32000. My bands were three hundred wide. Measured over 320000 digs:
+9758, 31642, 278600. The order is now pinned by an exact forty-outcome run from one seed, and
+swapping them again fails it.
+</p>
+
+<h2>Three squares that cannot be reached, and they are the design</h2>
+
+<p>
+The orb of the moons opens a red gate where you point inside a five by five square, and the
+formula gives the gate a quality of 1 to 25. Three of those can never be produced, because the
+three central squares of the party's own row take a branch that means "stay where you are".
+</p>
+
+<p>
+That looked like a bug. It is not: the destination tables are written as five rows of five, which
+is the orb's own grid, <strong>and at exactly those three indices the tables are nought</strong>.
+The formula and the table agree perfectly. The suspicion was withdrawn and nothing went into the
+bug list.
+</p>
+
+<h2>The horse, which nobody had listed</h2>
+
+<p>
+I asked the dispatch itself which usable types still answer "not built" rather than assembling a
+list by grep. Eleven. The plan's own account names thirteen types and mentions <strong>neither
+horse</strong>, nor the vortex cube, nor the gargish scroll.
+</p>
+
+<p>
+A mounted horse is two objects, and the rear half is one step backward from the facing. The rider
+does not get a vehicle: the rider <em>becomes</em> a mounted horse, which is why dismounting needs
+the original shape back out of the save.
+</p>
+
+<p>
+And the best part is a line that looks absurd. The original sets the horse's type to <em>gold</em>
+immediately before deleting it, and its own comment says why: so the deletion does not also take
+the rear half, which the mount is about to reuse. The brief demanded an answer before that line was
+copied. <strong>The answer was no</strong>: this project's actor deletion never walks a creature's
+extra tiles at all, so the retype would defeat a walk there is none of. Left out, with the reason
+recorded.
+</p>
+
+<h2>A book's text, and what hides it</h2>
+
+<p>
+A book now uses the same paging text window the conversation uses, and its text prints. But what
+came out of that is its own post, and it is the next one.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>milestones done                13 / 24
+work items done          225 / 250
+usable types that answer        78 / 85
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    5121 / 5121
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Run in Release by the coordinating session, nothing skipped. Six build targets at 0 warnings and
+0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken references, the leaked-text check clean.
+Unity's own editor Test Runner was <strong>not</strong> run, so whether a key is really pressable
+can only be seen from the editor.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Five times in one day a measurement turned out to be wrong, and four of those were sentences
+     in our own code that had been true when they were written. One of them turned a whole slice
+     over and uncovered a rule this project did not have.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

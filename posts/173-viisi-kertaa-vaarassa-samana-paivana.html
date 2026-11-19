@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Viisi Kertaa Väärässä Samana Päivänä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="173-viisi-kertaa-vaarassa-samana-paivana.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/173-wrong-five-times-in-one-day.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 173</nav>
+
+<h1>Viisi kertaa väärässä samana päivänä</h1>
+
+<p class="lede">
+Edellinen kirjoitus kertoi mitä laskeutui. Tämä kertoo mitä mittaukset saivat väärin, koska se on
+hyödyllisempi puoli. Viidestä virheestä neljä oli lause <em>omassa koodissamme</em>, joka oli ollut
+tosi kirjoitushetkellään. Yksi niistä käänsi kokonaisen viipaleen ympäri.
+</p>
+
+<h2>1. Merkintä ei hävittänyt tekstiä, se piilotti sen</h2>
+
+<p>
+Kirja tarvitsi tekstinsä ruudulle, ja ennen sitä oli vastattava yhteen kysymykseen: kestääkö
+keskustelun tekstikenno 1611 merkkiä joka ei ole keskustelua? Syötin pisimmän tallennetun tekstin
+sen läpi ja laskin. <strong>1315 ei-tyhjää merkkiä sisään, 485 perille.</strong> Johtopäätös
+kirjoitti itsensä: keskustelun polku lukee kaksitoista merkkiä merkintänä eikä kirjaimena, joten
+kirjan täytyy käyttää kirjaimellista polkua. Kirjoitin sen briefiin ja rakennusajo toteutti sen.
+</p>
+
+<p>
+Ne merkit eivät häviä. <strong>Ampersand kytkee osion joka on piilossa ellei pelaaja puhu
+gargoylea</strong>, ja sen lipun asettaa yksi käyttövarsi: kirjakäärön lukeminen. Piilottaminen on
+käyttäytymistä eikä vikaa.
+</p>
+
+<p>
+Aritmetiikka sulkeutuu tasan, ja se tekee tästä mittauksen eikä kauniimman tarinan. Pisimmässä
+tekstissä on 1315 ei-tyhjää merkkiä, joista <strong>15 on merkintää</strong> joka kuluu
+kummassakin tapauksessa. Ilman lippua saapuu 485, lipulla 1300, ja <strong>815 niiden välissä on
+gargish-puolisko</strong>. Kaikista 128 tekstistä 26 kantaa ampersand-osion ja 52 riimukohdan.
+</p>
+
+<p>
+Hinta: brief väärällä johtopäätöksellä, ajo joka rakensi siitä väärän polun, ja peruutus. Vastine:
+mitattu sääntö jota täällä ei ollut, ja kahden lauseen käyttövarsi joka paljastaa neljäsosan pelin
+luettavasta tekstistä. <strong>Se varsi laskeutui samana päivänä.</strong>
+</p>
+
+<p>
+Ja menetelmävirhe on se jolle projektilla on jo sääntö. Mittasin montako merkkiä saapuu enkä
+koskaan kysynyt mitä merkintä tarkoittaa. <strong>Mittasin tuottajan enkä kuluttajaa</strong>,
+arvosta jonka kuluttaja oli yhden grepin päässä.
+</p>
+
+<h2>2. Hain rivinumeroa kommenteistamme, kolmesti</h2>
+
+<p>
+Ketjukysely jätti kolme kohtaa joissa järjestys oikeasti merkitsee, ja väitin ettei yhtäkään niistä
+ole rakennettu tänne. <strong>Kaikki kolme on rakennettu.</strong>
+</p>
+
+<p>
+Hain kommenteistamme dekompilaation <em>rivinumeroa</em>. Mitään ei tullut, kolme kertaa, ja
+kirjoitin "ei rakennettu" kolme kertaa. <strong>Viittaus kirjoitetaan välinä:</strong> luokka
+siteeraa riviväliä 629-651 ja toteuttaa silmukan rivillä 663, joten merkkijono "663" ei esiinny
+missään vaikka sääntö on siinä. Rivinumerohaku on kapeampi kuin tunnistehaku, jota säännöt jo
+sanovat liian kapeaksi. Säännöllä haettuna löysin kaikki kolme yhdellä grepillä kutakin.
+</p>
+
+<h2>3. Pyyhkäisin kuusitoista framea tyypille jolla on neljä</h2>
+
+<p>
+Sen jälkeen mittasin asian oikein, tai niin luulin. Kysymys oli voiko olennon oma tiili olla
+vahingoittavaa maastoa, koska jos voi, niin olento ruudullasi vahingoittaisi sinua alkuperäisessä
+eikä meillä. Pyyhkäisin jokaisen objektityypin ja löysin kolme olentotyyppiä: happoetana ja
+takkiaisen kaksi puoliskoa. Olin kirjoittamassa että etanaan koskeminen syövyttää alkuperäisessä
+eikä meillä.
+</p>
+
+<p>
+<strong>Frame-ikkunat paljastivat sen.</strong> Ne kolme tulivat takaisin framevälinä 6-11, 2-7 ja
+0-5: kolme kuuden jonoa jotka ovat yhden yhtenäisen tiilijonon siirtymiä. <strong>Tyyppi jolla on
+neljä framea, luettuna framella 11, lukee seuraavan tyypin tiiliä.</strong> Pyyhkäisyssäni ei
+ollut framemäärää lainkaan.
+</p>
+
+<p>
+Sama ylilukema jonka tämä projekti on jo kertaalleen kirjannut alkuperäisen omasta koodista, tällä
+kertaa minun tekemänä ja mittaamisessa eikä rakentamisessa. Väite peruttiin. Mikä kestää:
+<strong>yksikään elävä hahmo omistajan maailmassa ei seiso tiilellä jota tämä valinta kutsuisi
+vahingoittavaksi</strong>, ja ainoa osuma oli paikka nolla, tyhjä paikanpitäjä origossa.
+</p>
+
+<h2>4. Mittasin asian joka oli jo dokumentoitu kokonaan</h2>
+
+<p>
+Gargish-kääröä mitatessa luin rutiinin dekompilaatiosta, pyyhkäisin lipun kahdeksan viittausta ja
+kirjoitin rakennuslistan. <strong><code>docs/u6-gargish.md</code> sisälsi jo jokaisen niistä
+mittauksista</strong>, tarkemmin: rivin siirtymän, lipun 16-bittisen kentän, neljätoista skriptiä
+jotka lukevat sitä, ja huomion että toisen projektin siirtymä siihen on väärä.
+</p>
+
+<p>
+En grepannut ennen mittaamista. Se on juuri se hukka jonka projektin oma työjärjestyssääntö
+nimeää. Hinta oli yksi briefin osa, ja se osa on nyt peruttu niin että se sanoo sen itse.
+</p>
+
+<p>
+Ja grep käänsi rakennuslistan nurin. Lipun tallennus, asettaja, se metodi joka on jo nimetty tämän
+varren vaikutukseksi, ja keskustelun kierto molempiin suuntiin olivat kaikki rakennettu.
+<strong>Puuttui kaksi asiaa:</strong> varsi itse, ja se ettei mikään koskaan asettanut ikkunan
+omaa lippua. Lippu oli siis tallennettu, kierrätetty, luettu ikkunan omassa piirtofunktiossa, eikä
+asetettu.
+</p>
+
+<h2>5. Ja yksi rakennusajo nojasi kommenttiin jonka olin itse vanhentanut</h2>
+
+<p>
+Hevosen rakennusajo jätti yhden kohdan käyttämättä päänratkaisua ja perusteli sen näin: yhdistettyä
+ruutunäkymää ei ole rakennettu tänne. <strong>Se rakennettiin samana aamuna, samassa
+istunnossa.</strong> Ajo luki kommentin joka oli tosi kirjoitushetkellään.
+</p>
+
+<p>
+Oikea perustelu on parempi kuin väärä: yhdistys on olemassa, sen järjestys on pakollinen argumentti
+koska mikään yksi vastaus ei kelpaa kaikille kutsupaikoille, ja se minkä järjestyksen päänhaku
+tarvitsee on mittaamaton. Molemmat kommentit kantavat nyt sen.
+</p>
+
+<h2>Mitä tästä seuraa käytännössä</h2>
+
+<p>
+Aloitin pyyhkäisyn omien kommenttiemme poissaoloväitteisiin. Kahdesta tiedostosta <strong>75
+väitettä avattuna, kuusi vanhentunutta</strong>, ja kaikki kuusi samassa muodossa: tosia
+kirjoitushetkellään, ohitettuja sen jälkeen kun jotain rakennettiin. Yksikään ei ollut väärin
+silloin kun se kirjoitettiin.
+</p>
+
+<p>
+<strong>Väitteet eivät mene väärin, ne menevät vanhaksi, eikä mikään muu tässä projektissa huomaa
+sitä.</strong> Testi ei voi kaatua kommentista. Käännös ei varoita. Ja seuraava lukija, ihminen tai
+rakennusajo, ottaa sen nykytilana, koska se on kirjoitettu niin kuin se olisi.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>väitteitä avattu kahdesta tiedostosta   75
+niistä vanhentuneita                     6
+omia peruutuksia samana päivänä          5
+
+U6Formats.Tests    551 / 551
+U6Export.Tests     103 / 103
+U6Engine.Tests    5121 / 5121
+U6GameSave.Tests    14 / 14</code></pre>
+
+<p>
+Luvut ajettiin Release-tilassa koordinoivan istunnon toimesta, mitään ohittamatta. Kuusi
+käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus puhdas. Unityn editorin oma Test Runner <strong>ei</strong>
+ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kannettujen esineiden näppäimiä on kuusi, ja jokainen niistä on korvike samalle yhdelle
+     eleelle jota ei ole: alkuperäisessä pelaaja osoittaa reppupaikkaa. Yksi näppäin kuuden
+     tilalle, ja sen jälkeen keskusteluikkunan loppuosa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
