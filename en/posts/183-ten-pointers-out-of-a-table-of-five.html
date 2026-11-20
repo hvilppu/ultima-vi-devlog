@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ten Pointers Out Of A Table Of Five | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/183-kymmenen-osoitinta-viiden-taulusta.html" hreflang="fi">FI</a><span>/</span><a href="183-ten-pointers-out-of-a-table-of-five.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 183</nav>
+
+<h1>Ten pointers out of a table of five</h1>
+
+<p class="lede">
+You can make a wish at a fountain. The routine reads the typed line and compares it, in a loop,
+against <strong>ten</strong> pointers from an array that holds <strong>five</strong>. The
+decompilation's own comment marks that as a bug and leaves it there. What those five extra
+pointers are is a question only the owner's own <code>GAME.EXE</code> can answer, and it was worth
+reading, because it decides whether this port is narrower than the original.
+</p>
+
+<h2>First: five words that do not enter this repository</h2>
+
+<p>
+The wishes are the original's own text, so they travel the road the eight mantras already travel:
+this tree holds only <strong>offsets and lengths</strong>, the words are read from the owner's file
+at export time, and the export writes a 40 byte file into a gitignored directory. The leaked-text
+check finds nothing, which is the measurement that says the words did not get in here.
+</p>
+
+<p>
+The discriminator is double. Four of the four gaps between offsets are the earlier word's length
+plus its terminator, and at the measured base all five land as letters followed by a zero byte,
+while a base moved one byte either way lands <strong>none of the five</strong>. And on top of
+that: <strong>the array's own pointers are exactly the five offsets the decompilation tags beside
+the literals.</strong> So the table is not merely consistent with the tags; it contains them.
+</p>
+
+<h2>The five extras, read</h2>
+
+<pre><code>pointers 0-4   0x2587 0x258C 0x2593 0x2598 0x259E   the five words
+pointers 5-6   0x100  0x101                         the tail of another literal
+pointers 7-9   0xFF00 0xFFFF 0xFFFF                 past the module's own data</code></pre>
+
+<p>
+Pointers 5 and 6 point at four and three byte runs that end in a <strong>newline</strong>. A player
+cannot type a newline at a keyboard prompt, so those two can never match: the harmless half.
+</p>
+
+<p>
+Pointers 7 to 9 point past the module's own initialised data, into the segment's zeroed area. What
+is there at the moment of the comparison is <strong>not in the file</strong>. If that byte is zero
+the pointer reads as an empty string, and then <strong>pressing Enter alone would match</strong>
+and earn the one-in-five chance of food. That is not claimed either way here, because the file does
+not say; entry 3.41 records it exactly that way.
+</p>
+
+<p>
+And this is where the port is deliberately narrower than the original: there is no data segment
+here to read past. A wish this refuses is one the original <em>might</em> still have matched. It is
+named in a test rather than buried in a comment.
+</p>
+
+<h2>The rule itself, and two numbers that happen to be the same</h2>
+
+<p>
+The question, one key, and <strong>anything but yes is a refusal</strong>: the original tests one
+letter rather than looping over two the way the save confirmation does. Yes opens a nine character
+line. The match is case insensitive, the first match wins, and <strong>one roll in five</strong>
+grants food.
+</p>
+
+<p>
+The roll happens <strong>before</strong> the weight test, so a wisher who cannot lift the meat has
+still spent that one-in-five. And the weight test is the original's own literal: it adds
+<strong>2</strong> to the load. The portion of meat's own weight byte is also <strong>2</strong>.
+Two different facts that happen to be the same number, so the rule follows the literal and a test
+asserts the coincidence separately. If they ever differ, the test says which one this port keeps.
+</p>
+
+<p>
+A wish the table does not know <strong>costs no draw at all</strong>. That is the measurable side
+of one shared random stream, the same kind of thing the hail storm turned up.
+</p>
+
+<h2>For the third time: an expectation is a claim</h2>
+
+<p>
+The plan's table said the fountain waited on text entry. Text entry was built with the rune's
+mantra prompt long ago. This is the <strong>third time in this batch</strong> that the same column
+sent me the wrong way: the silver horn and the cannon both said "combat" and were waiting on
+something that already existed. An expectation goes stale exactly the way an absence claim does,
+at the moment the thing it waits for is built, and nobody returns to the row that recorded it.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>usable types with a named handler                        82 / 85
+wishes in the table                                          5
+pointers the loop reads                                     10
+fountainwishes.bin                                    40 bytes
+words in this repository                                     0
+landings at the measured base                              5/5
+landings with the base moved one byte                      0/5
+the chance of food                                       1 / 5
+the weight literal, and the meat's weight byte            2, 2
+
+U6Formats.Tests     565 / 565
+U6Export.Tests      112 / 112
+U6Engine.Tests     5571 / 5571
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings, nothing skipped. The export was run again.
+Unity's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Three usable types are left: the vortex cube waits on the endgame, the gem on the peer map,
+     and the crystal ball on a routine nobody has opened. That last one is the only one that
+     starts with reading rather than with a new subsystem. And the screenshots of the hail storm,
+     the telescope and the cannon are all still outstanding.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
