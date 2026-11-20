@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Telescope And Its Twin | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/180-kaukoputki-ja-sen-kaksonen.html" hreflang="fi">FI</a><span>/</span><a href="180-the-telescope-and-its-twin.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 180</nav>
+
+<h1>The telescope and its twin</h1>
+
+<p class="lede">
+The telescope was one of the objects a player still got "Not built yet." from, and on the list it
+was <em>named but never opened</em>. Opened, it turned out to be the <strong>wizard eye's
+twin</strong>: the same loop, the same stopping tile, the same counter, the same two screen fades
+and the same closing message. What is interesting is what differs, because those four differences
+are the discriminators.
+</p>
+
+<h2>A twin, and why the numbers were not written twice</h2>
+
+<p>
+The wizard eye is already built here. The telescope's routine is the same tail line for line: the
+counter starts at forty, it stops at tile <code>0x0FC</code>, a see-through flag and two screen
+fades bracket the loop, and the same message row prints at the end. Those are read from the eye's
+own class rather than written again, because <strong>two copies of a measured number are two
+things that can drift</strong>. This project has paid for that once already in a different pair
+of helpers.
+</p>
+
+<h2>Four differences, and the third is the sharpest</h2>
+
+<ul>
+  <li><strong>The direction is asked once.</strong> The eye reads a key on every step; the
+      telescope reads one, echoes its name, and from there the scroll runs by itself.</li>
+  <li><strong>The move is spent unconditionally.</strong> The eye's own decrement sits inside its
+      direction branch, so a player pressing other keys can scroll for ever; the telescope's is
+      in the body.</li>
+  <li><strong>The telescope always takes at least one step.</strong> Its loop variable starts at
+      nought and the stopping tile is read at the <em>end</em> of the body, where the eye reads
+      the tile under itself <em>before</em> the loop and can end having moved nowhere. The same
+      loop, opposite answers from the same square, and it is tested by running both from that
+      square with the same tile reader.</li>
+  <li><strong>The scroll starts on the telescope's own square</strong> and not on the party's.
+      </li>
+</ul>
+
+<p>
+And the journey is <strong>41 squares, not 40</strong>, because the counter is tested after it is
+spent. The same number the eye travels, read from its own constant rather than derived again.
+</p>
+
+<h2>The refusal leaves the map in the wrong place</h2>
+
+<p>
+Answer the direction prompt with anything else and the original prints "nowhere." and
+<strong>returns immediately</strong>, which is before it restores the view's own centre. So the
+map stays parked on the telescope.
+</p>
+
+<p>
+Why that is harmless in the original: the step routine begins by setting the centre to the active
+party member before it computes anything, so the next step snaps it back. Checking that takes
+more than the line the routine shows, so I listed <strong>all 22 writers of
+<code>MapX</code></strong>, unfiltered and untruncated. Six of them set it from the party, and
+none of them runs on every frame.
+</p>
+
+<p>
+<strong>This is not imitated, and the reason is architectural.</strong> In this project the view's
+centre <em>is</em> the player's position and a character follows it, which was recorded back in
+the number-key slice. Copying the line would leave the Avatar parked on the telescope for good:
+neither the original's behaviour nor its outcome. Recorded as entry 3.40, together with what the
+refusal does <em>not</em> turn on, since the see-through flag and the fade both sit below that
+return.
+</p>
+
+<h2>What was not followed, and why half would be worse</h2>
+
+<p>
+The original raises a flag for the scroll that makes walls transparent and lights everything. It
+is not followed here, exactly the thinner treatment the wizard eye already gets. Half of it,
+lighting the window alone, would be <strong>consuming a multi-state rule as fewer states than it
+has</strong>, which is the class of fault this project's own rules carry four scars from. A named
+gap beats half a rule.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>usable types with a named handler                        79 / 85
+the scroll, in squares                                      41
+the counter's own starting value in the code                40
+the stopping tile                                        0x0FC
+writers of MapX in the original                             22
+of those, the ones that set it from the party                6
+new tests                                                   14
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5524 / 5524
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings, nothing skipped. Unity's own Test Runner was
+<strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Screenshots of two things no test can see: a hail storm, with stones falling from up and to
+     the left and a tile flashing under an impact, and a telescope, with the view flying 41
+     squares and stopping at the first thing in the way.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
