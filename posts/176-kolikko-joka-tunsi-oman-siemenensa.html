@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolikko Joka Tunsi Oman Siemenensä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="176-kolikko-joka-tunsi-oman-siemenensa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/176-the-coin-that-knew-its-own-seed.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 176</nav>
+
+<h1>Kolikko joka tunsi oman siemenensä</h1>
+
+<p class="lede">
+Neljä asiaa jotka pelaaja huomaa. Tulivuori tärisee ruutua, ja piippu joko tärisee sen mukana
+tai luo itselleen tuoreen piipun ja räjäyttää sen, jättäen alkuperäisen pystyyn. Peli osaa nyt
+ladata tallennetun pelin, ja Ctrl+R tekee sen näppäimistöltä: kysymys, Y tai N, ja maailma palaa
+puolueen kanssa siinä missä tallennus sen jätti. Lentävä olento pysähtyy nyt seinätiiliseen
+esineeseen, mikä päättää liikkumapolun viimeisen rakentamattoman säännön. Ja Sherry-hiiri mahtuu
+hiirenkolosta, ritilästä ja portista läpi, vaikka mikään ei vielä ajakaan häntä sellaisen läpi.
+Matkan varrella tämä viipale käytti ison osan ajastaan omien lukujensa korjaamiseen: neljä niistä
+oli omia briefivirheitäni, ja rakennusajot löysivät kaikki neljä.
+</p>
+
+<h2>Vuori joka tärisee, piippu joka räjähtää</h2>
+
+<p>
+Purkauksen kaikki osat olivat jo olemassa eikä mikään kutsunut niitä: kolmetilainen lippu,
+kolikko, tärinän luvut ja itse räjähdys. Mittaus korjasi oman briefini kahdesta varresta kolmeen.
+Vuori tärisee aina eikä koskaan räjähdä. Vain piippu heittää kolikkoa: joko tärisee, tai luo
+tuoreen piipun omalle ruudulleen ja räjäyttää sen, jättäen alkuperäisen seisovan paikallaan.
+Rakennus joka räjäyttäisi alkuperäisen lähteen rikkoisi omaa testiään.
+</p>
+
+<p>
+Lipun kolme tilaa käsitellään mitatusti: nolla on ei mitään, yksi tarkoittaa erääntynyttä mutta
+lähdettä ei ole löydetty, ja yli yhden on esineen omanumero. Tyhjennys on ehdoton, niin tyyppi
+joka ei ole kumpaakaan ei jätä lippua roikkumaan. Kutsupaikka istuu siinä missä näkymän oma
+kyläläisten vuorosilmukka päättyy, kohta jonka alkuperäinen saavuttaa vuorojen ja kysymyksen
+välissä, niin uutta silmukkaa ei tarvittu.
+</p>
+
+<p>
+Rakennusajo teki myös kaksi muutosta oman laajuutensa ulkopuolella, oikein ja kysymättä: kahden
+tiedoston kommentit nimesivät tämän rutiinin puuttuvana, ja poissaolon väite on virhe sillä
+hetkellä kun aukko sulkeutuu, niin se kirjoitti kolme sellaista lausetta uudelleen osoittamaan
+luokkaan joka sulki aukon. Katsottu tässä ja pidetty.
+</p>
+
+<h2>Kolikko joka tunsi oman siemenensä</h2>
+
+<p>
+Purkauksen oma nopeustesti löysi jotain parempaa kuin purkauksen: kolikko joka ei ole satunnainen
+omalla ensimmäisellä heitollaan. Testi siemensi tuoreen generaattorin per koe ja luki yhden
+heiton, ja kolikko tuli kahdesti kolmesta sen sijaan että olisi tullut puoleksi. Mitattuna
+kaikkien 32768 parittoman siemenen yli: tuoreen siemenen ensimmäinen heitto <em>on siemen
+itse</em>, koska siementäminen kirjoittaa vain alasanan ja palautettu ylä-sana saa vanhan
+alasanan lisättynä viimeisenä. Ensimmäinen heitto on tasan siemen alle noin 21845:n, ja yhtä
+suuri siemenelle kolmasosan ajasta muutenkin. Juuri sitä on 43692 65536:sta, luku jonka ajo näki
+ja tunnisti oireena eikä mittana, ennen kuin se kirjoitti testin uudelleen yhtä generaattoria
+eteenpäin ajaen koko kokeen yli.
+</p>
+
+<p>
+<code>docs/u6-ymparisto.md</code>:n ansa 21 kirjaa sen, koska testi joka siementää per koe mittaa
+siementen pariteettia ja näyttää mittaukselta sitä tehdessään, ja virhe on juuri sen kokoinen
+että läpäisisi oikealta vaikuttavana sääntönä. Jos se olisi mennyt läpi, repositorio kantaisi
+testin joka kiinnittää 0.667 jollekin joka on 0.5.
+</p>
+
+<h2>Yksi muoto moottoriin, ei kahta</h2>
+
+<p>
+Peli osasi tallentaa eikä ladata, ja syy oli kokoonpanoraja. Molemmat lukijat olivat jo
+moottorissa; väärällä puolella oli vain tavumuotosilta, jonka kirjoittajat asuivat
+vientiprojektissa. Nyt molemmat asettelut asuvat moottorissa lukijoidensa vierellä, kummallakin
+tavutaulukkoprimitiivi ja ohut tiedostokääre sen päällä, ja viejä delegoi niille ja ottaa omat
+vakionsa niiden omista sen sijaan että julistaisi ne uudelleen. Yksi määritelmä per asettelu
+kahden sijaan, joka oli koko syy valita tämä uusien konstruktorien sijaan.
+</p>
+
+<p>
+Ajonaikainen lataus on lukijat, kirjoitus muistiin, jäsennys, eikä väliaikaista hakemistoa
+missään. Työkalupuolen lataaja poistettiin koska sille ei jäänyt mitään tehtävää, ja sen oma
+testisarja ei tarvinnut muokkausta ollenkaan: sama nimiavaruus, sama luokka, nyt moottorin
+tukemana.
+</p>
+
+<p>
+Kaksi vikatestiä todistaa delegoinnin eikä uuden koodin: tavun turmeleminen tiedostokääreen
+sisällä kaatoi uuden moottoritestin ja kaksi jäädytetyn vientisarjan omaa testiä; väärän
+esinemäärän kirjoittaminen otsikkoon kaatoi kaksi uutta testiä ja molemmat oikeat
+tallennustestit jäädytetyssä pariteettisarjassa. Vanhat polut todella kulkevat siirretyn koodin
+läpi.
+</p>
+
+<h2>Peli palaa yhdellä näppäimellä</h2>
+
+<p>
+Alkuperäisen palautuskomento luettiin kokonaan: kaksikymmentäkaksi askelta, jokainen tarkistettu
+tätä projektia vastaan. <code>ClearForLoad</code>:n puuttuva tuotantokutsu oli listan seitsemäs
+kohta: se ei odottanut latausta yleensä, se odotti juuri tätä rutiinia, kysymys jonka oma
+kommentti on kantanut sen kirjoittamisesta asti.
+</p>
+
+<p>
+Kolme kahdestakymmenestäkahdesta askeleesta jäi mittaamatta ensin: puolueen laajuinen
+taistelukytkin, väliaikaisten esinelohkojen poisto, ja NPC-seurannan nollaus. Mitattuna:
+taistelun alku ja katkaisu ovat 26 ja 30 riviä tilaa, yhtä kuvaketta ja yhtä laulua per suunta;
+väliaikainen lohkonpoisto on mitattu ei-mikään tässä projektissa, koska tallennus kirjoittaa
+oikeat tiedostot suoraan; ja NPC-seuranta on neljä askelta, joista ensimmäinen on lattia: joka
+hahmo jonka ketteryys on nolla saa yhden, koska liikepisteet myönnetään ketteryydestä, niin
+nollaan jäänyt hahmo ei liikkuisi enää koskaan.
+</p>
+
+<p>
+Mittaus löysi myös vikailmoituksen, <code>originalBugs.md</code> 2.31. Taistelun alun haku
+komennettavalle jäsenelle lukee jäsenen ennen rajan tarkistusta, niin täysin kyvyttömän puolueen
+viimeinen kierros lukee yhden sanan oikealla elävän puolueen ulkopuolelta ja antaa sille
+komentomoodin. Sama muoto kuin 2.9:ssä, jossa etäisyystesti lukee oman taulukkonsa ohi, ja
+molemmissa ehdon kaksi puolikasta ovat väärässä järjestyksessä.
+</p>
+
+<p>
+Ctrl+R kysyy ja palauttaa nyt. Kehote ratkaistaan offsetilla viestitaulun läpi eikä
+kirjaimellisena, syöte hyväksyy vain Y:n tai N:n ja pyörii muulla, painettu näppäin kaiutetaan
+ennen toimintaa, ja kieltäytyminen ei koske mitään. Y:llä maailma ja hahmot vaihtuvat, näkymän
+oma keskipiste asetetaan tallennuksen oman Avatar-sijainnin mukaan, riippuva tila rakennetaan
+uudelleen, ja oletuskomento tyhjennetään, mikä on <code>ClearForLoad</code>:n ensimmäinen
+tuotantokutsuja sen jälkeen kun sillä ei ollut yhtään.
+</p>
+
+<p>
+Oma briefini sanoi että kumpaakaan taistelukätta ei ole rakennettu eikä kummastakaan löydy
+mainintaa. Molemmat on rakennettu, <code>U6CombatSession.Begin</code> ja <code>BreakOff</code>,
+aiemman viipaleen toimesta. Grepasin alkuperäisen omia tunnisteita ja arvasin englanninkielistä
+nimeä, missä tämä projekti nimeää asiat säännön mukaan, mikä on juuri se virhe jonka tämä
+projekti on kirjannut omaksi säännökseen: etsi sääntöä, ei nimeä.
+</p>
+
+<p>
+Alkuperäisen ehdon kunnollinen lukeminen löysi todellisen puutteen vanhasta koodista: haku
+komennettavalle jäsenelle testasi vain kyvyttömyyttä, missä alkuperäinen testaa myös maahan
+vedetyn tilan, ja kenttä sille oli jo olemassa eikä koskaan kytketty. Puuttuva puolikas lisättiin
+alkuperäisen omaan järjestykseen, niin 2.31:n ylirajan luku toistaa nyt alkuperäistä uskollisesti
+sen sijaan että olisi hiljaa turvallisempi.
+</p>
+
+<p>
+Rakennusajo löysi myös kaksi omaa vuotavan tekstin lipsahdustaan joita automaattinen tarkistus ei
+nähnyt, molemmat kommentteja jotka lainasivat dekompilaatiota sanasta sanaan, ja kirjoitti ne
+uudelleen omin sanoin.
+</p>
+
+<p>
+Kolme kahdestakymmenestäkahdesta askeleesta on nimetty eikä rakennettu, kukin omalla syyllään:
+kaksi kuvaketta ja laulu ovat esitystä ja laulu on pysäköity; väliaikaisten lohkojen poisto on
+mitattu ei-mikään; ja statuspaneelin oma nollaus on nimetty jätetyksi pois, eikä näkymän oma
+palautusnäppäimen käsittelijä koske sitä. Yksi askel osoittautui ei-miksikään alkuperäisessä
+itsessään: viimeinen aktiivinen indeksi kirjoitetaan neljässä paikassa ja luetaan ei missään,
+mitä sen oma otsikko sanoo ja ajo todensi.
+</p>
+
+<h2>Peto pysähtyy seinään</h2>
+
+<p>
+Liikkumapolun viimeinen rakentamaton sääntö kattaa suuren ei-lentävän pedon seinätiiliseen
+esineeseen, jaetun silmukan sisällä hiiren luvan vierellä. Toimijan tyyppi kulkee reittiä jonka
+hiirisiirros avasi, niin uutta kutsupaikkaa ei tarvittu. Kiinnike on todellinen
+seinä-mutta-läpäistävä esinetyyppi, jonka ajo löysi pyyhkäisemällä joka tyypin oman peruslaatan
+omistajan vientiä vastaan, eikä keksimällä.
+</p>
+
+<p>
+Lentäjille sääntö on turha: lentävä haara saavuttaa yhteisen hännän vain ei-seinätiilellä, ja
+seinätiilellä vastaus on jo estetty. Se on todellinen vain isolle ei-lentävälle pedolle,
+kulkijahaaran kautta seinällä joka ei ole läpäisemätön. Neljästä nimetystä tyypistä kuusitoista
+on elossa ja neljätoista niistä lentää, niin elävät kohteet ovat kaksi kyklooppia. Lohikäärmeellä
+ei ole elävää yksilöä, ja hydran runko ei kuulu minkään olentoluokan alle lainkaan.
+</p>
+
+<p>
+Kolme korjausta, kaikki ajon löytämiä. Oma briefini sanoi säännön ei päättävän silmukkaa. Päättää
+se: silmukan oma häntä on seuraava lause, niin lipun nollaus päättää skannauksen välittömästi.
+Ajo jäljitti sen ja todisti injektoimalla jatka-muodon, ja vain yksi testi, juuri sitä varten
+rakennettu, kaatui.
+</p>
+
+<p>
+Ajo ei pystynyt toistamaan lukua 187 ja sanoi niin arvaamisen sijaan, ja oli oikeassa:
+puolueenvaihdon poikkeus ei ota syötteenä kysymystä onko liikkuja pelaajan ohjaama, missä
+alkuperäinen saavuttaa sen vain pelaajan ohjaamalle liikkujalle. Niin tämä projekti vastaa 184
+kuka tahansa liikkuukin, ja aiempi korjaukseni 198:sta "187 tavalliselle kulkijalle ja 184
+Avatarille" oli yhä alkuperäisen sääntö omamme sijaan. Korjattu kahdessa briefissä ja
+suunnitelmassa.
+</p>
+
+<p>
+Ja vuotavan tekstin tarkistus kaatoi briefin jonka olin juuri committannut, koska lainasin
+alkuperäisen omaa palautuskehotetta koodilohkon sisällä. Tarkistus on juuri sitä varten olemassa,
+ja se nappasi dokumentin eikä koodia.
+</p>
+
+<h2>Hiiri pujahtaa missä mikään muu ei pujahda</h2>
+
+<p>
+Liikkumapolun kaksi lupahaaraa sallivat ruudun sen sijaan että kieltäisivät sen: telakkaviipale
+rakensi muodon ja sillan, tämä on toinen ja viimeinen puuttuva. Sherry pääsee hiirenkolon,
+ritilän ja portin läpi, eikä mikään muu pelissä pääse, koska sääntö nimeää yhden esinetyypin eikä
+piirrettä tai luokkaa. Liikkujan omatyyppi tulee valinnaisena parametrina eikä kuudentena
+lippuna <code>U6Mover</code>:lle, jonka viisi ovat alkuperäisen omat eikä niitä pidä kasvattaa
+yhdelle esinetyypille.
+</p>
+
+<p>
+Tämä vei kaksi kierrosta, ja toinen on omani selitettäväksi. Oma laajuusrajaukseni kielsi
+koskemasta ajoneuvoliikkeeseen, mikä pakotti ensimmäisen rakennuksen kopioimaan sen
+skannaussilmukan: 61 riviä alkuperäisen 86:ta vastaan, toistaen sillan säännön, ohitettavan
+säännön ja per-esine-lohkon. Vetäydyin rajauksesta, koska kolmas kopio tästä silmukasta ajautuisi
+eri tavoin täsmälleen niin kuin kaksi ensimmäistä olivat tehneet. Kasattuna on yksi silmukka
+valinnaisella per-syötelupa ennen tiilihakua, missä alkuperäinen pitää hiiren oman testin. Silta
+pitää katkonsa ja hiiri jatkaa, mikä on juuri se ero jota varten telakan muoto on olemassa.
+</p>
+
+<p>
+Kasaus todistettiin tavalla jolla vain yksi silmukka voi: jaetun lohkotestin rikkominen kaatoi
+yhdeksän testiä kerralla, kulkijapolulta, ajoneuvoliikkeen omalta sarjalta ja hiiren omalta,
+asia jota kaksi kopiota ei olisi voinut näyttää koskaan.
+</p>
+
+<p>
+Pujahdus on todellinen: yksi elävä oma hiirityyppi ja 166 ruutua missä lupa pätee, viisi
+hiirenkoloa, 88 ritilää ja 73 porttia. Mutta Sherry ei ole aloituspuolueessa: aloituspuolue on
+neljä ihmistä, ja ainoa elävä hiiri on hahmo yhdeksän, eikä kartalla ollenkaan, sen koordinaatit
+ovat kaukana tuhannen ruudun maailman ulkopuolella, mikä on koodaus sijoittamattomalle. Niin
+luvalla ei ole elävää kohdetta aloitusmaailmassa, sama vastaus jonka lintusääntö sai. Ei ole
+kytketty tuotantokutsua, oikein sen sijaan että olisi puute, ja se mikä on auki ei ole onko hän
+puolueessa nyt, vaan tuleeko hänet myöhemmin siihen laitettua.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>purkauksen varret, vuori tärisee aina / piippu heittää         3
+siemenvirhe, parittomia siemeniä mitattu             32768 / 32768
+siemenvirhe, väärä kolikko tasan siemenelle           43692 / 65536
+hiiren pujahdus, sallitut ruudut                            166
+hiiren pujahdus, koloja / ritilöitä / portteja          5 / 88 / 73
+estävät oliot, kävelijä kuka tahansa (korjattu)         184 / 200
+isot pedot joille seinäsääntö on todellinen                   2
+palautuskomennon askeleet                               22
+niistä nimetty rakentamattomana                           3
+originalBugs.md uusi merkintä                            2.31
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5411 / 5411
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Luvut ajettiin rakennusajojen toimesta, mitään ohittamatta. Kuusi käännöskohdetta 0
+varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä viittauksella,
+vuotavan tekstin tarkistus puhdas kummallakin kierroksella. Mikään näistä ei ole nähty ruudulla:
+ne muuttavat laskentaa, palautusta ja liikettä, moottorin säännöt todistettiin rikkomalla ne
+kymmenin tavoin, ja Unityn editorin oma Test Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kolme asiaa on nimetty koodissa sen kanssa mitä ne tarvitsevat: keskustelusessio jonka
+     aikataulutettu kyläläinen tarvitsee voidakseen oikeasti puhua sinulle, yksi delegaatti
+     vuoron läpi kytkettynä; osumatiili jonka tappelijan nyrkin pitäisi piirtää; ja statuspaneelin
+     oma nollaus palautuksella.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Coin That Knew Its Own Seed | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/176-kolikko-joka-tunsi-oman-siemenensa.html" hreflang="fi">FI</a><span>/</span><a href="176-the-coin-that-knew-its-own-seed.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 176</nav>
+
+<h1>The coin that knew its own seed</h1>
+
+<p class="lede">
+Four things a player will notice. A volcano shakes the screen, and a fumarole either shakes
+along with it or builds itself a fresh fumarole and detonates that one, leaving the original
+standing. The game can load a saved game now, and Ctrl+R does it from the keyboard: a prompt,
+Y or N, and the world comes back with the party where the save left them. A flying creature now
+stops at a wall-tiled object, which closes the destination walk's last unbuilt rule. And Sherry
+the mouse can squeeze through a hole, bars and a portcullis, though nothing drives her through
+one yet. In between, this stretch spent a good part of its time correcting its own numbers, four
+of them my own brief's mistakes, and the build runs caught every one of the four.
+</p>
+
+<h2>A mountain that shakes, a vent that blows</h2>
+
+<p>
+Every piece of the eruption already existed and nothing called it: the three-state flag, the
+coin, the shake numbers and the detonation itself. Measuring it corrected my own brief from two
+arms to three. A volcano always shakes and never explodes. Only a fumarole flips the coin: either
+it shakes, or it builds a fresh fumarole at its own square and detonates that one, leaving the
+standing source alone. A build that detonated the original source instead would fail its own
+test.
+</p>
+
+<p>
+The flag's three states are handled as measured: nought is nothing, one means due but the
+source not yet found, and above one is the object's own number. The clear is unconditional, so a
+type that is neither does not leave the flag pending. The call site sits where the view's own
+NPC turn loop exits, the point the original reaches between the turns and the prompt, so no new
+loop was needed.
+</p>
+
+<p>
+The build run also made two edits outside its own scope, correctly and without being asked. Two
+files' comments named this routine as a gap, and a comment claiming an absence is a defect the
+moment that gap closes, so it rewrote three such sentences to point at the class that closed it.
+Reviewed here and kept.
+</p>
+
+<h2>The coin that knew its own seed</h2>
+
+<p>
+The eruption's own rate test found something better than the eruption: a coin that is not random
+on its own first throw. The test seeded a fresh generator per trial and read one draw, and the
+coin came out two in three instead of one in two. Measured across all 32768 odd seeds: the first
+draw off a fresh seed <em>is the seed itself</em>, because seeding writes only the low word and
+the returned high word gets the old low word added in last. The first draw equals the seed
+exactly below about 21845, and equals it a third of the time overall. That is precisely 43692 of
+65536, a number the run saw and recognised as an artefact rather than a measurement, before
+rewriting the test to advance one generator across the whole trial.
+</p>
+
+<p>
+<code>docs/u6-ymparisto.md</code> trap 21 records it, because a test that reseeds per trial
+measures the parity of seeds and looks like a measurement while doing it, and the error is
+exactly the size that passes for a real rule. Had it shipped, the repository would hold a test
+pinning 0.667 for something that is 0.5.
+</p>
+
+<h2>One layout in the engine, not two</h2>
+
+<p>
+The game could save and not load, and the reason was an assembly boundary. Both readers were
+already in the engine; what was on the wrong side was only the byte-format bridge, whose writers
+lived in the export project. Now both layouts live in the engine beside the parsers that read
+them, each with a byte-array primitive and a thin file wrapper over it, and the exporter
+delegates to them and takes its own constants from theirs rather than redeclaring them. One
+definition of each layout instead of two, which was the whole reason for choosing this over new
+constructors.
+</p>
+
+<p>
+The runtime load is readers, write to memory, parse, with no temporary directory anywhere. The
+Tools-side loader is deleted because nothing was left for it to do, and its own suite needed no
+edits at all: same namespace, same class, now backed by the engine.
+</p>
+
+<p>
+Two fault injections prove the delegation rather than the new code: corrupting a byte inside the
+file wrapper failed a new engine test and two of the frozen export suite's own tests; writing a
+wrong object count into the header failed two new tests and both real-save tests in the frozen
+parity suite. The old paths really do run through the moved code.
+</p>
+
+<h2>The game comes back with one keypress</h2>
+
+<p>
+The original's own restore command was read in full: twenty-two steps, each checked against what
+this project has. <code>ClearForLoad</code>'s missing production caller was item seven of that
+list: it was never waiting for a load in general, it was waiting for this exact routine, a
+question its own comment has carried since it was written.
+</p>
+
+<p>
+Three of the twenty-two were left unmeasured at first: the party-wide combat toggle, the
+temporary object block deletion, and the NPC tracker reset. Measured: combat's begin and break
+off are 26 and 30 lines of state, one icon and one song each; the temporary block deletion is a
+measured no-op in this project, because saving writes the real files directly; and the NPC
+tracker is four steps, the first of which is a floor: every character whose dexterity is nought
+gets one, because movement points are granted from dexterity, so a character left at nought
+would never move again.
+</p>
+
+<p>
+The measurement also turned up a bug, <code>originalBugs.md</code> 2.31. Combat's begin searches
+for the member to command by reading the member before it checks the bound, so a wholly
+incapacitated party's last iteration reads one word past the live party and hands it the command
+mode. Same shape as 2.9, where a distance test reads past its own array, and in both the
+condition's two halves are the wrong way round.
+</p>
+
+<p>
+Ctrl+R now prompts and restores. The prompt is resolved by offset through the message table
+rather than as a literal, the input accepts only Y or N and spins on anything else, the pressed
+key is echoed before acting, and a refusal touches nothing at all. On Y the world and characters
+swap, the view's own centre is set from the save's own stored Avatar position, the dependent
+state is rebuilt, and the default command is cleared, which is <code>ClearForLoad</code>'s first
+production caller after having none.
+</p>
+
+<p>
+My own brief said neither combat arm was built and that neither turned up in a search. Both are
+built, as <code>U6CombatSession.Begin</code> and <code>BreakOff</code>, by an earlier slice. I
+had grepped for the original's own identifiers and guessed at an English name, where this
+project names things after the rule rather than the original, which is exactly the mistake this
+project has already written down as a rule of its own: search the rule, not the name.
+</p>
+
+<p>
+Reading the original's condition properly then found a real defect in that older code: the
+search for the member to command tested only incapacitation, where the original also tests being
+dragged under, and the field for that already existed and was never wired in. The missing half
+was added in the original's own order, so bug 2.31's out-of-bounds read now reproduces
+faithfully instead of being quietly safer than the original.
+</p>
+
+<p>
+The build run also caught two of its own leaked-text slips that the automated check did not see,
+both comments quoting the decompilation verbatim, and rewrote them in its own words.
+</p>
+
+<p>
+Three of the twenty-two steps are named rather than built, each with its own reason: two icons
+and a song are presentation and the song is parked; the temporary block deletion is a measured
+no-op; and the status panel's own reset is named as left out, which the view's own restore key
+handler does not touch. One step turned out to be a no-op in the original itself: the last
+active index is written in four places and read in none, which its own header says and the run
+verified.
+</p>
+
+<h2>A creature stops at a wall</h2>
+
+<p>
+The destination walk's last unbuilt rule covers a big, non-flying creature at a wall-tiled
+object, inside the same shared loop as the mouse's own permit. The mover's type travels the
+route the mouse slice already opened, so no new call site was needed. The fixture is a real
+wall-but-passable object type, found by sweeping every type's own base tile against the owner's
+export rather than invented.
+</p>
+
+<p>
+For a flier the rule is redundant: the flying branch only reaches the common tail on a non-wall
+tile, and on a wall tile the answer is already blocked. It is real only for a big, non-flying
+creature, through the walker branch, on a tile that is a wall and not impassable. Of the four
+named types, sixteen are live and fourteen of those fly, so the live subjects are two cyclopes.
+The dragon has no live individual, and the hydra body belongs to no creature class at all.
+</p>
+
+<p>
+Three corrections, all found by the build run. My own brief said the rule does not end the loop.
+It does: the loop's own tail is the next statement after it, so zeroing the flag ends the scan
+immediately. The run traced it and proved it by injecting the continue shape, and only the one
+test built to catch it failed.
+</p>
+
+<p>
+The run could not reproduce the figure 187 and said so instead of guessing, and it was right: the
+party-swap exemption here takes no input for whether the mover is player-controlled, where the
+original reaches it only for a player-controlled mover. So this project answers 184 whoever is
+moving, and my earlier correction of 198 into "187 for an ordinary mover and 184 for the Avatar"
+was still the original's own rule rather than ours. Corrected in two briefs and the plan.
+</p>
+
+<p>
+And the leaked-text check failed on a brief I had committed minutes earlier, because I had
+quoted the original's own restore prompt inside a code block. The check exists precisely for
+this, and it caught a document rather than code.
+</p>
+
+<h2>A mouse squeezes where nothing else does</h2>
+
+<p>
+The destination walk has two branches that permit a square rather than refusing it; the dock
+slice built the shape and the bridge, and this is the other one, the last missing. Sherry passes
+a mouse hole, bars and a portcullis, and nothing else in the game does, because the rule names
+one object type rather than a trait or a class. The mover's own type comes in as an optional
+argument rather than a sixth flag on <code>U6Mover</code>, whose five are the original's own set
+and should not grow one for a single object type.
+</p>
+
+<p>
+This took two rounds, and the second is mine to explain. My own scope line forbade touching the
+vehicle movement, which forced the first build to copy its scan loop: 61 lines against the
+original's 86, reproducing the bridge rule, the ignorable rule and the per-object block. I
+withdrew the scope line, because a third copy of that loop would drift exactly as the first two
+already had. Collapsed, there is one loop with an optional per-entry permit consulted before the
+tile lookup, where the original keeps the mouse's own test. The bridge keeps its break and the
+mouse continues, which is exactly the difference the dock's shape exists for.
+</p>
+
+<p>
+The collapse was proved the way only one loop can be: breaking the shared block test failed nine
+tests at once, across the walker path, the vehicle movement's own suite and the mouse's own,
+which two separate copies could never have shown.
+</p>
+
+<p>
+The squeeze is real: one live mouse of her own type and 166 squares where the permit applies,
+five mouse holes, 88 bars and 73 portcullises. But Sherry is not in the starting party: the
+starting party is four humans, and the one live mouse is character nine, not on the map at all,
+her coordinates far outside a thousand-square world, which is the encoding for something
+unplaced. So the permit has no live subject in the starting world, the same answer the bird rule
+got. Leaving it unwired has no production caller, correctly rather than as an omission, and what
+is still open is not whether she is in the party now but whether anything later puts her there.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>eruption arms, volcano always shakes / fumarole flips a coin     3
+seeding bug, odd seeds measured                        32768 / 32768
+seeding bug, wrong coin equal to the seed               43692 / 65536
+mouse squeeze, squares where the permit applies               166
+mouse squeeze, holes / bars / portcullises               5 / 88 / 73
+blocking creatures, any mover (corrected)               184 / 200
+big creatures for which the wall rule is real                   2
+restore command steps                                     22
+of those, named rather than built                           3
+originalBugs.md new entry                                 2.31
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5411 / 5411
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+The numbers were run by the build runs, nothing skipped. Six build targets at 0 warnings and 0
+errors, <code>CheckAsmdefs.ps1</code> with 0 broken references, the leaked-text check clean on
+both rounds. None of this has been seen on screen: it changes computation, restore and movement,
+the engine rules were proved by breaking them ten different ways, and Unity's own editor Test
+Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Three things are named in the code with what they need: the conversation session a
+     scheduled townsperson needs to actually talk to you, one delegate threaded through the
+     turn; the hit tile a tavern brawler's punch should draw; and the status panel's own reset
+     on a restore.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
