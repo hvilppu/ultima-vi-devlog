@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Greeting That Was Empty | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/177-tervehdys-joka-oli-tyhja.html" hreflang="fi">FI</a><span>/</span><a href="177-the-greeting-that-was-empty.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 177</nav>
+
+<h1>The greeting that was empty</h1>
+
+<p class="lede">
+The last post ended by naming three things, and all three are built now. A conversation greets
+you with the right form of address, a townsperson walks over and starts a conversation of their
+own accord, a brawler's fist flashes a tile over its victim and wakes a sleeper, and a restore no
+longer lands on a spellbook page over a freshly loaded party. The interesting part is none of
+those four. It is that three of them were found by counting consumers rather than by reading a
+rule, and that twice the count refuted something I had just written myself.
+</p>
+
+<h2>Eighteen variables, of which two were seeded</h2>
+
+<p>
+The original sets eighteen variables when a conversation starts: four strings and fourteen
+numbers. This engine set <strong>two</strong> of them, karma and the Gargish flag. A comment
+named the gap honestly but did not give its size, and when I wrote the size in, I got it wrong
+three ways: fourteen instead of eighteen, four instead of six, and three variables missing from
+the list altogether. The count had been made by eye off a routine that was open in front of me.
+</p>
+
+<p>
+The right way to decide which of the sixteen to seed is not to read the routine but to count the
+readers. The owner's own <code>converse.bin</code> holds 199 scripts, and a script reads a
+variable two different ways: in an expression and in printed text. Both channels counted:
+</p>
+
+<pre><code>$G  form of address        197 reads   64 scripts
+$N  NPC name buffer        124 reads   53 scripts
+$T  part of the day         65 reads   49 scripts
+#W  the NPC's work type    110 reads   47 scripts
+$P  party member's name     55 reads   36 scripts
+#G  gender flag             49 reads   22 scripts
+#O  party size less one      7 reads    4 scripts
+#H  the hour                 6 reads    4 scripts
+
+#A #E #I #P #S  the member's five statistics   0 reads   0 scripts
+#D #M #Y        the date                       0 reads   0 scripts</code></pre>
+
+<p>
+So <strong>64 of the 199 scripts greeted the player with an empty word</strong> where the form of
+address belongs, and that is the first thing a player meets in their first conversation. And the
+member's five statistics, which I had named as the slice's own prerequisite, interest not one
+shipped script. What they read from the member is <strong>one string</strong>, their name.
+</p>
+
+<p>
+The four strings are the original's own text and do not enter the repository. They resolve by
+module and offset out of the exported message table, and I checked all six rows before a line of
+code was written: each offset holds exactly one entry, and the text lengths are 6, 6, 39, 7, 9 and
+7, which match the decompilation's own words. <strong>The length is the discriminator.</strong>
+</p>
+
+<h2>And a crash turned up on the way</h2>
+
+<p>
+The conversation world has a clock field that <code>Rest()</code> needs. That field had
+<strong>no production writer at all</strong>: the only writers anywhere in the tree were test
+files, and <code>Rest()</code> throws without a clock, by its own design. The shipped scripts hold
+<strong>18 rest instructions across 16 scripts</strong>, so the first innkeeper who offered a bed
+would have crashed the conversation. The view sets the clock now at both places where it builds
+the conversation world.
+</p>
+
+<p>
+That throw was not the defect. It was the one thing keeping the gap honest: had the field quietly
+skipped the hours instead, the innkeeper would have healed the party for free and nothing would
+have said so.
+</p>
+
+<h2>A townsperson comes to you, and names the wrong member</h2>
+
+<p>
+The schedule has a converse behaviour: a townsperson walks up beside the nearest party member and
+starts a conversation. The arm was built and its delegate had no caller, so the townsperson
+arrived and stood there. Now it talks.
+</p>
+
+<p>
+The interesting part is which index it passes. The original's helper passes the nearest member's
+<strong>character number</strong> into a parameter that means a <strong>party slot</strong>, and
+the decompilation's own comment flags it. I measured out of the memory layout what that reads: the
+name array holds sixteen rows, so a character numbered 1 to 15 gives <em>another member's</em>
+name, and a character numbered 16 to 34 reads the <strong>dexterity array as text</strong>,
+because that array begins immediately after the names. The starting party is characters 1 to 4 in
+slots 0 to 3, so it is off by exactly one: a conversation begun on the Avatar's behalf gets the
+second member's name.
+</p>
+
+<p>
+This is <strong>reproduced rather than fixed</strong>, like every fault of the original in this
+project. Correcting the index passes every other test and fails exactly the one written for it.
+For characters 16 and above the dexterity array cannot be read as text here, because this project
+does not have that memory layout, so it answers the empty string and the divergence is recorded
+where it arises.
+</p>
+
+<h2>A fist that flashes and wakes</h2>
+
+<p>
+The original's hit flash is a shared primitive: <strong>fifteen call sites</strong>, five of which
+this project's own files named as a gap. Its four rules sit at three different nesting depths, and
+the depth is the whole measurement:
+</p>
+
+<ul>
+  <li>the tile and the sound need both the flash flag and the eleven-square window</li>
+  <li>the hurt-this-turn bit needs the flag alone, so <strong>an off-screen actor still gets
+      it</strong>, which buys it one turn of immunity from the ground it stands on</li>
+  <li>the waking is outside both, so <strong>a suppressed flash still wakes a sleeper</strong>
+      and restores its original shape</li>
+  <li>the flag re-arms itself at the end, so a suppression covers exactly the next call</li>
+</ul>
+
+<p>
+The flash's duration was <strong>measured from the sound</strong> rather than written as a frame
+count. The original plays the sound between two redraws, and that call is the only thing in the
+sequence that waits, so the flash lasts exactly as long as the sound: effect 4 is 800 draws at 82
+microseconds each, which is <strong>65.6 milliseconds</strong>. The test computes that from the
+sound renderer and compares it against the constant, so the constant cannot fall behind.
+</p>
+
+<p>
+And the flash draws through the composer's own object-tile path rather than painting the screen,
+so it inherits two refusals for free: <strong>a hidden cell and a dark cell draw nothing</strong>.
+That was not invented but read out of the original's own drawing routine, whose own header names
+hit effects as the only reason its "on top" mode exists.
+</p>
+
+<h2>A restore that forgot four of its own resets</h2>
+
+<p>
+Ctrl+R loaded the saved game but left the status view, the status member and the select mode
+alone, the last of which is two targeting flags here rather than a stored field. So a restore
+could land on a spellbook page over a freshly loaded party, and Ctrl+R pressed with a target
+prompt armed loaded the save with the aiming cursor still up.
+</p>
+
+<p>
+The branch worth pinning is not that Y resets them but that <strong>N changes none of the
+four</strong>, and that cannot be asserted from a test which has to construct a Unity view. So
+the decision is its own type in the engine assembly, and the build run proved it by breaking it:
+hoisting the reset above the Y/N branch failed all six tests. The party view is also
+<em>entered</em> rather than restored from the stash, because the original sets the display, and a
+stash-popping build would bring back whatever a spellbook browse left there.
+</p>
+
+<p>
+The slice also corrected a claim in our own code. The restore command's remarks said the status
+steps were already handled elsewhere, on the strength of the panel having arms for them.
+<strong>The arms exist and nothing called them.</strong> "An arm exists" and "the step happens"
+read identically and are not the same claim.
+</p>
+
+<h2>What the counting cost and what it bought</h2>
+
+<p>
+Three times in this batch a count refuted something I had just written. A comment said fourteen
+where the number is eighteen. A brief said the converse arm needs the nearest member's party
+slot, when it needs the character number in the wrong parameter. And a brief said five dead
+refusals behind solo mode, when there are six, and the sixth is the only one in the list that
+draws.
+</p>
+
+<p>
+The same counting found one thing that is my mistake rather than the original's:
+<code>originalBugs.md</code> numbers its last four entries from 2.30 again, where the numbering
+otherwise runs to 2.83, so <strong>nine citations in code, tests and documents point a reader at
+the wrong entry</strong>. It is recorded as a debt to be paid rather than as a bug of the
+original's, because it is not one.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>conversation variables in the original                       18
+of those, seeded before this batch                            2
+of those, seeded now                                         10
+zero-reader variables, deliberately left                      8
+scripts where the empty form of address showed           64 / 199
+shipped script text as a share of the file         370078 / 492144
+rest instructions that would have crashed a talk      18 / 16 scr.
+message table rows, each exactly one                          6
+hit flash call sites in the original                         15
+flash duration, measured from its sound                  65.6 ms
+name array rows, and where the over-read begins              16
+restore resets, of which one happened                     4 / 1
+dead consumers behind solo mode                               6
+originalBugs.md numbering collision, my own                   4
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5444 / 5444
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+The numbers were run after each slice separately, with nothing skipped: six build targets with 0
+warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken references, and the leaked-text
+check with 0 findings. One of these changes what appears on screen, the hit flash, and
+<strong>that half has not been seen</strong>: the engine's rules were proven by breaking them nine
+ways, but a tile appearing over a brawler's victim is something only a screenshot can prove.
+Unity's own editor Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The number keys do nothing in the game, and that is measured rather than a matter of taste:
+     solo mode cannot be entered because only tests write that field, so six built and tested
+     consumers are live code behind a constant. And the hail storm's animation turns out to be a
+     correctness slice rather than a decoration: the original rolls dice inside the animation,
+     hundreds of them, and this project has exactly one random stream.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

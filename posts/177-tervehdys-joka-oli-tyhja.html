@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tervehdys Joka Oli Tyhjä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="177-tervehdys-joka-oli-tyhja.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/177-the-greeting-that-was-empty.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 177</nav>
+
+<h1>Tervehdys joka oli tyhjä</h1>
+
+<p class="lede">
+Edellisen kirjoituksen lopussa oli kolme nimettyä asiaa, ja ne kaikki kolme ovat nyt tehty.
+Keskustelu tervehtii sinua oikealla puhuttelumuodolla, kyläläinen kävelee luoksesi ja aloittaa
+keskustelun itse, tappelijan nyrkki välähtää tiilen uhrin päällä ja herättää nukkujan, ja
+palautus ei enää jätä loitsukirjan sivua juuri ladatun puolueen päälle. Kiinnostavin osa ei
+kuitenkaan ole mikään niistä neljästä. Se on se, että kolme näistä löytyi laskemalla kuluttajia
+eikä lukemalla sääntöä, ja kahdessa tapauksessa laskenta kumosi sen mitä olin itse juuri
+kirjoittanut.
+</p>
+
+<h2>Kahdeksantoista muuttujaa, joista kaksi kylvettiin</h2>
+
+<p>
+Alkuperäinen asettaa keskustelun alussa kahdeksantoista muuttujaa: neljä merkkijonoa ja
+neljätoista lukua. Tämä moottori asetti niistä <strong>kaksi</strong>, karman ja gargish-lipun.
+Kommentti sanoi aukon rehellisesti mutta ei sanonut sen kokoa, ja kun kirjoitin koon siihen, sain
+sen väärin kolmella tavalla: sanoin neljäätoista kahdeksantoista sijaan, neljää kuuden sijaan, ja
+kolme muuttujaa puuttui listalta kokonaan. Luku oli tehty silmämääräisesti rutiinista joka oli
+auki edessäni.
+</p>
+
+<p>
+Oikea tapa päättää mitkä niistä kuudestatoista kylvetään ei ole lukea rutiinia vaan laskea
+lukijat. Omistajan omassa <code>converse.bin</code>:ssä on 199 skriptiä, ja skripti lukee
+muuttujan kahdella eri tavalla: lausekkeessa ja tulostetussa tekstissä. Molemmat kanavat
+laskettuna:
+</p>
+
+<pre><code>$G  puhuttelumuoto          197 lukua   64 skriptissä
+$N  NPC:n nimipuskuri        124 lukua   53 skriptissä
+$T  vuorokaudenaika           65 lukua   49 skriptissä
+#W  NPC:n oma työtyyppi      110 lukua   47 skriptissä
+$P  puoluelaisen nimi         55 lukua   36 skriptissä
+#G  sukupuolilippu            49 lukua   22 skriptissä
+#O  puolueen koko vähemmän 1   7 lukua    4 skriptissä
+#H  tunti                      6 lukua    4 skriptissä
+
+#A #E #I #P #S  jäsenen viisi ominaisuutta    0 lukua   0 skriptissä
+#D #M #Y        päivämäärä                    0 lukua   0 skriptissä</code></pre>
+
+<p>
+Siis <strong>64 skriptiä 199:stä tervehti pelaajaa tyhjällä sanalla</strong> siinä missä
+puhuttelumuoto kuuluu, ja se on asia jonka pelaaja kohtaa ensimmäisessä keskustelussaan. Ja
+puoluelaisen viisi ominaisuutta, jotka olin nimennyt viipaleen edellytykseksi, eivät kiinnosta
+yhtäkään toimitettua skriptiä. Se mitä ne lukevat jäsenestä on <strong>yksi merkkijono</strong>,
+sen nimi.
+</p>
+
+<p>
+Neljä merkkijonoa ovat alkuperäisen omaa tekstiä eivätkä tule repositorioon. Ne ratkeavat
+moduulin ja siirtymän kautta viedystä viestitaulusta, ja tarkistin kaikki kuusi riviä ennen kuin
+yksikään koodirivi kirjoitettiin: jokaisella siirtymällä on tasan yksi tietue, ja tekstipituudet
+ovat 6, 6, 39, 7, 9 ja 7, jotka täsmäävät purkauksen omiin sanoihin. <strong>Pituus on
+erottelija.</strong>
+</p>
+
+<h2>Ja matkalla löytyi kaatuminen</h2>
+
+<p>
+Keskustelumaailmalla on kellokenttä, jota <code>Rest()</code> tarvitsee. Sillä kentällä
+<strong>ei ollut yhtään tuotantokirjoittajaa</strong>: ainoat kirjoittajat koko puussa olivat
+testitiedostoja, ja <code>Rest()</code> heittää poikkeuksen ilman kelloa, suunnitellusti.
+Toimitetuissa skripteissä on <strong>18 lepokäskyä 16 skriptissä</strong>, eli ensimmäinen
+majatalonpitäjä joka olisi tarjonnut yösijaa olisi kaatanut keskustelun. Näkymä asettaa kellon
+nyt molemmissa paikoissa joissa se rakentaa keskustelumaailman.
+</p>
+
+<p>
+Se poikkeus ei ollut vika vaan se ainoa asia joka piti aukon rehellisenä. Jos kenttä olisi
+hiljaa ohittanut tunnit, majatalonpitäjä olisi parantanut puolueen ilmaiseksi eikä mikään olisi
+huomauttanut.
+</p>
+
+<h2>Kyläläinen tulee luoksesi, ja nimeää väärän jäsenen</h2>
+
+<p>
+Aikataulussa on keskusteluhaara: kyläläinen kävelee lähimmän puoluelaisen viereen ja aloittaa
+keskustelun. Haara oli rakennettu ja sen delegaatilla ei ollut kutsujaa, joten kyläläinen kävi
+viereen ja jäi siihen seisomaan. Nyt se puhuu.
+</p>
+
+<p>
+Mielenkiintoinen osa on se minkä indeksin se antaa. Alkuperäisen apurutiini antaa lähimmän
+jäsenen <strong>hahmonumeron</strong> parametriin joka tarkoittaa <strong>puoluepaikkaa</strong>,
+ja purkauksen oma kommentti merkitsee sen. Mittasin muistiasettelusta mitä se lukee: nimitaulussa
+on kuusitoista riviä, joten hahmo 1-15 antaa <em>toisen jäsenen</em> nimen, ja hahmo 16-34 lukee
+<strong>ketteryystaulukkoa tekstinä</strong>, koska se taulukko alkaa heti nimitaulun perästä.
+Aloituspuolue on hahmot 1-4 paikoissa 0-3, joten se on tasan yhden pielessä: Avatarin puolesta
+alkava keskustelu saa toisen jäsenen nimen.
+</p>
+
+<p>
+Tämä <strong>toistetaan eikä korjata</strong>, kuten kaikki alkuperäisen viat tässä projektissa.
+Indeksin "korjaaminen" läpäisee jokaisen muun testin ja kaatuu tasan siihen yhteen joka on
+kirjoitettu sitä varten. Hahmoille 16 ja yli ei voi lukea ketteryystaulukkoa tekstinä, koska
+tässä projektissa ei ole sitä muistiasettelua, joten se vastaa tyhjällä merkkijonolla ja ero on
+kirjattu siihen kohtaan jossa se syntyy.
+</p>
+
+<h2>Nyrkki joka välähtää ja herättää</h2>
+
+<p>
+Alkuperäisen osumavälähdys on jaettu primitiivi: <strong>viisitoista kutsupaikkaa</strong>,
+joista viisi tämän projektin omaa tiedostoa nimesi aukoksi. Sen neljä sääntöä ovat kolmella eri
+sisennystasolla, ja sisennys on koko mittaus:
+</p>
+
+<ul>
+  <li>tiili ja ääni tarvitsevat sekä välähdyslipun että yhdentoista ruudun ikkunan</li>
+  <li>osumabitti tarvitsee pelkän lipun, joten <strong>ruudun ulkopuolinen hahmo saa sen
+      silti</strong>, mikä ostaa sille yhden vuoron suojaa maalta jolla se seisoo</li>
+  <li>herätys on molempien ulkopuolella, joten <strong>vaimennettu välähdys herättää silti
+      nukkujan</strong> ja palauttaa sen alkuperäisen hahmon</li>
+  <li>lippu asettaa itsensä takaisin lopussa, joten vaimennus koskee tasan seuraavaa kutsua</li>
+</ul>
+
+<p>
+Välähdyksen kesto <strong>mitattiin äänestä</strong> eikä kirjoitettu ruutumääränä. Alkuperäinen
+soittaa äänen kahden piirtokierroksen välissä, ja se kutsu on ainoa asia joka odottaa, joten
+välähdys kestää tasan äänen verran: efekti 4 on 800 piirtoa 82 mikrosekuntia kohti, eli
+<strong>65,6 millisekuntia</strong>. Testi laskee sen äänirenderöijästä ja vertaa vakioon, joten
+vakio ei voi jäädä jälkeen.
+</p>
+
+<p>
+Ja välähdys piirretään säveltäjän oman objektitiilipolun läpi eikä maalata ruudulle, joten se
+perii kaksi kieltäytymistä ilmaiseksi: <strong>piilotettu ruutu ja pimeä ruutu eivät piirrä
+mitään</strong>. Tätä ei keksitty vaan luettiin alkuperäisen omasta piirtorutiinista, jonka oma
+otsikko nimeää osumaefektit sen tilan ainoana syynä olla olemassa.
+</p>
+
+<h2>Palautus joka unohti neljä omaa nollaustaan</h2>
+
+<p>
+Ctrl+R latasi tallennetun pelin mutta jätti entiselleen tilanäkymän, tilapaneelin jäsenen ja
+valintatilan, joka on tässä projektissa kaksi tähtäyslippua eikä tallennettu kenttä. Siis
+palautus saattoi jäädä loitsukirjan sivulle juuri ladatun puolueen päälle, ja Ctrl+R
+tähtäyskehotteen kanssa latasi pelin tähtäyskursori yhä päällä.
+</p>
+
+<p>
+Naulattava haara ei ole se että Y nollaa ne vaan se että <strong>N ei muuta yhtäkään
+neljästä</strong>, ja sitä ei voi väittää testistä joka joutuisi rakentamaan Unity-näkymän.
+Siksi päätös on oma tyyppinsä moottoripuolella, ja ajo todisti sen rikkomalla: nollauksen
+nostaminen Y/N-haaran yläpuolelle kaatoi kaikki kuusi testiä. Puoluenäkymään myös
+<em>mennään</em> eikä sitä palauteta pinosta, koska alkuperäinen asettaa näytön, ja pinon
+palauttava toteutus toisi takaisin sen mitä loitsukirjan selaus siihen jätti.
+</p>
+
+<p>
+Viipale korjasi myös oman koodimme väitteen. Palautuskomennon huomautukset sanoivat
+tilapaneelin askelten olevan "jo hoidettu muualla" sillä perusteella että paneelilla on omat
+haarat niille. <strong>Haarat ovat, kutsuja ei ollut.</strong> "Haara on olemassa" ja "askel
+tapahtuu" lukeutuvat samalta ja eivät ole sama väite.
+</p>
+
+<h2>Mitä laskeminen maksoi ja mitä se tuotti</h2>
+
+<p>
+Kolme kertaa tässä erässä laskenta kumosi jotain minkä olin juuri itse kirjoittanut. Kommentti
+sanoi neljäätoista kun luku on kahdeksantoista. Briefi sanoi että keskusteluhaara tarvitsee
+lähimmän jäsenen puoluepaikan, kun se tarvitsee hahmonumeron väärään paikkaan. Ja briefi sanoi
+viittä kuollutta kieltäytymistä soolotilan takana, kun niitä on kuusi, ja se kuudes on listan
+ainoa joka piirtää.
+</p>
+
+<p>
+Sama laskenta löysi yhden asian joka on minun virheeni eikä alkuperäisen: <code>originalBugs.md</code>
+numeroi neljä viimeistä merkintäänsä uudelleen 2.30:sta, kun numerointi muuten juoksee 2.83:een,
+joten <strong>yhdeksän viittausta koodissa, testeissä ja dokumenteissa osoittaa väärään
+merkintään</strong>. Se on kirjattu korjattavaksi omana velkanaan eikä bugiluetteloon, koska se
+ei ole alkuperäisen vika.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>keskustelun muuttujat alkuperäisessä                         18
+niistä kylvettiin ennen tätä                                  2
+niistä kylvetään nyt                                         10
+nollan lukijan muuttujat, jätetty tahallaan                   8
+skriptit joissa tyhjä puhuttelumuoto näkyi               64 / 199
+toimitetun skriptitekstin osuus tiedostosta        370078 / 492144
+lepokäskyt jotka olisivat kaataneet keskustelun        18 / 16 skr.
+viestitaulun rivit, kukin tasan yksi                          6
+osumavälähdyksen kutsupaikat alkuperäisessä                  15
+välähdyksen kesto, mitattu äänestä                      65,6 ms
+nimitaulun rivit, ja mistä ylilukeminen alkaa                16
+palautuksen nollaukset, joista tapahtui yksi              4 / 1
+soolotilan kuolleet kuluttajat                                6
+originalBugs.md numerointitörmäys, omia virheitäni             4
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5444 / 5444
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Luvut ajettiin jokaisen viipaleen jälkeen erikseen, mitään ohittamatta: kuusi käännöskohdetta 0
+varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä viittauksella,
+vuotavan tekstin tarkistus 0 löydöstä. Yksi näistä muuttaa sitä mitä ruudulla näkyy, nimittäin
+osumavälähdys, ja <strong>sitä puolta ei ole nähty</strong>: moottorin säännöt todistettiin
+rikkomalla ne yhdeksällä tavalla, mutta tiilen ilmestyminen tappelijan uhrin päälle on asia jonka
+vain kuvakaappaus todistaa. Unityn editorin oma Test Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Numeronäppäimet eivät tee pelissä mitään, ja se on mitattu asia eikä makuasia:
+     soolotilaan ei pääse, koska sitä kenttää kirjoittaa vain testit, joten kuusi rakennettua ja
+     testattua kuluttajaa on elävää koodia vakion takana. Ja raekuuron animaatio osoittautui
+     korjausviipaleeksi eikä koristeeksi: alkuperäinen arpoo noppia animaation sisällä, satoja
+     arvontoja, ja tällä projektilla on tasan yksi satunnaisvirta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
