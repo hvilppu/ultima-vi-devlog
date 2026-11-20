@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Storm That Never Rolled Its Dice | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/178-myrsky-joka-ei-heittanyt-noppiaan.html" hreflang="fi">FI</a><span>/</span><a href="178-the-storm-that-never-rolled-its-dice.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 178</nav>
+
+<h1>The storm that never rolled its dice</h1>
+
+<p class="lede">
+Hail storm worked. The stone count was right, the impact distribution was right, the damage was
+right, and tests pinned all three. It was still broken in a way none of those tests could see:
+<strong>it consumed 41 draws where the original consumes 614</strong>, and this project has
+exactly one random stream. So the spell itself was not wrong; it displaced everything that
+happens after it in the session.
+</p>
+
+<h2>The animation is the thing that rolls</h2>
+
+<p>
+Easy to say and hard to notice: in the original the <em>spell's branch</em> rolls almost nothing.
+It calls an animation, and the animation rolls. This project had built the branch and left the
+animation out entirely, because an animation looks like decoration. Inside it are three separate
+sources of draws, and none of them existed here:
+</p>
+
+<ul>
+  <li>a <strong>launch gate</strong>, one in eight, rolled on every pass while stones remain and
+      one of the six slots is free</li>
+  <li>a <strong>ground impact's own sound argument</strong>, 400 to 500, rolled on every
+      impact</li>
+  <li>the <strong>sound effect itself</strong>, played once per pass, whose own handler rolls
+      forty gates whenever the argument is above 19</li>
+</ul>
+
+<p>
+A stone falls fifty pixels diagonally at one pixel per pass, so it is in the air for fifty
+passes, and the gate is one in eight. A ten-stone storm therefore runs for hundreds of passes
+and takes <strong>614 draws</strong> where the old branch took 41. The figure is not written into
+the code as a constant, because it depends on the launch pattern: the class reports it and the
+test measures it off a storm that actually ran.
+</p>
+
+<h2>Sound is part of the dice, not part of the presentation</h2>
+
+<p>
+This is the part that surprised me. The sound handler's first line returns immediately when sound
+is switched off, and that line sits above <em>every</em> arm that draws. So the same spell with
+the same seed leaves the generator in a different state depending on whether the player has sound
+on, and every later roll in the session follows from that. It is not a simplification here; it is
+the original's own behaviour, so the view feeds its own sound flag into the storm.
+</p>
+
+<p>
+The brief left this as an open question and said not to choose an answer. The answer was already
+in our own code: the sound engine had measured that line on an earlier slice, so the question had
+been answered before it was asked.
+</p>
+
+<h2>The stone that vanishes at the edge of the map</h2>
+
+<p>
+Writing the loop out turned up a fault of the original's, now recorded as entry 3.38. The six
+stones in flight live in arrays, and <strong>both the free-slot test and the still-falling test
+read the x axis alone</strong>. A stone starts fifty pixels up and to the left of its impact
+point, so a stone whose impact pixel is below fifty starts with a negative x, reads as an empty
+slot <em>immediately</em>, and vanishes: deducted from the counter, four dice already rolled,
+never drawn, never moved, never landed, never hurting anyone.
+</p>
+
+<p>
+The boundary was computed from the two conditions rather than inferred: a stone survives when its
+two dice reach <code>73 - 16 &times; column</code>, and the pair spans 2 to 60. So column 0 loses
+every stone, columns 1 to 4 lose some and land others, and from column 5 outward nothing is lost.
+The y axis is not involved at all, because neither test reads it.
+</p>
+
+<p>
+The fault is <strong>imitated by construction rather than modelled</strong>: the same loop with
+the same two conditions, and a counter that only reports what follows from them.
+</p>
+
+<h2>And it made an old test unreachable</h2>
+
+<p>
+An old test pinned the pixel-to-square conversion: the original shifts bits rather than dividing,
+and the two disagree for every negative pixel. That test aimed at a negative <em>column</em>
+pixel. Such a pixel is always below fifty, so that stone never lands anywhere: the test was
+pinning a case the original does not produce.
+</p>
+
+<p>
+The discriminator moved to the <strong>y axis</strong>, which neither test reads. A negative row
+pixel lands normally, the shift answers square -2 where a division would answer -1, and the seed
+where that happens is found by running the same dice through a parallel generator rather than
+assumed.
+</p>
+
+<h2>Two of my own claims failed their own tests</h2>
+
+<p>
+I wrote into the bug entry that columns 0, 1 and 2 lose every stone. <code>16 + 60 - 23 = 53</code>
+clears fifty, so a lucky pair does put a stone in the air from column 1, and my own test failed on
+it before the entry reached a commit. And I said a pass that hits an actor consumes exactly one
+draw; it consumes two when the same pass also rolls the launch gate, so the exact count is now
+claimed only for a pass after the last launch.
+</p>
+
+<p>
+The audit found the third one: two figures had been written as bounds (<q>more than four
+hundred</q>) instead of measurements. They were measured and pinned exactly, 614 and 355, because
+a loose bound lets a change through without saying anything.
+</p>
+
+<h2>The number keys, and four numbers that collided</h2>
+
+<p>
+Two earlier slices belong to the same batch. <strong>The number keys now do something:</strong>
+solo mode could not be entered at all, because only tests wrote that field, so six built and
+tested consumers were live code behind a constant. The camera deliberately does <em>not</em>
+follow the switch: in this view the camera is the source of truth and a character follows it, so
+moving the camera onto another member would teleport the Avatar onto them at the next step.
+</p>
+
+<p>
+And <code>originalBugs.md</code> had numbered its last four entries over two existing ones, so
+nine citations pointed a reader at the wrong entry. That is my mistake and not the original's, so
+it is recorded as a debt paid rather than in the bug list. The fix was made line by line rather
+than by substitution: the plan cites the same numbers as ranges too, and a blind replacement
+would have broken four more references.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>hail storm draws, old branch                                  41
+hail storm draws, measured (10 stones, sound on)             614
+the same with sound off, 28 stones                           355
+stones in the air at once, at most                             6
+launch gate                                            1 / 8 passes
+a stone in the air, in passes                                 50
+the sound effect's own iterations per call                    40
+the column that loses every stone                              0
+the columns that lose some                                   1-4
+new tests                                                     23
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5488 / 5488
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings, nothing skipped. Unity's own Test Runner was
+<strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The storm rolls the right dice now and none of it is visible yet: the stones do not fall on
+     screen and no hit flash appears under a hailstone. The original draws that flash at a pixel
+     position rather than through the cell stack, so it does <em>not</em> inherit the dark-square
+     and hidden-square refusals the brawler's own flash inherits, and that difference is the next
+     slice's discriminator. The original's own in-place coordinate conversion goes in with it: it
+     flashes a second actor on the same square in the wrong place.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

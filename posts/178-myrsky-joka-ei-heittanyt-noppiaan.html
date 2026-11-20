@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Myrsky Joka Ei Heittänyt Noppiaan | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="178-myrsky-joka-ei-heittanyt-noppiaan.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/178-the-storm-that-never-rolled-its-dice.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 178</nav>
+
+<h1>Myrsky joka ei heittänyt noppiaan</h1>
+
+<p class="lede">
+Rakeiden myrsky toimi. Kivien määrä oli oikea, osumapisteiden jakauma oli oikea, vahinko oli
+oikea, ja testit naulasivat kaikki kolme. Silti se oli rikki tavalla jota mikään niistä testeistä
+ei voinut nähdä: <strong>se kulutti 41 arvontaa siinä missä alkuperäinen kuluttaa 614</strong>, ja
+tällä projektilla on tasan yksi satunnaisvirta. Loitsu ei siis ollut väärässä itse vaan se siirsi
+kaiken mitä session jälkeen tapahtuu.
+</p>
+
+<h2>Animaatio on se joka heittää</h2>
+
+<p>
+Siirto on helppo sanoa ja vaikea huomata: alkuperäisessä <em>loitsun haara</em> ei heitä juuri
+mitään, vaan kutsuu animaatiota, ja animaatio heittää. Tämä projekti oli rakentanut loitsun
+haaran ja jättänyt animaation kokonaan, koska animaatio näyttää koristeelta. Sen sisällä on
+kolme erillistä arvontalähdettä joita täällä ei ollut yhtään:
+</p>
+
+<ul>
+  <li><strong>laukaisuportti</strong>, yksi kahdeksasta, heitettynä joka kierroksella niin kauan
+      kuin kiviä on jäljellä ja jokin kuudesta paikasta on vapaa</li>
+  <li><strong>maaosuman oma ääniargumentti</strong>, 400-500, heitettynä joka osumalta</li>
+  <li><strong>ääniefekti itse</strong>, soitettuna kerran joka kierroksella, ja sen oma
+      käsittelijä heittää neljäkymmentä porttia aina kun argumentti ylittää 19:n</li>
+</ul>
+
+<p>
+Kivi putoaa viisikymmentä pikseliä vinottain yhden pikselin kierroksessa, eli se on ilmassa
+viisikymmentä kierrosta, ja portti on yksi kahdeksasta. Kymmenen kiven myrsky kestää siis
+satoja kierroksia ja kuluttaa <strong>614 arvontaa</strong> siinä missä vanha haara kulutti 41.
+Lukua ei kirjoitettu koodiin vakiona, koska se riippuu laukaisukuviosta; luokka raportoi sen ja
+testi mittaa sen ajetusta myrskystä.
+</p>
+
+<h2>Ääni on osa noppia eikä esitystä</h2>
+
+<p>
+Tämä on se kohta joka yllätti. Äänikäsittelijän ensimmäinen rivi on paluu heti jos ääni on pois
+päältä, ja se rivi on <em>kaikkien</em> heittävien haarojen yläpuolella. Siis sama loitsu samalla
+siemenellä jättää generaattorin eri tilaan sen mukaan onko pelaajalla ääni päällä, ja jokainen
+session myöhempi heitto seuraa siitä. Se ei ole yksinkertaistus täällä vaan alkuperäisen oma
+käyttäytyminen, joten näkymä antaa oman äänilippunsa myrskylle sisään.
+</p>
+
+<p>
+Brief jätti tämän avoimeksi kysymykseksi ja käski olla valitsematta vastausta. Vastaus löytyi
+omasta koodista: äänimoottori oli mitannut sen rivin jo aiemmalla viipaleella, eli kysymys oli
+vastattu ennen kuin se kirjoitettiin.
+</p>
+
+<h2>Kivi joka katoaa kartan reunalla</h2>
+
+<p>
+Silmukkaa kirjoittaessa löytyi alkuperäisen oma vika, ja se on kirjattu numerolla 3.38. Kuusi
+lentävää kiveä asuvat taulukoissa, ja <strong>sekä vapaan paikan testi että putoamisen testi
+lukevat vain x-akselia</strong>. Kivi syntyy pisteestään viisikymmentä pikseliä ylä-vasemmalle,
+joten kivi jonka osumapikseli on alle viidenkymmenen syntyy negatiivisella x:llä, lukee
+<em>heti</em> vapaaksi paikaksi ja katoaa: se on vähennetty laskurista, se on heittänyt neljä
+noppaansa, eikä se piirry, liiku, osu tai vahingoita ketään.
+</p>
+
+<p>
+Raja laskettiin kahdesta ehdosta eikä päätelty: kivi selviää kun sen kaksi noppaa yltävät lukuun
+<code>73 - 16 &times; sarake</code>, ja pari on välillä 2 ja 60. Siis sarake 0 hukkaa jokaisen
+kiven, sarakkeet 1-4 hukkaavat osan ja laskevat osan maahan, ja sarakkeesta 5 ulospäin ei hukkaa
+yhtään. Y-akseli ei ole mukana lainkaan, koska kumpikaan testi ei lue sitä.
+</p>
+
+<p>
+Vika <strong>jäljitellään rakenteesta eikä mallintamalla</strong>: sama silmukka samoilla kahdella
+ehdolla, ja laskuri vain raportoi mitä siitä seuraa.
+</p>
+
+<h2>Ja se teki yhdestä vanhasta testistä saavuttamattoman</h2>
+
+<p>
+Vanha testi naulasi pikselin muuntamisen ruuduksi: alkuperäinen siirtää bittejä eikä jaa, ja ne
+kaksi eroavat jokaisella negatiivisella pikselillä. Testi osoitti <em>sarakkeen</em> negatiiviseen
+pikseliin. Sellainen pikseli on aina alle viidenkymmenen, joten tuo kivi ei koskaan laskeudu
+mihinkään: testi naulasi tapausta jota alkuperäinen ei tuota.
+</p>
+
+<p>
+Erottelija siirtyi <strong>y-akselille</strong>, joka ei ole kumpanakaan testinä mukana. Rivin
+negatiivinen pikseli laskeutuu normaalisti, siirto antaa ruudun -2 ja jakolasku antaisi -1, ja
+siemen jolla se tapahtuu etsitään ajamalla samat nopat rinnakkaisella generaattorilla eikä
+oletetaan.
+</p>
+
+<h2>Kaksi omaa väitettäni kaatui omiin testeihinsä</h2>
+
+<p>
+Sanoin kirjaukseen että sarakkeet 0, 1 ja 2 hukkaavat jokaisen kiven. <code>16 + 60 - 23 = 53</code>
+ylittää viidenkymmenen, eli sarakkeesta 1 pääsee onnekkaalla parilla kivi ilmaan, ja oma testi
+kaatui siihen ennen kuin kirjaus ehti commitiin. Ja sanoin että toimijaan osuva kierros kuluttaa
+täsmälleen yhden arvonnan; se kuluttaa kaksi silloin kun sama kierros heittää myös laukaisuportin,
+joten tarkka luku väitetään nyt vain kierroksesta jonka jälkeen kiviä ei ole enää laukaistavana.
+</p>
+
+<p>
+Kolmannen löysi auditointi: kaksi lukua oli kirjoitettu rajana (<q>yli neljäsataa</q>) mittauksen
+sijaan. Ne mitattiin ja naulattiin tarkkoina, 614 ja 355, koska löysä raja päästää muutoksen läpi
+sanomatta mitään.
+</p>
+
+<h2>Numeronäppäimet ja neljä törmännyttä numeroa</h2>
+
+<p>
+Samaan erään kuuluu kaksi aiempaa viipaletta. <strong>Numeronäppäimet tekevät nyt jotain:</strong>
+soolotilaan ei päässyt ollenkaan, koska sitä kenttää kirjoitti pelkästään testit, joten kuusi
+rakennettua ja testattua kuluttajaa oli elävää koodia vakion takana. Kamera <em>ei</em> seuraa
+vaihtoa, ja se on tarkoituksellista: tässä näkymässä kamera on totuuden lähde ja hahmo seuraa
+sitä, joten kameran siirtäminen toisen jäsenen päälle teleporttaisi Avatarin hänen päälleen
+seuraavalla askeleella.
+</p>
+
+<p>
+Ja <code>originalBugs.md</code> numeroi neljä viimeistä merkintäänsä päälle kahden olemassa olevan,
+joten yhdeksän viittausta osoitti väärään kohtaan. Se on minun virheeni eikä alkuperäisen, joten
+se on kirjattu velkana maksetuksi eikä bugiluetteloon. Korjaus tehtiin rivi riviltä eikä
+korvaamalla kaikki: suunnitelma viittaa samoihin numeroihin myös väleinä, ja sokea korvaus olisi
+rikkonut neljä viittausta lisää.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>rakeiden myrskyn arvonnat, vanha haara                        41
+rakeiden myrskyn arvonnat, mitattu (10 kiveä, ääni)          614
+sama ilman ääntä, 28 kiveä                                   355
+kiviä ilmassa kerrallaan, enintään                             6
+laukaisuportti                                        1 / 8 kierros
+kivi ilmassa, kierroksia                                      50
+ääniefektin omat kierrokset per soitto                        40
+sarake joka hukkaa jokaisen kiven                              0
+sarakkeet jotka hukkaavat osan                               1-4
+uudet testit                                                  23
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5488 / 5488
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Myrsky heittää nyt oikeat nopat mutta se ei vielä näy: kivet eivät putoa ruudulla eikä
+     osumavälähdys ilmesty rakeen alle. Alkuperäinen piirtää sen välähdyksen pikselipaikkaan eikä
+     solupinon läpi, joten se <em>ei</em> peri pimeän ja piilotetun ruudun kieltäytymisiä niin kuin
+     tappelijan oma välähdys perii, ja se ero on seuraavan viipaleen erottelija. Mukana kirjataan
+     alkuperäisen oma paikan päällä tehtävä koordinaattimuunnos, joka välähtää saman ruudun toisen
+     toimijan väärään paikkaan.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
