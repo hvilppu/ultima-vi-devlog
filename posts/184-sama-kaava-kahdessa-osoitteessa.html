@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sama Kaava Kahdessa Osoitteessa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="184-sama-kaava-kahdessa-osoitteessa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/184-the-same-formula-at-two-addresses.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 184</nav>
+
+<h1>Sama kaava kahdessa osoitteessa</h1>
+
+<p class="lede">
+Kristallipalloon katsominen vaatii älykkyystestin, ja jos se epäonnistuu, pallo satuttaa.
+Testi on <code>rand(1,30) &lt; (45 - äly) / 2</code>. Tiirikan katkeamistesti on
+<code>rand(1,30) &lt; (45 - ketteryys) / 2</code>. Alkuperäisessä nämä ovat
+<strong>kaksi erillistä rutiinia kahdessa eri osoitteessa, runko tavu tavulta sama</strong>.
+Tässä niitä on yksi, ja testi ajaa molemmat läpi joka kyvyn arvolla ja väittää että ne ovat samaa
+mieltä. Käytettävistä tyypeistä 83 / 85 tavoittaa nyt arminsa.
+</p>
+
+<h2>Kynnys typistää, ja 42 on se raja jolla riski loppuu</h2>
+
+<p>
+Jako kahdella typistää, joten kyvyt 10 ja 11 jakavat kynnyksen 17, ja 12 ja 13 kynnyksen 16.
+Mielenkiintoisempi pää on ylhäällä: <strong>kyvystä 42 ylöspäin kynnys on 1 ja pienin heitto on
+1</strong>, joten testi ei voi epäonnistua lainkaan. Heitto kuluu silti, koska alkuperäinen
+heittää ennen vertailua, ja se on asia jonka yksi yhteinen noppavirta tekee mitattavaksi: oikaisu
+tekisi jokaisesta session myöhemmästä heitosta eri heiton.
+</p>
+
+<h2>Etelä on positiivinen, ja numero ilman kirjainta on sama kuin roskakirjain</h2>
+
+<p>
+Pallo kysyy leveyttä ja pituutta asteina. Jäsennys lukee numerot ja <strong>ensimmäinen
+ei-numero ratkaisee kaiken</strong>: S ja E ovat positiivisia, N ja W negatiivisia, eli
+<code>40N</code> on -40. Kirjaimen jälkeen tulevaa ei katsota.
+</p>
+
+<p>
+Ja se mitä pelaaja todennäköisimmin kirjoittaa väärin, pelkkä luku ilman kirjainta, palauttaa
+<strong>100</strong>, täsmälleen kuten väärä kirjain. Molemmat rajat hylkäävät 100:n, joten
+kieltäytyminen saapuu <em>arvona</em> eikä virheenä, eikä sääntö koskaan testaa puuttuvaa
+kirjainta erikseen. Se on yksi niitä kohtia joissa alkuperäisen muoto on siistimpi kuin mikään
+mitä olisi itse kirjoittanut.
+</p>
+
+<h2>Neljä rajaa, joista kolme selittyy</h2>
+
+<pre><code>leveys    hylätään yli 80:n tai alle -44:n
+pituus    hylätään yli 88:n tai alle -37:n
+
+hyväksytty alue kartalla:  rivit 8-1000, sarakkeet 8-1008
+yksi aste alarajojen alle: rivi 0, sarake 0
+yksi aste ylärajojen yli:  rivi 1008, sarake 1016  (yhä kartalla)</code></pre>
+
+<p>
+Kirjoitin luokan huomautuksiin että kaikki neljä rajaa pitävät silmän kartalla. Aritmetiikka
+kumosi sen: alarajat ovat täsmälleen yksi aste sen arvon yläpuolella joka osuisi nollaan, mutta
+ylärajoilla on väljyyttä. <strong>Kolme neljästä luvusta selittyy ja yksi pari ei</strong>, ja se
+on kirjattu niin eikä siistitty tarinaksi.
+</p>
+
+<h2>Ja äänilippu, joka ei liikuta noppia</h2>
+
+<p>
+Alkuperäinen sulkee äänen silmän ympäriltä ja palauttaa sen jälkeen. Kirjoitin että se muuttaa
+pallon silmän kuluttamien noppien määrää, koska tämä projekti on jo mitannut että äänikäsittelijän
+paluu heittävien haarojen yläpuolella tekee juuri sitä muualla. <strong>Tarkistin, ja se ei tee
+sitä täällä</strong>: silmän ainoa ääni on sen oma loihtimisefekti, joka on
+<code>if(isSpell)</code>:n sisällä ja ohitetaan kun pallo kutsuu sitä esineenä, eikä silmukassa
+soiteta mitään. Ero pallon ja loitsun silmän välillä on todellinen, mutta se tulee siitä
+lipusta eikä äänestä.
+</p>
+
+<p>
+Kytkin on silti kirjattu vakioksi, koska seuraava joka mittaa silmän omaa kulutusta haluaa tietää
+että se on olemassa. Mitä sitä <em>ei</em> tehdä on lukea, ja lukemattomaksi jäänyt kenttä
+poistettiin näkymästä samassa yhteydessä.
+</p>
+
+<h2>Kaksi rakenteellista korjausta kopioinnin sijaan</h2>
+
+<p>
+Vahingon ja vakavuusrivin pari oli näkymässä nimellä <code>ApplyTerrainDamageHit</code>, eli
+nimetty sen mukaan kuka kutsui sitä ensin. Se kantaa alkuperäisen paria <code>LoseHP</code> ja
+<code>COMBAT_displaySeverity</code>, eikä mitään maastokohtaista, ja kristallipallo on sen
+<strong>toinen</strong> kutsuja. Nimi siirtyi, ei kopio. Samoin velhonsilmän avaaminen on nyt
+yksi metodi jota sekä loitsu että pallo käyttävät.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>käytettävät tyypit joilla on nimetty käsittelijä        83 / 85
+tyyppejä jäljellä, kumpikin alijärjestelmän varassa          2
+samaa kaavaa kahdessa osoitteessa                            1
+kyky jolla testi lakkaa epäonnistumasta                     42
+asteen koko ruuduissa                                        8
+origo                                               (304, 360)
+uudet testit                                                21
+
+U6Formats.Tests     565 / 565
+U6Export.Tests      112 / 112
+U6Engine.Tests     5592 / 5592
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Käyttökomennon jono on nyt siinä mielessä valmis, että kaksi jäljellä olevaa tyyppiä eivät
+     odota rutiinia vaan alijärjestelmää: vortex-kuutio lopetusta ja jalokivi peer-karttaa.
+     Seuraava viipale on siis jokin muu kuin käyttöarmi, ja kuvakaappaukset rakeiden myrskystä,
+     kaukoputkesta ja kanuunasta odottavat yhä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

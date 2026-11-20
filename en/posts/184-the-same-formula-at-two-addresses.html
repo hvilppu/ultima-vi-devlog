@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Same Formula At Two Addresses | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/184-sama-kaava-kahdessa-osoitteessa.html" hreflang="fi">FI</a><span>/</span><a href="184-the-same-formula-at-two-addresses.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 184</nav>
+
+<h1>The same formula at two addresses</h1>
+
+<p class="lede">
+Looking into a crystal ball takes an intelligence check, and failing it hurts. The check is
+<code>rand(1,30) &lt; (45 - intelligence) / 2</code>. A lockpick's breaking check is
+<code>rand(1,30) &lt; (45 - dexterity) / 2</code>. In the original these are <strong>two separate
+routines at two addresses, byte for byte the same body</strong>. Here there is one, and a test
+runs both over every ability value and asserts they agree. 83 of the 85 usable types now reach
+their own handler.
+</p>
+
+<h2>The threshold truncates, and 42 is where the risk ends</h2>
+
+<p>
+Dividing by two truncates, so abilities 10 and 11 share a threshold of 17, and 12 and 13 share 16.
+The interesting end is the top: <strong>from 42 upward the threshold is 1 and the lowest roll is
+1</strong>, so the check cannot fail at all. The draw is spent anyway, because the original rolls
+before it compares, and that is the kind of thing one shared random stream makes measurable:
+short-circuiting it would make every later roll in the session a different roll.
+</p>
+
+<h2>South is positive, and a number with no letter is the same as a junk letter</h2>
+
+<p>
+The ball asks for a latitude and a longitude in degrees. The parse reads digits and <strong>the
+first non-digit decides everything</strong>: S and E are positive, N and W negative, so
+<code>40N</code> is -40. Anything after the letter is never looked at.
+</p>
+
+<p>
+And the likeliest typing mistake, a bare number with no letter, answers <strong>100</strong>,
+exactly as a wrong letter does. Both bounds reject 100, so the refusal arrives as a
+<em>value</em> rather than as an error, and the rule never tests for a missing letter at all. It is
+one of those places where the original's shape is tidier than anything I would have written.
+</p>
+
+<h2>Four bounds, three of which are explained</h2>
+
+<pre><code>latitude    refused above 80 or below -44
+longitude   refused above 88 or below -37
+
+accepted range on the map:  rows 8-1000, columns 8-1008
+one degree past the lower:  row 0, column 0
+one degree past the upper:  row 1008, column 1016  (still on the map)</code></pre>
+
+<p>
+I wrote into the class's remarks that all four bounds keep the eye on the map. The arithmetic
+refuted it: the lower bounds are exactly one degree above the value that would land on nought, but
+the upper ones have slack. <strong>Three of the four numbers are accounted for and one pair is
+not</strong>, and it is recorded that way rather than tidied into a story.
+</p>
+
+<h2>And the sound flag, which moves no dice</h2>
+
+<p>
+The original switches the sound off around the eye and restores it afterwards. I wrote that this
+changes how many values the ball's eye draws, because this project has already measured that the
+sound handler's early return above every drawing arm does exactly that elsewhere. <strong>I
+checked, and it does not do it here</strong>: the eye's only sound is its own cast effect, which
+sits inside <code>if(isSpell)</code> and is skipped when the ball calls it as an object, and
+nothing in its loop plays anything. The difference between the ball's eye and the spell's is real,
+but it comes from that flag and not from the sound.
+</p>
+
+<p>
+The switch is still recorded as a constant, because whoever next measures the eye's own
+consumption will want to know it exists. What it is not is read, and the field that had been left
+unread in the view came out in the same pass.
+</p>
+
+<h2>Two structural changes instead of a copy</h2>
+
+<p>
+The damage-and-severity pair sat in the view as <code>ApplyTerrainDamageHit</code>, named after
+whoever called it first. What it carries is the original's own <code>LoseHP</code> followed by
+<code>COMBAT_displaySeverity</code>, nothing terrain-specific, and the crystal ball is its
+<strong>second</strong> caller. The name moved rather than the code being copied. The wizard eye's
+opening is likewise one method now, shared by the spell and the ball.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>usable types with a named handler                        83 / 85
+types left, both waiting on a subsystem                      2
+one formula at two addresses                                 1
+the ability at which the check stops failing                42
+squares to a degree                                          8
+the origin                                          (304, 360)
+new tests                                                   21
+
+U6Formats.Tests     565 / 565
+U6Export.Tests      112 / 112
+U6Engine.Tests     5592 / 5592
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings, nothing skipped. Unity's own Test Runner was
+<strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The use command's queue is finished in the sense that matters: the two types left are not
+     waiting on a routine but on a subsystem, the vortex cube on the endgame and the gem on the
+     peer map. So the next slice is something other than a use arm, and the screenshots of the
+     hail storm, the telescope and the cannon are all still outstanding.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
