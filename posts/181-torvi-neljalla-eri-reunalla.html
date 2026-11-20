@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Torvi Neljällä Eri Reunalla | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="181-torvi-neljalla-eri-reunalla.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/181-a-horn-with-four-uneven-edges.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 181</nav>
+
+<h1>Torvi neljällä eri reunalla</h1>
+
+<p class="lede">
+Hopeatorvi oli suunnitelman taulukossa merkitty odottamaan taistelua. Se ei odottanut taistelua
+vaan munan kuoriutumista ja väliaikaisia hahmopaikkoja, ja molemmat ovat olleet olemassa kauan.
+<strong>Rivi itse oli se syy miksi kukaan ei avannut rutiinia</strong>, ja avattuna se oli
+halvempi kuin listansa antoi ymmärtää. Käytettävistä tyypeistä 80 / 85 tavoittaa nyt oman
+arminsa.
+</p>
+
+<h2>Neljä reunaa, neljä eri etäisyyttä</h2>
+
+<p>
+Torvi kutsuu enintään kolme ryhmää hopeakäärmeitä karttaikkunan ulkopuolelle. Jokainen yritys
+arpoo reunan ja siirtymän sitä pitkin, ja reunat <strong>eivät ole symmetrisiä</strong>: länsi on
+<code>MapX - 6</code>, itä <code>MapX + 7</code>, pohjoinen <code>MapY - 7</code> ja etelä
+<code>MapY + 6</code>. Yhtä sädettä käyttävä portti saa kolme neljästä väärin, eikä mikään muu
+testi huomauttaisi siitä.
+</p>
+
+<p>
+Epäsymmetria kuuluu yhteen sen kanssa mitä testataan: <strong>kuusi ruutua</strong>, ne neljä
+jotka käärme peittää plus yksi itään ja yksi pohjoiseen. Ja testi oikosulkee, joten ensimmäiseen
+ruutuun kaatuva yritys maksaa yhden kutsun eikä kuutta, mikä on laskettavissa ja siksi naulattu.
+</p>
+
+<h2>Nopat, molemmat päät tarkkoina</h2>
+
+<pre><code>yrityksiä per ryhmä, enintään                    8
+arvontoja per yritys                             2
+arvonta per laskeutunut ryhmä                    1
+kaikki kolme ryhmää kerralla                     9 arvontaa
+kaikki kolme epäonnistuu                        48 arvontaa</code></pre>
+
+<p>
+Ryhmän sisäinen järjestys on reuna, siirtymä, määrä, ja se on tarkistettu rinnakkaisella
+generaattorilla: määrän heittäminen ensin ei näkyisi yhdessäkään muussa testissä. Ja
+<strong>kieltäytyminen on jokaisen heiton yläpuolella</strong>: jos hopeakäärme on jo elossa
+jossain 32 väliaikaisessa paikassa, toinen puhallus ei kuluta yhtään arvontaa. Testi vertaa
+generaattoria koskemattomaan rinnakkaiseen juuri siksi.
+</p>
+
+<h2>Munan luvut ja alkion luvut ovat eri lukuja</h2>
+
+<p>
+Muna saa laadun 4 ja määrän 100; käärme munan sisällä laadun 8 ja määrän heitettynä 4-8. Nämä
+eivät ole sama pari kahdesti: munan laatu on <em>suuntaus</em> ja määrä
+<em>kuoriutumisprosentti</em>, alkion laatu on <em>tekoälytila</em> ja määrä
+<em>käärmeiden lukumäärä</em>. Alkuperäisessä ne ovat yksi 16-bittinen sana, mikä on juuri se
+muoto jossa ne on helppo sotkea keskenään.
+</p>
+
+<h2>Saavutettavuus mitattiin, ei arvattu</h2>
+
+<p>
+Toimitetussa maailmassa on <strong>tasan yksi</strong> hopeatorvi, tasolla 5 ruudussa (72, 193),
+ja sen painotavu on 0, joten sitä käytetään siinä missä se makaa. Tiedostossa on myös 18
+hopeakäärmettä objektina, mutta kaikki munien sisällä, eivätkä ne laukaise kieltäytymistä, joka
+skannaa hahmopaikkoja eikä objekteja.
+</p>
+
+<h2>Ja sama kysymys edelliselle viipaleelle: mistä kaukoputki vierittää, jos sitä kannetaan</h2>
+
+<p>
+Kaukoputken armi lukee esineen omaa ruutua, ja kannetulla esineellä ei ole ruutua. Tämä oli
+avoinna vanhassa briefissä kysymyksenä "mitkä armit lukevat kohteen ruutua esineen löytymisen
+jälkeen", ja kysymystä kutsuttiin siellä "viipaleen todelliseksi sisällöksi". <strong>Lista on
+yhden pitkä</strong>: <code>target.X</code> ja <code>target.Y</code> esiintyvät koko 13 000 rivin
+näkymässä kerran, ja se on kaukoputki.
+</p>
+
+<p>
+Mitä kannetun esineen sarake on: <strong>omistajan numero</strong>, sekä alkuperäisessä (ne kaksi
+tavua ovat omistaja) että tämän projektin viennissä, joka säilyttää samat bitit. Mitattu
+toimitetuista objekteista: jokaisen kannetun esineen viety sarake on sama kuin sen omistaja.
+</p>
+
+<p>
+Mutta se ei ole saavutettavissa nostokomennolla, ja <strong>se mittaus kumosi oman huoleni eikä
+vahvistanut sitä</strong>: kaukoputken painotavu on 0, ja nollapaino tarkoittaa
+<code>CannotBeTaken</code>, ei kevyttä. Teleskooppia ei voi nostaa. Siirtokomentoa ja
+taskuvarkautta ei tarkistettu, joten kommentti sanoo "ei nostamalla" eikä "ei koskaan", ja
+bugiluetteloon ei mennyt mitään, koska saavutettavuutta ei voi näyttää.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>käytettävät tyypit joilla on nimetty käsittelijä        80 / 85
+hopeatorvia toimitetussa maailmassa                          1
+reunojen etäisyydet                              6, 7, 7, 6
+testattavat ruudut per yritys                                6
+armit jotka lukevat kohteen ruutua                           1
+uudet testit                                                16
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5540 / 5540
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Viisi käytettävää tyyppiä odottaa yhä: kristallipallo, kanuuna, suihkulähde, jalokivi ja
+     vortex-kuutio. Kolme niistä odottaa jotain joka ei ole vielä olemassa (peer-kartta,
+     tekstinsyöttö, lopetus), joten kanuuna on todennäköisesti seuraava. Ja kuvakaappaukset
+     rakeiden myrskystä ja kaukoputkesta ovat yhä odottamassa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

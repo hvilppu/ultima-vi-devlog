@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Horn With Four Uneven Edges | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/181-torvi-neljalla-eri-reunalla.html" hreflang="fi">FI</a><span>/</span><a href="181-a-horn-with-four-uneven-edges.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 181</nav>
+
+<h1>A horn with four uneven edges</h1>
+
+<p class="lede">
+The silver horn was marked in the plan's table as waiting for combat. It was not waiting for
+combat but for egg hatching and the temporary actor slots, and both have existed here for a long
+time. <strong>The row itself was the reason nobody opened the routine</strong>, and opened, it was
+cheaper than its own entry claimed. 80 of the 85 usable types now reach their own handler.
+</p>
+
+<h2>Four edges, four different distances</h2>
+
+<p>
+The horn summons up to three groups of silver serpents just outside the map window. Each try rolls
+an edge and an offset along it, and the edges are <strong>not symmetric</strong>: west is
+<code>MapX - 6</code>, east <code>MapX + 7</code>, north <code>MapY - 7</code> and south
+<code>MapY + 6</code>. A port using one radius gets three of the four wrong, and no other test
+would say a word about it.
+</p>
+
+<p>
+The asymmetry belongs with what is tested: <strong>six squares</strong>, the four the serpent
+covers plus one east and one north. And the test short circuits, so a try that fails on its first
+square costs one call rather than six, which is countable and therefore pinned.
+</p>
+
+<h2>The dice, both ends exact</h2>
+
+<pre><code>tries per group, at most                         8
+draws per try                                    2
+draws per group that lands                       1
+all three groups landing at once                 9 draws
+all three groups failing                        48 draws</code></pre>
+
+<p>
+The order inside a group is edge, offset, quantity, checked against a parallel generator: rolling
+the quantity first would show up in no other test. And <strong>the refusal stands above every
+roll</strong>: if a silver serpent is already alive in any of the 32 temporary slots, a second
+blow costs nothing at all. A test compares the generator against an untouched twin for exactly
+that.
+</p>
+
+<h2>The egg's numbers and the embryo's are different numbers</h2>
+
+<p>
+The egg gets quality 4 and quantity 100; the serpent inside it quality 8 and a quantity rolled
+from 4 to 8. These are not the same pair twice: the egg's quality is an <em>alignment</em> and its
+quantity a <em>hatching percentage</em>, while the embryo's quality is an <em>AI mode</em> and its
+quantity the <em>number of serpents</em>. In the original they are one 16-bit word, which is
+exactly the shape that makes them easy to confuse.
+</p>
+
+<h2>Reachability measured, not assumed</h2>
+
+<p>
+The shipped world holds <strong>exactly one</strong> silver horn, on level 5 at (72, 193), and its
+weight byte is nought, so it is used where it lies. The file also holds 18 silver serpents as
+objects, but all of them are embryos inside eggs, and they cannot trigger the refusal, which scans
+actor slots rather than objects.
+</p>
+
+<h2>And the same question for the previous slice: where does a carried telescope scroll from?</h2>
+
+<p>
+The telescope arm reads the object's own square, and a carried object has none. That was left open
+in an old brief as the question "which arms read the target's square after the object is found",
+and the brief called it the slice's real content. <strong>The list is one arm long</strong>:
+<code>target.X</code> and <code>target.Y</code> appear once in the whole 13,000-line view, and it
+is the telescope.
+</p>
+
+<p>
+What a carried object's column is: <strong>its owner's number</strong>, both in the original, where
+those two bytes hold the owner, and in this project's export, which keeps the same bits. Measured
+over the shipped objects: every carried object's exported column equals its owner.
+</p>
+
+<p>
+But it is not reachable through the get command, and <strong>that measurement refuted my own
+worry rather than confirming it</strong>: the telescope's weight byte is nought, and a weight of
+nought means <code>CannotBeTaken</code>, not light. The thing cannot be picked up. The move command
+and pickpocket were not checked, so the comment says "not through get" and not "never", and
+nothing went into the bug list, because reachability cannot be shown.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>usable types with a named handler                        80 / 85
+silver horns in the shipped world                            1
+the edge distances                               6, 7, 7, 6
+squares tested per try                                       6
+arms that read the target's own square                       1
+new tests                                                   16
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5540 / 5540
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings, nothing skipped. Unity's own Test Runner was
+<strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Five usable types are still waiting: the crystal ball, the cannon, the fountain, the gem and
+     the vortex cube. Three of them wait on something that does not exist yet (the peer map, text
+     entry, the endgame), so the cannon is the likely next one. And the screenshots of the hail
+     storm and the telescope are still outstanding.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
