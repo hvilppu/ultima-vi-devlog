@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Välähdys Joka Ei Kieltäydy Pimeästä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="179-valahdys-joka-ei-kieltaydy-pimeasta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/179-the-flash-that-does-not-refuse-the-dark.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 179</nav>
+
+<h1>Välähdys joka ei kieltäydy pimeästä</h1>
+
+<p class="lede">
+Edellinen kirjoitus päättyi lupaukseen: myrsky heittää oikeat nopat mutta mikään siitä ei näy.
+Nyt se näkyy. Kivet putoavat vinottain, enintään kuusi kerrallaan, ja osuman alle välähtää tiili.
+Kiinnostavin osa ei ole kivi vaan se tiili: <strong>se ei ole sama välähdys kuin tappelijan
+nyrkin alla</strong>, ja ero on neljä mitattua asiaa, joista yksi on suoraan nähtävissä.
+</p>
+
+<h2>Yksi kierros per ruutu, ja tahdin antaa ääni</h2>
+
+<p>
+Alkuperäinen animaatio on tukkiva silmukka loitsun haaran sisällä: pelaaja ei pääse mihinkään
+ennen kuin myrsky on ohi. Tämä näkymä ei tuki, joten se astuu animaatiota kierros kerrallaan.
+Kierroksen kesto ei ole valittu luku vaan <strong>sen oman äänen pituus</strong>, koska se
+`MUS_PlaySfx`-kutsu on ainoa asia alkuperäisen silmukan rungossa joka odottaa. Pituus lasketaan
+äänirenderöijällä kierroksen omista askelista, joten kierros joka soitti kohinan tahdittuu eri
+lailla kuin kolistava kierros, eikä mikään täällä päätä kumpaa.
+</p>
+
+<p>
+Katto on yksi kierros ruutua kohti, ja <strong>se on näkymän oma valinta eikä mittaus</strong>.
+Äänen ollessa pois päältä kierros ei odota lainkaan, mikä on tarkalleen alkuperäisen
+käyttäytyminen, ja koko myrsky ratkeaisi yhden ruudun sisällä. Katto pitää sen näkyvänä
+muuttamatta kierrosten määrää tai noppia.
+</p>
+
+<h2>Loitsun haara luovuttaa myrskyn</h2>
+
+<p>
+Uusi <code>Begin</code> on se muoto joka alkuperäisellä on: haara päättää halon, kieltäytymisen,
+viestin ja äänen, ja antaa myrskyn eteenpäin. Vanha <code>Cast</code> on sama ajettuna loppuun,
+mitä päätön testaus tarvitsee. Niiden välissä on yksi testi joka naulaa, että samalla siemenellä
+ne tuottavat täsmälleen saman myrskyn: juuri se testi kaatuisi, jos <code>Cast</code> kasvattaisi
+oman heittonsa takaisin.
+</p>
+
+<h2>Kivi on tiili pikselissä, ei ruudussa</h2>
+
+<p>
+Säveltäjä osasi tähän asti piirtää tiilen ruutuun ja hiiriosoittimen pikseliin. Kivet tarvitsevat
+tiilen pikseliin, joten se tie rakennettiin: keskipisteestä laskettuna, kuten alkuperäisen oma
+näyttöajuri tekee. Se oli syytä lukea eikä olettaa, ja ajurin oma siirtymä sanoo sen suoraan:
+0x588 on kahdeksan riviä ja kahdeksan saraketta 176 pikseliä leveässä puskurissa, eli
+kuudentoista pikselin tiili keskitetään annettuun pisteeseen.
+</p>
+
+<p>
+Kivet piirtyvät <strong>kehyksen päälle</strong>, mikä on tarkoituksellista eikä
+huolimattomuutta: alkuperäinen piirtää ne vasta sen jälkeen kun karttaikkunan piirto on jo
+laskenut kehyksen samaan puskuriin, ja kiven omat piirtorajat ulottuvat kehysnauhaan asti. Tämä
+on testattu molempiin suuntiin, koska kehyksen alle piirretty kivi olisi näkymätön juuri siellä
+missä kivi tulee ikkunaan sisään.
+</p>
+
+<h2>Neljä eroa, ja yksi niistä näkyy</h2>
+
+<p>
+Rakeen osumavälähdys ja jaettu osumavälähdys näyttävät samalta: sama tiili. Ne ovat eri asia:
+</p>
+
+<ul>
+  <li><strong>Se vaimentaa jaetun välähdyksen ensin.</strong> Lipun nollaus on ohjelman
+      <em>ainoa</em> nollan kirjoitus siihen lippuun, ja se on heti vahinkorutiinin yläpuolella,
+      jonka ensimmäinen teko toimijalle on kutsua jaettua välähdystä.</li>
+  <li><strong>Se piirtyy pikseliin eikä solupinon läpi</strong>, joten se ei peri niitä
+      kieltäytymisiä jotka jaettu välähdys perii.</li>
+  <li><strong>Sen rajat ovat tiukemmat kuin ikkuna</strong>: ikkunaruudut 0-9, kun ikkuna itse
+      sallii kymmenen. Kivi voi pudota kahden ruudun päähän valinnasta, joten yhdestoista sarake
+      on saavutettavissa eikä saa välähdystä.</li>
+  <li><strong>Se ei soita omaa ääntä.</strong> Jaettu välähdys soittaa osumaäänen; myrsky soittaa
+      oman äänensä kierrosta kohden, argumentilla -1 silloin kun kierroksen viimeinen osuma osui
+      toimijaan.</li>
+</ul>
+
+<p>
+Toinen kohta on se joka näkyy ruudulla: <strong>jaettu välähdys kieltäytyy pimeästä ruudusta,
+rakeen välähdys ei.</strong> Sama ruutu, kaksi tietä, vastakkaiset vastaukset, yhdessä testissä.
+Ja vaimennuksen seuraus on sekin mitattu eikä vain nimetty: rakeen uhri ei saa tiiltä, ei
+osumaääntä eikä osumabittiä, mutta <strong>herää silti</strong> jos nukkui, koska herätys on
+lipun ulkopuolella.
+</p>
+
+<h2>Kahden uhrin tapaus, laskettuna</h2>
+
+<p>
+Alkuperäinen muuntaa välähdyksen koordinaatit <strong>paikan päällä</strong>, silmukan sisällä,
+joten toinen uhri samalla ruudulla muunnetaan ensimmäisen uhrin pikselistä eikä ruudusta.
+Purkauksen oma kommentti merkitsee tämän. Minä kirjoitin siitä johtopäätöksen, ja johtopäätös oli
+väärä.
+</p>
+
+<p>
+Kirjoitin luokan huomautuksiin että kahdesti muunnettu pikseli on "lähes aina" rajojen
+ulkopuolella, eli käytännössä vain ensimmäinen uhri välähtää. Oma testi kumosi sen
+<strong>ensimmäisellä kokeilemallaan keskuksella</strong>. Luvut laskettiin sen jälkeen kaikille
+1024 keskukselle:
+</p>
+
+<pre><code>keskukset joissa toinen uhri välähtää        100 / 1024  (4-157)
+ikkunaruutuja kullakin niistä                  1
+kolmas uhri seuraa                            10 / 100
+toinen välähtää vaikka ensimmäinen ei         10  (ruutu 10, keskus 164-173)
+muualla toista uhria ei välähdetä lainkaan</code></pre>
+
+<p>
+Se viimeinen rivi on se jota ei olisi löytänyt päättelemällä: <strong>raja vartioi piirtoa eikä
+muunnosta</strong>, joten silmukka jatkaa hylätyn uhrin ohi, ja seuraavan uhrin pikseli voi osua
+takaisin rajojen sisään. Kirjattu numerolla 3.39, jäljiteltynä muunnoksena eikä johtopäätöksenä.
+</p>
+
+<h2>Ja toinen samaa lajia samana iltana</h2>
+
+<p>
+Vastakkainen testi, se joka väittää ettei toista uhria välähdetä muualla, käytti rajana lukua 157
+ja kaatui. Syy on se, että <strong>157 ja 173 vastaavat eri kysymyksiin</strong>: 157 on se missä
+<em>pari</em> lakkaa piirtymästä yhdessä, ja 173 se mistä ylöspäin toista ei piirretä lainkaan
+riippumatta siitä mitä ensimmäiselle tapahtui. Kaksi kysymystä, yksi luku väitettynä molempiin.
+Tämä on sama vikaluokka kuin edellisessä kirjoituksessa ja löytyi samalla tavalla, testistä.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>erot rakeen ja jaetun välähdyksen välillä                      4
+välähdyksen rajat, ikkunaruutuina                            0-9
+ikkunan omat rajat, vertailuksi                             0-10
+uudet testit                                                  22
+niistä välähdyksen omia                                       13
+niistä säveltäjän pikselitien omia                             5
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5510 / 5510
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu, ja <strong>ruutua ei ole nähty</strong>: moottorin puoli on
+todistettu rikkomalla, mutta putoava kivi ja tiili sen alla ovat asioita jotka vain kuvakaappaus
+todistaa.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kuvakaappaus myrskystä: kivet putoavat ylä-vasemmalta, enintään kuusi kerrallaan, ja tiili
+     välähtää sen toimijan päällä johon kivi osuu. Jos jokin näistä kolmesta ei pidä paikkaansa,
+     se on vika joka ei näy yhdessäkään 5510 testissä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

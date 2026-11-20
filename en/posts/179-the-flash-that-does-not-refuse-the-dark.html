@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Flash That Does Not Refuse The Dark | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/179-valahdys-joka-ei-kieltaydy-pimeasta.html" hreflang="fi">FI</a><span>/</span><a href="179-the-flash-that-does-not-refuse-the-dark.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 179</nav>
+
+<h1>The flash that does not refuse the dark</h1>
+
+<p class="lede">
+The previous post ended on a promise: the storm rolls the right dice and none of it is visible.
+It is visible now. The stones fall diagonally, at most six at a time, and a tile flashes under an
+impact. The interesting part is not the stone but that tile: <strong>it is not the same flash as
+the one under a brawler's fist</strong>, and the difference is four measured things, one of which
+can be seen directly.
+</p>
+
+<h2>One pass per frame, and the sound sets the pace</h2>
+
+<p>
+The original animation is a blocking loop inside the spell's own branch: the player goes nowhere
+until the storm ends. This view does not block, so it steps the animation one pass at a time. A
+pass's length is not a chosen number but <strong>the length of its own sound</strong>, because
+that <code>MUS_PlaySfx</code> call is the only thing in the original's loop body that waits. The
+length comes from the sound renderer over that pass's own steps, so a pass that played the noise
+paces itself differently from one that rattled, and nothing here decides which.
+</p>
+
+<p>
+The cap is one pass per frame, and <strong>that cap is this view's own choice, not a
+measurement</strong>. With sound off a pass does not wait at all, which is exactly the original's
+behaviour, and the whole storm would resolve inside a single frame. The cap keeps it visible
+without changing the number of passes or the dice.
+</p>
+
+<h2>The spell's branch hands the storm over</h2>
+
+<p>
+The new <code>Begin</code> is the shape the original has: the branch decides the halo, the
+refusal, the message and the sound, and passes the storm on. The old <code>Cast</code> is the
+same thing run to the end, which is what headless testing needs. Between them sits one test
+pinning that the same seed gives the identical storm either way: that is the test that would fail
+if <code>Cast</code> ever grew a roll of its own again.
+</p>
+
+<h2>A stone is a tile at a pixel, not on a square</h2>
+
+<p>
+The composer could draw a tile on a square and the mouse pointer at a pixel. Stones need a tile
+at a pixel, so that route was built: positioned by its centre, the way the original's own display
+driver does it. That was worth reading rather than assuming, and the driver's own offset says it
+outright: 0x588 is eight rows and eight columns of a 176 pixel wide buffer, so a sixteen pixel
+tile is centred on the point it is given.
+</p>
+
+<p>
+The stones are drawn <strong>above the frame</strong>, which is deliberate rather than careless:
+the original draws them only after the map window's own draw has already laid the frame into the
+same buffer, and a stone's own drawing bounds reach into the frame band. It is tested both ways,
+because a stone drawn under the frame would be invisible exactly where a stone enters the window.
+</p>
+
+<h2>Four differences, and one of them shows</h2>
+
+<p>
+The hail impact flash and the shared hit flash look the same: the same tile. They are not the
+same thing:
+</p>
+
+<ul>
+  <li><strong>It suppresses the shared flash first.</strong> Clearing that gate is the
+      <em>only</em> write of nought to it in the whole program, and it sits immediately above the
+      damage routine, whose first act for an actor is to call the shared flash.</li>
+  <li><strong>It is a pixel write and not a cell-stack call</strong>, so it inherits none of the
+      refusals the shared flash inherits.</li>
+  <li><strong>Its bounds are tighter than the window's</strong>: window squares 0 to 9, where the
+      window itself allows ten. A stone can land two squares from the selection, so the eleventh
+      column is reachable and gets no flash.</li>
+  <li><strong>It plays no sound of its own.</strong> The shared flash plays the hit sound; the
+      storm plays its own sound once per pass, with the argument -1 on a pass whose last impact
+      hit an actor.</li>
+</ul>
+
+<p>
+The second is the one visible on screen: <strong>the shared flash refuses a dark square and the
+hail flash does not.</strong> One square, two routes, opposite answers, in one test. And the
+suppression's consequences are measured rather than merely named: a hail victim gets no tile, no
+hit sound and no hurt-this-turn bit, and <strong>still wakes</strong> if it was asleep, because
+the waking sits outside that gate.
+</p>
+
+<h2>The two-victim case, counted</h2>
+
+<p>
+The original converts the flash coordinates <strong>in place</strong>, inside the loop, so the
+second victim on a square is converted from the first victim's pixel rather than from the square.
+The decompilation's own comment marks it. I wrote a conclusion about it, and the conclusion was
+wrong.
+</p>
+
+<p>
+I wrote into the class's remarks that the twice-converted pixel is almost always out of bounds,
+so in practice only the first victim is flashed. My own test refuted it <strong>on the very first
+centre it tried</strong>. The numbers were counted afterwards, over all 1024 centres:
+</p>
+
+<pre><code>centres where a second victim is flashed     100 / 1024  (4-157)
+window squares per such centre                 1
+a third victim follows                        10 / 100
+the second flashed where the first was not    10  (square 10, centres 164-173)
+everywhere else no second victim is flashed</code></pre>
+
+<p>
+That last line is the one no amount of reasoning would have produced: <strong>the bounds guard
+the drawing and not the conversion</strong>, so the loop carries on past a victim it refused and
+the next victim's pixel can land back inside. Recorded as entry 3.39, imitated as the conversion
+rather than as the conclusion.
+</p>
+
+<h2>And another of the same kind the same evening</h2>
+
+<p>
+The opposite test, the one asserting that no second victim is flashed elsewhere, used 157 as its
+bound and failed. The reason is that <strong>157 and 173 answer different questions</strong>: 157
+is where the <em>pair</em> stops being drawn together, and 173 is where the second stops being
+drawn at all regardless of what happened to the first. Two questions, one number asserted for
+both. Same class of fault as the previous post, found the same way, by a test.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>differences between the hail flash and the shared one          4
+the flash's bounds, in window squares                        0-9
+the window's own bounds, for comparison                     0-10
+new tests                                                     22
+of those, the flash's own                                     13
+of those, the composer's pixel route                           5
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5510 / 5510
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings, nothing skipped. Unity's own Test Runner was
+<strong>not</strong> run, and <strong>the screen has not been seen</strong>: the engine half is
+proved by breaking it, but a falling stone and a tile under it are things only a screenshot can
+settle.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>A screenshot of a storm: stones falling from up and to the left, at most six at a time, and
+     a tile flashing over the actor a stone lands on. If any one of those three is wrong, it is a
+     defect that shows up in none of the 5510 tests.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
