@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>An Explosion That Hurts Nothing | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/182-rajahdys-joka-ei-vahingoita.html" hreflang="fi">FI</a><span>/</span><a href="182-an-explosion-that-hurts-nothing.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 182</nav>
+
+<h1>An explosion that hurts nothing</h1>
+
+<p class="lede">
+The cannon fires, the ball flies, and where it stops it explodes. I assumed the explosion damages
+what is around it, because that is what explosions do. <strong>It damages nothing.</strong>
+<code>Explosion</code> returns a list of what it touched, and the cannon's routine <em>never reads
+it</em>: the only damage is one roll of 1 to 60 against the thing standing on the impact square.
+81 of the 85 usable types now reach their own handler.
+</p>
+
+<h2>The frame is the direction, and the table is a different table</h2>
+
+<p>
+A cannon's own frame says where it points, and it has a four-entry table of its own: frame 0
+north, 1 east, 2 south, 3 west. This project already has an eight-way table, and the temptation is
+to use it. Counted: <strong>only frame 0 agrees</strong>. A port that reused the navigation table
+would fire frames 1 and 3 diagonally and frame 2 east instead of south, so three of the four would
+be wrong.
+</p>
+
+<p>
+I wrote "two of the four" into the class's remarks first, and the test refuted it. That is the
+<strong>third</strong> time in this batch that one of my own counts failed its own test, and all
+three were the same kind: a number that felt obvious and had not been measured.
+</p>
+
+<h2>The aim goes past the barrel</h2>
+
+<p>
+The ball is aimed at the first <em>actor</em> within five squares. An object in the way does not
+stop the aim, so the ball is aimed past a barrel at the creature standing behind it, and whether
+it gets there is the flight's business rather than the aim's.
+</p>
+
+<p>
+And when no actor is found, the aim distance is <strong>six</strong>, which is the loop variable's
+own value after it runs out rather than any square the scan looked at. The range is five. So a
+shot into empty air <em>never arrives</em> even over completely open ground, which means it always
+explodes, and the explosion is the cannon's ordinary outcome rather than its exception.
+</p>
+
+<h2>The impact square is the obstacle's own</h2>
+
+<p>
+When the ball does not get there, the original advances the stop position <strong>one more
+step</strong>, draws the explosion there, and only then asks what is standing there. So the damage
+lands on the wall or the creature that stopped the ball, not on the last free square. A port that
+exploded on the last free square would damage empty air, and it would look exactly right.
+</p>
+
+<h2>Two gaps, each one call wide</h2>
+
+<p>
+An object victim takes nothing, because the damage routine's own object branch (a breakable loses
+quantity points and breaks at nought) is not built here. The shot still reports the victim and the
+damage it rolled, so the gap is one call wide rather than a missing rule.
+</p>
+
+<p>
+And the ordering question is a <strong>fourth</strong> instance of the same one: a square's
+contents can be read objects-first or actors-first, and the cannon asks twice, once for the aim
+("is this an actor") and once for the impact ("is this anything"). This project chose objects-first
+at the explosion's own site, and the same choice is here for the same reason: it over-applies the
+rule rather than deleting it.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>usable types with a named handler                        81 / 85
+types with no arm, listed by name                            4
+entries in the cannon's direction table                      4
+frames that agree with the navigation table                  1
+aim distance with no actor in line                           6
+the ball's range                                             5
+damage                                                    1-60
+damage from the explosion                                    0
+new tests                                                   15
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5555 / 5555
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, nothing skipped. Unity's own Test Runner was
+<strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Four usable types are left, and all four wait on something that does not exist yet: the
+     vortex cube on the endgame, the gem on the peer map, the crystal ball on the spell layer's
+     gaze, and the fountain on text entry. So the next slice is something other than a use arm.
+     And the screenshots of the hail storm, the telescope and now the cannon are all still
+     outstanding.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

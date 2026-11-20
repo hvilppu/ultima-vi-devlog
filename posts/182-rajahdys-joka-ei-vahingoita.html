@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Räjähdys Joka Ei Vahingoita | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="182-rajahdys-joka-ei-vahingoita.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/182-an-explosion-that-hurts-nothing.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 182</nav>
+
+<h1>Räjähdys joka ei vahingoita</h1>
+
+<p class="lede">
+Kanuuna ampuu, pallo lentää, ja pysähtyessään se räjähtää. Oletin että räjähdys vahingoittaa
+ympäriltään, koska niin räjähdykset tekevät. <strong>Se ei vahingoita mitään.</strong>
+<code>Explosion</code> palauttaa listan siitä mihin se osui, ja kanuunan rutiini <em>ei lue sitä
+koskaan</em>: ainoa vahinko on yksi heitto 1-60 sille asialle joka seisoo osumaruudulla.
+Käytettävistä tyypeistä 81 / 85 tavoittaa nyt oman arminsa.
+</p>
+
+<h2>Kehys on suunta, ja taulu on eri taulu</h2>
+
+<p>
+Kanuunan oma kehys kertoo mihin se osoittaa, ja siihen on oma nelialkioinen taulu: kehys 0
+pohjoinen, 1 itä, 2 etelä, 3 länsi. Tällä projektilla on jo kahdeksansuuntainen taulu, ja
+houkutus on käyttää sitä. Laskettuna: <strong>vain kehys 0 täsmää</strong>. Navigointitaulua
+uudelleenkäyttävä portti ampuisi kehykset 1 ja 3 vinottain ja kehyksen 2 itään eikä etelään, eli
+kolme neljästä väärin.
+</p>
+
+<p>
+Kirjoitin ensin luokan huomautuksiin "kaksi neljästä", ja testi kumosi sen. Se on tämän erän
+<strong>kolmas</strong> kerta kun oma laskuni kaatui omaan testiinsä, ja kaikki kolme olivat
+samaa lajia: luku joka tuntui ilmeiseltä eikä ollut mitattu.
+</p>
+
+<h2>Tähtäys menee tynnyrin ohi</h2>
+
+<p>
+Pallo tähdätään ensimmäiseen <em>toimijaan</em> viiden ruudun sisällä. Tiellä oleva objekti ei
+pysäytä tähtäystä, joten pallo tähdätään tynnyrin ohi sen takana seisovaan olentoon, ja se onko
+pallo pääsee sinne on lentoradan asia eikä tähtäyksen.
+</p>
+
+<p>
+Ja kun toimijaa ei löydy, tähtäysetäisyys on <strong>kuusi</strong>, joka on silmukkamuuttujan oma
+arvo sen loputtua eikä mikään ruutu jota skannaus katsoi. Kantama on viisi. Siis tyhjään ilmaan
+ammuttu pallo <em>ei koskaan saavu perille</em> edes täysin avoimella maalla, mikä tarkoittaa että
+se räjähtää aina, ja että räjähdys on kanuunan normaali lopputulos eikä poikkeus.
+</p>
+
+<h2>Osumaruutu on esteen oma</h2>
+
+<p>
+Kun pallo ei pääse perille, alkuperäinen siirtää pysähdyspaikkaa <strong>yhden askeleen
+eteenpäin</strong>, piirtää räjähdyksen sinne ja kysyy vasta sitten mitä siellä seisoo. Eli
+vahinko osuu siihen seinään tai olentoon joka pysäytti pallon, ei viimeiseen vapaaseen ruutuun.
+Portti joka räjäyttäisi viimeisellä vapaalla ruudulla vahingoittaisi tyhjää ilmaa, ja se näyttäisi
+aivan oikealta.
+</p>
+
+<h2>Kaksi aukkoa, kumpikin yhden kutsun levyinen</h2>
+
+<p>
+Objektiuhri ei ota vahinkoa, koska vahinkorutiinin oma objektihaara (rikkoutuva menettää
+määräpisteitä ja rikkoutuu nollassa) ei ole rakennettu täällä. Laukaus raportoi uhrin ja heitetyn
+vahingon silti, joten aukko on tasan yhden kutsun levyinen eikä sääntö.
+</p>
+
+<p>
+Ja järjestyskysymys on <strong>neljäs</strong> esiintymä siitä samasta: ruudun sisältö voidaan
+lukea objektit ensin tai hahmot ensin, ja kanuuna kysyy sitä kahdesti, tähtäyksessä ("onko tämä
+toimija") ja osumassa ("onko tämä mitään"). Tämä projekti on valinnut objektit ensin
+räjähdyksen omalla paikalla, ja sama valinta on tässä samasta syystä: se yliampuu säännön sen
+sijaan että poistaisi sen.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>käytettävät tyypit joilla on nimetty käsittelijä        81 / 85
+tyyppejä ilman armia, nimeltä listattuna                     4
+kanuunan suuntataulun alkiot                                 4
+kehyksiä jotka täsmäävät navigointitaulun kanssa             1
+tähtäysetäisyys ilman toimijaa                               6
+pallon kantama                                               5
+vahinko                                                   1-60
+räjähdyksen vahinko                                          0
+uudet testit                                                15
+
+U6Formats.Tests     551 / 551
+U6Export.Tests      110 / 110
+U6Engine.Tests     5555 / 5555
+U6GameSave.Tests     14 / 14</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Neljä käytettävää tyyppiä on jäljellä, ja kaikki neljä odottavat jotain mitä ei ole vielä
+     olemassa: vortex-kuutio lopetusta, jalokivi peer-karttaa, kristallipallo loitsukerroksen
+     katsetta ja suihkulähde tekstinsyöttöä. Seuraava viipale on siis jokin muu kuin käyttöarmi.
+     Ja kuvakaappaukset rakeiden myrskystä, kaukoputkesta ja nyt kanuunasta odottavat yhä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
