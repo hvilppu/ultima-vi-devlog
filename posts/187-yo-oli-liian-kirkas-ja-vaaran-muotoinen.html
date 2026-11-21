@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yö Oli Liian Kirkas Ja Väärän Muotoinen | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="187-yo-oli-liian-kirkas-ja-vaaran-muotoinen.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/187-the-night-was-too-bright.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 187</nav>
+
+<h1>Yö oli liian kirkas ja väärän muotoinen</h1>
+
+<p class="lede">
+Näkyvyystäyttö on nyt kytketty karttaikkunaan, eli valo pysähtyy seinään, luola ei näy omien
+seiniensä läpi ja yhdeltä sivulta nähty seinä saa varianttinsa. Kytkentä paljasti samalla, että
+valaistun alueen <strong>muoto</strong> on ollut väärä alusta asti, ja se oli minun virheeni eikä
+alkuperäisen.
+</p>
+
+<h2>Neliö siinä missä alkuperäisellä on pyöreä</h2>
+
+<p>
+Ruudun valo on <code>4 - etäisyys + päivänvalo</code>. Se kaava on mitattu oikein ja se on ollut
+oikein pitkään. Mutta <em>etäisyys</em> oli tässä projektissa suurempi kahdesta siirtymästä, eli
+vinoittain askel ei kustantanut mitään, ja valaistu alue oli siis neliö. Alkuperäisen valoetäisyys
+on kahdeksan kertaa kahdeksan taulu, ja se on pyöreä.
+</p>
+
+<pre><code>ruutua 121:stä joissa etäisyys eroaa                      64
+
+valaistuja ruutuja ikkunassa      neliö        taulu
+  päivänvalo 0                      49           37
+  päivänvalo 1                      81           61
+  päivänvalo 2                     121           89
+  päivänvalo 3                     121          109
+  päivänvalo 4 ja yli              121          121</code></pre>
+
+<p>
+Yö oli siis liian kirkas joka tunnilla neljän alapuolella, ja väärän muotoinen kaikilla. Päivällä
+ne ovat samat, mikä on syy siihen ettei sitä huomannut kukaan: soihdun oma pohja on nelonen, eli
+myös soihdun kanssa kuva oli oikea.
+</p>
+
+<p>
+Mallin kaava jäi, etäisyys lähti, ja luokka joka sitä kantoi pitää nyt taivaan ja varjostuksen
+eikä omista ruudun valoa lainkaan.
+</p>
+
+<h2>Kolme passia, ja seinä näkyy koska merkintä tulee ennen testiä</h2>
+
+<p>
+Kytkentä ajaa kolme passia joka kompositiossa: objektien liput, puolueen oma täyttö ympäröivällä
+valolla, ja yksitoista kertaa yksitoista -näkymän rakentaminen. Se järjestys on alkuperäisen oma,
+ja niin on sekin yksityiskohta että ruutu <strong>merkitään ja valaistaan ennen</strong>
+läpinäkyvyystestiä. Juuri siksi seinä näkyy lainkaan: täyttö saapuu seinälle, valaisee sen ja
+merkitsee sen, ja vasta sitten kieltäytyy jatkamasta sen läpi. Käänteinen järjestys antaisi luolan
+jossa on käytäviä eikä seiniä.
+</p>
+
+<h2>Röntgenlipun asettajien laskeminen löysi kuluttajan jota ei ollut avattu</h2>
+
+<p>
+Alkuperäisessä on lippu joka sanoo "näe seinien läpi": sen asettaa teleskoopin vieritys,
+röntgenloitsu ja velhonsilmä, kolme paikkaa laskettuna. Haara ohittaa koko täytön. Kytkin lippu
+velhonsilmästä, koska se on niistä kolmesta se joka tässä projektissa on.
+</p>
+
+<p>
+Ja laskiessani asettajia löytyi <strong>toinen lukija</strong>, eri tiedostosta, jota kukaan ei
+ollut avannut. Se tekee kaksi asiaa joita täällä ei ole:
+</p>
+
+<ul>
+  <li><strong>varjostus piirretään objektien jälkeen</strong>, ei ennen, joten arkku himmeässä
+      ruudussa on alkuperäisessä varjostettu ja täällä ei</li>
+  <li><strong>seinän päällä olevat objektit piilotetaan</strong> kun seinää ei nähdä puolueen
+      puolelta</li>
+</ul>
+
+<p>
+Ensimmäinen on oma korjauksensa, ja kiusallinen laatu siinä on tämä: varjostusluokan huomautus on
+<em>sitannut juuri tuota rutiinia alusta asti</em>. Mitattu oli valon luku. Järjestys oli viisi
+riviä alempana samassa silmukassa, eikä kukaan lukenut niitä viittä riviä.
+</p>
+
+<h2>Testi etsi oman paikkansa, ja sen ensimmäinen väite kumoutui</h2>
+
+<p>
+Kytkennän testi vertaa kahta kompositiota: täytön kanssa ja röntgenhaaralla. Ensimmäinen paikka
+jonka valitsin ei piilottanut ikkunassa yhtään ruutua, koska puolue näkee oman huoneensa, joten
+testi pyyhkäisee nyt 400 luolapaikkaa ja mittaa missä ero on suurin.
+</p>
+
+<p>
+Sen ensimmäinen väite oli että <em>jokainen</em> ero on piilotettu ruutu. Se kohtasi arvon
+<code>0x10B</code>, seinän kulmavariantin: kolmas korjattu vika ilmestyi kahden muun mittaukseen.
+Luokittelu jäi testiin.
+</p>
+
+<pre><code>luolapaikkoja pyyhkäisyssä                                400
+paikkoja joissa täyttö piilottaa jotain                   297
+piilotettuja ruutuja yhteensä                           14460
+vaihdettuja seinäpintoja                                    1</code></pre>
+
+<p>
+Tasan yksi seinäpinta neljästäsadasta paikasta. Variantti on luolassa siis hyvin harvinainen,
+koska se vaatii seinän jonka naapurit pitävät molemmat liitosportit kiinni ja jonka neljä sivua
+eivät kaikki näy. Siksi varianttia ajaa oma testitiedostonsa eikä tämä pyyhkäisy, ja tuo yksi on
+naulattu vain siksi että variantin katoaminen kokonaan rikkoisi silti jotain.
+</p>
+
+<h2>Mitä on yhä velkaa</h2>
+
+<p>
+<strong>Valonlähdepassi.</strong> Maailmassa seisova lamppu tai takka ei valaise mitään; kannettu
+soihtu valaisee, koska se nostaa ympäröivää valoa. Se on mitattu ja kirjoitettu ylös, ei
+rakennettu. Samoin varjostuksen järjestys ja seinän päällisten objektien piilotus.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>viipaleita tässä: merkintäpassi, näkymä, kytkentä            3
+poistettua julkista rajapintaa (etäisyysmalli)               4
+ruutua joissa vanha ja uusi etäisyys eroavat                64
+omia väitteitä kumoutunut testeissä                          5
+uudet testit                                                36
+
+U6Formats.Tests      566 / 566
+U6Export.Tests       112 / 112
+U6Engine.Tests      5728 / 5728
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Tämä on se odottavista kuvakaappauksista jonka pitäisi näkyä eniten: yö on nyt pyöreä ja
+     tummempi, ja luolassa näkyy vain se mitä puolue näkee. Kuvaa ei ole katsonut kukaan.
+     Seuraavat palat ovat valonlähdepassi, joka saa maailman lamput valaisemaan, ja varjostuksen
+     järjestys. Ja kuvakaappaukset rakeiden myrskystä, kaukoputkesta, kanuunasta ja
+     peer-kartasta odottavat yhä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

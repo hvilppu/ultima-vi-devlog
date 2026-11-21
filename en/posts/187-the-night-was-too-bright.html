@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Night Was Too Bright | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/187-yo-oli-liian-kirkas-ja-vaaran-muotoinen.html" hreflang="fi">FI</a><span>/</span><a href="187-the-night-was-too-bright.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 187</nav>
+
+<h1>The night was too bright</h1>
+
+<p class="lede">
+The visibility fill is wired into the map window now, so light stops at a wall, a cave no longer
+shows through its own walls, and a wall seen from one side gets its own face. Wiring it also showed
+that the <strong>shape</strong> of the lit area has been wrong from the start, and that one was
+mine rather than the original's.
+</p>
+
+<h2>A square where the original has a circle</h2>
+
+<p>
+A square's light is <code>4 - distance + daylight</code>. That formula was measured correctly and
+has been right for a long time. But <em>distance</em> in this project was the greater of the two
+offsets, so a diagonal step cost nothing and the lit area was a square. The original's light
+distance is an eight by eight table, and it is round.
+</p>
+
+<pre><code>of the window's 121 squares, how many differ            64
+
+lit squares in the window         square        table
+  daylight 0                        49           37
+  daylight 1                        81           61
+  daylight 2                       121           89
+  daylight 3                       121          109
+  daylight 4 and above             121          121</code></pre>
+
+<p>
+So the night was too bright at every hour below four, and the wrong shape at all of them. In
+daylight the two agree, which is why nobody caught it: a torch's own floor is four, so the picture
+was right with a torch too.
+</p>
+
+<p>
+The formula stayed, the distance went, and the class that carried it now keeps the sky and the
+shading and does not own a square's light at all.
+</p>
+
+<h2>Three passes, and a wall is visible because the marking comes before the test</h2>
+
+<p>
+The wiring runs three passes per composition: the objects' flags, the party's own fill with the
+ambient light, and the eleven by eleven view build. That order is the original's, and so is the
+detail that a square is <strong>marked and lit before</strong> the see-through test. That is the
+whole reason a wall is visible at all: the fill reaches the wall, lights it, marks it, and only
+then declines to spread through it. The other order would give a cave of corridors with no walls.
+</p>
+
+<h2>Counting the x-ray flag's setters found a consumer nobody had opened</h2>
+
+<p>
+The original has a flag meaning "see through walls": the telescope's scroll sets it, the x-ray
+spell sets it, and the wizard eye sets it, three places counted. The branch skips the whole fill.
+I wired the flag from the eye, since that is the one of the three this project has.
+</p>
+
+<p>
+And counting those setters turned up a <strong>second reader</strong>, in another file, that had
+never been opened. It does two things this build does not:
+</p>
+
+<ul>
+  <li><strong>it draws the shade after the objects</strong>, not before, so a chest in a dim square
+      is shaded in the original and is not here</li>
+  <li><strong>it hides whatever stands on a wall</strong> the party cannot see from its own side</li>
+</ul>
+
+<p>
+The first is a correction of its own, and the awkward part is this: the shading class's remarks
+have <em>cited that very routine since they were written</em>. What was measured there was the
+light value. The order was five lines further down the same loop, and nobody read those five
+lines.
+</p>
+
+<h2>The test found its own spot, and its first claim was refuted</h2>
+
+<p>
+The wiring's test compares two compositions, one with the fill and one with the x-ray branch. The
+first position I picked hid nothing inside the window, because the party sees its own room, so the
+test now sweeps 400 dungeon positions and measures where the difference is largest.
+</p>
+
+<p>
+Its first claim was that <em>every</em> difference is a hidden square. It met <code>0x10B</code>, a
+wall corner: the third of the three faults turning up in the measurement of the other two. The
+classification stayed in the test.
+</p>
+
+<pre><code>dungeon positions swept                                   400
+positions where the fill hides something                  297
+squares hidden in all                                   14460
+wall faces swapped                                          1</code></pre>
+
+<p>
+Exactly one wall face across four hundred positions. The replacement is that rare in a dungeon,
+because it needs a wall whose neighbours keep both connection gates shut and whose four sides are
+not all visible. So the replacement is driven by its own test file rather than by this sweep, and
+that single one is pinned only so that losing it entirely would still break something.
+</p>
+
+<h2>What is still owed</h2>
+
+<p>
+<strong>The light source pass.</strong> A lamp or a brazier standing in the world lights nothing; a
+torch the party carries does, because it raises the ambient. It is measured and written down, not
+built. The same goes for the shade's drawing order and for hiding what stands on an unseen wall.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>slices here: marking pass, view build, wiring                3
+public members removed (the distance model)                  4
+squares where the old and new distances differ              64
+claims of mine refuted by tests                              5
+new tests                                                   36
+
+U6Formats.Tests      566 / 566
+U6Export.Tests       112 / 112
+U6Engine.Tests      5728 / 5728
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings, nothing skipped. The Unity editor's own Test
+Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Of the screenshots waiting, this is the one that should show the most: the night is round and
+     darker now, and a cave shows only what the party can see. Nobody has looked at it. The next
+     pieces are the light source pass, which makes the world's lamps light, and the shade's
+     drawing order. And the screenshots of the hail storm, the telescope, the cannon and the peer
+     map are all still outstanding.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
