@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Night Brings Wolves | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/196-yo-tuo-sudet.html" hreflang="fi">FI</a><span>/</span><a href="196-the-night-brings-wolves.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 196</nav>
+
+<h1>The night brings wolves</h1>
+
+<p class="lede">
+Camping has been built for a long time: the fire, the meal, the guard, the party falling
+unconscious, waking, and the three conditions that gate healing. One thing was missing, with its
+reason written down: the night monster encounter needs <code>EGG_generate</code>, which means a
+monster and combat system. <strong>M14 landed, so the reason was stale.</strong> The same generator
+the summon spell already drives makes the wolves.
+</p>
+
+<h2>The gate is three tests, and the order is the rule</h2>
+
+<p>
+A rest runs in ten minute steps. On each step:
+</p>
+
+<pre><code>1. !(i &amp; 5)                    takes no draw at all
+2. OSI_rand(1, 64) == 1        one draw
+3. HasNightEncounter()         the encounter's own draws</code></pre>
+
+<p>
+<code>&amp;&amp;</code> short circuits, and every draw comes from the one shared stream, so the
+order is not a detail: it decides where in that stream every later draw in the game sits.
+</p>
+
+<h2>And the first test is strange</h2>
+
+<p>
+<code>!(i &amp; 5)</code> is true only when <code>i mod 8</code> is 0 or 2. So <strong>two</strong>
+of every eight steps are looked at. The decompilation's own comment calls the condition strange,
+and with reason: <code>&amp; 5</code> is bits 0 and 2, which matches no natural period in ten
+minute steps.
+</p>
+
+<p>
+A nine hour rest is 54 steps, 14 of them checked. Two plausible wrong readings, each pinned by its
+own test: <em>every step</em> would make the night four times as dangerous, and <em>every
+hour</em> would look right without being right.
+</p>
+
+<h2>The four sides are not symmetric</h2>
+
+<pre><code>side     x               y
+left     MapX - 6        MapY + incr - 6
+top      MapX + incr-6   MapY - 7
+right    MapX + 7        MapY + incr - 6
+bottom   MapX + incr-6   MapY + 6</code></pre>
+
+<p>
+The view is eleven squares wide, so squares -5..+5. Left and bottom are therefore
+<strong>one</strong> square outside it, right and top <strong>two</strong>. And the strip along a
+side is not centred: the offset is 0..10 with six taken off, so it runs -6..+4.
+</p>
+
+<p>
+A symmetric reading is the plausible wrong one here, and it would have been easy to write by
+accident: one constant instead of four, and the code would look tidier.
+</p>
+
+<h2>Draw accounting, and what a full creature table costs</h2>
+
+<pre><code>type                          1 draw   (one for the whole group)
+count 1-8                     1 draw
+per try: side + offset        2 draws  (up to 8 tries)</code></pre>
+
+<p>
+One monster that lands on its first try costs four draws. And here is the part that must not be
+tidied: <strong>the original never tests <code>EGG_generate</code>'s answer</strong>, so with the
+monster slots full all eight tries are still drawn for a creature that does not exist. A tidy
+implementation would skip the loop and leave the stream somewhere else.
+</p>
+
+<h2>Two wake reasons that were unreachable until now</h2>
+
+<p>
+The original has three ways for the night to end, and all three are reachable now:
+</p>
+
+<ul>
+  <li><strong>Nothing happened.</strong> Healing, if the three conditions hold.</li>
+  <li><strong>The guard heard something.</strong> The line prints and the party wakes.</li>
+  <li><strong>No guard.</strong> The party <em>stays asleep</em>, and nothing is printed.</li>
+</ul>
+
+<p>
+The third is the one a player wants to avoid: with nobody on watch, the encounter wakes no one.
+</p>
+
+<h2>One named gap</h2>
+
+<p>
+The guard's own turn (<code>NPC_TakeTurn</code>) is not wired: the night loop runs no NPC turns at
+all, so a posted guard stands still through the night. The encounter does not depend on the guard
+moving, so this is a named gap rather than a broken rule.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>steps in a nine hour rest                                 54
+of those, checked                                         14
+monster types drawn from                                   4
+monsters in one encounter                               1..8
+tries per monster                                          8
+draws per monster when nothing fits                       16
+new tests                                                 10
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5810 / 5810</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with no findings, nothing skipped. The Unity editor's own Test
+Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>This is the third slice in a row that came from re-reading a stale absence claim. Five
+     screenshots are waiting and none has been looked at, and camping at night is exactly the kind
+     of thing only playing can show.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

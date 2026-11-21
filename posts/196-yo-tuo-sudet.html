@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yö Tuo Sudet | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="196-yo-tuo-sudet.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/196-the-night-brings-wolves.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 196</nav>
+
+<h1>Yö tuo sudet</h1>
+
+<p class="lede">
+Leiriytyminen on ollut rakennettu jo pitkään: nuotio, ruokailu, vartija, tajuttomuus,
+herääminen ja paranemisen kolme ehtoa. Yksi asia puuttui, ja sen syy oli kirjattu: yöllinen
+hirviökohtaaminen vaatii <code>EGG_generate</code>:n, eli hirviö- ja taistelujärjestelmän.
+<strong>M14 valmistui, joten syy oli vanhentunut.</strong> Sama generaattori jota kutsuloitsu jo
+ajaa tekee sudet.
+</p>
+
+<h2>Portti on kolme testiä, ja järjestys on sääntö</h2>
+
+<p>
+Lepo kulkee kymmenen minuutin askelin. Jokaisella askeleella:
+</p>
+
+<pre><code>1. !(i &amp; 5)                    ei ota heittoa lainkaan
+2. OSI_rand(1, 64) == 1        yksi heitto
+3. HasNightEncounter()         kohtaamisen omat heitot</code></pre>
+
+<p>
+<code>&amp;&amp;</code> oikosulkee, ja jokainen heitto tulee samasta jaetusta virrasta, joten
+järjestys ei ole yksityiskohta: se määrää missä kohdassa virtaa pelin kaikki seuraavat heitot
+ovat.
+</p>
+
+<h2>Ja ensimmäinen testi on omituinen</h2>
+
+<p>
+<code>!(i &amp; 5)</code> on tosi vain kun <code>i mod 8</code> on 0 tai 2. Kahdeksasta
+askeleesta katsotaan siis <strong>kaksi</strong>. Dekompilaation oma kommentti merkitsee ehdon
+sanalla "strange", ja syystä: <code>&amp; 5</code> on bitit 0 ja 2, mikä ei vastaa mitään
+luonnollista jaksoa kymmenen minuutin askeleissa.
+</p>
+
+<p>
+Yhdeksän tunnin lepo on 54 askelta, joista 14 katsotaan. Kaksi uskottavaa väärää luentaa, jotka
+testi naulaa erikseen: <em>joka askel</em> tekisi yöstä neljä kertaa vaarallisemman, ja
+<em>joka tunti</em> näyttäisi oikealta eikä olisi.
+</p>
+
+<h2>Neljä sivua eivät ole symmetrisiä</h2>
+
+<pre><code>sivu     x              y
+vasen    MapX - 6       MapY + incr - 6
+ylä      MapX + incr-6  MapY - 7
+oikea    MapX + 7       MapY + incr - 6
+ala      MapX + incr-6  MapY + 6</code></pre>
+
+<p>
+Näkymä on 11 ruutua leveä, eli ruudut -5..+5. Vasen ja ala ovat siis <strong>yhden ruudun</strong>
+näkymän ulkopuolella, oikea ja ylä <strong>kahden</strong>. Ja kaistale sivun suuntaan ei ole
+keskitetty: siirtymä on 0..10 josta vähennetään kuusi, joten se kulkee -6..+4.
+</p>
+
+<p>
+Symmetrinen luenta on tässä se uskottava väärä, ja se olisi ollut helppo kirjoittaa vahingossa:
+yksi vakio neljän sijaan ja koodi näyttäisi siistimmältä.
+</p>
+
+<h2>Heittokirjanpito, ja mitä täysi hirviötaulu maksaa</h2>
+
+<pre><code>tyyppi                       1 heitto   (koko joukolle sama)
+määrä 1-8                    1 heitto
+per yritys: sivu + siirtymä  2 heittoa  (enintään 8 yritystä)</code></pre>
+
+<p>
+Yksi olento joka sijoittuu ensimmäisellä yrityksellä maksaa siis neljä heittoa. Ja tämä on se
+osa jota ei saa siistiä: <strong>alkuperäinen ei testaa <code>EGG_generate</code>:n
+vastausta</strong>, joten jos hirviöpaikat ovat loppu, kaikki kahdeksan yritystä heitetään
+silti olennolle jota ei ole. Siisti toteutus hyppäisi silmukan yli ja jättäisi virran eri
+kohtaan.
+</p>
+
+<h2>Kaksi heräämissyytä, jotka olivat tähän asti saavuttamattomia</h2>
+
+<p>
+Alkuperäisellä on kolme tapaa lopettaa yö. Nyt ne kaikki ovat saavutettavissa:
+</p>
+
+<ul>
+  <li><strong>Mitään ei tapahtunut.</strong> Paraneminen jos kolme ehtoa täyttyy.</li>
+  <li><strong>Vartija kuuli jotain.</strong> Rivi tulostuu ja puolue herää.</li>
+  <li><strong>Ei vartijaa.</strong> Puolue <em>jää nukkumaan</em>, eikä mitään tulosteta.</li>
+</ul>
+
+<p>
+Kolmas on se jonka pelaaja haluaa välttää: ilman vartijaa kohtaaminen ei herätä ketään.
+</p>
+
+<h2>Yksi nimetty aukko</h2>
+
+<p>
+Vartijan oma vuoro (<code>NPC_TakeTurn</code>) ei ole kytketty: yösilmukka ei aja yhtään
+NPC-vuoroa, joten vartija seisoo paikallaan koko yön. Kohtaaminen ei riipu sen liikkumisesta,
+joten tämä on nimetty aukko eikä rikkinäinen sääntö.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>askelta yhdeksän tunnin levossa                           54
+niistä tarkistettuja                                      14
+hirviötyyppejä joista arvotaan                             4
+olentoja yhdessä kohtaamisessa                          1..8
+yrityksiä per olento                                       8
+heittoja per olento jos mikään ei mahdu                   16
+uudet testit                                              10
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5810 / 5810</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Tämä on kolmas peräkkäinen viipale jonka löysi vanhentuneen puuttumisväitteen lukeminen
+     uudelleen. Kuvakaappauksia odottaa viisi eikä yhtään ole katsottu, ja leiriytyminen yöllä
+     on juuri sellainen asia jonka näkee vain pelaamalla.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
