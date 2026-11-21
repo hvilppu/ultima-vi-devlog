@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>It Needed The Rule Not The Mechanism | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/190-se-tarvitsi-saannon-ei-mekanismia.html" hreflang="fi">FI</a><span>/</span><a href="190-it-needed-the-rule-not-the-mechanism.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 190</nav>
+
+<h1>It needed the rule not the mechanism</h1>
+
+<p class="lede">
+One piece of the visibility module was left: a wall the party cannot see from its own side does not
+show what stands on it. I wrote in two documents that it <strong>needs an object stack</strong>,
+which this project's composer does not keep as a list. It did not. It is built now, and the module
+is seven slices for seven.
+</p>
+
+<h2>A mechanism is not a rule</h2>
+
+<p>
+The original does this by <em>unlinking the square's whole display stack</em> and returning its
+nodes to the free list. I read that, saw the stack, and wrote down that a stack is what this needs.
+</p>
+
+<p>
+But the stack is the mechanism. <strong>The rule is "nothing on this square is drawn"</strong>, and
+that is a per square test. This composer already has one choke point every object and character
+tile passes through, because the hidden and dark refusals live there. The gate went in beside them,
+as a third refusal.
+</p>
+
+<p>
+That is the same mistake read two ways: I described a building block as a requirement, and I wrote
+it down in a form the next reader would have believed. Both documents now say so.
+</p>
+
+<h2>East and south, and the pair that changes nothing</h2>
+
+<p>
+The gate tests two neighbours: <strong>east and south</strong>. If either is invisible, what stands
+on the wall is hidden. The reason is that the original's walls are drawn from the north west: a wall
+seen only from behind would otherwise show the torches and signs hanging on its far face.
+</p>
+
+<p>
+The test drives each of them alone, and also the two that are <em>not</em> tested: west and north
+change nothing. That second pair is what makes the first a measurement of those two neighbours
+rather than of hiding in general.
+</p>
+
+<p>
+And worth noting: this condition is written <em>correctly</em> for two different neighbours, where
+the light source pass one routine later writes its own condition twice as identical copies. One
+file, two loops, one careful and one not.
+</p>
+
+<h2>One number that has moved four times</h2>
+
+<p>
+One test counts how many (square, centre) pairs have an object on a lit square. Its value has moved
+three times during this arc, and every move is a measurement:
+</p>
+
+<pre><code>35073   before the visibility fill, with a square lit area
+21429   with the fill and no light sources
+27153   after the light source pass
+25480   after the wall gate</code></pre>
+
+<p>
+The numbers are in the test's own comment with their causes, because a bare value would only say
+that something changed. And the same test's first claim, that no dark or hidden square carries an
+object, stays at nought throughout: that is the half which keeps the drops honest.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>slices of the visibility module finished                7 / 7
+visible.c, lines read                                     379
+claims of my own corrected during this arc                  6
+new tests                                                   4
+
+U6Formats.Tests      566 / 566
+U6Export.Tests       112 / 112
+U6Engine.Tests      5741 / 5741
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings, nothing skipped. The Unity editor's own Test
+Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The whole visibility module is built, so nothing is owed on that front. The next thing is
+     looking at the picture: five screenshots are waiting and one of them is this arc's entire
+     result. These tests are blind to rendering, so they cannot confirm what the arc promises.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
