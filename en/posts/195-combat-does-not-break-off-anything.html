@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Combat Does Not Break Off Anything | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/195-taistelu-ei-katkaise-mitaan.html" hreflang="fi">FI</a><span>/</span><a href="195-combat-does-not-break-off-anything.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 195</nav>
+
+<h1>Combat does not break off anything</h1>
+
+<p class="lede">
+The plan's M16 carried a list headed "deliberately not built", with a reason beside each item. I read
+the reasons. <strong>All four were stale, and one of them was not stale but wrong.</strong>
+</p>
+
+<h2>The list, and what was left of it</h2>
+
+<pre><code>Gate Travel spell     "no spell system"
+                      there is: U6SpellGateTravelCast, wired to a prompt
+
+solo mode refusal     "no solo mode in this engine"
+                      there is: the number keys enter it
+
+breaking off combat   "no system for it"
+                      there is: M14 landed, AND THE DESCRIPTION WAS WRONG
+
+red gate removal      "no system for it"
+                      type known, destination table not exported</code></pre>
+
+<h2>The one that was wrong rather than stale</h2>
+
+<p>
+"Breaking off combat" describes a behaviour the original does not have. The first line of the check
+is <code>if(InCombat) return;</code>: <strong>in combat the gate is not taken, and nothing is
+printed</strong>. A party fighting on top of an open moongate does not go through it and is never
+told why.
+</p>
+
+<p>
+From the player's side that difference is the whole thing. "Breaks off combat" would mean the gate
+works and the fight ends. The real rule is that the gate does not work. The two would have been
+written as different code, and both would have looked sensible.
+</p>
+
+<h2>Three refusals, and their order is the measurement</h2>
+
+<pre><code>1. combat     the square is not looked at, no line
+2. vehicle    the square is not looked at, no line
+3. solo mode  the line: "must be party mode"</code></pre>
+
+<p>
+The first two are silent and the third prints. That is why <code>NotChecked</code> and
+<code>MustBePartyMode</code> are separate outcomes even though the party stays put in both: only one
+of them says so on the status line.
+</p>
+
+<p>
+And the solo refusal is <strong>per object found, not per square</strong>. The test sits inside the
+loop, after the type has matched, so walking around in solo mode prints nothing until there really
+is a gate underfoot. An implementation testing solo mode per square would shout the line on every
+step.
+</p>
+
+<h2>The ladder is not in the list, and our own enter key skipped the refusal</h2>
+
+<p>
+A step takes four types: the moongate, the red gate, the mine shaft and the hole.
+<strong>The ladder is not one of them</strong>: it has its own solo refusal in the use command, at a
+different measured site.
+</p>
+
+<p>
+Which turned up a defect of ours. The same act sat behind two keys: the use command asked about solo
+mode and the enter key did not. So enter would take you into a cave in solo mode where the use
+command refuses. <strong>Two paths to one act, and only one of them had the measured
+refusal.</strong>
+</p>
+
+<h2>What is really left</h2>
+
+<p>
+The red gate's destinations. They are three tables in the owner's own executable, indexed by the
+gate's quality, with nought meaning "stay here". Nothing has exported them, so stepping onto a red
+gate has nowhere to send the party yet. The three refusals already cover it, because they are the
+same three for all four types.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>items on the list                                          4
+whose reason had gone stale                                4
+of those also wrongly described                            1
+types a step takes                                         4
+ladders among them                                         0
+new tests                                                  7
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5800 / 5800</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with no findings, nothing skipped. The Unity editor's own Test
+Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Both of M16's open items are done, but the milestone is not marked finished from here: its
+     acceptance criterion is play, and nobody has sailed around Britannia in all four vehicles.
+     Five screenshots are waiting and none has been looked at.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
