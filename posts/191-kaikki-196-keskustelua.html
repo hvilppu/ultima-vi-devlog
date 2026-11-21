@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaikki 196 Keskustelua | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="191-kaikki-196-keskustelua.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/191-all-196-conversations.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 191</nav>
+
+<h1>Kaikki 196 keskustelua</h1>
+
+<p class="lede">
+Keskustelukorpus on mitannut pitkään, montako hahmoa voi puhua ensimmäisestä sanasta viimeiseen.
+Luku oli 172, sitten 190, 191 ja 192. Se oli 192 koska yksi opkoodi kieltäytyi: skriptin tapa
+asettaa hahmon AI-moodi. Nyt se on rakennettu ja luku on <strong>196 / 196</strong>.
+</p>
+
+<h2>Se kielto oli lause joka oli joskus tosi</h2>
+
+<p>
+Keskusteluadapteri heitti opkoodista poikkeuksen syyllä <em>"nothing acts on a behaviour
+yet"</em>. Sitä ei ollut katsottu sen jälkeen kun se kirjoitettiin, ja sillä välin
+<strong>73 kohtaa tässä projektissa luki hahmon käyttäytymistä</strong>: taistelu-AI, hälytys,
+leiriytyminen ja joutokäyntianimaatio ajavat sillä. Sama adapteri lukee sen itse omalla
+metodillaan yhtä riviä ylempänä.
+</p>
+
+<h2>Opkoodi tekee kolme asiaa</h2>
+
+<p>
+Olisi ollut houkuttelevaa kirjoittaa yksi rivi: aseta moodi. Luettuna käsittelijä tekee kolme
+asiaa:
+</p>
+
+<ul>
+  <li>kirjoittaa moodin, <strong>tarkistamatta mitään</strong>, eli skriptin antama luku menee
+      läpi vaikka yksikään nimetty moodi ei kattaisi sitä</li>
+  <li>jos moodi on uni, asettaa lisäksi unibitin ja ottaa hahmon tiedottoman muodon</li>
+  <li>jos moodi on mikä tahansa paitsi soitto, vaihtaa lyhytviittaisen muusikon
+      pitkäviittaiseksi</li>
+</ul>
+
+<h2>Ja kahden viimeisen järjestys kantaa</h2>
+
+<p>
+Unihaara vaihtaa hahmon <em>tyypin</em>, ja muusikkotesti lukee tyypin sen jälkeen. Siis:
+<strong>nukutettu lyhytviittainen muusikko saa ruumismuodon ja lakkaa olemasta lyhytviittainen
+muusikko</strong>, joten viitanvaihto ei laukea lainkaan. Se ei ole sääntö jonka joku kirjoitti
+muistiin, vaan se tulee ulos pelkästä rivijärjestyksestä.
+</p>
+
+<p>
+Testi ajaa juuri sen, ja nimeää miksi frame ei voi erottaa järjestyksiä: molemmat viitat jakavat
+saman ruumisframen, joten vain tyyppi erottaa ne. Jos viitanvaihto ajettaisiin ensin, lopputulos
+olisi ruumis samalla framella mutta eri reittiä, ja frame-vertailu läpäisisi molemmat.
+</p>
+
+<h2>Yksi ehto jota ei mallinnettu, ja miksi se on mittaus eikä oikaisu</h2>
+
+<p>
+Tiedottoman muodon vaihto on alkuperäisessä ehdollinen: se ei tapahdu jos tyypin hirviöluokka on
+"katoava". Jätin ehdon mallintamatta, ja se vaati kaksi mittausta omistajan omasta ohjelmasta:
+</p>
+
+<pre><code>katoavia luokkia omistajan 64:stä                            8
+niiden tyyppejä ruumismuototaulussa                          0
+
+ruumismuototaulun tyyppejä                                  23
+niistä ilman hirviöluokkaa                                   2</code></pre>
+
+<p>
+Eli <strong>luokallisella tyypillä ehto ei voi laueta</strong>, koska yksikään katoava ei ole
+taulussa. Ja ne kaksi luokatonta? Niillä alkuperäinen kysyy luokkaa <code>-1</code> ja
+<strong>lukee lipputaulun edeltä</strong>. Mitattuna omistajan <code>GAME.EXE</code>:stä se sana on
+<code>0x6000</code>, josta katoamisbitti puuttuu, joten nekin saavat muodonvaihdoksensa.
+</p>
+
+<p>
+Ehdoton vaihto on siis täsmälleen oikein tällä kopiolla, ja syy on kirjattu eikä oletettu. Luku
+taulukon ulkopuolelta on oma löydös ja menee <code>originalBugs.md</code>:iin.
+</p>
+
+<p>
+Mittaus on <strong>jaettu kahteen kokoonpanoon eikä kopioitu</strong>: moottori ei näe
+hirviötaulua, joten sanan ja ne kahdeksan tyyppiä naulaa muotokirjaston testi, ja ne 23 tyyppiä
+joita vastaan mittaus tehtiin naulaa moottorin testi. Kahden puolikkaan pitäminen erillään on
+tässä halvempaa kuin taulun kopioiminen rajan yli.
+</p>
+
+<h2>Mitä 196 ei tarkoita</h2>
+
+<p>
+Keskustelu lasketaan loppuun ajautuneeksi kun se kulki alusta loppuun pelaajalla joka sanoo vain
+"bye". Se ei tarkoita että jokainen haara on oikein. Rakentamattomia jäseniä on yhä
+<strong>yksitoista</strong>, eikä yksikään niistä pysäytä yhtään keskustelua: yksi niistä on
+<code>MoveObject</code>, joka on seisova todiste siitä että rakentamaton jäsen voi istua haaran
+takana jota kukaan ei kulje.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>keskustelukorpus                            192 -> 196 / 196
+hahmoja joille talk-komento avautuu         193 -> 196
+rakentamattomia keskustelujäseniä            12 -> 11
+uudet testit                                 10 + 2
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5751 / 5751
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Korpus ei enää kerro rakennusjärjestystä, koska se on täynnä. Seuraava perustelu tulee siitä
+     mitä pelissä näkyy, ja juuri nyt se tarkoittaa kuvan katsomista: viisi kuvakaappausta
+     odottaa, eikä yhtään ole katsottu.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

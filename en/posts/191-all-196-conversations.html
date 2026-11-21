@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All 196 Conversations | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/191-kaikki-196-keskustelua.html" hreflang="fi">FI</a><span>/</span><a href="191-all-196-conversations.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 191</nav>
+
+<h1>All 196 conversations</h1>
+
+<p class="lede">
+The conversation corpus has measured one thing for a long time: how many characters can be talked
+to from the first word to the last. It was 172, then 190, 191 and 192. It was 192 because one
+opcode refused, the script's own way of setting a character's AI mode. That is built now, and the
+count is <strong>196 of 196</strong>.
+</p>
+
+<h2>The refusal was a sentence that had once been true</h2>
+
+<p>
+The conversation adapter threw for that opcode with the reason <em>"nothing acts on a behaviour
+yet"</em>. Nobody had looked at it since it was written, and in the meantime <strong>73 places in
+this project read a character's behaviour</strong>: the combat AI, the alarm, camping and the idle
+animation all drive on it. The same adapter reads it itself, one method up.
+</p>
+
+<h2>The opcode does three things</h2>
+
+<p>
+It would have been tempting to write one line: set the mode. Read, the handler does three things:
+</p>
+
+<ul>
+  <li>writes the mode, <strong>validating nothing</strong>, so a value no named mode covers is
+      stored anyway</li>
+  <li>if the mode is sleep, also sets the asleep bit and takes the character's unconscious shape</li>
+  <li>if the mode is anything but play, turns a short caped musician into a long caped one</li>
+</ul>
+
+<h2>And the order of the last two is load bearing</h2>
+
+<p>
+The sleep branch changes the character's <em>type</em>, and the musician test reads the type
+afterwards. So: <strong>a short caped musician put to sleep takes the dead body shape and stops
+being a short caped musician</strong>, and the cape swap never fires. That is not a rule anybody
+wrote down; it falls out of the line order alone.
+</p>
+
+<p>
+A test drives exactly that, and names why the frame cannot tell the orders apart: both capes share
+a corpse frame, so only the type separates them. If the cape swap ran first, the result would be a
+corpse with the same frame by a different route, and a frame comparison would accept both.
+</p>
+
+<h2>One condition left unmodelled, and why that is a measurement</h2>
+
+<p>
+The unconscious shape swap is conditional in the original: it does not happen if the type's
+creature class is a vanishing one. I left the condition out, and that took two measurements from
+the owner's own program:
+</p>
+
+<pre><code>vanishing classes of the owner's 64                          8
+their types in the corpse shape table                        0
+
+types in the corpse shape table                             23
+of those with no creature class                              2</code></pre>
+
+<p>
+So <strong>for a classed type the condition cannot fire</strong>, because no vanishing one is in
+the table. And the two without a class? For those the original asks for class <code>-1</code> and
+<strong>reads in front of the flag table</strong>. Measured in the owner's <code>GAME.EXE</code>,
+that word is <code>0x6000</code>, which lacks the vanishing bit, so they take their shape too.
+</p>
+
+<p>
+Applying the swap unconditionally is therefore exactly right on this copy, and the reason is
+written down rather than assumed. The read outside the array is a finding of its own and goes into
+<code>originalBugs.md</code>.
+</p>
+
+<p>
+The measurement is <strong>split across two assemblies rather than copied</strong>: the engine
+cannot see the monster table, so the word and those eight types are pinned by the formats library's
+test, and the 23 types the measurement was scored against are pinned by the engine's. Keeping two
+halves apart is cheaper here than copying a table across the boundary.
+</p>
+
+<h2>What 196 does not mean</h2>
+
+<p>
+A conversation counts as finished when it ran from start to end with a player who only ever says
+"bye". It does not mean every branch is right. Eleven members are still unbuilt, and none of them
+stops any conversation: one of them is <code>MoveObject</code>, which stands as proof that an
+unbuilt member can sit behind a branch nobody walks.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>conversation corpus                         192 -> 196 / 196
+characters the talk command opens           193 -> 196
+unbuilt conversation members                 12 -> 11
+new tests                                    10 + 2
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5751 / 5751
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings, nothing skipped. The Unity editor's own Test
+Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The corpus no longer tells the build order, because it is full. The next justification has to
+     come from what shows in play, and right now that means looking at the picture: five
+     screenshots are waiting and none has been looked at.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
