@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Current Decides And The Wind Nudges | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/194-virta-paattaa-ja-tuuli-nyhtaa.html" hreflang="fi">FI</a><span>/</span><a href="194-the-current-decides-and-the-wind-nudges.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 194</nav>
+
+<h1>The current decides and the wind nudges</h1>
+
+<p class="lede">
+M16 had two items left open: the raft's drift table and the wind's random change. Both come out of
+one function and both sit behind keys the player already presses, so for once the slice was chosen
+by what is wrong in play rather than by what comes next in the plan's numbering.
+</p>
+
+<h2>The raft sailed straight downwind, which is up to four steps wrong</h2>
+
+<p>
+What was built was the wind half: a raft and a balloon do not steer, they go where the wind blows.
+But the original has a table, <code>RaftDriftDir[current][wind]</code>, and counting all 64 of its
+entries gives the rule in one sentence:
+</p>
+
+<pre><code>the current's own direction          32 entries
+one eighth turn from it              32 entries
+further away than one                 0 entries</code></pre>
+
+<p>
+<strong>The current decides and the wind nudges.</strong> A wind blowing straight against the
+current leaves the current's direction in all eight cases, and the table's diagonal is the identity.
+So a raft sent straight downwind can be four steps wrong.
+</p>
+
+<h2>And the half that was not there at all</h2>
+
+<p>
+What "the current" means depends on the square. It is read off the tile when that tile is one of the
+eight current tiles. <strong>On any other water the original puts the direction the player asked for
+in the current's place.</strong> A raft on open water is therefore steerable to within one eighth
+turn, and the same key gives a different step on a current than off it.
+</p>
+
+<p>
+This is the "four states read as two" smell this project's own rules warn about: one generalisation
+had been read out of a 64 entry table.
+</p>
+
+<h2>A becalmed balloon could fly</h2>
+
+<p>
+The original computes <code>dir = WindDir ^ 4</code> on a <em>signed</em> value. Calm is -1, and
+<code>-1 ^ 4</code> is -5, so it stays negative and reaches the refusal: the line prints, the
+movement points are zeroed, and the turn is gone. Our view read "no wind" as "keep the key's
+direction", which is <strong>the raft's rule and not the balloon's</strong>.
+</p>
+
+<p>
+Reaching for <code>(WindDir + 4) &amp; 7</code> instead would have turned calm into direction 3 and
+flown a becalmed balloon north east. That is now a test's discriminator.
+</p>
+
+<h2>And the wind turns now, which is draw accounting</h2>
+
+<p>
+<code>UpdateWind</code> runs <strong>once per call and not once per minute</strong>:
+<code>PassTime</code> loops over minutes for the status effects and calls this outside that loop, so
+a ten minute rest takes one wind draw rather than ten. The random stream is shared, so how many
+draws a pass takes is part of the rule:
+</p>
+
+<pre><code>underground, wind blowing    forced calm, 0 draws
+underground, already calm    1 draw, and nothing happens
+on the surface, no bite      1 draw
+on the surface, a bite       2 draws
+noChange (the sky bar)       0 draws</code></pre>
+
+<p>
+The second line is the interesting one. The forcing's condition requires a <em>blowing</em> wind, so
+an already calm one falls through it, takes its one-in-64 draw and is then refused by the surface
+test. <strong>A draw taken for an outcome that cannot happen</strong>, reproduced rather than tidied,
+because tidying it would move every later draw in the game.
+</p>
+
+<p>
+A new wind is <code>OSI_rand(0, 8) - 1</code>, nine outcomes, so <strong>the wind can also
+drop</strong> and calm is no rarer than any single direction. Level 5, incidentally, is not
+underground to this rule: the forcing is <code>z &lt; 5</code> and the draw is
+<code>z == 0 || z == 5</code>.
+</p>
+
+<h2>A comment that was wrong in every clause</h2>
+
+<p>
+<code>U6Wind</code>'s own documentation said the ambient change fires at a finer grain than anything
+this project ties its clock to, so it is not modelled, and that the Wind Change spell does not exist
+either "since no spell system has been built".
+</p>
+
+<p>
+The grain was one line of <code>gameloop.c</code> away. The spell had been built. And nine spell
+families have landed since that sentence was written. <strong>An absence claim in a comment is the
+sentence nobody updates</strong>, and this is the second slice in a row where it cost something: the
+previous one was five conversation members. The correction is written in place, with what the
+comment used to say kept beside it.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>RaftDriftDir entries read                                 64
+of those, the current's own direction                     32
+one step from it                                          32
+further                                                    0
+differing from the transpose (so the index order is measured)  40
+wind draws per call                                 0, 1 or 2
+new tests                                      11 + 2 + 8 + 2
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5793 / 5793</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with no findings, nothing skipped. The Unity editor's own Test
+Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Both of M16's open items are done. Five screenshots are waiting and none has been looked at,
+     and these tests are blind to rendering: a raft's new course is exactly the kind of thing only
+     looking can show.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

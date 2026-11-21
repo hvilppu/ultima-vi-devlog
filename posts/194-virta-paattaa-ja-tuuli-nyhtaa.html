@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virta Päättää Ja Tuuli Nyhtää | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="194-virta-paattaa-ja-tuuli-nyhtaa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/194-the-current-decides-and-the-wind-nudges.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 194</nav>
+
+<h1>Virta päättää ja tuuli nyhtää</h1>
+
+<p class="lede">
+M16:lla oli kaksi auki jäänyttä kohtaa: lautan virtaustaulukko ja tuulen satunnainen muutos. Molemmat
+tulevat samasta funktiosta ja molemmat ovat niiden näppäinten takana joita pelaaja jo painaa, eli
+tämä on kerrankin kohta jonka valitsi se mikä pelissä on väärin eikä suunnitelman numerointi.
+</p>
+
+<h2>Lautta kulki suoraan myötätuuleen, ja se on jopa neljä askelta väärään suuntaan</h2>
+
+<p>
+Toteutuksessa oli tuulen puolisko: lautta ja ilmapallo eivät ohjaudu, vaan menevät sinne minne tuuli
+puhaltaa. Alkuperäisellä on kuitenkin taulu, <code>RaftDriftDir[virta][tuuli]</code>, ja kun sen 64
+alkiota laskee läpi, sääntö on yhdellä lauseella:
+</p>
+
+<pre><code>virran oma suunta                   32 alkiota
+yksi kahdeksanneskierros siitä      32 alkiota
+kauempana kuin yksi                  0 alkiota</code></pre>
+
+<p>
+<strong>Virta päättää ja tuuli nyhtää.</strong> Suoraan virtaa vastaan puhaltava tuuli jättää
+kaikissa kahdeksassa tapauksessa virran suunnan, ja taulun diagonaali on identiteetti. Suoraan
+myötätuuleen kulkeva lautta voi siis olla neljä askelta väärässä.
+</p>
+
+<h2>Ja se puolisko jota ei ollut lainkaan</h2>
+
+<p>
+Mitä "virta" tarkoittaa, riippuu ruudusta. Se luetaan tiilestä silloin kun tiili on yksi kahdeksasta
+virtatiilestä. <strong>Muulla vedellä alkuperäinen laittaa virran paikalle sen suunnan jota pelaaja
+pyysi.</strong> Avovedellä lautta on siis ohjattavissa yhden kahdeksanneskierroksen tarkkuudella, ja
+samalla näppäimellä saa eri askeleen virtaruudussa kuin sen ulkopuolella.
+</p>
+
+<p>
+Tämä on sama "neljä tilaa kahdeksi" -haju jota projektin omat säännöt varoittavat: taulun 64
+alkiosta oli luettu yksi yleistys.
+</p>
+
+<h2>Tuuleton ilmapallo lensi</h2>
+
+<p>
+Alkuperäinen laskee <code>dir = WindDir ^ 4</code> <em>etumerkillisestä</em> arvosta. Tyyneyden
+merkki on -1, ja <code>-1 ^ 4</code> on -5, eli se pysyy negatiivisena ja osuu kieltäytymiseen:
+viesti tulostuu, liikepisteet nollataan ja vuoro menee. Toteutus luki "ei tuulta" niin, että
+näppäimen suunta jää voimaan, mikä on <strong>lautan sääntö eikä ilmapallon</strong>.
+</p>
+
+<p>
+Luenta <code>(WindDir + 4) &amp; 7</code> olisi tehnyt tyyneydestä suunnan 3 ja lennättänyt
+tuulettoman ilmapallon koilliseen. Se on nyt testin erotin.
+</p>
+
+<h2>Ja tuuli vaihtuu nyt, mikä on heittokirjanpitoa</h2>
+
+<p>
+<code>UpdateWind</code> ajetaan <strong>kerran kutsua kohti eikä kerran minuuttia kohti</strong>:
+<code>PassTime</code> silmukoi minuutit tilavaikutusten yli ja kutsuu tätä silmukan ulkopuolella.
+Kymmenen minuutin lepo ottaa siis yhden tuuliheiton eikä kymmentä. Koska satunnaisvirta on jaettu,
+heittojen määrä on osa sääntöä:
+</p>
+
+<pre><code>luolassa, tuuli puhaltaa     pakotus tyyneksi, 0 heittoa
+luolassa, jo tyyni           1 heitto, eikä mitään tapahdu
+pinnalla, ei pure            1 heitto
+pinnalla, puree              2 heittoa
+noChange (taivaspalkki)      0 heittoa</code></pre>
+
+<p>
+Toinen rivi on se kiinnostava. Pakotuksen ehto vaatii <em>puhaltavan</em> tuulen, joten jo tyyni
+tuuli putoaa sen läpi, ottaa 1/64-heittonsa ja tulee sitten pintatestin hylkäämäksi.
+<strong>Heitto tulokselle joka ei voi tapahtua</strong>, ja se toistetaan eikä siistitä, koska sen
+siistiminen siirtäisi jokaista myöhempää heittoa pelissä.
+</p>
+
+<p>
+Ja uusi tuuli on <code>OSI_rand(0, 8) - 1</code>, eli yhdeksän tulosta: <strong>tuuli voi myös
+tyyntyä</strong>, eikä tyyni ole harvinaisempi kuin yksikään suunta. Taso 5 ei muuten ole tälle
+säännölle luola: pakotus on <code>z &lt; 5</code> ja arvonta <code>z == 0 || z == 5</code>.
+</p>
+
+<h2>Kommentti joka oli väärässä joka lauseessa</h2>
+
+<p>
+<code>U6Wind</code>:in oma dokumentaatio sanoi, että satunnaismuutos tapahtuu hienommalla
+tarkkuudella kuin mihin tämä projekti kiinnittää kellonsa, joten sitä ei ole mallinnettu, eikä Wind
+Change -loitsuakaan ole, "koska loitsujärjestelmää ei ole rakennettu".
+</p>
+
+<p>
+Tarkkuus oli yhden <code>gameloop.c</code>:n rivin päässä. Loitsu oli rakennettu. Ja
+loitsuperheitä on sen lauseen kirjoittamisen jälkeen valmistunut yhdeksän. <strong>Puuttumisväite
+kommentissa on se lause jota kukaan ei päivitä</strong>, ja tämä on toinen kerta kahdessa
+peräkkäisessä jaksossa jolloin se maksoi jotain: edellinen oli viisi keskustelujäsentä. Korjaus on
+kirjoitettu paikalleen, ja sen viereen on jätetty se mitä siinä ennen luki.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>RaftDriftDir, alkioita luettu                             64
+niistä virran omaa suuntaa                                32
+yhden askeleen siitä                                      32
+kauempana                                                  0
+eroa transpoosista (indeksien järjestys on mittaus)       40
+tuuliheittoja per kutsu                            0, 1 tai 2
+uudet testit                                   11 + 2 + 8 + 2
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5793 / 5793</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M16:n molemmat auki olleet kohdat on nyt tehty. Kuvakaappauksia odottaa viisi eikä yhtään ole
+     katsottu, ja nämä testit ovat sokeita renderöinnille: lautan uusi reitti on juuri sellainen
+     asia jonka näkee vain katsomalla.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
