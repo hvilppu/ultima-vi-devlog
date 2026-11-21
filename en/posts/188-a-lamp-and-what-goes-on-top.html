@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Lamp And What Goes On Top | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/188-lamppu-ja-se-mika-piirtyy-paallimmaiseksi.html" hreflang="fi">FI</a><span>/</span><a href="188-a-lamp-and-what-goes-on-top.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 188</nav>
+
+<h1>A lamp and what goes on top</h1>
+
+<p class="lede">
+The last two pieces of the visibility module: a lamp standing in the world now lights the room
+around it, and the shade overlay goes over the objects instead of under them. The second was a
+one-pass move, and it would have gone in untested, because <strong>nothing in the whole suite
+covered the order</strong>.
+</p>
+
+<h2>A lamp's three gates</h2>
+
+<p>
+The light source pass gives every visible square carrying a light of its own a fill of its own.
+Three conditions, all measured:
+</p>
+
+<ul>
+  <li><strong>The whole pass is skipped at full daylight.</strong> A lamp adds nothing at noon.</li>
+  <li><strong>A lamp must itself be visible.</strong> One behind a wall lights nothing, not even on
+      its own side of the wall.</li>
+  <li><strong>A lamp on a wall counts only when the square south of it is visible.</strong> The
+      original writes that test twice with an <code>&amp;&amp;</code> between the copies, which
+      changes nothing, and the decompilation marks it with a question of its own.</li>
+</ul>
+
+<p>
+And a fourth thing that is not a gate but a necessity: <strong>each lamp forgets the queue's marks
+in a seven by seven box around itself</strong> before its own fill. Without that the party's own
+fill, which has already marked everything it reached, would stop every lamp at its first step. A
+test runs the fill with the box and without it.
+</p>
+
+<h2>The gate's test was wrong twice before it was right</h2>
+
+<p>
+First my helper, which puts a lamp on a square, put the lamp's own tile on the ground. That stopped
+the square being a wall, and the whole wall gate became unreachable. <strong>A lamp is an
+object</strong>: the flags carry its light and the ground stays what it is.
+</p>
+
+<p>
+And an earlier version of the same test could only assert its own setup, which is exactly the test
+that cannot fail. It is replaced by one that puts the party north of a lit wall: the wall is seen,
+the square south of it is not, and the gate closes.
+</p>
+
+<h2>The shade belongs on top, and proving it meant reading the stack</h2>
+
+<p>
+The previous post said I had found a consumer nobody had opened, and that it draws the shade after
+the objects. I left the move undone then, because I did not know what <code>ShowObject</code>'s
+fourth argument means. It is read now, and the answer has two halves.
+</p>
+
+<p>
+The routine draws nothing. It <strong>adds a tile to the cell's stack</strong>, and the stack is
+drawn later from the bottom up. Mode 3 walks to the end of the stack, meaning the top, <em>but only
+if the tile it carries is a foreground one</em>. Otherwise it goes to the bottom.
+</p>
+
+<p>
+So the question is settled by the owner's own tile table, not by the code:
+</p>
+
+<pre><code>0x1BC  the replacement   NOT foreground
+0x1BD  shade 1           foreground
+0x1BE  shade 2           foreground
+0x1BF  shade 3           foreground</code></pre>
+
+<p>
+The three shades are foreground tiles, so they go on top. A chest in a dim square is shaded in the
+original along with the ground it stands on, and it was not here.
+</p>
+
+<h2>The test twice and the verification once wrong</h2>
+
+<p>
+The move broke no test, which is a result in itself: nothing covered the order. I wrote a test that
+works at the level of one pixel, and it took three attempts.
+</p>
+
+<p>
+<strong>The first version passed either way.</strong> It looked for a square where <em>every</em>
+opaque overlay pixel showed the overlay, which selected precisely those squares where the object
+does not cover the overlay at all. The decisive pixel has to be one where <strong>both the object
+and the overlay</strong> are opaque.
+</p>
+
+<p>
+<strong>Then the verification was wrong.</strong> I restored the old order by adding a call before
+the objects without <em>removing</em> the new one after them. The overlay was drawn twice and the
+later one won, so the test passed and looked as though it did not discriminate. With the move done
+properly it fails at pixel (9, 0): it wants the overlay's 0 and gets the object's 45.
+</p>
+
+<p>
+That is three mistakes in a row on one small thing, and all three were on the test's side rather
+than the code's. It is why the rule here is that a new check is proved by breaking it.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>slices of the visibility module finished                 6 / 7
+owed: hiding what stands on an unseen wall
+a lamp's gates measured                                     3
+attempts to prove the order                                 3
+new tests                                                  10
+
+U6Formats.Tests      566 / 566
+U6Export.Tests       112 / 112
+U6Engine.Tests      5738 / 5738
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings, nothing skipped. The Unity editor's own Test
+Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>One piece of the visibility module is left: hiding whatever stands on a wall the party cannot
+     see, which needs an object stack this composer does not keep as a list. Before that, somebody
+     should look at the picture. The night is round and darker, a cave shows only what the party
+     can see, lamps light, and the shade is over the objects. Five screenshots are waiting and
+     none has been looked at.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

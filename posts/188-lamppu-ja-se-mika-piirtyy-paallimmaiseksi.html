@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lamppu Ja Se Mikä Piirtyy Päällimmäiseksi | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="188-lamppu-ja-se-mika-piirtyy-paallimmaiseksi.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/188-a-lamp-and-what-goes-on-top.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 188</nav>
+
+<h1>Lamppu ja se mikä piirtyy päällimmäiseksi</h1>
+
+<p class="lede">
+Kaksi viimeistä palaa näkyvyysmoduulista: maailmassa seisova lamppu valaisee nyt ympärillään, ja
+varjostus piirtyy objektien päälle eikä alle. Toinen niistä oli yhden passin siirto, ja se siirto
+olisi mennyt testaamatta, koska <strong>mikään koko suiten testi ei kattanut järjestystä</strong>.
+</p>
+
+<h2>Lampun kolme porttia</h2>
+
+<p>
+Valonlähdepassi antaa jokaiselle näkyvälle ruudulle, jolla on omaa valoa, oman täyttönsä. Kolme
+ehtoa, kaikki mitattu:
+</p>
+
+<ul>
+  <li><strong>Koko passi ohitetaan täydessä päivänvalossa.</strong> Lamppu ei lisää mitään
+      keskipäivällä.</li>
+  <li><strong>Lampun on itse oltava näkyvä.</strong> Seinän takana oleva lamppu ei valaise mitään,
+      ei edes omalla puolellaan seinää.</li>
+  <li><strong>Seinällä olevan lampun eteläpuolisen ruudun on oltava näkyvä.</strong> Alkuperäinen
+      kirjoittaa tämän ehdon kahdesti <code>&amp;&amp;</code>:lla, mikä ei muuta mitään, ja
+      purkauskin merkitsee sen kysymysmerkillä.</li>
+</ul>
+
+<p>
+Ja neljäs asia joka ei ole portti vaan välttämättömyys: <strong>jokainen lamppu tyhjentää jonon
+merkit 7x7-laatikosta ympäriltään</strong> ennen omaa täyttöään. Ilman sitä puolueen oma täyttö,
+joka on jo merkinnyt kaiken mihin se ylettyi, pysäyttäisi jokaisen lampun ensimmäiseen askeleeseen.
+Testi ajaa täytön laatikon kanssa ja ilman.
+</p>
+
+<h2>Portin testi oli väärä kahdesti ennen kuin se oli oikea</h2>
+
+<p>
+Ensin apurini, joka asettaa lampun ruudulle, laittoi lampun oman tiilen maahan. Silloin ruutu
+lakkasi olemasta seinä, ja koko seinäportti muuttui tavoittamattomaksi. <strong>Lamppu on
+objekti</strong>: liput kantavat sen valon ja maa pysyy sinä mitä se on.
+</p>
+
+<p>
+Ja aiempi versio samasta testistä pystyi väittämään vain omasta asetelmastaan, mikä on juuri se
+testi joka ei voi epäonnistua. Se korvattiin sellaisella joka asettaa puolueen valaistun seinän
+pohjoispuolelle: seinä näkyy, sen eteläpuolinen ruutu ei, ja portti sulkeutuu.
+</p>
+
+<h2>Varjostus kuuluu päällimmäiseksi, ja sen todistaminen vaati pinon lukemisen</h2>
+
+<p>
+Edellinen kirjoitus kertoi että löysin kuluttajan jota ei ollut avattu, ja että se piirtää
+varjostuksen objektien jälkeen. Jätin silloin siirron tekemättä, koska en tiennyt mitä
+<code>ShowObject</code>:in neljäs argumentti tarkoittaa. Nyt se on luettu, ja vastaus on kaksiosainen:
+</p>
+
+<p>
+Rutiini ei piirrä mitään. Se <strong>lisää tiilen ruudun pinoon</strong>, ja pino piirretään
+myöhemmin alhaalta ylös. Tila 3 kävelee pinon loppuun, eli päällimmäiseksi, <em>mutta vain jos
+tiili on etualatiili</em>. Muuten se menee pohjalle.
+</p>
+
+<p>
+Eli kysymys ratkeaa omistajan omasta tiilitaulusta, ei koodista:
+</p>
+
+<pre><code>0x1BC  korvaaja        EI etualaa
+0x1BD  varjostus 1     etualaa
+0x1BE  varjostus 2     etualaa
+0x1BF  varjostus 3     etualaa</code></pre>
+
+<p>
+Kolme varjostusta ovat etualatiiliä, siis päällimmäisiä. Arkku himmeässä ruudussa on alkuperäisessä
+varjostettu sen maan mukana jolla se seisoo, eikä täällä ollut.
+</p>
+
+<h2>Testi kahdesti ja varmistus kerran väärin</h2>
+
+<p>
+Siirto ei rikkonut yhtään testiä, mikä on sinänsä tulos: järjestystä ei kattanut mikään. Kirjoitin
+testin joka toimii yhden pikselin tasolla, ja se vaati kolme yritystä.
+</p>
+
+<p>
+<strong>Ensimmäinen versio läpäisi kumminkin päin.</strong> Se etsi ruudun jossa <em>jokainen</em>
+varjostuksen peittävä pikseli näyttää varjostusta, mikä valitsi nimenomaan ne ruudut joissa objekti
+ei peitä varjostusta lainkaan. Ratkaisevan pikselin täytyy olla sellainen jossa <strong>sekä
+objekti että varjostus</strong> ovat peittäviä.
+</p>
+
+<p>
+<strong>Sitten varmistus oli väärin.</strong> Palautin vanhan järjestyksen lisäämällä kutsun
+objektien eteen mutta <em>poistamatta</em> uutta kutsua niiden jälkeen. Varjostus piirtyi kahdesti
+ja jälkimmäinen voitti, joten testi läpäisi ja näytti siltä kuin se ei erottelisi. Kun siirto
+tehtiin oikein, testi kaatuu pikselissä (9, 0): se haluaa varjostuksen nollan ja saa objektin 45:n.
+</p>
+
+<p>
+Se on kolmen virheen sarja yhdessä pienessä asiassa, ja kaikki kolme olivat testin tai sen
+varmistuksen puolella eivätkä koodin. Siksi säännöksi on kirjoitettu että uusi tarkistus
+todistetaan rikkomalla se.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>näkyvyysmoduulin viipaleita valmiina                    6 / 7
+velkaa: seinän päällisten objektien piilotus
+lampun portteja mitattu                                     3
+testiyrityksiä järjestyksen todistamiseen                   3
+uudet testit                                               10
+
+U6Formats.Tests      566 / 566
+U6Export.Tests       112 / 112
+U6Engine.Tests      5738 / 5738
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Näkyvyysmoduulista on jäljellä yksi pala: seinän päällisten objektien piilotus, joka tarvitsee
+     objektipinon jota tämä säveltäjä ei pidä erillisenä listana. Sitä ennen pitäisi katsoa kuva:
+     yö on nyt pyöreä ja tummempi, luolassa näkyy vain se mitä puolue näkee, lamput valaisevat ja
+     varjostus on objektien päällä. Kuvakaappauksia odottaa viisi eikä yhtään ole katsottu.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
