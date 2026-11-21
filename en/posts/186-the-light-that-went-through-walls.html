@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Light That Went Through Walls | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/186-valo-joka-kulki-seinien-lapi.html" hreflang="fi">FI</a><span>/</span><a href="186-the-light-that-went-through-walls.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 186</nav>
+
+<h1>The light that went through walls</h1>
+
+<p class="lede">
+The peer map left one thing owing: the visibility fill that decides which squares of a cave are
+revealed. I opened that file expecting a detail of the peer map.
+<strong>It is the whole module that decides what the party sees and how brightly</strong>, and its
+absence explains three things this project has had wrong all along.
+</p>
+
+<h2>Three faults, two of them visible every night</h2>
+
+<ul>
+  <li><strong>light went through walls</strong>, because a square's light is computed from plain distance</li>
+  <li><strong>caves showed through their own walls</strong>, because the visibility bit did not exist</li>
+  <li><strong>wall tiles are not swapped</strong> for the variant showing only their visible faces</li>
+</ul>
+
+<p>
+The first was already named: the lighting class's own remarks say it outright, <em>light passes
+through walls</em>. It has stood there as a named gap, and a named gap is exactly the one nobody
+goes back to look at. The number per square was measured correctly; what was missing is that the
+original arrives at that number by <strong>walking</strong>, not by subtracting.
+</p>
+
+<h2>Four things that would be easy to read wrong</h2>
+
+<pre><code>light = 4 - distance[|dx|][|dy|] + base    clamped 0..4
+AreaLight[square] += light
+if mode != 0: AreaFlags[square] |= 0x80</code></pre>
+
+<p>
+<strong>The distance is from the fill's origin, never along the path walked.</strong> Light turns a
+corner at full strength as long as some see-through chain reaches it. That is a different picture
+from a radius test and a different one from a path cost.
+</p>
+
+<p>
+<strong>Light accumulates.</strong> Plus-equals, and each fill clamps only its own contribution, so
+a square lit by the sky and two lamps can hold more than four.
+</p>
+
+<p>
+<strong>A square is marked and lit before the see-through test, not after.</strong> That is the
+whole reason a wall is visible at all: the fill reaches the wall, lights it, marks it, and only
+then declines to spread through it. In the other order a cave would be corridors with no walls.
+</p>
+
+<p>
+<strong>And if the fill's origin itself blocks sight, it starts from its east and south
+neighbours</strong>, not west or north. That is the torch-on-a-wall case, and it is asymmetric.
+</p>
+
+<h2>A bit that is the same value in a different byte</h2>
+
+<p>
+The fill asks a tile three things this project had never read. One of them is <em>does this stop
+sight</em>, and it is bit <code>0x04</code> of the <strong>display</strong> byte. Impassability is
+bit <code>0x02</code> of the <strong>terrain</strong> byte. Different bytes, and temptingly close
+to each other, so I counted the sets in the owner's own table:
+</p>
+
+<pre><code>stops sight                       127 / 2048 tiles
+impassable                        930 / 2048
+impassable but does not stop sight  809
+stops sight but is not impassable     6</code></pre>
+
+<p>
+The sets are not nested either way, and conflating the bits would have changed
+<strong>815 tiles</strong>. That is a discriminator you cannot read off the code: the two readings
+look identical until they are counted.
+</p>
+
+<h2>Three of my own expectations were refuted, and all three were guesses</h2>
+
+<p>
+<strong>One.</strong> I expected a lamp standing on a blocking square to leave its own square dark,
+since that square cannot be queued. It does not: the east neighbour the fill started from spreads
+back over it, and the square gets light 4, because the distance is taken from the origin whatever
+route reached it. The asymmetry only shows when east and south are blocked too and west is open,
+and the test now drives exactly that case in both directions.
+</p>
+
+<p>
+<strong>Two.</strong> I expected a 256-entry queue to overflow constantly over a 1600-square area.
+It never overflows once. A breadth-first flood holds only its own frontier, and I added a counter
+to measure it: <strong>128, 48 and 13</strong> in the three modes, where I had guessed 156 and 16.
+They are equalities in the test rather than upper bounds, because a <code>LessThan</code> would
+have accepted both of my wrong numbers.
+</p>
+
+<p>
+<strong>Three.</strong> I wrote in the class's own comment that the distance table is asymmetric,
+and gave two examples. The table <strong>is</strong> symmetric, all 64 entries, and both of my
+examples were entries where the table and the rounding agree. The real measurement: it differs
+from the rounded root in 6 of its 64 entries and from truncation in 21, so it is a rounding with
+three exceptions, and those three are symmetric pairs where the value is one too large.
+</p>
+
+<h2>The same origin, two maskings, two files</h2>
+
+<p>
+The previous post was about an area origin this project had written twice with two different
+maskings. It turns out <strong>the original does the same</strong>: the map module computes
+<code>(MapX - 0x10) &amp; 0x3f8</code> and the visibility module recomputes the same thing with
+<code>&amp; 0xfff8</code>. Below a coordinate of 16 one answers 1008 and the other -16, and the
+second one's own comment says they are the same.
+</p>
+
+<p>
+And this time <strong>each is right where it stands</strong>, which is a more interesting answer
+than a fault would have been: the visibility module's subtraction needs the sign to keep its index
+inside the area, and the peer map's edge clamps need the wrap, because they compare the origin
+against values only the wrap can produce. Two files need different answers to the same question
+and each gets one. Only the comment is wrong.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>visible.c, lines read                                      379
+measured and written into docs/u6-nakyvyys.md    the whole module
+built in this slice                              VIS_FloodFill
+tile flags read for the first time                           3
+tiles that confusing the two bits would change             815
+expectations of mine refuted by tests                        3
+new findings about the original                              5
+new tests                                                   32
+
+U6Formats.Tests      566 / 566
+U6Export.Tests       112 / 112
+U6Engine.Tests      5686 / 5686
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings, nothing skipped. The Unity editor's own Test
+Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>This slice is not visible to the player yet, and that is said here rather than left to be
+     noticed. The fill is the foundation; on top of it go the marking pass (which objects set
+     which flags), the eleven by eleven view build with its wall variants, and the wiring into the
+     map window. Only the third of those puts out the light behind a wall. The measurement is
+     written down in full, so the next three slices are building rather than reading.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
