@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One Hit Point And Karma Worth Of Experience | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/198-yksi-osumapiste-ja-karman-verran-kokemusta.html" hreflang="fi">FI</a><span>/</span><a href="198-one-hit-point-and-karma-worth-of-experience.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 198</nav>
+
+<h1>One hit point and karma worth of experience</h1>
+
+<p class="lede">
+Resurrection is built. Two of the world interface's 33 members still refuse, and one of those
+answers as soon as the conversation scripts are handed over, which in play is always. So
+<strong>one</strong> is really left: the player's own item selection.
+</p>
+
+<h2>What reviving does, in order</h2>
+
+<pre><code>the body's quality names the character
+the character is moved to where the body (or its carrier) is
+the body's contents come back, the amulet worn rather than packed
+the body is deleted
+ClrDead
+hit points = 1
+shape = the original shape
+magic = full
+ClrAilmentsProtected   (dead, poisoned, asleep, paralysed, protected)
+experience = experience * karma / 100   (only when karma < 98)
+placement: growing square rings, radius 1 to 4
+a party member rejoins</code></pre>
+
+<p>
+<strong>The dead bit is cleared twice</strong>, because <code>ClrDead</code> comes first and
+<code>ClrAilmentsProtected</code> clears it again among five bits. Reproduced as it stands: the
+order of writes to one byte is what a save file shows.
+</p>
+
+<h2>The karma bound is a measurement, not a rounding</h2>
+
+<p>
+Experience is cut only when karma is <strong>below 98</strong>. Karma 98 keeps every point. And
+the division truncates towards nought: 99 points at karma 50 is 49, not 50.
+</p>
+
+<p>
+The multiply is 32 bit in the original, which is a rule too: 60000 points at karma 97 is 58200,
+and it does not fit in 16 bits on the way.
+</p>
+
+<h2>Placement: the corners are tried twice</h2>
+
+<p>
+The character is placed in growing square rings around the body, and each step tries four
+squares: the top edge left to right, the left edge top to bottom, the bottom edge right to left,
+and the right edge bottom to top.
+</p>
+
+<p>
+At step nought the first two candidates are <em>the same</em> top left corner, and the last two
+the same bottom right. At the last step the pairs coincide the other way round. So <strong>a ring
+of 8r squares costs 8r+4 tests</strong>. The duplicates show up nowhere except in how many times
+the square test is asked, which is why they are left in place: a tidier version would ask a
+different number of questions.
+</p>
+
+<h2>Two new anomalies</h2>
+
+<p>
+<strong>The opcode is narrower than the spell.</strong> The conversation opcode looks for exactly
+one corpse type (<code>0x153</code>), while the resurrect spell accepts four: the dead body, the
+mouse, the dead gargoyle and the dead cyclops. Both run the same revive routine, so a script
+cannot resurrect a gargoyle and the spell can.
+</p>
+
+<p>
+And the opcode <strong>skips both of the spell's gates</strong>: quality <code>&gt;= 0xE0</code>
+(a temporary monster) and quality 0 ("the corpse is too old"). At quality 0 the character number
+read is nought, which is not a character but the vehicle slot.
+</p>
+
+<p>
+<strong>And with no body the original writes at index -1.</strong> The loop ends on -1 when the
+chain holds no corpse, and the revive runs anyway: five fields written in front of the array.
+This is the fourth finding of that shape in this project. <strong>It is not
+reproduced</strong>: a write outside an array is not a rule, and the difference is named in the
+code.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>refusing members of 33                                  3 -> 2
+of those, refusing in play                                   1
+status bits cleared in one write                             5
+the karma bound                                             98
+rings tried                                              1 - 4
+tests in a ring of 8r squares                             8r+4
+new tests                                                   10
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5825 / 5825</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, nothing skipped. The Unity editor's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The last refuser, <code>SelectObject</code>, needs the player's own item selection, so it is
+     view work rather than a rule. Seven screenshots are waiting and none has been looked at.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

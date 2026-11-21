@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yksi Osumapiste Ja Karman Verran Kokemusta | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="198-yksi-osumapiste-ja-karman-verran-kokemusta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/198-one-hit-point-and-karma-worth-of-experience.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 198</nav>
+
+<h1>Yksi osumapiste ja karman verran kokemusta</h1>
+
+<p class="lede">
+Herätys rakennettu. Keskusteluskriptien maailmarajapinnasta kieltäytyy nyt kaksi jäsentä 33:sta,
+ja toinen niistä vastaa heti kun skriptit on annettu, eli pelissä aina. Jäljellä on siis
+<strong>yksi</strong>: pelaajan oma esinevalinta.
+</p>
+
+<h2>Mitä herätys tekee, järjestyksessä</h2>
+
+<pre><code>ruumiin laatu nimeää hahmon
+hahmo siirretään sinne missä ruumis (tai sen kantaja) on
+ruumiin sisältö takaisin, amuletti päälle eikä reppuun
+ruumis poistetaan
+ClrDead
+osumapisteet = 1
+muoto = alkuperäinen muoto
+magia = täysi
+ClrAilmentsProtected   (kuollut, myrkky, uni, halvaus, suojaus)
+kokemus = kokemus * karma / 100   (vain jos karma < 98)
+sijoitus: kasvava neliörengas säteellä 1-4
+puolueen jäsen liittyy takaisin</code></pre>
+
+<p>
+<strong>Kuollut-bitti nollataan kahdesti</strong>, koska <code>ClrDead</code> on ensin ja
+<code>ClrAilmentsProtected</code> nollaa sen uudelleen viiden bitin joukossa. Se on toistettu
+sellaisenaan: yhden tavun kirjoitusjärjestys on se mitä tallennustiedosto näyttää.
+</p>
+
+<h2>Karman raja on mittaus eikä pyöristys</h2>
+
+<p>
+Kokemus leikataan vain kun karma on <strong>alle 98</strong>. Karma 98 säilyttää jokaisen
+pisteen. Ja jakolasku on kokonaislukujako kohti nollaa: 99 pistettä karmalla 50 on 49, ei 50.
+</p>
+
+<p>
+Kertolasku on alkuperäisessä 32-bittinen, mikä on sekin sääntö: 60000 pistettä karmalla 97 on
+58200, eikä se mahdu 16 bittiin matkalla.
+</p>
+
+<h2>Sijoitus: kulmat yritetään kahdesti</h2>
+
+<p>
+Hahmo sijoitetaan kasvavina neliörenkaina ruumiin ympärille, ja jokaisella askeleella kokeillaan
+neljää ruutua: yläreuna vasemmalta oikealle, vasen reuna ylhäältä alas, alareuna oikealta
+vasemmalle, oikea reuna alhaalta ylös.
+</p>
+
+<p>
+Askeleella nolla kaksi ensimmäistä ehdokasta ovat <em>sama</em> vasen yläkulma, ja kaksi
+viimeistä sama oikea alakulma. Viimeisellä askeleella parit osuvat yhteen toisin päin. Niinpä
+<strong>8r ruudun rengas maksaa 8r+4 testiä</strong>. Duplikaatit eivät näy mihinkään paitsi
+siihen montako kertaa ruututestiä kysytään, ja siksi ne on jätetty paikalleen: siistitty versio
+olisi eri määrä kysymyksiä.
+</p>
+
+<h2>Kaksi uutta poikkeamaa</h2>
+
+<p>
+<strong>Opkoodi on kapeampi kuin loitsu.</strong> Keskusteluopkoodi etsii tasan yhtä
+ruumistyyppiä (<code>0x153</code>), kun herätysloitsu hyväksyy neljä: ruumiin, hiiren, kuolleen
+gargoylen ja kuolleen kykloopin. Sama herätysrutiini ajetaan molemmissa, joten skripti ei voi
+herättää gargoylea, loitsu voi.
+</p>
+
+<p>
+Ja opkoodi <strong>ohittaa loitsun molemmat portit</strong>: laatu <code>&gt;= 0xE0</code>
+(tilapäinen hirviö) ja laatu 0 ("ruumis on liian vanha"). Laadulla 0 hahmonumeroksi luetaan
+nolla, joka ei ole hahmo vaan ajoneuvopaikka.
+</p>
+
+<p>
+<strong>Ja ilman ruumista alkuperäinen kirjoittaa indeksiin -1.</strong> Silmukka päättyy arvoon
+-1 kun ketjussa ei ole ruumista, ja herätys ajetaan silti: viisi kenttää kirjoitetaan taulukon
+edeltä. Tämä on neljäs samanmuotoinen löytö tässä projektissa. <strong>Tätä ei
+jäljitellä</strong>: taulukon ulkopuolinen kirjoitus ei ole sääntö, ja ero on nimetty koodin
+kommentissa.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>kieltäytyviä jäseniä 33:sta                             3 -> 2
+niistä pelissä oikeasti kieltäytyviä                         1
+tilabittejä nollattuna yhdellä kirjoituksella                5
+karman raja                                                 98
+renkaita joita kokeillaan                                  1-4
+testejä 8r ruudun renkaassa                               8r+4
+uudet testit                                                10
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5825 / 5825</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, mitään ohittamatta. Unityn editorin oma Test Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Viimeinen kieltäytyjä, <code>SelectObject</code>, vaatii pelaajan oman esinevalinnan, eli se
+     on näkymän työtä eikä sääntöä. Kuvakaappauksia odottaa seitsemän eikä yhtään ole katsottu.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
