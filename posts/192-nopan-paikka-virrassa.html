@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nopan Paikka Virrassa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="192-nopan-paikka-virrassa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/192-where-a-die-sits-in-the-stream.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 192</nav>
+
+<h1>Nopan paikka virrassa</h1>
+
+<p class="lede">
+Kutsu ja manaus olivat viimeinen loitsuperhe joka palautti nimetyn kieltäytymisen. Este oli
+kirjattu tarkasti: alkuperäinen luo olennon <strong>ennen</strong> kahdeksaa sijoitusheittoa, eikä
+generaattoria voinut kytkeä järjestämättä heittoja uudelleen. Järjestys on nyt korjattu ja
+molemmat loitsut asettavat oikean olennon kartalle. Ja käsittelijän lukeminen paljasti toisen
+järjestysongelman jota kukaan ei ollut nimennyt.
+</p>
+
+<h2>Miksi yhden nopan paikka on sääntö eikä yksityiskohta</h2>
+
+<p>
+Tässä pelissä on <strong>yksi satunnaislukuvirta</strong>. Kaikki lukevat samaa: taistelu,
+aikataulut, loitsut, munat. Jos jokin rutiini ottaa yhden heiton väärässä järjestyksessä, se ei
+tuota vain omaa väärää tulosta: se <em>siirtää koko lopun virran</em>, ja seuraavan tunnin
+taistelut heittävät eri numeroita kuin alkuperäisessä samalla siemenellä.
+</p>
+
+<p>
+Siksi "kytke generaattori" ei ollut pieni työ. Generaattori heittää itse, tilastoille ja
+omaisuudelle, ja ne heitot kuuluvat luontiheiton ja sijoitusheittojen väliin.
+</p>
+
+<h2>Ja toinen noppa oli jo väärässä paikassa, odottamassa kutsujaa</h2>
+
+<p>
+Kun luin käsittelijän kokonaan, löytyi tämä: manatun demonin oma vastustustesti on
+<strong>silmukan sisällä</strong>, onnistuneen sijoituksen jälkeen, ja se heittää oman
+1d30:nsä.
+</p>
+
+<p>
+Meidän toteutus otti vastauksen <em>valmiina totuusarvona kutsujalta</em>. Kutsujaa ei ollut, joten
+mikään ei ollut rikki, mutta signatuuri olisi laittanut sen nopan minne tahansa kutsuja sen heitti.
+Se on vika joka olisi syntynyt vasta kytkennässä, ja silloin kukaan ei olisi etsinyt sitä täältä.
+</p>
+
+<h2>Neljä vastustuskaavaa, ei kolme</h2>
+
+<p>
+Demonin testin selvittäminen vaati vastustuskaavojen laskemisen, ja niitä on neljä:
+</p>
+
+<pre><code>spell.c:490  ((voima/2)  + 30 - voima)   / 2 > 1d30
+spell.c:496  ((voima/2)  + 30 - äly)     / 2 > 1d30
+spell.c:502  ((näppäryys/2) + 30 - äly)  / 2 > 1d30
+
+combat.c:248  (äly/2) + 15 - äly              > 1d30</code></pre>
+
+<p>
+Kolme ensimmäistä jakavat muodon, neljäs ei. Tämän projektin kaksi luokkaa mallintavat tasan nuo
+kaksi muotoa, ja demonin testi käyttää neljättä. <strong>Kumpikaan ei tarvinnut muutosta</strong>,
+mikä on tieto vain tarkistettuna: ilman tarkistusta se olisi ollut oletus.
+</p>
+
+<h2>Kolme loppua, ja yksi niistä ei saa tulostaa onnistumisriviä</h2>
+
+<p>
+Kytkentä palauttaa kolme eri lopputulosta, koska alkuperäisellä on kolme loppua: olento
+asettuu ja tottelee, demoni asettuu ja kääntyy pelaajaa vastaan, tai kaikki kahdeksan yritystä
+epäonnistuvat ja olento poistetaan.
+</p>
+
+<p>
+Keskimmäinen on kiinnostava. Alkuperäinen tulostaa siinä <strong>oman literaalinsa</strong>, ei
+vietyä riviä, eikä tämä projekti kanna alkuperäisen sanoja. Helppo oikaisu olisi tulostaa se
+ystävällinen onnistumisrivi, joka on viety ja saatavilla. Se olisi kertonut pelaajalle että
+vihamielinen demoni tottelee häntä, eli se olisi ollut <em>se yksi väärä vastaus joka oli
+tarjolla</em>. Rivi on siis tämän projektin oma lause, ja tulemalla on oma koodi joka sanoo miksi.
+</p>
+
+<h2>Ja poisto on sääntö eikä siivous</h2>
+
+<p>
+Kun kaikki kahdeksan yritystä epäonnistuvat, alkuperäinen <strong>poistaa olennon</strong>. Se ei
+ole muistinhallintaa vaan sääntö: olento luotiin, se ei mahtunut mihinkään, ja se lakkaa olemasta.
+Näkymä palauttaa paikan takaisin ja ottaa olennon pois indeksistä, mikä on sama jako jota jokainen
+muu tuon parin kutsuja pitää.
+</p>
+
+<h2>Vuototarkistus nappasi loitsunimen testistä</h2>
+
+<p>
+Samassa passissa: kirjoitin perhelaskennan, joka laski lopputuloksia nimen etuliitteellä. Etuliite
+on kuusi merkkiä ja se on myös <strong>yksi alkuperäisen loitsunimistä</strong>. Vuotavan tekstin
+tarkistus nappasi sen testitiedostosta, jossa se olisi muuten istunut huomaamatta. Nyt laskenta
+käyttää <code>nameof</code>:ia eikä yhtään literaalia.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>loitsuperheitä joissa loihtiminen muuttaa maailmaa    8 -> 9
+vastustuskaavoja laskettuna                                4
+luokkiamme jotka tarvitsivat muutosta                      0
+lopputuloksia luettelossa                            33 -> 36
+uudet testit                                         7 + 6
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5764 / 5764
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä korjauksen jälkeen, mitään ohittamatta. Unityn
+editorin oma Test Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kuvakaappauksia odottaa viisi eikä yhtään ole katsottu. Nyt kun näkyvyysmoduuli on valmis ja
+     keskustelukorpus täynnä, kumpikaan mittari ei enää kerro mitä rakentaa seuraavaksi: perustelu
+     tulee siitä mitä pelissä näkyy, ja sen näkee vain katsomalla.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

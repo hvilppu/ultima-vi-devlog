@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where A Die Sits In The Stream | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/192-nopan-paikka-virrassa.html" hreflang="fi">FI</a><span>/</span><a href="192-where-a-die-sits-in-the-stream.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 192</nav>
+
+<h1>Where a die sits in the stream</h1>
+
+<p class="lede">
+Conjure and summon were the last spell family still answering with a named refusal. The blocker was
+written down precisely: the original creates the creature <strong>before</strong> the eight
+placement draws, and the generator could not be wired in without reordering those draws. The order
+is fixed now and both spells put a real creature on the map. Reading the handler for it turned up a
+second ordering problem nobody had named.
+</p>
+
+<h2>Why one die's position is a rule and not a detail</h2>
+
+<p>
+This game has <strong>one random stream</strong>. Everything reads it: combat, schedules, spells,
+eggs. If a routine takes one draw in the wrong order, it does not merely get its own answer wrong;
+it <em>shifts the whole rest of the stream</em>, and the next hour's fights roll different numbers
+than the original's would from the same seed.
+</p>
+
+<p>
+So "wire in the generator" was not a small job. The generator draws for itself, for statistics and
+possessions, and those draws belong between the creature roll and the placement draws.
+</p>
+
+<h2>And a second die was already in the wrong place, waiting for a caller</h2>
+
+<p>
+Reading the handler through turned this up: the summoned daemon's own resistance test is
+<strong>inside the loop</strong>, after a successful placement, and it draws a 1d30 of its own.
+</p>
+
+<p>
+Our implementation took the answer as a <em>ready made boolean from its caller</em>. There was no
+caller, so nothing was broken, but the signature would have put that die wherever the caller rolled
+it. It is the kind of defect that only appears when something finally calls you, and by then nobody
+is looking here.
+</p>
+
+<h2>Four resistance formulas, not three</h2>
+
+<p>
+Settling the daemon's test meant counting the resistance formulas, and there are four:
+</p>
+
+<pre><code>spell.c:490  ((strength/2)  + 30 - strength) / 2 > 1d30
+spell.c:496  ((strength/2)  + 30 - intellect)/ 2 > 1d30
+spell.c:502  ((dexterity/2) + 30 - intellect)/ 2 > 1d30
+
+combat.c:248  (intellect/2) + 15 - intellect      > 1d30</code></pre>
+
+<p>
+The first three share a shape; the fourth does not. This project's two classes model exactly those
+two shapes, and the daemon's test uses the fourth. <strong>Neither needed changing</strong>, which
+is knowledge only once checked: without the check it would have been an assumption.
+</p>
+
+<h2>Three endings, and one of them must not print the success row</h2>
+
+<p>
+The wiring returns three different outcomes, because the original has three endings: the creature
+lands and answers to you, the daemon lands and turns on you, or all eight attempts fail and the
+creature is deleted.
+</p>
+
+<p>
+The middle one is interesting. The original prints <strong>its own literal line</strong> there, not
+an exported row, and this project does not carry the original's words. The easy shortcut would be
+to print the friendly success row, which is exported and to hand. That would have told the player a
+hostile daemon answers to them, which is <em>the one wrong answer available</em>. So the line is
+this project's own sentence, and the outcome has a code of its own that says why.
+</p>
+
+<h2>And the deletion is a rule, not a tidy up</h2>
+
+<p>
+When all eight attempts fail, the original <strong>deletes the creature</strong>. That is not memory
+management but the rule: the creature was made, it did not fit anywhere, and it stops existing. The
+view puts the slot back and takes the creature out of the index, which is the same split every
+other caller of that pair keeps.
+</p>
+
+<h2>The leaked-text check caught a spell name in a test</h2>
+
+<p>
+In the same pass: I wrote a family census that counted outcomes by a name prefix. The prefix is six
+characters and it is also <strong>one of the original's spell names</strong>. The leaked-text check
+caught it in a test file, where it would otherwise have sat unnoticed. The census uses
+<code>nameof</code> now, with no literal at all.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>spell families where a cast changes the world         8 -> 9
+resistance formulas counted                                4
+of our classes that needed changing                        0
+values in the outcome enum                          33 -> 36
+new tests                                            7 + 6
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5764 / 5764
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings after the fix, nothing skipped. The Unity
+editor's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Five screenshots are waiting and none has been looked at. Now that the visibility module is
+     finished and the conversation corpus is full, neither measure tells what to build next: the
+     justification comes from what shows in play, and that can only be seen by looking.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
