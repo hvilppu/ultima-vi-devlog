@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Origo Joka Oli Kirjoitettu Kahdesti | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="185-origo-joka-oli-kirjoitettu-kahdesti.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/185-the-origin-written-twice.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 185</nav>
+
+<h1>Origo joka oli kirjoitettu kahdesti</h1>
+
+<p class="lede">
+Jalokiven peer-kartta tarvitsi yhden puuttuvan luvun: sen alueen origon, jonka ympärille
+neljäkymmentä kertaa neljäkymmentä ruutua ladataan. Mittasin sen, ja sitten etsin sitä tästä
+projektista. <strong>Se oli jo täällä kahdesti, ja ne kaksi kappaletta eivät olleet sama
+funktio.</strong> Ero osuu täsmälleen niihin arvoihin joihin peer-kartan omat reunarajaukset on
+viritetty, eli väärällä luennalla kaksi niistä on tavoittamatonta koodia.
+</p>
+
+<h2>Kaksi maskia, kuusitoista koordinaattia</h2>
+
+<p>
+Alkuperäinen laskee <code>AreaX = (MapX - 0x10) &amp; 0x3f8</code>. Tässä projektissa munien
+haravointi laski <code>(c - 16) &amp; ~7</code> ja polun ikkuna laski alkuperäisen maskilla.
+Molemmat pyöristävät alas kahdeksan monikertaan. Ero on että <code>0x3f8</code> pudottaa myös
+kaiken maailman omien kymmenen bitin yläpuolelta:
+</p>
+
+<pre><code>koordinaatti   16 tai yli     alle 16
+alkuperainen   sama           1008 (0-7), 1016 (8-15)
+munien kopio   sama           -16, -8
+
+origoja kaikkiaan                         128
+koordinaatteja joilla luennat eroavat      16</code></pre>
+
+<p>
+Kuusitoista koordinaattia maailman luoteisnurkassa. Se on helppo lukea harmittomaksi, ja se olisi
+jäänyt sellaiseksi, jos peer-kartta ei olisi sattunut olemaan juuri se kohta jossa luku ratkaisee
+jotain.
+</p>
+
+<h2>Erottelija on kartan oma rajausketju</h2>
+
+<p>
+Peer-kartta rajaa kuvaansa pinnalla neljällä ehdolla, ja kaksi niistä vertaa origoa arvoihin
+<code>0x3F0</code> ja <code>0x3F8</code>. <strong>Kumpaankaan ei pääse ilman maskin kiertoa</strong>:
+mikään koordinaatti maailman sisältä ei tuota niitä astumalla kuusitoista taaksepäin. Laskin kaikki
+1024 koordinaattia molemmilla luennoilla ja listasin saavutettavat origot, ja kaksi muuta rajausta
+(<code>0x3E0</code> ja <code>0x3E8</code>) kelpaavat kummallakin, eli ne eivät ole todistetta
+kummastakaan. Puolet ketjusta ratkaisee kysymyksen ja puolet ei, ja se sanotaan testissä ääneen.
+</p>
+
+<p>
+Sen vieressä on se mittaus josta pidin eniten. <strong>Näkymän siirtymä alueen sisällä ei erottele
+maskeja lainkaan.</strong> Se on <code>(c - AreaX - 5) &amp; 0x1f</code>, ja kaksi origoa eroavat
+1024:llä, joka on 32:n monikerta, joten maski nielee eron kaikilla 1024 koordinaatilla. Juuri siksi
+väärä origo selvisi: luontevin tarkistus, "osuuko näkymä oikeaan paikkaan", ei olisi voinut
+epäonnistua.
+</p>
+
+<h2>Silmukka antoi viisi asiaa joita mittaukseni ei antanut</h2>
+
+<p>
+Edellinen kierros mittasi <code>peer_tile</code>:n, eli yhden ruudun päätöksen: viisi väriä ja
+kaksi shakkivaihetta. Se ei ollut kuva. Kun luin itse piirtosilmukan, siitä tuli viisi asiaa joita
+luokassa ei ollut:
+</p>
+
+<ul>
+  <li>koko kuva täytetään <strong>mustaksi</strong> ennen kuin mitään piirretään</li>
+  <li>monitiiliobjekti jättää merkin myös niille ruuduille joiden yli se ulottuu, tiilinumeroilla
+      <code>-1</code> länteen, <code>-2</code> pohjoiseen ja <code>-3</code> luoteeseen</li>
+  <li>toimija tunnistetaan numerostaan, <code>objNum &lt; 0x100</code></li>
+  <li>ensimmäinen puoluelainen ohitetaan jos pelaaja ei ohjaa sitä</li>
+  <li>ja <strong>objektipassi ei noudata reunarajauksia</strong>, joita maastopassi noudattaa</li>
+</ul>
+
+<p>
+Tuo viimeinen on se joka ei näytä virheeltä kummastakaan suunnasta luettuna. Rajaukset lasketaan
+kerran, maastosilmukat käyttävät niitä, ja objektikierros hakee koko alueen. Objekti rajatussa
+kaistassa piirtää siis merkkinsä mustan pohjan päälle ilman maastoa alla, ja tämä projekti tekee
+nyt samoin.
+</p>
+
+<h2>Kehys peittää kuvan ulommat kaksi ruutua</h2>
+
+<p>
+Kuva on 160 pikseliä, eli neljäkymmentä ruutua neljällä pikselillä, ja se piirretään alueelle
+8-167. Sen jälkeen karttaikkunan kehys piirretään samaan suorakulmioon. <strong>Kehys on kahdeksan
+pikseliä ja ruutu neljä</strong>, joten rutiini laskee ja piirtää 1600 ruutua ja pelaaja näkee
+niistä 1296. Aritmetiikka sulkeutuu kahdesta suunnasta: 167 - 8 + 1 = 160 = 40 &times; 4, ja
+8 + 160 + 8 = 176, joka on karttaikkunan leveys. Kuvaa ei siis ole sovitettu kehyksen sisään vaan
+sen alle, ja ulompi reuna on työtä jota ei näe kukaan.
+</p>
+
+<h2>Kolmetoista riviä jotka sanoivat "ei rakennettu"</h2>
+
+<p>
+Käyttökomennon dokumentissa on taulukko, jonka tila-sarake sanoi <em>ei rakennettu</em>
+kolmestatoista rivistä yhtä aikaa: tykki, kristallipallo, suihkulähde, jalokivi, kuiden orbi,
+kaivuvaline, juoma, ruutitynnyri, sekstantti, hopeatorvi, sauva, teleskooppi ja soihtu.
+<strong>Kaikki kolmetoista ovat moottorissa ja kytkettyinä näkymään.</strong> Mittasin sen ajamalla
+jokaisen tyypin dispatchin läpi ja laskemalla armit, en lukemalla taulukkoa.
+</p>
+
+<p>
+Eikä se ollut harmitonta. Kestoloitsujen luokka lainasi juuri tuota riviä todisteena siitä ettei
+jalokiven komentoa ole rakennettu, ja sama rivi oli yhä testin odotuksessa. Puuttumisväite
+dokumentissa mätänee samalla tavalla kuin kommentissa, ja tila-sarake on niistä kaikkein luetuin.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>käytettävät tyypit joilla on nimetty käsittelijä        84 / 85
+tyyppejä jäljellä, lopetusta odottamassa                     1
+alueen origon kappaleita ennen, jälkeen                   2, 1
+koordinaatteja joilla kaksi luentaa eroavat                 16
+rajauksia joihin pääsee vain oikealla maskilla          2 / 4
+piirrettyjä ruutuja, näkyviä ruutuja              1600, 1296
+vanhentuneita dokumenttirivejä korjattu                     13
+uusia alkuperäisen löydöksiä                                 4
+uudet testit                                                41
+
+U6Formats.Tests      566 / 566
+U6Export.Tests       112 / 112
+U6Engine.Tests      5654 / 5654
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<p>
+Yksi uusi ansa kirjattiin ympäristödokumenttiin: <code>Does.Not.Contain(int)</code> ratkeaa Unityn
+omassa NUnitissa merkkijono-ylikuormaan, eli neljä riviä jotka kääntyivät täällä eivät kääntyneet
+siellä. Se löytyi sen jälkeen kun 5653 testiä oli jo vihreänä, eli siltä erillinen
+käännöstarkistus teki työnsä viidennen kerran.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Peer-kartta piirtyy nyt, ja omistaja näkee sen jalokivellä tai Inspectorin valinnalla, joka on
+     alkuperäisen oma debug-näppäin eikä tässä keksitty pikakuja. Yksi asia on yhä velkaa:
+     näkyvyystäyttö, jonka puuttuessa luola näkyy kokonaan. Pinta ei aja täyttöä lainkaan, joten
+     maanpäällinen kuva on valmis. Ja kuvakaappaukset rakeiden myrskystä, kaukoputkesta,
+     kanuunasta ja nyt peer-kartasta odottavat yhä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

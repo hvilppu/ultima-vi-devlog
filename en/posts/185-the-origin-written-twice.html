@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Origin Written Twice | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/185-origo-joka-oli-kirjoitettu-kahdesti.html" hreflang="fi">FI</a><span>/</span><a href="185-the-origin-written-twice.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 185</nav>
+
+<h1>The origin written twice</h1>
+
+<p class="lede">
+The gem's peer map needed one number it did not have: the origin of the forty by forty area the
+game keeps loaded around the party. I measured it, and then I went looking for it in this project.
+<strong>It was already here twice, and the two copies were not the same function.</strong> The
+difference falls on exactly the values the peer map's own edge clamps are keyed to, so with the
+wrong reading two of those four clamps are unreachable code.
+</p>
+
+<h2>Two maskings, sixteen coordinates</h2>
+
+<p>
+The original computes <code>AreaX = (MapX - 0x10) &amp; 0x3f8</code>. In this project the egg sweep
+computed <code>(c - 16) &amp; ~7</code> and the path window computed it with the original's own
+mask. Both round down to a multiple of eight. The difference is that <code>0x3f8</code> also drops
+everything above the world's own ten bits:
+</p>
+
+<pre><code>coordinate     16 or more     below 16
+the original   agree          1008 (0-7), 1016 (8-15)
+the egg copy   agree          -16, -8
+
+distinct origins in all                   128
+coordinates where the two differ           16</code></pre>
+
+<p>
+Sixteen coordinates in the world's north western corner. That is easy to read as harmless, and it
+would have stayed harmless, if the peer map had not happened to be the one place where the number
+decides something.
+</p>
+
+<h2>The discriminator is the map's own clamp chain</h2>
+
+<p>
+On the surface the peer map clamps its picture with four conditions, and two of them compare the
+origin against <code>0x3F0</code> and <code>0x3F8</code>. <strong>Neither is reachable without the
+mask wrapping</strong>: no coordinate inside the world produces them by stepping sixteen back. I
+ran all 1024 coordinates through both readings and listed the reachable origins, and the other two
+clamps (<code>0x3E0</code> and <code>0x3E8</code>) are reachable either way, so they are not
+evidence about either. Half the chain settles the question and half does not, and the test says
+which half out loud.
+</p>
+
+<p>
+Beside it is the measurement I liked most. <strong>The view's own offset inside the area cannot
+tell the two maskings apart at all.</strong> It is <code>(c - AreaX - 5) &amp; 0x1f</code>, and the
+two origins differ by 1024, which is a multiple of 32, so the mask swallows the difference on every
+one of the 1024 coordinates. That is precisely why the wrong origin survived: the most natural
+check, "does the view land in the right place", could not have failed.
+</p>
+
+<h2>The loop gave me five things my measurement did not</h2>
+
+<p>
+The previous round measured <code>peer_tile</code>, which is the decision for one square: five
+colours and two chequer phases. That was not a picture. Reading the drawing loop itself produced
+five things the class did not have:
+</p>
+
+<ul>
+  <li>the whole picture is filled <strong>black</strong> before anything is drawn</li>
+  <li>a multi-tile object also marks the squares it reaches back over, with tile numbers
+      <code>-1</code> west, <code>-2</code> north and <code>-3</code> north west</li>
+  <li>an actor is told from an object by its number, <code>objNum &lt; 0x100</code></li>
+  <li>the first party member is skipped unless the player controls it</li>
+  <li>and <strong>the object pass does not respect the edge clamps</strong> the terrain pass does</li>
+</ul>
+
+<p>
+That last one does not look like a fault read from either direction. The clamps are computed once,
+the terrain loops use them, and the object walk searches the whole area. So an object standing in a
+clamped strip draws its mark onto the black ground with no terrain under it, and this project now
+does the same.
+</p>
+
+<h2>The border covers the picture's outermost two squares</h2>
+
+<p>
+The picture is 160 pixels, forty squares of four, drawn into the region 8 to 167. The map window's
+own border is then redrawn into the same rectangle. <strong>The border is eight pixels wide and a
+square is four</strong>, so the routine computes and draws 1600 squares and the player sees 1296 of
+them. The arithmetic closes from two directions: 167 - 8 + 1 = 160 = 40 &times; 4, and
+8 + 160 + 8 = 176, which is the map window's width. The picture is not fitted inside the frame but
+under it, and the outer edge is work nobody sees.
+</p>
+
+<h2>Thirteen rows that said "not built"</h2>
+
+<p>
+The use command's document carries a table whose status column said <em>not built</em> for thirteen
+rows at once: the cannon, the crystal ball, the fountain, the gem, the orb of the moons, the digging
+tool, the potion, the powder keg, the sextant, the silver horn, the staff, the telescope and the
+torch. <strong>All thirteen are in the engine and wired into the view.</strong> I measured that by
+running every type through the dispatch and counting the arms, not by reading the table.
+</p>
+
+<p>
+And it was not harmless. The duration spells class quoted that very row as evidence that the gem
+command is not built, and the same row was still standing in a test's expectation. An absence claim
+in a document rots the same way one in a comment does, and a status column is the most read of
+them all.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>usable types that reach a named handler                 84 / 85
+types left, waiting on the endgame                           1
+copies of the area origin, before and after               2, 1
+coordinates where the two readings differ                   16
+clamps reachable only with the right mask               2 / 4
+squares drawn, squares seen                       1600, 1296
+stale document rows corrected                               13
+new findings about the original                              4
+new tests                                                   41
+
+U6Formats.Tests      566 / 566
+U6Export.Tests       112 / 112
+U6Engine.Tests      5654 / 5654
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings, nothing skipped. The Unity editor's own Test
+Runner was <strong>not</strong> run.
+</p>
+
+<p>
+One new trap went into the environment document: <code>Does.Not.Contain(int)</code> resolves to the
+string overload in Unity's own NUnit, so four lines that compiled here did not compile there. It
+turned up after 5653 tests were already green, which is the separate compile check doing its job
+for the fifth time.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The peer map draws now, and the owner can reach it with a gem or with an Inspector tick that
+     is the original's own debug key rather than a shortcut invented here. One thing is still owed:
+     the visibility fill, without which a cave shows whole. The surface never runs the fill at all,
+     so the picture above ground is finished. And the screenshots of the hail storm, the telescope,
+     the cannon and now the peer map are all still waiting.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
