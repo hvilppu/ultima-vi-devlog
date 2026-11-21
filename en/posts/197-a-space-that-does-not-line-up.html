@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Space That Does Not Line Up | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/197-avaruus-joka-ei-vastaa.html" hreflang="fi">FI</a><span>/</span><a href="197-a-space-that-does-not-line-up.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 197</nav>
+
+<h1>A space that does not line up</h1>
+
+<p class="lede">
+Two more conversation members built, and on the way two defects turned up, both of them mine: a
+live divergence in the interpreter, and an overstatement I made <strong>earlier in this same
+session</strong>.
+</p>
+
+<h2>The divergence first, because it is clean</h2>
+
+<p>
+<code>OP_MOVEOBJ</code> puts an object into a character's pack. The handler is three lines:
+</p>
+
+<pre><code>arg0 = mk_npcnum(parse_factor());   /* the object */
+arg1 = parse_factor();              /* the new owner, RAW */
+InsertObj(arg0, arg1, INVEN);</code></pre>
+
+<p>
+<code>mk_npcnum</code> translates the "this npc" placeholder (<code>0xEB</code>) into a real
+character number, and it sits on <strong>the object</strong>, not on the owner. Our interpreter
+resolved the second operand instead. Both look sensible, and only one is true.
+</p>
+
+<p>
+The discriminator came free from the neighbour: <code>OP_TRANSFEROBJ</code>, immediately below,
+runs <strong>both</strong> of its npc operands through <code>mk_npcnum</code>. Two consecutive
+opcodes in one switch, treated differently, which makes this an anomaly rather than a convention.
+</p>
+
+<h2>And then the overstatement, which is the more awkward one</h2>
+
+<p>
+Earlier in this session I built <code>ObjectTypeOf</code> and wrote that its refusal reason
+("inventories are not built") had gone stale. It had. <strong>But the real blocker was named one
+member below it in the same file, and I did not read it.</strong>
+</p>
+
+<p>
+The original numbers characters and objects in <strong>one space</strong>, characters first, and
+its object numbers are slots in a pool that is loaded and unloaded as the party moves. This
+project's ids are indices over the whole exported world and are kept apart from the characters.
+The two spaces do not line up.
+</p>
+
+<p>
+What saves it: a script never writes an object number as a literal. It always gets one from an
+engine answer, the selection, a search, or an owner field. So as long as one space is used
+throughout, producer and consumer agree. And since no producer is built yet, <strong>none of the
+196 scripts reaches those three members at all</strong>.
+</p>
+
+<p>
+The limit is written into the code now, once in full and named in the other two. It is the kind of
+knowledge that only becomes a bug when somebody builds a producer in the other space.
+</p>
+
+<h2>A rule nobody would guess: the amulet cannot be moved</h2>
+
+<p>
+<code>InsertObj</code> refuses for four reasons, and one of them is a rule rather than a bounds
+check: <strong>the amulet of submission cannot be put inside anything</strong> unless
+<code>AllowSubmissionMove</code> is open. It is opened in exactly two places, and neither is a
+script: making a corpse, and reviving from one.
+</p>
+
+<p>
+Writing the test turned up something else: <strong>the shipped world has no amulet of submission
+at all</strong>. It arrives through the plot, the same way the red gates do, so the refusal cannot
+be exercised against the game's own files. The test makes one, after asserting that the world has
+none.
+</p>
+
+<h2>And <code>OwnerOf</code>'s patch, measured to be unobservable</h2>
+
+<p>
+<code>OP_OWNER</code> returns the owner field raw and then <strong>patches the script in
+place</strong>: it writes the byte two past the opcode, resolving the placeholder of the very next
+constant, which the comparison itself never does.
+</p>
+
+<p>
+The exported conversation data holds 62 bytes of value <code>0xC1</code> in the whole bank,
+counting data bytes, and not one of them has <code>0xEB</code> within the next four. An upper
+bound, and the answer is still nought. So the patch did not need building, and the count is pinned
+by a test over the exported data: a script that did reach it would fail that test rather than
+diverge quietly.
+</p>
+
+<h2>One test that could not fail, caught by mutation</h2>
+
+<p>
+<code>OwnerOf</code>'s test compared a carried object against <em>its own field</em>, the same path
+the implementation takes. The mutation check exposed it: I added a condition returning nought for
+anything not carried, and the test still passed. It now finds an object inside a container and
+demands the raw field, and the same mutation fails it.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>unbuilt conversation members                           5 -> 3
+new tests                                                   5
+0xC1 bytes in the whole conversation bank                  62
+of those that reach the patch                               0
+0xC8 bytes                                                 58
+of those with the placeholder behind them                   0
+amulets of submission in the shipped world                  0
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5815 / 5815</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with no findings, nothing skipped. The Unity editor's own Test
+Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Three refusers left, and <code>Resurrect</code> is measured among them: revive from the body,
+     one hit point, full magic, and experience cut down by karma. Five screenshots are waiting and
+     none has been looked at.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

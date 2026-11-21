@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Avaruus Joka Ei Vastaa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="197-avaruus-joka-ei-vastaa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/197-a-space-that-does-not-line-up.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 197</nav>
+
+<h1>Avaruus joka ei vastaa</h1>
+
+<p class="lede">
+Kaksi keskustelujäsentä lisää rakennettu, ja matkalla löytyi kaksi vikaa jotka olivat molemmat
+omiani: elävä poikkeama tulkissa, ja ylilyönti jonka tein <strong>tässä samassa
+sessiossa</strong> aiemmin.
+</p>
+
+<h2>Ensin se poikkeama, koska se on puhdas</h2>
+
+<p>
+<code>OP_MOVEOBJ</code> siirtää esineen hahmon reppuun. Käsittelijä on kolme riviä:
+</p>
+
+<pre><code>arg0 = mk_npcnum(parse_factor());   /* esine */
+arg1 = parse_factor();              /* uusi omistaja, RAAKANA */
+InsertObj(arg0, arg1, INVEN);</code></pre>
+
+<p>
+<code>mk_npcnum</code> kääntää "tämän hahmon" -paikanvaraajan (<code>0xEB</code>) oikeaksi
+hahmonumeroksi, ja se on <strong>esineen</strong> päällä, ei omistajan. Meidän tulkki ratkaisi
+sen toisesta operandista. Kumpikin näyttää järkevältä, ja vain toinen on totta.
+</p>
+
+<p>
+Erotin tuli ilmaiseksi naapurista: heti alla oleva <code>OP_TRANSFEROBJ</code> ajaa
+<strong>molemmat</strong> hahmo-operandinsa <code>mk_npcnum</code>:in läpi. Kaksi peräkkäistä
+opkoodia samassa switchissä, eri tavalla, mikä tekee tästä poikkeaman eikä käytäntöä.
+</p>
+
+<h2>Ja sitten se ylilyönti, joka on kiusallisempi</h2>
+
+<p>
+Aiemmin tässä sessiossa rakensin <code>ObjectTypeOf</code>:in ja kirjoitin, että sen
+kieltäytymissyy ("inventaarioita ei ole rakennettu") oli vanhentunut. Se oli vanhentunut.
+<strong>Mutta todellinen este oli nimetty yhtä jäsentä alempana samassa tiedostossa, enkä
+lukenut sitä.</strong>
+</p>
+
+<p>
+Alkuperäinen numeroi hahmot ja objektit <strong>yhteen avaruuteen</strong>, hahmot ensin, ja sen
+objektinumerot ovat paikkoja altaassa joka ladataan ja puretaan puolueen liikkuessa. Tämän
+projektin id:t ovat indeksejä koko vietyyn maailmaan ja erillään hahmoista. Avaruudet eivät
+vastaa toisiaan.
+</p>
+
+<p>
+Mikä pelastaa: skripti ei koskaan kirjoita objektinumeroa literaalina. Se saa numeron aina
+moottorin omasta vastauksesta, eli valinnasta, hausta tai omistajakentästä. Niin kauan kuin
+käytetään yhtä avaruutta, tuottaja ja kuluttaja ovat samaa mieltä. Ja koska yhtään tuottajaa ei
+ole vielä rakennettu, <strong>yksikään 196 skriptistä ei tavoita noita kolmea jäsentä</strong>.
+</p>
+
+<p>
+Rajoite on nyt kirjoitettu koodiin, kerran kokonaan ja nimettynä kahdessa muussa. Se on sitä
+lajia tietoa josta tulee vika vasta sitten kun joku rakentaa tuottajan toisessa avaruudessa.
+</p>
+
+<h2>Sääntö jota ei olisi arvannut: amulettia ei voi siirtää</h2>
+
+<p>
+<code>InsertObj</code> kieltäytyy neljästä syystä, ja yksi niistä on sääntö eikä
+rajatarkistus: <strong>alistumisen amulettia ei voi laittaa minkään sisään</strong>, ellei
+<code>AllowSubmissionMove</code> ole auki. Se avataan tasan kahdessa paikassa, ja kumpikaan ei ole
+skripti: ruumiin tekeminen ja ruumiista herättäminen.
+</p>
+
+<p>
+Testiä kirjoittaessa löytyi myös se, että <strong>toimitetussa maailmassa ei ole yhtään
+alistumisen amulettia</strong>. Se tulee juonen kautta, kuten punaiset portitkin, joten
+kieltäytymistä ei voi ajaa pelin omaa dataa vastaan: testi luo amuletin itse ja väittää ensin,
+ettei maailmassa ole yhtään.
+</p>
+
+<h2>Ja <code>OwnerOf</code>:in paikkaus, joka on mitattu havaitsemattomaksi</h2>
+
+<p>
+<code>OP_OWNER</code> palauttaa omistajakentän raakana ja <strong>paikkaa sitten skriptin paikan
+päällä</strong>: se kirjoittaa tavun kaksi opkoodin jälkeen, eli ratkaisee heti seuraavan
+vakion paikanvaraajan, mitä vertailu itse ei tee koskaan.
+</p>
+
+<p>
+Viedyssä keskusteludatassa on 62 tavua arvoa <code>0xC1</code> koko pankissa, datatavut mukaan
+lukien, eikä yhdelläkään ole <code>0xEB</code>:tä seuraavan neljän tavun sisällä. Yläraja, ja
+vastaus on silti nolla. Paikkausta ei siis tarvinnut rakentaa, ja luku on naulattu testiin
+viedystä datasta: skripti joka tavoittaisi paikkauksen kaatuisi siihen eikä poikkeaisi hiljaa.
+</p>
+
+<h2>Yksi testi joka ei voinut kaatua, kiinni mutaatiolla</h2>
+
+<p>
+<code>OwnerOf</code>:in testi vertasi kannettua esinettä <em>sen omaan kenttään</em>, eli samaan
+polkuun kuin toteutus. Mutaatiotarkistus paljasti sen: lisäsin toteutukseen ehdon joka palauttaa
+nollan ei-kannetuille, ja testi läpäisi silti. Nyt se etsii säiliössä olevan esineen ja vaatii
+raakaa kenttää, ja sama mutaatio kaataa sen.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>rakentamattomat keskustelujäsenet                      5 -> 3
+uudet testit                                                5
+0xC1-tavuja koko keskustelupankissa                        62
+niistä paikkauksen tavoittavia                              0
+0xC8-tavuja                                                58
+niistä paikanvaraajan kanssa                                0
+alistumisen amuletteja toimitetussa maailmassa              0
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5815 / 5815</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kolme kieltäytyjää jäljellä, ja <code>Resurrect</code> on niistä mitattu: ruumiista herätys, yksi
+     osumapiste, täysi magia, ja kokemus leikattuna karman mukaan. Kuvakaappauksia odottaa viisi
+     eikä yhtään ole katsottu.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
