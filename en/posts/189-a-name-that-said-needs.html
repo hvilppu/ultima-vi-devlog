@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Name That Said Needs | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/189-nimi-joka-sanoi-needs.html" hreflang="fi">FI</a><span>/</span><a href="189-a-name-that-said-needs.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 189</nav>
+
+<h1>A name that said needs</h1>
+
+<p class="lede">
+The spell family called <code>MagicalHalo</code> has eight cases. Six wrote a duration, and two
+were named refusals: one needed the gem command, the other needed a location print. Both have been
+built along the way, so both cases run now. Peer shows the map, locate prints the position.
+</p>
+
+<h2>An enum whose name went stale</h2>
+
+<p>
+Those two cases were modelled as an enum whose values said <em>what each one needs</em>:
+<code>NeedsGemCommand</code> and <code>NeedsLocationPrint</code>. That was honest for as long as
+neither existed.
+</p>
+
+<p>
+Both exist now, and at that point the name is the same rot this project keeps finding in comments:
+<strong>a claim about an absence that nobody goes back to update</strong>. An enum is no different
+from a comment. It is a tail now rather than a refusal, and its values say what the case
+<em>does</em>: show the peer map, or print the location.
+</p>
+
+<h2>Peer's row is printed after the key</h2>
+
+<p>
+The original calls <code>UseGem(0)</code> and <em>then</em> prints the row. And
+<code>UseGem</code> waits for a key, because the map is on the screen. So the row belongs after the
+key, not under a map the player has not dismissed yet.
+</p>
+
+<p>
+This project cannot block, so the map is a sub-mode and the row is carried across the wait in a
+field of its own. A small thing, but it is exactly the place where "a sub-mode instead of blocking"
+would quietly reverse the order if nobody noticed.
+</p>
+
+<h2>Three counts moved</h2>
+
+<pre><code>outcomes that declare an exported row      16 -> 17
+outcomes that print this project's English 12 -> 10
+outcomes the caller formats                 0 -> 1</code></pre>
+
+<p>
+The last is new: locate's line is <strong>four exported rows with two numbers between them</strong>,
+so it is neither one row to resolve nor a phrase this project invented. The list of status sources
+gained a fifth value for it, and the line builder refuses it the same way it refuses an outcome the
+original prints nothing for.
+</p>
+
+<p>
+The formatting already existed: the sextant prints the same position from the same reading. That
+was the second consumer the reading's own remarks named, and now it is two consumers rather than
+one and one named gap.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>MagicalHalo cases running                               8 / 8
+spells the player can now cast that they could not          2
+refusal values removed                                      2
+new tests                                                   3
+
+U6Formats.Tests      566 / 566
+U6Export.Tests       112 / 112
+U6Engine.Tests      5737 / 5737
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with 0 findings, nothing skipped. The Unity editor's own Test
+Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The visibility module still owes hiding what stands on an unseen wall, which needs an object
+     stack. And five screenshots are waiting: the hail storm, the telescope, the cannon, the peer
+     map, and the largest change of this run, light that no longer goes through walls. None has
+     been looked at.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

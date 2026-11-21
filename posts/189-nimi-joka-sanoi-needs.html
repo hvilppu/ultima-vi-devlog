@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nimi Joka Sanoi Needs | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="189-nimi-joka-sanoi-needs.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/189-a-name-that-said-needs.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 189</nav>
+
+<h1>Nimi joka sanoi needs</h1>
+
+<p class="lede">
+Loitsuperheessä <code>MagicalHalo</code> on kahdeksan tapausta. Kuusi kirjoitti keston, ja kaksi
+oli nimettyjä kieltäytymisiä: toinen tarvitsi jalokiven komennon, toinen paikan tulostuksen.
+Molemmat on rakennettu matkan varrella, joten molemmat tapaukset ajavat nyt. Peer näyttää kartan,
+locate tulostaa paikan.
+</p>
+
+<h2>Enumi jonka nimi vanheni</h2>
+
+<p>
+Nämä kaksi tapausta olivat mallinnettu enumina jonka arvot sanoivat <em>mitä kumpikin tarvitsee</em>:
+<code>NeedsGemCommand</code> ja <code>NeedsLocationPrint</code>. Se oli rehellistä niin kauan kuin
+kumpaakaan ei ollut.
+</p>
+
+<p>
+Nyt kumpikin on, ja silloin nimi on sama mätä jota tämä projekti löytää kommenteista kerta toisensa
+jälkeen: <strong>väite puuttumisesta, jota kukaan ei käy päivittämässä</strong>. Enumi ei ole eri
+asia kuin kommentti. Se on nyt häntä eikä kieltäytyminen, ja sen arvot sanovat mitä tapaus
+<em>tekee</em>: näyttää peer-kartan, tai tulostaa paikan.
+</p>
+
+<h2>Peerin rivi tulostuu näppäimen jälkeen</h2>
+
+<p>
+Alkuperäinen kutsuu <code>UseGem(0)</code> ja <em>sen jälkeen</em> tulostaa rivin. Ja
+<code>UseGem</code> odottaa näppäintä, koska kartta on ruudulla. Rivi kuuluu siis näppäimen
+jälkeen, ei kartan alle jota pelaaja ei ole vielä hylännyt.
+</p>
+
+<p>
+Tämä projekti ei voi pysähtyä, joten kartta on alitila ja rivi kantautuu odotuksen yli omassa
+kentässään. Pieni asia, mutta se on juuri se kohta jossa "alitila sen sijaan että pysähdytään"
+muuttaisi järjestyksen jos sitä ei huomaisi.
+</p>
+
+<h2>Kolme lukua liikkui</h2>
+
+<pre><code>tulemia jotka ilmoittavat vietyä riviä     16 -> 17
+tulemia jotka tulostavat omaa englantia    12 -> 10
+tulemia jotka kutsuja muotoilee             0 -> 1</code></pre>
+
+<p>
+Viimeinen on uusi: locaten rivi on <strong>neljä vietyä riviä kahden luvun kanssa</strong>, eli ei
+yksi rivi jota voisi hakea eikä tämän projektin keksimä lause. Statuslähteiden luettelo sai sitä
+varten viidennen arvon, ja rivin rakentaja kieltäytyy siitä samalla tavalla kuin se kieltäytyy
+tulemasta jolle alkuperäinen ei tulosta mitään.
+</p>
+
+<p>
+Sama muotoilu on jo olemassa: sekstantti tulostaa saman paikan samalla luennalla. Se oli se toinen
+kuluttaja jonka luennan omat huomautukset nimesivät, ja nyt se on kaksi kuluttajaa eikä yksi ja
+yksi nimetty aukko.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>MagicalHalo-tapauksia ajossa                            8 / 8
+loitsuja jotka pelaaja voi nyt loihtia lisää                2
+poistettuja kieltäytymisarvoja                              2
+uudet testit                                                3
+
+U6Formats.Tests      566 / 566
+U6Export.Tests       112 / 112
+U6Engine.Tests      5737 / 5737
+U6GameSave.Tests      14 / 14</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Näkyvyysmoduulista on yhä jäljellä seinän päällisten objektien piilotus, joka tarvitsee
+     objektipinon. Ja kuvakaappauksia odottaa viisi: rakeiden myrsky, kaukoputki, kanuuna,
+     peer-kartta ja tämän ajon suurin muutos eli valo joka ei enää kulje seinien läpi. Yhtäkään
+     ei ole katsottu.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
