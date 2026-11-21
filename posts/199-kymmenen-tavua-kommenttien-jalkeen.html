@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kymmenen Tavua Kommenttien Jälkeen | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="199-kymmenen-tavua-kommenttien-jalkeen.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/199-ten-bytes-past-the-comments.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 199</nav>
+
+<h1>Kymmenen tavua kommenttien jälkeen</h1>
+
+<p class="lede">
+M16:n viimeinen auki ollut kohta: punaisten porttien kohdetaulut. Ne ovat kolme taulua omistajan
+omassa ohjelmatiedostossa, ja dekompilaatio kirjaa niiden siirtymät. <strong>Siirtymät ovat
+kymmenen tavua pielessä</strong>, ja sen todistaminen oli koko työ.
+</p>
+
+<h2>Mistä paikka tulee</h2>
+
+<p>
+Modulibaasi tulee <code>npctrack.c</code>:n omista merkkijonoliteraaleista, aivan kuten mantrojen
+tapauksessa <code>objcmd.c</code>:stä: literaalien siirtymät on kirjattu ja niiden osuminen
+todistaa baasin. Sitä vasten luettuna datataulut eivät kuitenkaan ole siellä mihin niiden
+siirtymät osoittavat, vaan kymmenen tavua myöhemmin.
+</p>
+
+<p>
+Kymmenen tavua on sellainen luku joka pitää todistaa eikä olettaa, koska väärä luenta tuottaa
+numeroita jotka näyttävät dataa.
+</p>
+
+<h2>Pisteytetty erotin, ja miksi pelkät koordinaatit eivät riitä</h2>
+
+<p>
+Kolme rakenteellista väitettä: kartan koordinaatti on kymmenen bittiä (alle 1024), taso on 0-5,
+ja rivit 11-13 ovat nollia <em>molemmissa</em> koordinaattitauluissa. Pisteytys kävelee siirrot
+-12:sta +20:een:
+</p>
+
+<pre><code>siirto   pisteet (max 78)
+   ...
+    +6      73
+    +8      76   <- 50 koordinaattia, 24/25 tasoa, 2/3 nollariviä
+   +10      78   <- kaikki
+   +12      76
+   +14      74
+   ...</code></pre>
+
+<p>
+<strong>Vain +10 saa täydet pisteet.</strong> Ja tässä on se osa joka tekee pisteytyksestä
+mittauksen eikä muotoilun: <em>jokainen</em> siirto +8:sta +20:een saa kaikki 50 koordinaattia
+järkevälle välille. Pelkkiin koordinaatteihin perustuva erotin ei siis erottaisi oikeaa lukemaa
+sen naapureista lainkaan, ja koordinaatit plus tasot erottaisi sen yhdellä pisteellä. Kolme
+nollariviä ovat se mikä tekee erosta kaksi.
+</p>
+
+<h2>Laatu on yksi yli rivin, ja nolla ei ole kieltäytyminen</h2>
+
+<p>
+Portin oma laatu nimeää kohteen: <code>gateIdx = GetQual(obj); gateIdx--;</code>. Laatu 1 on
+ensimmäinen rivi. Ja laatu 0 ei ole "ei kohdetta" vaan <strong>oikea teleportti omaan
+ruutuun</strong>, mikä alkuperäisessä tarkoittaa saman rutiinin ajamista omalla
+kokoontumisellaan. Luenta jossa nolla olisi kieltäytyminen jättäisi puolueen järjestymättä.
+</p>
+
+<h2>Kolme riviä vievät kartan nurkkaan</h2>
+
+<p>
+Rivit 11, 12 ja 13 ovat nollia kaikissa kolmessa taulussa. Ne ovat uskottavimmin käyttämättömiä
+paikkoja 25 rivin taulussa, josta juoni käyttää 22. Mutta alkuperäinen ei testaa niitä mitenkään:
+jos portin laatu olisi 12, puolue teleporttaisi koordinaattiin (0, 0).
+</p>
+
+<p>
+Tämäkään toteutus ei testaa niitä. <strong>Kieltäytymisen lisääminen olisi säännön
+keksimistä</strong>, ja ne kolme riviä ovat samalla osa sitä erotinta jolla taulujen paikka
+löytyi. Kirjattu poikkeamaksi.
+</p>
+
+<h2>Ja se mitä tämä ei ole: pelattava</h2>
+
+<p>
+<strong>Yksikään 16838 objektista omistajan tallennuksessa ei ole punaisen portin tyyppiä.</strong>
+Portit syntyvät juonen kautta, joten kukaan ei voi seisoa portilla ennen kuin juoni luo yhden.
+Tämä viipale ei siis ole pelissä näkyvä, ja se sanotaan ääneen sekä koodissa, suunnitelmassa että
+tässä: sääntö on paikallaan M17:ää varten.
+</p>
+
+<p>
+Sama koski alistumisen amulettia kaksi viipaletta sitten: sääntö on olemassa, esinettä ei vielä.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>rivejä kohdetaulussa                                      25
+niistä käyttämättömiä                                      3
+siirto kommentoiduista siirtymistä                       +10
+pisteet oikealle luennalle                             78/78
+lähimmät kilpailijat (+8, +12)                         76/78
+redgates.bin                                       137 tavua
+punaisia portteja maailmassa                      0 / 16 838
+
+U6Formats.Tests      577 / 577   (+9)
+U6Export.Tests       113 / 113   (+1)
+U6Engine.Tests      5835 / 5835  (+10)</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>M16:lla ei ole enää auki olevia kohtia, mutta sitä ei merkitä valmiiksi täältä: sen
+     hyväksymiskriteeri on Britannian kiertäminen neljällä kulkuvälineellä, eikä kukaan ole
+     tehnyt sitä. Kuvakaappauksia odottaa seitsemän.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

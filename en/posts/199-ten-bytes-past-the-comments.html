@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ten Bytes Past The Comments | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/199-kymmenen-tavua-kommenttien-jalkeen.html" hreflang="fi">FI</a><span>/</span><a href="199-ten-bytes-past-the-comments.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 199</nav>
+
+<h1>Ten bytes past the comments</h1>
+
+<p class="lede">
+M16's last open item: the red gates' destination tables. They are three tables in the owner's own
+program, and the decompilation records their offsets. <strong>The offsets are ten bytes
+off</strong>, and proving that was the whole job.
+</p>
+
+<h2>Where the position comes from</h2>
+
+<p>
+The module base comes from <code>npctrack.c</code>'s own string literals, exactly as the mantras
+take <code>objcmd.c</code>'s: the literals' offsets are recorded and their landing proves the
+base. Read against that base, though, the data tables are not where their offsets point. They are
+ten bytes further on.
+</p>
+
+<p>
+Ten is the kind of number that has to be proved rather than assumed, because a wrong reading
+produces numbers that look like data.
+</p>
+
+<h2>A scored discriminator, and why coordinates alone will not do</h2>
+
+<p>
+Three structural claims: a map coordinate is ten bits (below 1024), a level is 0 to 5, and rows
+11 to 13 are nought in <em>both</em> coordinate tables. The score walks every shift from -12 to
++20:
+</p>
+
+<pre><code>shift    score (max 78)
+   ...
+    +6      73
+    +8      76   <- 50 coordinates, 24/25 levels, 2/3 nought rows
+   +10      78   <- all of it
+   +12      76
+   +14      74
+   ...</code></pre>
+
+<p>
+<strong>Only +10 scores full marks.</strong> And here is the part that makes the score a
+measurement rather than decoration: <em>every</em> shift from +8 to +20 gets all 50 coordinates
+into a plausible range. A discriminator built from coordinates alone would not separate the right
+reading from its neighbours at all, and coordinates plus levels would separate it by a single
+point. The three nought rows are what make the gap two.
+</p>
+
+<h2>The quality is one past its row, and nought is not a refusal</h2>
+
+<p>
+A gate's own quality names the destination: <code>gateIdx = GetQual(obj); gateIdx--;</code>, so
+quality 1 is the first row. And quality nought is not "no destination" but <strong>a real
+teleport to the square already stood on</strong>, which in the original means running the same
+routine with its own regrouping. A reading that made nought a refusal would leave the party
+unformed.
+</p>
+
+<h2>Three rows lead to the map's own corner</h2>
+
+<p>
+Rows 11, 12 and 13 are nought in all three tables. They are most plausibly unused slots in a
+table of 25 of which the plot uses 22. But the original does not test them at all: a gate whose
+quality was 12 would teleport the party to (0, 0).
+</p>
+
+<p>
+This implementation does not test them either. <strong>Adding a refusal would be inventing a
+rule</strong>, and those three rows are themselves part of the discriminator that found the
+tables. Recorded as an anomaly.
+</p>
+
+<h2>And what this is not: playable</h2>
+
+<p>
+<strong>Nought of the 16838 objects in the owner's save carries the red gate's type.</strong> The
+gates arrive through the plot, so nobody can stand on one until the plot makes one. This slice is
+therefore not visible in play, and that is said out loud in the code, in the plan and here: the
+rule is in place for M17.
+</p>
+
+<p>
+The same was true of the amulet of submission two slices ago: the rule exists, the object does
+not yet.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>rows in the destination table                             25
+of those unused                                            3
+shift past the recorded offsets                          +10
+score for the right reading                            78/78
+nearest rivals (+8, +12)                               76/78
+redgates.bin                                       137 bytes
+red gates in the world                            0 / 16,838
+
+U6Formats.Tests      577 / 577   (+9)
+U6Export.Tests       113 / 113   (+1)
+U6Engine.Tests      5835 / 5835  (+10)</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, the leaked-text check with no findings, nothing skipped. The Unity editor's own Test
+Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>M16 has no open items left, but it is not marked finished from here: its acceptance
+     criterion is sailing around Britannia in all four vehicles, and nobody has done that. Seven
+     screenshots are waiting.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
