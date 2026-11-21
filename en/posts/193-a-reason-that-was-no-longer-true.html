@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Reason That Was No Longer True | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/193-syy-joka-ei-ollut-enaa-tosi.html" hreflang="fi">FI</a><span>/</span><a href="193-a-reason-that-was-no-longer-true.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 193</nav>
+
+<h1>A reason that was no longer true</h1>
+
+<p class="lede">
+The world interface the conversation scripts talk to has 33 members, and an unbuilt one does not
+return nought: it throws an exception that names itself and says <em>why</em> it cannot answer. I
+read those reasons instead of building against them. Five members were built in one pass, and
+<strong>four of the five reasons were no longer true</strong>.
+</p>
+
+<h2>What the reasons said and what the measurement said</h2>
+
+<pre><code>IsWounded     "what counts as wounded has not been read"
+              talkdr.c:454-460 is one line: MaxHP(npc) > HitPoints[npc]
+
+IsPoisoned    "the status bits have not been read"
+              they had been, all eight, and documented
+
+Cure          "the status bits have not been read"
+              the same
+
+ObjectTypeOf  "inventories are not built"
+              they are, and WhoCarries in the same class answered through them
+
+Heal          "how much healing restores has not been read"
+              A REAL QUESTION</code></pre>
+
+<p>
+The first four were buildable at the moment their refusal reason was written. The sentence stayed in
+force longer than it was true, and the members stood unbuilt for no reason at all.
+</p>
+
+<h2>Why no check could have found this</h2>
+
+<p>
+This is the interesting part. The refusal is <strong>deliberate</strong>: a test demands the
+exception, a census pins how many members refuse, and building one has to come past that number.
+Everything worked as designed.
+</p>
+
+<p>
+The fault was that <strong>the code and the test agreed exactly, about the wrong thing</strong>. A
+green suite asserted precisely what the code asserted. The instrument was in order, and it was
+measuring a bookkeeping state rather than the world.
+</p>
+
+<p>
+It is the same rot this project's own rules already record about documents: a sentence saying
+<em>"this does not exist"</em> goes stale the moment the thing gets built, and nobody goes back to
+read that sentence, because whoever built it was reading somewhere else. Now the same thing turned
+up inside our own code.
+</p>
+
+<h2>The one real question</h2>
+
+<p>
+<code>Heal</code>'s reason was genuine: how much does healing restore? The answer is that
+<strong>there is no amount</strong>. The handler writes <code>HitPoints[npc] = MaxHP(npc)</code>, to
+the maximum. And it does not cure: <code>OP_CURE</code> is its own instruction three lines further
+down, and a script that wants both calls both.
+</p>
+
+<h2>Two tests that could not fail, caught before they ran</h2>
+
+<p>
+I first wrote <code>Assert.That(world.IsWounded(npc), Is.TypeOf&lt;int&gt;())</code>. An integer is
+an integer by construction: the claim cannot fail. And I read <code>ObjectTypeOf</code>'s expected
+value out of <code>World[n].Type</code>, which is <strong>the same path the implementation
+takes</strong>, exactly the test that compares code against its own assumption.
+</p>
+
+<p>
+The fixed version selects the record by its <strong>quantity</strong>: the fourth character's 144
+bolts are one record, which another test already asserts, and the expected type is a literal. As a
+discriminator it pins that the answer is neither the object number nor the quantity, both of which
+sit beside the type in the same record.
+</p>
+
+<h2>And the rules were proved by breaking them</h2>
+
+<p>
+With the comparison's <code>&gt;</code> changed to <code>&gt;=</code> and <code>Cure</code> widened
+to heal as well, three of the new tests fail. A new test nobody has seen fail is a promise, not a
+check.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>unbuilt conversation members                        11 -> 6
+of those whose reason had gone stale                     4
+conversations finishing against the real world     196 / 196
+unbuilt members that stop a conversation                 0
+new tests                                                5
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5769 / 5769</code></pre>
+
+<p>
+Six build targets with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0 broken
+references, nothing skipped. The Unity editor's own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The corpus measure is full and no longer says what to build, and the six remaining refusers sit
+     behind branches no run asks for. Five screenshots are waiting and none has been looked at, and
+     these tests are blind to rendering.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

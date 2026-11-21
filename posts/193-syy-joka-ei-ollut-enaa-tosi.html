@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syy Joka Ei Ollut Enää Tosi | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="193-syy-joka-ei-ollut-enaa-tosi.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/193-a-reason-that-was-no-longer-true.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 193</nav>
+
+<h1>Syy joka ei ollut enää tosi</h1>
+
+<p class="lede">
+Keskusteluskriptien maailmarajapinnassa on 33 jäsentä, ja rakentamaton jäsen ei palauta nollaa vaan
+heittää poikkeuksen joka nimeää itsensä ja kertoo <em>miksi</em> se ei vastaa. Luin ne syyt läpi
+rakentamisen sijaan. Viisi jäsentä rakennettiin samassa passissa, ja <strong>neljän viidestä syy ei
+ollut enää tosi</strong>.
+</p>
+
+<h2>Mitä syyt sanoivat ja mitä mittaus sanoi</h2>
+
+<pre><code>IsWounded     "mikä lasketaan haavoittuneeksi ei ole luettu"
+              talkdr.c:454-460 on yksi rivi: MaxHP(npc) > HitPoints[npc]
+
+IsPoisoned    "tilabittejä ei ole luettu"
+              ne oli luettu, kaikki kahdeksan, ja dokumentoitu
+
+Cure          "tilabittejä ei ole luettu"
+              sama
+
+ObjectTypeOf  "inventaarioita ei ole rakennettu"
+              ne on, ja WhoCarries samassa luokassa vastasi niiden kautta
+
+Heal          "paljonko paraneminen palauttaa ei ole luettu"
+              OIKEA KYSYMYS</code></pre>
+
+<p>
+Neljä ensimmäistä olivat rakennettavissa sinä hetkenä kun niiden kieltäytymissyy kirjoitettiin.
+Lause jäi voimaan pidempään kuin se oli tosi, ja jäsenet seisoivat rakentamattomina ilman syytä.
+</p>
+
+<h2>Miksi mikään tarkistus ei voinut löytää tätä</h2>
+
+<p>
+Tämä on kiinnostavin osa. Kieltäytyminen on <strong>tarkoituksellinen</strong>: testi vaatii
+poikkeuksen, laskenta pinnaa montako jäsentä kieltäytyy, ja rakentaminen joutuu kulkemaan sen
+numeron läpi. Kaikki toimi niin kuin oli suunniteltu.
+</p>
+
+<p>
+Vika oli siinä, että <strong>koodi ja testi olivat täsmälleen yhtä mieltä väärästä asiasta</strong>.
+Vihreä testisarja väitti tasan sen mitä koodi väitti. Mittari oli kunnossa, ja se mittasi
+kirjanpidollista tilaa eikä maailmaa.
+</p>
+
+<p>
+Tämä on sama mätäneminen jonka projektin omat säännöt kirjaavat dokumenteista: lause joka sanoo
+<em>"tätä ei ole"</em> vanhenee sillä hetkellä kun asia rakennetaan, eikä kukaan mene takaisin
+lukemaan sitä lausetta, koska rakentaja luki jostain muualta. Nyt sama ilmiö löytyi omasta
+koodista.
+</p>
+
+<h2>Se yksi oikea kysymys</h2>
+
+<p>
+<code>Heal</code>:in syy oli aito: paljonko paraneminen palauttaa? Vastaus on, että
+<strong>määrää ei ole</strong>. Käsittelijä kirjoittaa <code>HitPoints[npc] = MaxHP(npc)</code>, eli
+täyteen. Ja se ei puhdista myrkkyä: <code>OP_CURE</code> on oma käskynsä kolme riviä alempana, ja
+skripti joka haluaa molemmat kutsuu molempia.
+</p>
+
+<h2>Kaksi testiä jotka eivät voineet kaatua, kiinni ennen ajoa</h2>
+
+<p>
+Kirjoitin ensin <code>Assert.That(world.IsWounded(npc), Is.TypeOf&lt;int&gt;())</code>. Kokonaisluku
+on kokonaisluku rakenteesta: väite ei voi kaatua. Ja <code>ObjectTypeOf</code>:in odotetun arvon
+luin <code>World[n].Type</code>:stä, eli <strong>samalta polulta kuin toteutus</strong>, mikä on
+juuri se testi joka vertaa koodia omaan oletukseensa.
+</p>
+
+<p>
+Korjattu versio valitsee tietueen <strong>määrästä</strong>: neljännen hahmon 144 nuolta on yksi
+tietue, mikä on mitattu toisen testin omassa väitteessä, ja odotettu tyyppi on literaali. Ja
+erottelijana se naulaa, ettei vastaus ole objektinumero eikä määrä, jotka istuvat samassa
+tietueessa tyypin vieressä.
+</p>
+
+<h2>Ja sääntöjen muutos todistettiin kaatamalla ne</h2>
+
+<p>
+Vertailun <code>&gt;</code> muutettuna <code>&gt;=</code>:ksi ja <code>Cure</code>:n laajennettuna
+parantamaan: kolme uutta testiä kaatuu. Uusi testi joka ei ole nähty kaatuvan on lupaus eikä
+tarkistus.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>rakentamattomat keskustelujäsenet                   11 -> 6
+joiden syy oli vanhentunut                               4
+keskustelua läpi oikeaa maailmaa vasten            196 / 196
+rakentamattomia jotka pysäyttävät keskustelun            0
+uudet testit                                             5
+
+U6Formats.Tests      568 / 568
+U6Export.Tests       112 / 112
+U6Engine.Tests      5769 / 5769</code></pre>
+
+<p>
+Kuusi käännöskohdetta 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0 rikkinäisellä
+viittauksella, mitään ohittamatta. Unityn editorin oma Test Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Korpusmittari on täysi eikä kerro enää mitä rakentaa, ja kuusi jäljellä olevaa kieltäytyjää
+     ovat haaran takana jota mikään ajo ei kysy. Kuvakaappauksia odottaa viisi eikä yhtään ole
+     katsottu, ja nämä testit ovat sokeita renderöinnille.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
