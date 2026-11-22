@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ruudukko Joka Ei Vierinyt Mutta Klikkaus Vieri | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="203-ruudukko-joka-ei-vierinyt-mutta-klikkaus-vieri.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/203-the-grid-that-never-scrolled-but-the-click-did.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 203</nav>
+
+<h1>Ruudukko joka ei vierinyt, mutta klikkaus vieri</h1>
+
+<p class="lede">
+Asiakirjavelan jatkosweepi löysi kolme vanhentunutta kommenttia ja yhden oikean bugin. Bugi on
+se mielenkiintoinen: varustenäkymän repun ruudukko piirtyi aina samana, mutta hiiren klikkaus
+osoitti ruutuun joka olisi ollut näkyvissä vieritettynä.
+</p>
+
+<h2>Kaksi lukijaa, yksi vieritysarvo, eri lähteet</h2>
+
+<p>
+<code>_invenScroll</code> on oikea, liikkuva vieritysarvo jota <code>U6InventoryScroll</code>:n
+nuolet kirjoittavat, ja <code>ComputePanelEquipContext</code> syöttää sen osoittimen omaan
+osumatestiin. Mutta <code>DrawEquipViewFromPanel</code>, repun ruudukon oma piirto, luki yhä
+<code>U6StatusPanel.InitialScroll</code>:ia, vakiota nolla. Kahden lukijan piti lukea samaa
+arvoa eivätkä lukeneet.
+</p>
+
+<h2>Miksi tämä näytti toimivalta</h2>
+
+<p>
+Vieritys <em>näytti</em> toimivalta, koska mikään ei koskaan piirtänyt mitään muuta kuin
+ensimmäiset kaksitoista esinettä. Napsautus kuitenkin osui osoittimen omaan, oikeaan
+vieritysarvoon, joten vieritetty klikkaus olisi poiminut väärän esineen: hiljainen ristiriita
+piirron ja osumatestin välillä, ei näkyvä kaatuminen.
+</p>
+
+<h2>Mitä korjaus ei kata</h2>
+
+<p>
+Alkuperäinen nollaa <code>InvenScroll</code>:n joka kerta kun paneeli näytetään,
+<code>STAT_ShowInventory</code> (<code>status.c:454-457</code>), viidestä eri kutsupaikasta.
+Tällä projektilla ei ole vastaavaa nollausta missään. Tämä ei ole uusi aukko: osumatesti luki
+saman nollaamattoman kentän jo ennen tätä korjausta, niin väärä poiminta hahmonvaihdon yli olisi
+ollut mahdollinen jo aiemmin. Piirto samalla kentällä tekee ristiriidasta vain näkyvän. Viiden
+kutsupaikan omien vastineiden etsiminen tässä projektissa on omaa viipaleensa.
+</p>
+
+<h2>Kolme vanhentunutta kommenttia, löydetty samalla sweepilla</h2>
+
+<p>
+Kaksi kopiota samasta väitteestä (<code>U6View.cs</code>:n loitsukutsun ja testiolennon
+luonnin omissa kommenteissa) sanoi kutsu- ja manausloitsujen puuttuvan yhteydestä
+olentogeneraattoriin. Ne on yhdistetty kuukausia sitten. Ja <code>_defaultCommand</code>:n
+oma kenttäkommentti sanoi <code>ClearForLoad</code>:lla ei olevan kutsujaa, vaikka rivi
+vieressä (<code>U6View.cs:1797-1798</code>) sanoo jo itse että sillä on.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Engine.Tests      5840 / 5840  (muuttumaton)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0
+rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä. <strong>Ei ajettu
+Unity-editorissa.</strong>
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Vieritysnollauksen viisi kutsupaikkaa odottavat omaa viipalettaan. Asiakirjavelassa on
+     vielä noin 90 tiedostoa lukematta vanhentuneiden "ei rakennettu" -kommenttien varalta.
+     M21:n kaksi päätöstä vaativaa kohtaa odottavat edelleen omistajaa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

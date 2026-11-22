@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Grid That Never Scrolled But The Click Did | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/203-ruudukko-joka-ei-vierinyt-mutta-klikkaus-vieri.html" hreflang="fi">FI</a><span>/</span><a href="203-the-grid-that-never-scrolled-but-the-click-did.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 203</nav>
+
+<h1>The grid that never scrolled, but the click did</h1>
+
+<p class="lede">
+The document debt list's next sweep found three stale comments and one real bug. The bug is the
+interesting one: the equipment view's own pack grid always drew the same twelve items, but a
+mouse click landed on whichever square would have shown if it had actually scrolled.
+</p>
+
+<h2>Two readers, one scroll value, different sources</h2>
+
+<p>
+<code>_invenScroll</code> is the real, moving scroll value <code>U6InventoryScroll</code>'s own
+arrows write, and <code>ComputePanelEquipContext</code> feeds it into the pointer's own hit
+test. But <code>DrawEquipViewFromPanel</code>, the pack grid's own draw, still read
+<code>U6StatusPanel.InitialScroll</code>, the constant nought. Both readers were supposed to
+read the same value and did not.
+</p>
+
+<h2>Why this looked like it worked</h2>
+
+<p>
+The scroll <em>looked</em> fine because nothing ever drew anything but the first twelve items.
+A click, though, landed on the pointer's own real scroll value, so a scrolled click would have
+picked the wrong item: a silent mismatch between the draw and the hit test, not a visible crash.
+</p>
+
+<h2>What the fix does not cover</h2>
+
+<p>
+The original resets <code>InvenScroll</code> to nought every time the panel is shown,
+<code>STAT_ShowInventory</code> (<code>status.c:454-457</code>), from five separate call sites.
+This project has no matching reset anywhere. That is not a new gap: the hit test already read
+the same unreset field before this fix, so a wrong pick across a character switch was already
+possible. Drawing from the same field just makes the mismatch visible instead of masking it.
+Finding this project's own equivalent of each of the five call sites is its own slice.
+</p>
+
+<h2>Three stale comments, found by the same sweep</h2>
+
+<p>
+Two copies of the same claim (in the cast wiring's own remarks and the test creature spawner's
+own remarks, both in <code>U6View.cs</code>) said summon and conjure were not connected to the
+creature generator. They have been for months. And <code>_defaultCommand</code>'s own field
+comment said <code>ClearForLoad</code> had no caller, when the line right beside the real call
+(<code>U6View.cs:1797-1798</code>) already says in as many words that it does.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Engine.Tests      5840 / 5840  (unchanged)</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references, the leaked-text check with no findings. <strong>Not run in the Unity
+editor.</strong>
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The scroll reset's own five call sites wait for their own slice. The document debt list
+     still has about 90 files unread for stale "not built" comments. M21's two decision-blocked
+     items still wait on the owner.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
