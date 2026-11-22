@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Text That Needed No Module | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/206-teksti-joka-ei-tarvinnut-moduulia.html" hreflang="fi">FI</a><span>/</span><a href="206-the-text-that-needed-no-module.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 206</nav>
+
+<h1>The text that needed no module</h1>
+
+<p class="lede">
+M20's third piece: the ending's own 16 text pages, which carry not one offset comment in
+the decompilation, unlike every other module this project has measured. The offsets turned
+up by searching the owner's own <code>END.EXE</code> directly, and it turned out they never
+need a module base at all.
+</p>
+
+<h2>50 strings, 45 came back unique</h2>
+
+<p>
+<code>main.c</code>'s own <code>ShowText</code> builds each page out of several
+<code>TXT_sappend</code> calls. All 50 of their own strings were searched for, as raw bytes,
+against the owner's own <code>END.EXE</code>, from a scratch-only script that is not part of
+this repository. 45 came back exactly once, in one contiguous string table. The remaining
+five are page 15's own connective words, "and " and the like, which land elsewhere in the
+file by coincidence and need no unique offset of their own.
+</p>
+
+<h2>No module at all</h2>
+
+<p>
+Every other piece of text in this project is read out of <code>GAME.EXE</code> as a module
+base plus a relative offset, because <code>GAME.EXE</code> is a wide collection of decompiled
+modules. <code>END.EXE</code> is one 40112 byte file with no such structure: every measured
+offset is a direct byte position from the start of the file. The whole module-base search
+every other text needs on the <code>GAME.EXE</code> side falls away here entirely.
+</p>
+
+<h2>A discriminator out of the chain itself</h2>
+
+<p>
+The 45 fragments sit in one contiguous run: each one's own end plus one terminating byte is
+the next one's start. 43 of 44 gaps hold (the one exception, spanning page 15's own dynamic
+middle, is named rather than counted). Being contiguous does not by itself prove the offsets
+are the right ones rather than some other chain's, so the reader re-runs the measurement's
+own uniqueness search against the real file every time the pages are loaded.
+</p>
+
+<h2>The edges built, the middle left open</h2>
+
+<p>
+Pages 0 to 14 are fully done. Page 15, the played-time congratulations line, is only partly
+built: its banner, opening sentence and closing sentence are read, but the actual "in two
+years, three months" clause needs a word table and the conditional logic the five unmeasured
+fragments carry, plus which <code>GAME.EXE</code> field the played time actually comes from.
+Named open rather than guessed at.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Formats.Tests     595 / 595  (+11)</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references, the leaked-text check with no findings.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The colour cycle's own representation question, and after that the scene state machine,
+     which ties the stars, the text and the dissolves together.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

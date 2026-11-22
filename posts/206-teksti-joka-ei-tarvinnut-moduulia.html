@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teksti Joka Ei Tarvinnut Moduulia | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="206-teksti-joka-ei-tarvinnut-moduulia.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/206-the-text-that-needed-no-module.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 206</nav>
+
+<h1>Teksti joka ei tarvinnut moduulia</h1>
+
+<p class="lede">
+M20:n kolmas pala: lopetuskohtauksen 16 tekstisivua, joilla ei ole ainuttakaan siirtymä-
+kommenttia dekompilaatiossa, poikkeuksellisesti muusta projektista. Siirtymät löytyivät
+suoraan omistajan <code>END.EXE</code>:stä, ja osoittautui ettei niitä tarvitse laskea
+moduulipohjan kautta lainkaan.
+</p>
+
+<h2>50 merkkijonoa, 45 löytyi yksikäsitteisesti</h2>
+
+<p>
+<code>main.c</code>:n <code>ShowText</code> rakentaa jokaisen sivun useasta
+<code>TXT_sappend</code>-kutsusta. Kaikki 50 niiden omaa merkkijonoa haettiin raakoina
+tavuina omistajan <code>END.EXE</code>:stä kertakäyttöisellä skriptillä, joka ei ole osa
+tätä arkistoa. 45 löytyi täsmälleen kerran, yhtenä yhtenäisenä merkkijonoalueena. Loput viisi
+ovat sivun 15 omia side-sanoja, "and " ja sen kaltaisia, jotka osuvat muualle tiedostoon
+sattumalta eivätkä tarvitse omaa yksikäsitteistä siirtymää.
+</p>
+
+<h2>Ei moduulia ollenkaan</h2>
+
+<p>
+Jokainen muu teksti tässä projektissa luetaan <code>GAME.EXE</code>:stä moduulipohjan ja
+suhteellisen siirtymän summana, koska <code>GAME.EXE</code> on laaja dekompiloitujen
+moduulien kokoelma. <code>END.EXE</code> on 40112 tavun yksi tiedosto eikä mitään sellaista
+rakennetta ole: jokainen mitattu siirtymä on suora tavuasema tiedoston alusta. Koko
+moduulipohjan etsintä, joka tarvitaan jokaiselle <code>GAME.EXE</code>:n tekstille, jäi
+tältä kokonaan pois.
+</p>
+
+<h2>Erottelukyky ketjusta itsestään</h2>
+
+<p>
+45 fragmenttia ovat yhtenäisessä ketjussa: jokaisen lopusta plus yksi päätetavu on
+seuraavan alku. 43 väliä 44:stä pitää paikkansa (yksi, sivun 15 keskiosan yli, ei ole osa
+ketjua, ja se kerrotaan auki eikä lasketa mukaan). Yhtenäisyys ei vielä todista siirtymien
+olevan oikeat eikä jonkin toisen ketjun omat, niin lukija toistaa mittauksen oman
+yksikäsitteisyyshakunsa ajonaikaisesti koko tiedostosta joka kerta kun sivut luetaan.
+</p>
+
+<h2>Reunat rakennettu, keskiosa avoin</h2>
+
+<p>
+Sivut 0-14 ovat kokonaan valmiit. Sivu 15, pelatun ajan onnittelulause, on vain osittain:
+sen banneri, avauslause ja sulkulause ovat rakennettuja, mutta itse "kahdessa vuodessa,
+kolmessa kuukaudessa" -lause tarvitsee sanojen taulukon ja viiden mittaamattoman fragmentin
+varassa olevan ehtologiikan, sekä sen minkä <code>GAME.EXE</code>-kentän pelattu aika
+oikeasti tulee. Nimetty avoimeksi, ei rakennettu arvaamalla.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Formats.Tests     595 / 595  (+11)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code>
+0 rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Värinkierron oma esitystapakysymys, ja sen jälkeen kohtausten tilakone, joka sitoo
+     tähtikentän, tekstin ja häivytykset yhteen.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
