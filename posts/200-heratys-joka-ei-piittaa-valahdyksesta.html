@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Herätys Joka Ei Piittaa Välähdyksestä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="200-heratys-joka-ei-piittaa-valahdyksesta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/200-the-wake-that-does-not-care-about-the-flash.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 200</nav>
+
+<h1>Herätys joka ei piittaa välähdyksestä</h1>
+
+<p class="lede">
+Myrkkykentällä nukkuva ei herännyt. Alkuperäinen herättää sen, ja herätys asuu rutiinissa jonka
+nimi lupaa pelkkää ruudun välähdystä. Aukko oli kirjattu asiakirjavelkaan kuukausia sitten eikä
+kukaan ollut sulkenut sitä.
+</p>
+
+<h2>Mistä aukko löytyi</h2>
+
+<p>
+<code>COMBAT_showHit</code> (<code>combat.c:785-806</code>) tekee kolme asiaa: piirtää osuman
+tiilen ja soittaa äänen, merkitsee "satuttu tällä vuorolla" -bitin, ja jos kohde on unessa,
+herättää sen ja palauttaa alkuperäisen muodon. Ensimmäiset kaksi ovat yhden salvan sisällä.
+<strong>Herätys ei ole.</strong> Se on viimeinen rivi ennen paluuta, salvasta riippumatta.
+</p>
+
+<p>
+Myrkkykentän ja suon haara kutsuu tätä rutiinia aina kun myrkytys onnistuu. Tämä projekti kantoi
+tiedon siitä mitä rutiini <em>kutsuu</em> jo (<code>U6PotionOutcome.ShowsHit</code>, "luettu
+kutsuna, ei seurattuna"), mutta ei sitä mitä herätyshaara tekee. Nukkuva hahmo pystyi siis
+seisomaan myrkkykentällä loputtomiin.
+</p>
+
+<h2>Yksi herätys, kaksi kutsupaikkaa, kolmas joka ei tarvitse sitä</h2>
+
+<p>
+Herätyksellä on kaksi elävää kutsupaikkaa tässä projektissa, ja molemmat kulkevat saman
+rutiinin kautta: maastoon astuminen (<code>U6TerrainDamage.Decide</code>) ja vihreä juoma
+(<code>U6PotionUse.Decide</code>). Kumpikin saa nyt oman <code>Wake</code>-lippunsa, asetettuna
+suoraan siitä oliko kohde jo unessa, ja <code>U6View</code> kutsuu <code>U6HitFlash.Wake</code>:a
+kun lippu on päällä.
+</p>
+
+<p>
+Unikentän oma haara ei tarvitse samaa korjausta, ja se on mitattu eikä oletettu: se haara ei
+koskaan laukea kohteelle joka on jo unessa, niin sen oma herätys olisi aina merkityksetön.
+</p>
+
+<h2>Mitä tämä ei sulje</h2>
+
+<p>
+Tulen, ansojen ja köynnöksen haarat kulkevat eri reittiä, <code>LoseHP</code>:n kautta, jonka
+omaa välähdys- ja herätyskytkentää ei ole rakennettu ollenkaan, ei edes tavallisessa lähitaistelun
+osumassa. Se on toinen, isompi ja jo nimetty aukko. Tämä viipale ei sitä avaa, koska myrkky ei
+koskaan kulje <code>LoseHP</code>:n kautta: se on tilamuutos, ei osumapisteiden menetys.
+</p>
+
+<p>
+Sininen juoma nukuttaa kohteen eikä sen oma ehto koskaan kysy oliko kohde jo unessa. Olisiko
+samalla herätyksellä merkitystä siinä haarassa, on kysymys jota tämä viipale ei mitannut, ja se
+jää auki nimettynä eikä arvattuna.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>uutta Wake-ominaisuutta                                    2
+elävää kutsupaikkaa                                        2
+moottoriluokkaa muokattu                                   2
+uusia testejä                                              4
+
+U6Engine.Tests      5839 / 5839  (+4)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0
+rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä, mitään ohittamatta. Unityn
+editorin oma Test Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kaksi vanhentunutta kirjausta asiakirjavelassa korjattu samalla: loitsukirjan parannuskäden
+     sivu väitti yhä auki olevaksi sen mitä näkymän oma kommentti sanoi jo tehdyksi. M21:n kolme
+     päätöstä vaativaa kohtaa (olio- ja toimijatunnusten yhdistäminen, musiikki alueittain, syöte
+     kokonaan mitattuna) odottavat edelleen omistajaa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

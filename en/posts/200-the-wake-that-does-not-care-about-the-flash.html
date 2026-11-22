@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Wake That Does Not Care About The Flash | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/200-heratys-joka-ei-piittaa-valahdyksesta.html" hreflang="fi">FI</a><span>/</span><a href="200-the-wake-that-does-not-care-about-the-flash.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 200</nav>
+
+<h1>The wake that does not care about the flash</h1>
+
+<p class="lede">
+A sleeper standing on a poison field never woke up. The original wakes it, and the wake lives
+inside a routine whose name promises nothing but a screen flash. The gap was logged as document
+debt months ago, and nobody had closed it.
+</p>
+
+<h2>Where the gap was found</h2>
+
+<p>
+<code>COMBAT_showHit</code> (<code>combat.c:785-806</code>) does three things: draws the hit tile
+and plays the sound, sets the "hurt this turn" bit, and if the target is asleep, wakes it and
+restores its original shape. The first two sit inside one gate. <strong>The wake does not.</strong>
+It is the last line before the routine returns, independent of the gate.
+</p>
+
+<p>
+The poison field and swamp arm calls this routine whenever the poisoning succeeds. This project
+already carried the fact that the routine <em>reaches</em> the call
+(<code>U6PotionOutcome.ShowsHit</code>, "read as a call, not followed"), but not what the wake arm
+inside it does. So a sleeping character could stand on a poison field forever.
+</p>
+
+<h2>One wake, two live call sites, and a third that does not need it</h2>
+
+<p>
+The wake has two live call sites in this project, and both go through the same routine: stepping
+onto terrain (<code>U6TerrainDamage.Decide</code>) and the green potion
+(<code>U6PotionUse.Decide</code>). Each now carries its own <code>Wake</code> flag, set directly
+from whether the target was already asleep, and <code>U6View</code> calls
+<code>U6HitFlash.Wake</code> whenever the flag is set.
+</p>
+
+<p>
+The sleep field's own arm needs no such fix, and that is measured rather than assumed: that arm
+never fires for a target already asleep, so its own wake would always be moot.
+</p>
+
+<h2>What this does not close</h2>
+
+<p>
+The fire, trap and vine arms take a different road, through <code>LoseHP</code>, whose own flash
+and wake wiring is not built at all, not even for an ordinary melee hit. That is a separate, larger
+gap, already named elsewhere. This slice does not open it, because poison never goes through
+<code>LoseHP</code>: it is a status change, not a loss of hit points.
+</p>
+
+<p>
+The blue potion puts the target to sleep and its own condition never asks whether the target was
+already asleep. Whether the same wake matters in that arm is a question this slice did not
+measure, and it stays open, named rather than guessed at.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>new Wake properties                                        2
+live call sites                                            2
+engine classes touched                                     2
+new tests                                                  4
+
+U6Engine.Tests      5839 / 5839  (+4)</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references, the leaked-text check with no findings, nothing skipped. The Unity editor's
+own Test Runner was <strong>not</strong> run.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Two stale entries in the document debt list corrected along the way: the enchant pick's own
+     entry still claimed the spellbook page as open when the view's own comment already said it
+     was closed. M21's three decision-blocked items (merging the creature and object id spaces,
+     music by area, the input system's completeness) still wait on the owner.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
