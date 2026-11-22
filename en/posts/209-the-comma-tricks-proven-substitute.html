@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Comma Trick's Proven Substitute | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/209-pilkkutempun-todistettu-korvike.html" hreflang="fi">FI</a><span>/</span><a href="209-the-comma-tricks-proven-substitute.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 209</nav>
+
+<h1>The comma trick's proven substitute</h1>
+
+<p class="lede">
+M20's sixth piece, and the scene state machine's first: Lord British's own lens rising before
+the scenes themselves begin. It came with a correction too, one that would have sent the
+other lens the wrong way.
+</p>
+
+<h2>One loop condition, two ways to read it</h2>
+
+<p>
+The original's own loop condition is a C comma trick:
+<code>while(!done &amp;&amp; (done = y == -12, 1))</code>. It guarantees the frame where
+<code>y</code> first reaches -12 still draws before the loop stops, which the original's own
+comment states directly. Rather than translating the trick itself into C#, it was replaced
+with a plainer shape and proven equivalent by hand-tracing the sequence of drawn Y values
+both ways against the same inputs. The sequences match, including the case where a key press
+skips the remaining intermediate steps but still draws -12 exactly once.
+</p>
+
+<h2>One direction that was wrong in this same document</h2>
+
+<p>
+The whole scene state machine got read to its end for this round, and the paragraph
+describing Draxinusom's own lens motion (scenes 6-8) turned out to be backward: it claimed
+the lens descends at scene 6 and rises back at scene 8. Reading the per-frame update directly
+shows the opposite: <code>y</code> decreases at scenes 6-7 (the same direction as Lord
+British's own rise) and increases back at scene 8. The two lenses are a symmetric pair, and
+that symmetry is itself a second check: read backward, the motions would not mirror each
+other.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Engine.Tests      5866 / 5866  (+8)</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references, the leaked-text check with no findings.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Draxinusom's own lens motion, the three dissolve triggers, and the scene-to-picture
+     table, all measured in full and still left to build.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

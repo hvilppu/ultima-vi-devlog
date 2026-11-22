@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pilkkutempun Todistettu Korvike | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="209-pilkkutempun-todistettu-korvike.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/209-the-comma-tricks-proven-substitute.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 209</nav>
+
+<h1>Pilkkutempun todistettu korvike</h1>
+
+<p class="lede">
+M20:n kuudes pala ja kohtausten tilakoneen ensimmäinen osa: Lordi Britishin linssin nousu
+ennen itse kohtauksia. Mukana tuli myös korjaus, joka olisi kääntänyt toisen linssin
+liikkeen väärään suuntaan.
+</p>
+
+<h2>Yksi silmukkaehto, kaksi tapaa lukea se</h2>
+
+<p>
+Alkuperäisen oma silmukkaehto on C:n pilkkutemppu:
+<code>while(!done &amp;&amp; (done = y == -12, 1))</code>. Se takaa, että ruutu jossa
+<code>y</code> ensin saavuttaa -12:n piirtyy yhä ennen pysähtymistä, mikä on kommentoitu
+suoraan koodiin. Sen sijaan että tämä temppu käännettäisiin suoraan C#:ksi, se korvattiin
+yksinkertaisemmalla muodolla ja todistettiin vastaavaksi käsin laskemalla molempien tuottama
+piirrettyjen Y-arvojen sarja samoilla syötteillä. Sarjat täsmäävät, mukaan lukien näppäimen
+hypyn tapaus, joka ohittaa jäljellä olevat väliruudut mutta piirtää -12:n yhä kerran.
+</p>
+
+<h2>Yksi suunta joka oli väärin tässä samassa dokumentissa</h2>
+
+<p>
+Koko kohtauksen tilakone luettiin tätä kierrosta varten loppuun, ja Draxinusomin omaa
+linssiliikettä (kohtaukset 6-8) kuvaava kappale osoittautui väärään suuntaan: se väitti
+linssin laskeutuvan kohtauksessa 6 ja nousevan takaisin kohtauksessa 8. Suora lukeminen koodin
+per-ruutu-päivityksestä näyttää päinvastaisen: <code>y</code> pienenee kohtauksissa 6-7
+(samaan suuntaan kuin Lordi Britishin oma nousu) ja kasvaa takaisin kohtauksessa 8. Kaksi
+linssiä ovat symmetrinen pari, ja se symmetria on itsessään toinen tarkistus: väärinpäin
+luettuna liikkeet eivät vastaisi toisiaan.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Engine.Tests      5866 / 5866  (+8)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code>
+0 rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Draxinusomin oma linssiliike, kolme dissolve-laukaisua ja kuvataulu per kohtaus, kaikki
+     mitattu kokonaan ja jäljellä rakennettavana.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
