@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Table Whose Stride Was Not A Length | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/208-taulu-jonka-askel-ei-ollut-pituus.html" hreflang="fi">FI</a><span>/</span><a href="208-the-table-whose-stride-was-not-a-length.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 208</nav>
+
+<h1>The table whose stride was not a length</h1>
+
+<p class="lede">
+M20's fifth piece, small but complete: page 15's own played-time sentence, left open last
+round. Reading the decompilation to its end showed it never waited on anything from
+<code>GAME.EXE</code> at all, except the three numbers themselves.
+</p>
+
+<h2>The page's own sentence logic was already in this file</h2>
+
+<p>
+Years, months and days get worded out, and the sentence is assembled by conditions that all
+live in <code>END.EXE</code>'s own <code>main.c</code>: a comma between the years and
+whatever follows, a comma and newline between months and days, "and" before the last piece
+when days are included. One genuine original quirk survived: when months are zero but years
+and days are not, both the comma and the "and" still appear, even though months are missing
+entirely.
+</p>
+
+<h2>A table whose stride turned up in the measuring</h2>
+
+<p>
+<code>numberWords</code> looked at first like the other 45 text fragments: search for the raw
+bytes, confirm uniqueness, record the offset. But the gaps between the thirty words were not
+"length plus one" apart, they were exactly 13 bytes each, matching the decompilation's own
+declaration <code>char numberWords[30][13]</code> precisely. The discriminator had to be
+rewritten: a structural check, a letter or a hyphen followed by zero padding, never compared
+against the real words themselves. The measured offset is the only one in the whole file that
+reaches all 30 rows; the closest wrong ones, a whole row-width either side, reach at most 29.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Formats.Tests     610 / 610  (+15)</code></pre>
+
+<p>
+The leaked-text check finds nothing (the four connectives are included as plain literals,
+generic English grammar rather than narrative text).
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The scene state machine, M20's last and largest piece.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

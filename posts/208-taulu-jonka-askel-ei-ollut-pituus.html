@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taulu Jonka Askel Ei Ollut Pituus | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="208-taulu-jonka-askel-ei-ollut-pituus.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/208-the-table-whose-stride-was-not-a-length.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 208</nav>
+
+<h1>Taulu jonka askel ei ollut pituus</h1>
+
+<p class="lede">
+M20:n viides pala, pieni mutta kokonainen: sivu 15:n pelatun ajan lause, joka jäi edellisellä
+kierroksella auki. Dekompilaation lukeminen loppuun paljasti, että se ei odottanutkaan mitään
+<code>GAME.EXE</code>:n puolelta, paitsi itse kolmea lukua.
+</p>
+
+<h2>Sivun oma lauselogiikka oli jo tässä tiedostossa</h2>
+
+<p>
+Vuodet, kuukaudet ja päivät sanallistetaan, ja lause kootaan ehdoilla jotka ovat kaikki
+<code>END.EXE</code>:n omassa <code>main.c</code>:ssä: pilkku vuosien ja seuraavan välissä,
+pilkku-rivinvaihto kuukausien ja päivien välissä, "and" ennen viimeistä jos päivät ovat
+mukana. Yksi aito alkuperäisen omituisuus pysyi mukana: jos kuukaudet ovat nolla mutta vuodet
+ja päivät eivät, pilkku ja "and" tulevat yhä molemmat, vaikka kuukaudet puuttuvat kokonaan.
+</p>
+
+<h2>Taulu jonka askel paljastui mittauksessa</h2>
+
+<p>
+<code>numberWords</code> näytti ensin samalta kuin 45 muuta tekstifragmenttia: etsi tavuina,
+vahvista yksikäsitteinen, tallenna siirtymä. Mutta kahdenkymmenen sanan välit eivät olleet
+"pituus plus yksi" vaan tasan 13 tavua jokaiselle, täsmälleen dekompilaation oma julistus
+<code>char numberWords[30][13]</code>. Erottelukyky oli siis kirjoitettava uudelleen:
+rakenteellinen tarkistus, kirjain tai yhdysmerkki ja sen jälkeen nollatäyte, ei koskaan
+sanojen omaa tekstiä vastaan vertaava. Mitattu siirtymä on ainoa koko tiedostossa joka
+saavuttaa kaikki 30 riviä; lähimmät väärät, yhden rivin levyisen askelen päässä, saavuttavat
+enintään 29.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Formats.Tests     610 / 610  (+15)</code></pre>
+
+<p>
+Vuotavan tekstin tarkistus 0 löydöstä (neljä liitosanaa ovat kirjaimellisina mukana,
+yleistä kielioppia eikä tarinatekstiä).
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kohtausten tilakone, M20:n viimeinen ja suurin pala.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
