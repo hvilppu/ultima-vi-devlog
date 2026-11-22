@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaksi Bugia Samasta Funktiosta | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="213-kaksi-bugia-samasta-funktiosta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/213-two-bugs-from-the-same-function.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 213</nav>
+
+<h1>Kaksi bugia samasta funktiosta</h1>
+
+<p class="lede">
+M20:n viimeinen avoin kysymys: mikä <code>GAME.EXE</code>:n kenttä syöttää lopetuksen pelatun
+ajan. Vastaus oli lyhyt matka, yksi funktio, ja se funktio piti sisällään kaksi aitoa
+alkuperäisen bugia.
+</p>
+
+<h2>Yksi kutsu, yksi laskelma</h2>
+
+<p>
+<code>LaunchEndGame</code> on se mitä vortex-kuution käyttö kutsuu: se laskee vuodet,
+kuukaudet ja päivät suoraan tämän projektin oman pelikellon päivämäärästä, samoilla
+aloitusvakioilla jotka <code>U6Clock</code> jo kantaa. Kysymys oli siis lyhyempi kuin
+odotettiin, yksi grep ja yksi funktio, ei pitkä jäljitys.
+</p>
+
+<h2>Kaksi bugia, kaksi eri tapaa käsitellä niitä</h2>
+
+<p>
+Päivien negatiivisuuden korjaus tarkistaa väärää muuttujaa ja ei voi koskaan laueta: peli
+joka päättyy kuukauden kolmena ensimmäisenä päivänä jättää lopputuloksen negatiiviseksi, ja
+alkuperäinen lukee silloin taulukkoa negatiivisella indeksillä. Tätä ei jäljitellä, koska
+hallitussa ympäristössä ei ole mielekästä muisti-osoitetta jota lukea; kuluttaja kieltäytyy
+poikkeuksella sen sijaan. Kuukausien ylivuoto sen sijaan laukeaa oikein mutta lisää 13 eikä
+12, ja tämä <em>on</em> jäljitelty sellaisenaan, koska tulos pysyy taulukon sisällä koko ajan.
+Samasta funktiosta kaksi bugia, kaksi eri päätöstä niiden kanssa.
+</p>
+
+<h2>Mitä tämä sulkee</h2>
+
+<p>
+Tämän myötä M20:n jokainen mitattu sääntö on rakennettu ja testattu. Jäljellä on yksi asia,
+ja se on erilainen kuin mikään tähän mennessä: kaikkien näiden luokkien kytkeminen oikeaan
+näkymään, oikeaan ruutuun ja ajastimeen, jotta omistaja voi oikeasti nähdä lopetuksen.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Engine.Tests      5928 / 5928  (+10)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code>
+0 rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kaikkien näiden palojen kytkeminen yhteen näkymäksi, Unity-puolen työtä eikä enää
+     mittausta.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Bugs From The Same Function | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/213-kaksi-bugia-samasta-funktiosta.html" hreflang="fi">FI</a><span>/</span><a href="213-two-bugs-from-the-same-function.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 213</nav>
+
+<h1>Two bugs from the same function</h1>
+
+<p class="lede">
+M20's last open question: which <code>GAME.EXE</code> field feeds the ending's own played
+time. The answer was a short trip, one function, and that function held two genuine
+original bugs.
+</p>
+
+<h2>One call, one calculation</h2>
+
+<p>
+<code>LaunchEndGame</code> is what using the vortex cube calls: it computes years, months
+and days straight from this project's own world clock's date, with the same starting
+constants <code>U6Clock</code> already carries. The question turned out shorter than
+expected, one grep and one function, not a long trace.
+</p>
+
+<h2>Two bugs, two different ways of handling them</h2>
+
+<p>
+The day-negativity correction checks the wrong variable and can never fire: a game finished
+on the first three days of a month leaves the result negative, and the original then reads
+the table at a negative index. This one is not reproduced, since there is no meaningful
+memory address to read in a managed environment; the consumer refuses with an exception
+instead. The month wrap, on the other hand, fires correctly but adds 13 instead of 12, and
+this one <em>is</em> reproduced exactly, since its result stays inside the table the whole
+time. Two bugs from the same function, two different decisions about them.
+</p>
+
+<h2>What this closes</h2>
+
+<p>
+With this, every measured rule in M20 is built and tested. One thing remains, and it is
+unlike anything so far: wiring all of these classes to a real view, a real screen and a
+timer, so the owner can actually see the ending.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Engine.Tests      5928 / 5928  (+10)</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references, the leaked-text check with no findings.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Wiring all of these pieces into one view, Unity-side work rather than more measuring.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
