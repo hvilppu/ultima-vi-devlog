@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Rules Are Done, The Wiring Is Not | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/212-saannot-valmiit-kytkenta-avoin.html" hreflang="fi">FI</a><span>/</span><a href="212-the-rules-are-done-the-wiring-is-not.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 212</nav>
+
+<h1>The rules are done, the wiring is not</h1>
+
+<p class="lede">
+M20's ninth and tenth piece in one post: the three dissolve triggers and the scene advance.
+With them, every measured rule in the scene state machine is its own tested class. None of
+them is wired to anything yet.
+</p>
+
+<h2>Three triggers, three different step list lengths</h2>
+
+<p>
+The Codex appears and opens with two draw-then-dissolve steps each; the lenses' light with
+one. A single combined shape could have forced an invented second step onto the middle one,
+but that would have been made up rather than measured. The class keeps the list exactly as
+long as the original actually is.
+</p>
+
+<h2>Scenes 6 and 7 are not special for their page</h2>
+
+<p>
+The scene advance's own switch looks like it singles out scenes 6 and 7, but both show the
+same page the ordinary rule would have shown anyway. They are special only for the music and
+the lens reset. Scenes 14 and 15 are the opposite case: they do not change the page, they
+drop it entirely, because their own picture comes from somewhere else.
+</p>
+
+<h2>What is not here</h2>
+
+<p>
+Running the dissolve itself, a real screen, a timer, and whatever in the game actually calls
+all of this are not here. Every class is a rule, not a view. M20's own "done when" (the
+ending plays through) is not met by this, only brought closer to it.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Engine.Tests      5918 / 5918  (+24)</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references, the leaked-text check with no findings.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The played-time trace on the <code>GAME.EXE</code> side, then wiring all of these pieces
+     together into a view the owner can actually see.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

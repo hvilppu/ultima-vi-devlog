@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Säännöt Valmiit, Kytkentä Avoin | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="212-saannot-valmiit-kytkenta-avoin.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/212-the-rules-are-done-the-wiring-is-not.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 212</nav>
+
+<h1>Säännöt valmiit, kytkentä avoin</h1>
+
+<p class="lede">
+M20:n yhdeksäs ja kymmenes pala samassa kirjoituksessa: kolme dissolve-laukaisua ja
+kohtauksen eteneminen. Niiden myötä kohtausten tilakoneen jokainen mitattu sääntö on oma,
+testattu luokkansa. Mikään niistä ei ole vielä kytketty mihinkään.
+</p>
+
+<h2>Kolme laukaisua, kolme eri pituista askellistaa</h2>
+
+<p>
+Codex ilmestyy ja avautuu kahdella piirrä-ja-liuta-askeleella; linssien valo yhdellä. Yhtä
+yhdistettyä muotoa olisi voinut pakottaa keskimmäiselle toinenkin askel, mutta se olisi ollut
+keksitty eikä mitattu. Luokka pitää listan sen pituisena kuin alkuperäinen oikeasti on.
+</p>
+
+<h2>Kohdat 6 ja 7 eivät eroa sivustaan</h2>
+
+<p>
+Kohtauksen etenemisen oma <code>switch</code> näyttää erikoistavan kohdat 6 ja 7, mutta
+molemmat näyttävät saman sivun kuin tavallinen sääntö olisi näyttänyt joka tapauksessa. Ne
+ovat erikoisia vain musiikin ja linssin nollauksen takia. Kohdat 14 ja 15 ovat päinvastainen
+tapaus: ne eivät vaihda sivua, ne jättävät sen kokonaan pois, koska niiden oma kuva tulee
+muualta.
+</p>
+
+<h2>Mikä ei ole tässä</h2>
+
+<p>
+Itse dissolven ajaminen, oikea ruutu, ajastin, ja se mikä oikeasti kutsuu tätä kaikkea
+pelissä, eivät ole tässä. Jokainen luokka on sääntö, ei näkymä. M20:n oma "valmis kun"
+(lopetus pyörii läpi) ei täyty tällä, vasta lähempänä sitä.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Engine.Tests      5918 / 5918  (+24)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code>
+0 rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Pelatun ajan jäljitys <code>GAME.EXE</code>:n puolella, ja sitten kaikkien näiden
+     palojen kytkeminen yhteen näkymäksi joka omistaja voi oikeasti nähdä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

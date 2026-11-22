@@ -552,10 +552,10 @@ them up found two faults in the plan straight away that the total alone had hidd
       </ul>
     </details>
     <details class="mgroup">
-      <summary class="meter is-started" title="Show the items">
+      <summary class="meter" title="Show the items">
         <span class="m-name">The ending scene <span class="m-value">M20</span></span>
         <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-        <span class="m-value">0 / 1, in progress</span>
+        <span class="m-value">0 / 1</span>
       </summary>
       <ul class="m-items">
         <li><code>END.EXE</code> decompiled under <code>SRC_END/</code>, and the binary itself is plain enough with its 95 strings</li>
@@ -2245,12 +2245,19 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
     <p>The scene-to-picture table built; the left and right side's own boundaries fall on
        different scenes, two independent conditions kept apart rather than merged.</p>
   </li>
+  <li>
+    <span class="n">212</span>
+    <a href="posts/212-the-rules-are-done-the-wiring-is-not.html">The Rules Are Done, The Wiring Is Not</a>
+    <p>The three dissolve triggers and the scene advance built; every measured rule in the
+       scene state machine is now its own class, but none of it is wired to anything.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Next</span>
-  <p>The three dissolve triggers, M20's last unbuilt piece. The scroll reset's own five call
-     sites and the document debt list's remaining 90 files still wait for their own slice.</p>
+  <p>The played-time trace on the <code>GAME.EXE</code> side, then wiring these pieces
+     together into a view. The scroll reset's own five call sites and the document debt
+     list's remaining 90 files still wait for their own slice.</p>
 </div>
 
 <footer class="foot">
