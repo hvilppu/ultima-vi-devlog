@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaksi Rajaa Jotka Eivät Osu Kohdalleen | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="211-kaksi-rajaa-jotka-eivat-osu-kohdalleen.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/211-two-boundaries-that-do-not-line-up.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 211</nav>
+
+<h1>Kaksi rajaa jotka eivät osu kohdalleen</h1>
+
+<p class="lede">
+M20:n kahdeksas pala: mikä kuva piirtyy minne kullakin 16 kohtauksesta. Tämä kaataa
+kohtausten tilakoneesta kaiken paitsi yhden palan, kolme dissolve-laukaisua.
+</p>
+
+<h2>Yksi taulu olisi piilottanut kaksi riippumatonta ehtoa</h2>
+
+<p>
+Vasen puoli vaihtuu kohtauksessa 4. Oikea puoli vaihtuu kahdesti, kohtauksissa 7 ja 10, ja
+näiden välissä (7-10) molemmat sen omat kuvat piirtyvät yhtä aikaa, eri kohteisiinsa. Yksi
+yhdistetty "kuva per kohtaus" -taulu olisi toiminut yhtä hyvin lopputuloksen kannalta, mutta
+olisi hävittänyt sen että nämä ovat kaksi erillistä <code>if</code>-lausetta alkuperäisessä,
+joilla ei ole mitään yhteistä muuttujaa. Luokka pitää ne erillään juuri tästä syystä.
+</p>
+
+<h2>Kohde on nimi, ei Unity-tyyppi</h2>
+
+<p>
+Mihin pintaan kukin kuva piirtyy on kolme nimettyä vaihtoehtoa (tausta, vasen puoli, oikea
+puoli), ei mikään Unityn oma tyyppi, koska tämä moottoriosa ei voi viitata Unityyn lainkaan.
+Se, mihin todelliseen leikattuun suorakulmioon jokainen nimi osuu, on sen näkymän oma asia
+joka jonain päivänä oikeasti piirtää lopetuksen.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Engine.Tests      5894 / 5894  (+19)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code>
+0 rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kolme dissolve-laukaisua, M20:n viimeinen rakentamaton pala.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

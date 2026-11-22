@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Boundaries That Do Not Line Up | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/211-kaksi-rajaa-jotka-eivat-osu-kohdalleen.html" hreflang="fi">FI</a><span>/</span><a href="211-two-boundaries-that-do-not-line-up.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 211</nav>
+
+<h1>Two boundaries that do not line up</h1>
+
+<p class="lede">
+M20's eighth piece: which picture draws where for each of the 16 scenes. This brings the
+scene state machine down to one remaining piece, the three dissolve triggers.
+</p>
+
+<h2>One table would have hidden two independent conditions</h2>
+
+<p>
+The left side changes at scene 4. The right side changes twice, at scenes 7 and 10, and in
+between (7-10) both of its own pictures draw at once, to different targets. One combined
+"picture per scene" table would have worked just as well for the end result, but it would
+have erased the fact that these are two separate <code>if</code> statements in the original
+with no shared variable between them. The class keeps them apart for exactly that reason.
+</p>
+
+<h2>The target is a name, not a Unity type</h2>
+
+<p>
+Which surface each picture draws to is one of three named options (background, left half,
+right half), not any type Unity itself defines, since this engine assembly cannot reference
+Unity at all. Which real clip rectangle each name maps to is whichever view eventually draws
+the ending for real.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Engine.Tests      5894 / 5894  (+19)</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references, the leaked-text check with no findings.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The three dissolve triggers, M20's last unbuilt piece.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
