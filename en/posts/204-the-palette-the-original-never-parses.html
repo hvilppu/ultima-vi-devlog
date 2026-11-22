@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Palette The Original Never Parses | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/204-paletti-jota-alkuperainen-ei-jasenna.html" hreflang="fi">FI</a><span>/</span><a href="204-the-palette-the-original-never-parses.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 204</nav>
+
+<h1>The palette the original never parses</h1>
+
+<p class="lede">
+M20, the ending scene, is the last unbuilt phase D milestone. This round read all of
+<code>END.EXE</code>'s own logic (<code>main.c</code>, <code>tick.c</code>,
+<code>stars.asm</code>) and built the first piece: its own, separate palette.
+</p>
+
+<h2>Its own executable, not part of GAME.EXE</h2>
+
+<p>
+<code>END.EXE</code> is a fully separate program that <code>GAME.EXE</code> starts with four
+arguments at the end of the game. It reloads its own graphics driver and its own font, so
+nothing this project has already measured covers it directly. Plenty of already-built formats
+turn out to be reusable as they stand: LZW, the <code>.SHP</code> container, the song files.
+</p>
+
+<h2>ENDPAL.LBM: a container the original never parses</h2>
+
+<p>
+The file is an ordinary Deluxe Paint ILBM palette, but <code>PAL_load</code> never reads its
+own tags at all: it jumps straight to byte <code>0x20</code>, reads 784 bytes, and shifts the
+768 byte palette right by two, eight bits down to the DAC's six. That only works because IFF's
+own <code>BMHD</code> chunk is always a fixed twenty bytes, so the <code>CMAP</code> data
+always lands in the same place.
+</p>
+
+<p>
+This project does not trust that same fixed offset blindly: <code>U6LbmPalette</code> checks
+the <code>FORM</code>/<code>ILBM</code>/<code>BMHD</code>/<code>CMAP</code> tags in order and
+only then reads from the same spot the original's own arithmetic reaches anyway. The
+discriminator is the shift itself: read raw, most of the 256 colours exceed the DAC's own
+ceiling of 63, and only the shifted bytes fit six bits across all 768.
+</p>
+
+<h2>Two formats, no new work</h2>
+
+<p>
+<code>END.SHP</code> and <code>END.M</code> were already on this project's own file lists, and
+their container format is already measured and tested elsewhere, the same 396 frames across 12
+files the tile and shape codec already proves exact. The ending's own ten pictures decode
+straight away.
+</p>
+
+<h2>The star field, measured in full</h2>
+
+<p>
+64 stars fly out from the Codex's own centre, speed rising with distance, and a star that
+leaves its own field is reborn at a random place. The random source, though, is Turbo C's own
+<code>rand()</code>, not the game's <code>OSI_rand</code>, and its algorithm is not measured
+anywhere in this decompilation. Named as a deliberate simplification: this project's own
+shared generator stands in, since the original's own stars are not reproducible between
+playthroughs either.
+</p>
+
+<h2>What was not measured this round</h2>
+
+<p>
+The scene state machine (16 scenes, the two lenses' own rise and fall, three dissolve
+triggers) is read in full but not built. The 16 text pages carry no offset comment anywhere in
+the decompilation, unusually. The first page was still found directly in the owner's own
+<code>END.EXE</code> bytes, exactly once, and the same technique works for the other 15, but
+nobody has done that yet.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Formats.Tests     584 / 584  (+7)
+U6Export.Tests       113 / 113
+U6GameSave.Tests      14 / 14
+U6Engine.Tests      5840 / 5840</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references, the leaked-text check with no findings.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The star field and the colour cycle, buildable entirely without Unity. Then the 16 text
+     pages' own offsets, and last the scene state machine that ties everything together.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

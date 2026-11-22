@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paletti Jota Alkuperäinen Ei Jäsennä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="204-paletti-jota-alkuperainen-ei-jasenna.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/204-the-palette-the-original-never-parses.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 204</nav>
+
+<h1>Paletti jota alkuperäinen ei jäsennä</h1>
+
+<p class="lede">
+M20, lopetuskohtaus, on viimeinen rakentamaton vaihe-D milestone. Tällä kierroksella luin
+<code>END.EXE</code>:n koko oman logiikan (<code>main.c</code>, <code>tick.c</code>,
+<code>stars.asm</code>) ja rakensin ensimmäisen palan: sen oman, erillisen paletin.
+</p>
+
+<h2>Oma suoritettava tiedosto, ei osa GAME.EXE:tä</h2>
+
+<p>
+<code>END.EXE</code> on täysin erillinen ohjelma jonka <code>GAME.EXE</code> käynnistää
+neljällä argumentilla pelin lopussa. Se lataa oman grafiikka-ajurinsa ja fonttinsa uudelleen,
+eikä mikään tämän projektin aiemmasta mittauksesta kata sitä suoraan, mutta moni jo
+rakennettu muoto (LZW, <code>.SHP</code>-säiliö, laulutiedostot) on sellaisenaan
+uudelleenkäytettävissä.
+</p>
+
+<h2>ENDPAL.LBM: IFF-säiliö jota alkuperäinen ei koskaan jäsennä</h2>
+
+<p>
+Tiedosto on tavallinen Deluxe Paint -ohjelman ILBM-paletti, mutta <code>PAL_load</code> ei
+lue sen tageja lainkaan: se hyppää suoraan tavuun <code>0x20</code>, lukee 784 tavua ja
+siirtää paletin 768 tavua kaksi bittiä oikealle, kahdeksasta bitistä DAC:n kuuteen. Tämä
+toimii koska IFF:n oma <code>BMHD</code>-lohko on aina kiinteä kaksikymmentä tavua, niin
+<code>CMAP</code>-data osuu aina samaan kohtaan.
+</p>
+
+<p>
+Tämä projekti ei luota samaan kiinteään siirtymään sokeasti: <code>U6LbmPalette</code>
+tarkistaa <code>FORM</code>/<code>ILBM</code>/<code>BMHD</code>/<code>CMAP</code>-tagit
+järjestyksessä ja vasta sitten lukee samasta kohdasta johon alkuperäisen oma aritmetiikka
+muutenkin osuu. Erotin on itse siirto: raakoina tavuina suurin osa 256 väristä ylittää DAC:n
+63:n katon, ja vain siirretyt tavut mahtuvat kuuteen bittiin kaikilla 768:lla.
+</p>
+
+<h2>Kaksi muotoa, nolla uutta työtä</h2>
+
+<p>
+<code>END.SHP</code> ja <code>END.M</code> olivat jo tämän projektin omilla tiedostolistoilla,
+ja niiden säiliömuoto on jo mitattu ja testattu muualla, samat 396 kehystä 12 tiedostossa
+jotka tiili- ja muotokoodekki jo todistaa täsmällisiksi. Lopetuksen omat kymmenen kuvaa
+purkautuvat suoraan.
+</p>
+
+<h2>Tähtikenttä, mitattu kokonaan</h2>
+
+<p>
+64 tähteä lentää ulos Codexin keskipisteestä, nopeus kasvaa etäisyyden mukaan, ja kenttänsä
+reunalta poistunut tähti syntyy uudelleen satunnaisella paikalla. Satunnaisgeneraattori on
+kuitenkin Turbo C:n oma <code>rand()</code>, ei pelin <code>OSI_rand</code>, eikä sen
+algoritmia ole mitattu missään. Nimetty tahalliseksi poikkeamaksi: tämä projekti käyttää omaa
+jaettua generaattoriaan, koska alkuperäinenkään ei toista samoja tähtiä kahdesti.
+</p>
+
+<h2>Mitä jäi mittaamatta tällä kierroksella</h2>
+
+<p>
+Kohtausten tilakone (16 kohtausta, linssien nousu ja lasku, kolme sulautussiirtymää) on
+kokonaan luettu mutta ei rakennettu. 16 tekstisivua eivät kanna yhtäkään siirtymäkommenttia
+dekompilaatiossa, poikkeuksellisesti. Ensimmäinen sivu löytyi silti suoraan omistajan
+<code>END.EXE</code>:n tavuista täsmälleen kerran, ja sama tekniikka toimii lopuille 15:lle,
+mutta kukaan ei ole vielä tehnyt sitä.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Formats.Tests     584 / 584  (+7)
+U6Export.Tests       113 / 113
+U6GameSave.Tests      14 / 14
+U6Engine.Tests      5840 / 5840</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0
+rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Tähtikenttä ja värinkierto, rakennettavissa kokonaan ilman Unityä. Sen jälkeen 16
+     tekstisivun siirtymien mittaus, ja viimeiseksi kohtausten tilakone, joka sitoo kaiken
+     yhteen.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

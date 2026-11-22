@@ -552,10 +552,10 @@ them up found two faults in the plan straight away that the total alone had hidd
       </ul>
     </details>
     <details class="mgroup">
-      <summary class="meter" title="Show the items">
+      <summary class="meter is-started" title="Show the items">
         <span class="m-name">The ending scene <span class="m-value">M20</span></span>
         <span class="m-bar"><span class="m-fill" style="width: 0%"></span></span>
-        <span class="m-value">0 / 1</span>
+        <span class="m-value">0 / 1, in progress</span>
       </summary>
       <ul class="m-items">
         <li><code>END.EXE</code> decompiled under <code>SRC_END/</code>, and the binary itself is plain enough with its 95 strings</li>
@@ -2197,14 +2197,19 @@ been wrong before, and phase C grew from 19 days to 30 partway through.
        landed on the pointer's own real scroll value: a silent mismatch between the draw and
        the hit test.</p>
   </li>
+  <li>
+    <span class="n">204</span>
+    <a href="posts/204-the-palette-the-original-never-parses.html">The Palette The Original Never Parses</a>
+    <p>M20, the ending scene, read in full, and its first piece built: <code>ENDPAL.LBM</code>,
+       whose own tags the original itself never reads.</p>
+  </li>
 </ol>
 
 <div class="next">
   <span class="k">Next</span>
-  <p>The scroll reset's own five call sites wait for their own slice. The document debt list
-     still has about 90 files unread for stale "not built" comments. M21's two remaining
-     decision-blocked items (merging the creature and object id spaces, music by area) still
-     wait on the owner.</p>
+  <p>The star field and the colour cycle, buildable entirely without Unity. Then the 16 text
+     pages' own offsets, and last the scene state machine. The scroll reset's own five call
+     sites and the document debt list's remaining 90 files still wait for their own slice.</p>
 </div>
 
 <footer class="foot">
