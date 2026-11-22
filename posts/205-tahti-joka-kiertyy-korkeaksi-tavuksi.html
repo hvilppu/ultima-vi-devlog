@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tähti Joka Kiertyy Korkeaksi Tavuksi | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="205-tahti-joka-kiertyy-korkeaksi-tavuksi.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/205-the-star-that-wraps-to-a-high-byte.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 205</nav>
+
+<h1>Tähti joka kiertyy korkeaksi tavuksi</h1>
+
+<p class="lede">
+M20:n toinen pala: lopetuskohtauksen oma tähtikenttä, 64 tähteä jotka lentävät ulos Codexin
+keskipisteestä. Rakentaessa löytyi myös oma väitteeni joka kaatui omaan testiinsä ennen kuin
+ehti committiin.
+</p>
+
+<h2>Yksi askel per tähti, joka tikki</h2>
+
+<p>
+Jokainen tähti siirtyy poispäin keskipisteestä (56, 47) kummallakin akselilla itsenäisesti,
+nopeudella joka kasvaa etäisyyden mukaan. Kentän reunalta poistunut tähti syntyy uudelleen
+satunnaisella paikalla, väri pysyy muuttumattomana.
+</p>
+
+<h2>Oma väite joka ei pitänyt paikkaansa</h2>
+
+<p>
+Alkuperäisen <code>starX</code>/<code>starY</code> ovat tavuja, niin tähti joka ylittää
+keskipisteen suuntaan nollan alapuolelle kiertyy korkeaksi tavuksi (esimerkiksi -3 kiertyy
+253:ksi). Kirjoitin ensin että tämä on erotin: väitin että tavallinen etumerkillinen
+nollatarkistus vastaisi eri tavalla kuin tavukierto juuri tässä rajatapauksessa.
+</p>
+
+<p>
+Se oli väärin, ja oma laskelmani paljasti sen ennen kuin ehdin committiin. Kentän oma suurin
+yhden tikin askel on neljä X-akselilla ja kolme Y-akselilla, suurin etäisyys keskipisteeseen
+on 56 ja 47. Pienin mahdollinen alitus kiertyy aina vähintään 252:een, mikä ylittää kentän
+rajan joka tapauksessa jo ilman tavukiertoa. Tavukierto on oikea tapa koska se on se mitä
+alkuperäinen tekee, ei koska se muuttaisi lopputulosta.
+</p>
+
+<h2>Kaksi asiaa jätetty näkymän omaksi</h2>
+
+<p>
+Pyyhkiminen ei ole mitään tässä projektissa: alkuperäinen pitää yhtä pysyvää ruutupuskuria,
+tämä projekti kokoaa jokaisen kuvan tyhjästä. "Piirrä vain mustalle" on näkymän oma kysymys,
+koska se tarvitsee koostetun taustan, sama jako kuin raekuuron omilla kivillä.
+</p>
+
+<h2>Värinkierto odottaa yhtä kysymystä</h2>
+
+<p>
+<code>EndTick</code>:n oma väripaikkojen 16-31 kierto on pieni mutta se odottaa: mikä
+ajonaikainen esitystapa Unity-puoli oikeasti pitää ladatulle paletille. Vienti-ajan
+<code>U6Palette</code> ei ole se, eikä mikään tämän projektin Unity-puolesta viittaa siihen
+muuten kuin jaetun tiedostolistan kautta. Tämä on omaa mittaustaan, ei arvattavissa matkalla.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Engine.Tests      5848 / 5848  (+8)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0
+rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>16 tekstisivun omat siirtymät, jotka täytyy mitata suoraan omistajan <code>END.EXE</code>:n
+     tavuista siirtymäkommenttien puuttuessa. Sen jälkeen värinkierron oma esitystapakysymys ja
+     viimeiseksi kohtausten tilakone.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

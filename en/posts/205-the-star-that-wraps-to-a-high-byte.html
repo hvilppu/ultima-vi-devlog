@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Star That Wraps To A High Byte | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/205-tahti-joka-kiertyy-korkeaksi-tavuksi.html" hreflang="fi">FI</a><span>/</span><a href="205-the-star-that-wraps-to-a-high-byte.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 205</nav>
+
+<h1>The star that wraps to a high byte</h1>
+
+<p class="lede">
+M20's second piece: the ending's own starfield, 64 stars flying out from the Codex's own
+centre. Building it also turned up a claim of my own that failed its own test before it ever
+reached a commit.
+</p>
+
+<h2>One step per star, every tick</h2>
+
+<p>
+Each star moves away from the centre (56, 47) on each axis independently, at a speed that
+rises with distance. A star that leaves the field is reborn at a random place, its colour
+unchanged.
+</p>
+
+<h2>A claim that did not hold up</h2>
+
+<p>
+The original's own <code>starX</code>/<code>starY</code> are bytes, so a star overshooting
+past zero toward the centre wraps to a high byte (minus three wraps to 253, for instance). I
+first wrote this up as a discriminator: that an ordinary signed zero check would answer
+differently from the byte wrap in exactly this edge case.
+</p>
+
+<p>
+That was wrong, and my own arithmetic caught it before it shipped. The field's own largest
+single-tick step is four on the X axis and three on the Y, since the greatest distance to the
+centre is 56 and 47. The smallest possible undershoot always wraps to at least 252, which is
+past the field's own bound either way, wrap or no wrap. The wrap is kept because it matches
+what the original actually does, not because it changes the answer.
+</p>
+
+<h2>Two things left to the view</h2>
+
+<p>
+There is nothing to erase in this project: the original keeps one persistent screen buffer,
+this project recomposes every frame from scratch. "Draw only on black" is the view's own
+question too, since it needs the composed background, the same split the hail storm's own
+stones already use.
+</p>
+
+<h2>The colour cycle waits on one question</h2>
+
+<p>
+<code>EndTick</code>'s own rotation of palette slots 16 to 31 is small but it waits: which
+runtime representation the Unity side actually holds a loaded palette in. The export-time
+<code>U6Palette</code> is not it, and nothing on the Unity side references it except through
+the shared file list. That is its own measurement, not something to guess at along the way.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Engine.Tests      5848 / 5848  (+8)</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references, the leaked-text check with no findings.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The 16 text pages' own offsets, which have to be measured directly from the owner's own
+     END.EXE bytes since the decompilation carries no offset comment for any of them. Then the
+     colour cycle's own representation question, and last the scene state machine.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
