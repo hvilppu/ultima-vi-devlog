@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kierto Jolle Esitystapa Oli Jo Olemassa | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="207-kierto-jolle-esitystapa-oli-jo-olemassa.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/207-the-rotation-whose-representation-already-existed.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 207</nav>
+
+<h1>Kierto jolle esitystapa oli jo olemassa</h1>
+
+<p class="lede">
+M20:n neljäs pala: lopetuksen oma värinkierto, 16 väripaikan pyörivä siirto joka saa taustan
+välkkymään. Kysymys josta edellinen kirjoitus jäi kiinni, mitä ajonaikaista paletin
+esitystapaa Unity-puoli pitää yllä, osoittautui vastatuksi jo kauan sitten, vain ei vielä
+osoitettuna tähän tiedostoon.
+</p>
+
+<h2>Yksi siirto, kaksi puolta</h2>
+
+<p>
+<code>EndTick</code> tallentaa väripaikan 31, siirtää 30:n 31:een, 29:n 30:een ja niin
+edelleen 16:een asti, ja kirjoittaa tallennetun arvon paikkaan 16. <code>Rotate&lt;T&gt;</code>
+on tämä siirto geneerisenä minkä tahansa värityypin yli, koska moottoriosa ei voi viitata
+Unityn omaan värityyppiin lainkaan. 16 kierrosta palauttaa alkuperäisen järjestyksen,
+erottelukyky joka paljastaisi väärän suunnan tai väärän leveyden heti.
+</p>
+
+<h2>Kysymys joka oli jo vastattu</h2>
+
+<p>
+Seitsemän pääpaletin omaa vientiä varten on jo olemassa putki: <code>U6PaletteSet.FromBytes</code>
+hyväksyy minkä tahansa 768 tavun monikerran, eikä mitään tee olettamuksia siitä montako
+palettia tiedosto kantaa. Lopetuksen oma yksi paletti vie siis läpi täsmälleen saman putken,
+<code>PaletteCount</code>:n ollessa yksi, ja Unity-puolen <code>U6RuntimePalette</code>
+muuntaa sen samaan muuttuvaan taulukkoon kuin valaistuspaletit jo saavat. Uutta esitystapaa ei
+tarvittu ollenkaan; vanha ei ollut vain vielä osoitettu tähän tiedostoon.
+</p>
+
+<h2>Yksi vanha väite korjattu matkalla</h2>
+
+<p>
+Tämän saman dokumentin oma tähtikentän kappale sanoi yhä "ei vielä rakennettu", vaikka
+tähtikenttä rakennettiin kaksi kirjoitusta sitten. Tyhjä väite pölyttyy nopeammin kuin oikea:
+kukaan ei palaa tarkistamaan lausetta joka kertoo jotain puuttuvan, koska sen rakentaja lukee
+jotain muuta. Korjattu matkalla, ei omana erillisenä tehtävänään.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Engine.Tests       5858 / 5858  (+10)
+U6Export.Tests         115 / 115  (+2)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code>
+0 rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kohtausten tilakone, joka sitoo tähtikentän, tekstin ja värinkierron yhteen ja on näistä
+     neljästä palasesta suurin jäljellä oleva.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

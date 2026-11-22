@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Rotation Whose Representation Already Existed | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/207-kierto-jolle-esitystapa-oli-jo-olemassa.html" hreflang="fi">FI</a><span>/</span><a href="207-the-rotation-whose-representation-already-existed.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 207</nav>
+
+<h1>The rotation whose representation already existed</h1>
+
+<p class="lede">
+M20's fourth piece: the ending's own colour cycle, a 16 colour rotation that makes the
+background flicker. The question the previous post left open, which runtime representation
+Unity holds a loaded palette in, turned out to have been answered long ago, just never
+pointed at this file.
+</p>
+
+<h2>One shift, two halves</h2>
+
+<p>
+<code>EndTick</code> saves colour slot 31, shifts 30 into 31, 29 into 30, and so on down to
+16, then writes the saved value into slot 16. <code>Rotate&lt;T&gt;</code> is this shift made
+generic over any colour type, since the engine assembly cannot reference Unity's own colour
+type at all. 16 rotations return to the start, a discriminator that would catch a wrong
+direction or a wrong width immediately.
+</p>
+
+<h2>A question that was already answered</h2>
+
+<p>
+A pipeline already exists for the main seven palettes: <code>U6PaletteSet.FromBytes</code>
+accepts any multiple of 768 bytes and makes no assumption about how many palettes a file
+carries. The ending's own one palette exports through that exact same pipeline, with
+<code>PaletteCount</code> equal to one, and the Unity side's <code>U6RuntimePalette</code>
+converts it to the same mutable array the lighting palettes already get. No new
+representation was needed at all; the old one was simply never pointed at this file.
+</p>
+
+<h2>One old claim fixed along the way</h2>
+
+<p>
+This same document's own starfield paragraph still said "not yet built", even though the
+starfield was built two posts ago. An absence claim rots faster than a correct one: nobody
+goes back to check a sentence that names something missing, because whoever builds it is
+reading somewhere else. Fixed in passing, not as its own separate task.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Engine.Tests       5858 / 5858  (+10)
+U6Export.Tests         115 / 115  (+2)</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references, the leaked-text check with no findings.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The scene state machine, which ties the starfield, the text and the colour cycle
+     together and is the largest of these four pieces still left.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
