@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Key That Fires The Default Command | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/202-nappi-joka-ampuu-oletuskomennon.html" hreflang="fi">FI</a><span>/</span><a href="202-the-key-that-fires-the-default-command.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 202</nav>
+
+<h1>The key that fires the default command</h1>
+
+<p class="lede">
+The default command has existed in this project for months: ALT+letter or a right click on an
+icon arms it and draws the blue underline. Neither one ever fired anything. The reason was
+simple: the key that fires it, TAB, was not bound to anything at all.
+</p>
+
+<h2>What TAB does in the original</h2>
+
+<p>
+<code>console.c:1480-1495</code>: TAB with no command pending opens free aiming across the full
+11x11 window, <code>SelectRange = 7</code>. The arrows move the aim, and Enter does not ask which
+command to run until then: it reads <code>DefaultCommand</code>, whatever ALT+letter or an
+icon's own right click last armed, and fires it at the aimed square. The mechanism is a two cycle
+trick inside <code>CON_getch</code> (<code>console.c:1609-1612</code>): the first cycle turns
+<code>CMD_DEFAULT_ACTION</code> into a real command, the second fires it at a target already
+filled in.
+</p>
+
+<h2>No new rule, only wiring</h2>
+
+<p>
+All the decision logic this needed already existed: <code>U6CommandArmDispatch.Begin</code> and
+<code>HandlerFor</code> already run get, drop, look, talk, use and move through one shared arm,
+and <code>U6DefaultCommand.Value</code> already says what is armed. Only two methods were missing
+from <code>U6View</code>: <code>StartFreeAim</code> opens the aim without knowing the command yet,
+and <code>ConfirmFreeAim</code> reads the default command only on Enter and runs it through
+exactly the same arm a direct keypress would.
+</p>
+
+<h2>Six of six commands this project has, four named as a limit</h2>
+
+<p>
+<code>HandlerFor</code> answers "nothing" for four: attack, cast, rest and combat. Attack keeps
+its own separate aim, cast never waits for a target through this arm at all, and rest and combat
+need no target at all. Feeding all four through free aim would have needed more than reading
+this one field back, so this slice closes the cursor for them exactly as it does when nothing is
+armed at all. Named as a limit, not guessed past.
+</p>
+
+<h2>What this did not change</h2>
+
+<p>
+The vehicle refusal is read only at confirm time, not on the TAB press itself: the same
+<code>U6CommandArmDispatch.Begin</code> call a direct keypress already makes, because the
+original itself does not know the command until Enter resolves it either. The equipment view's
+own TAB, which in the original toggles between the paper doll's own equip-slot cursor and the map
+aim, is a different, still unbuilt feature (<code>U6PanelKeyCommand</code>), and this slice names
+it out rather than colliding with it.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Engine.Tests      5840 / 5840  (unchanged: no new engine class)</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references, the leaked-text check with no findings. The view's own wiring cannot be
+tested outside the Unity editor, the same rule every other view command in this project
+follows. <strong>Not run in the Unity editor.</strong>
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The input rule is measured one lane further, not all the way: the conversation window's own
+     key handling, the full direction/diagonal key table and the menu/restart keys have not been
+     looked at with the same care yet. M21's three decision-blocked items still wait on the
+     owner.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
