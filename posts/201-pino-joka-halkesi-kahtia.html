@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pino Joka Halkesi Kahtia | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="201-pino-joka-halkesi-kahtia.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/201-the-pile-that-split-in-two.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 201</nav>
+
+<h1>Pino joka halkesi kahtia</h1>
+
+<p class="lede">
+Toinen oma vikani löytyi tänään, ja tällä kertaa ei pelaamalla vaan asiakirjavelasta: pudotus
+lainasi väärän rajan väärästä rutiinista ja halkoi ison pinon kahdeksi, missä alkuperäinen tekee
+yhden.
+</p>
+
+<h2>Kaksi rutiinia, yksi raja, väärässä paikassa</h2>
+
+<p>
+<code>GiveObj</code>:lla on oma, oikea 144 kappaleen rajansa pinoon liittämiselle: täyttynyt pino
+pysähtyy siihen ja loput valuvat uuteen objektiin. <code>CmdDrop</code>:n maahan laskeva haara
+(<code>objcmd.c:886-900</code>) on eri rutiini ja yksi ehdoton <code>AddObj</code>-kutsu, jossa
+ei ole rajaa ollenkaan. <code>PlaceOnGround</code> kuitenkin lainasi <code>GiveObj</code>:n rajan
+tähän toiseen rutiiniin, niin yli 144 kappaleen pino pirstoutui kahdeksi erilliseksi pinoksi
+maahan.
+</p>
+
+<h2>Saavutettavissa jo toimitetulla datalla</h2>
+
+<p>
+Maailma kantaa valmiiksi pinoja aina 240:een, rakennettuna ilman yhtäkään yhdistämistä, niin
+pelaaja voisi kävellä tällaisen pinon päälle, poimia sen suoraan ja pudottaa sen heti takaisin
+ilman että raja koskaan laukeaisi matkalla. Korjaus on yksi kutsu koko määrälle, sama kuin
+alkuperäinen tekee.
+</p>
+
+<h2>Sivutuote: toinen vanhentunut kirjaus</h2>
+
+<p>
+Asiakirjavelka kirjasi aukon nimellä ja riveillä kuukausia sitten. Tällä kertaa kirjaus oli
+ajan tasalla, ei vanhentunut, ja sulkeminen oli yhden rutiinin muutos.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Engine.Tests      5840 / 5840  (+1)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code> 0
+rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä. Unityn editorin oma Test
+Runner <strong>ei</strong> ajettu.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Asiakirjavelassa on vielä 100 tiedostoa lukematta vanhentuneiden "ei rakennettu"
+     -kommenttien varalta, ja useita pienempiä, nimettyjä kirjauksia joista mikään ei vaadi
+     omistajan päätöstä.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
