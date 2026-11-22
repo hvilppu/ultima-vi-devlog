@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaksi Puolikasta Jotka Eivät Ole Peilikuvia | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="210-kaksi-puolikasta-jotka-eivat-ole-peilikuvia.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/210-two-halves-that-are-not-mirror-images.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 210</nav>
+
+<h1>Kaksi puolikasta jotka eivät ole peilikuvia</h1>
+
+<p class="lede">
+M20:n seitsemäs pala: Draxinusomin oma linssi, edellisen kirjoituksen korjauksen jälkeen
+oikeaan suuntaan nouseva ja laskeutuva pari. Kaksi puolikasta piirtävät silti eri tavalla,
+ja se ero on mitattu, ei tasoitettu.
+</p>
+
+<h2>Ennen vähennystä, jälkeen lisäyksen</h2>
+
+<p>
+Nousupuoli (kohtaukset 6-7) piirtää linssin siinä Y:ssä missä se oli <em>ennen</em> tämän
+ruudun omaa vähennystä, ja on rajattu -12:een asti eikä koskaan ylitä sitä. Laskupuoli
+(kohtaus 8) piirtää Y:n <em>jälkeen</em> omaa lisäystään, koska alkuperäinen laskee lisäyksen
+suoraan piirtokutsun omaan lausekkeeseen. Tällä puolikkaalla ei ole vastaavaa rajaa: yksi
+ruutu voi ylittää lähtöpaikan kerran, ennen kuin ehto kääntyy epätodeksi ja liike pysähtyy
+pysyvästi. Kaksi puolikasta eivät ole peilikuvia tarkkaa piirtohetkeä myöten, vaikka
+molemmat liikkuvat saman matkan samalla nopeudella.
+</p>
+
+<h2>Yksi nousu, ei nollausta välissä</h2>
+
+<p>
+Kohtaukset 6 ja 7 jakavat saman ehdon (<code>scene == 6 || scene == 7</code>), eikä niiden
+välissä ole mitään nollausta: linssi ei tiedä kummasta kohtauksesta kyse on, ja jatkaa
+täsmälleen siitä mihin se jäi. Tämä teki luokasta yksinkertaisemman kuin odotti: ei tarvitse
+erotella kahta kohtausta toisistaan, vain yhtä nousua joka sattuu kestämään kahden kohtauksen
+ajan.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Engine.Tests      5875 / 5875  (+9)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code>
+0 rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Kolme dissolve-laukaisua ja kuvataulu per kohtaus, M20:n kaksi viimeistä mitattua mutta
+     rakentamatonta palaa.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

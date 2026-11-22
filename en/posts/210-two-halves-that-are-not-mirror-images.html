@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Halves That Are Not Mirror Images | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/210-kaksi-puolikasta-jotka-eivat-ole-peilikuvia.html" hreflang="fi">FI</a><span>/</span><a href="210-two-halves-that-are-not-mirror-images.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 210</nav>
+
+<h1>Two halves that are not mirror images</h1>
+
+<p class="lede">
+M20's seventh piece: King Draxinusom's own lens, now rising and falling in the right
+direction after the previous post's correction. The two halves still draw differently, and
+that difference is measured, not smoothed away.
+</p>
+
+<h2>Before the decrement, after the increment</h2>
+
+<p>
+The rising half (scenes 6-7) draws the lens at the Y it held <em>before</em> this frame's own
+decrement, and is clamped at -12, never overshooting it. The falling half (scene 8) draws the
+Y <em>after</em> its own increment, because the original computes that increment right inside
+the draw call's own expression. This half has no matching clamp: one frame can overshoot the
+starting position once, before the condition turns false and the motion stops for good. The
+two halves are not mirror images down to the exact moment they draw, even though both travel
+the same distance at the same speed.
+</p>
+
+<h2>One rise, no reset in between</h2>
+
+<p>
+Scenes 6 and 7 share the same condition (<code>scene == 6 || scene == 7</code>), with no
+reset between them: the lens has no way to tell which scene it is in, and simply continues
+from wherever it left off. That made the class simpler than expected: no need to tell two
+scenes apart, just one rise that happens to span two of them.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Engine.Tests      5875 / 5875  (+9)</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references, the leaked-text check with no findings.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The three dissolve triggers and the scene-to-picture table, M20's last two measured but
+     unbuilt pieces.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
