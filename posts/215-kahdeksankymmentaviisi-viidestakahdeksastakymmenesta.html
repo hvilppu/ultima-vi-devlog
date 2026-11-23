@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>85 85:stä | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="215-kahdeksankymmentaviisi-viidestakahdeksastakymmenesta.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/215-eighty-five-of-eighty-five.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 215</nav>
+
+<h1>85 85:stä</h1>
+
+<p class="lede">
+Edellinen kirjoitus jätti lopetuksen F13:n taakse ja mainitsi "oman laukaisuketjun" seuraavaksi.
+Se ketju oli jo mitattu, pitkältä aikaa sitten, yhdessä toisessa milestonessa. Tämä kirjoitus on
+siitä miten löytää mittaus eikä tehdä sitä uudestaan.
+</p>
+
+<h2>Viimeinen kahdeksastakymmenestäviidestä käytettävästä tyypistä</h2>
+
+<p>
+M13, objektikohtainen käyttölogiikka, oli merkitty valmiiksi paitsi niiden tyyppien osalta jotka
+odottivat muita milestoneja. Pyörrekuutio oli listan viimeinen: sen käyttö vaatii lopetuksen, eikä
+lopetusta ollut. Sitten se oli, kehittäjänäppäimen takana, ja listan viimeinen nimi muuttui
+kysymykseksi eikä jarruksi.
+</p>
+
+<h2>Mittaus oli jo olemassa</h2>
+
+<p>
+<code>docs/u6-paatehtava.md</code>:n oma kuudes luku oli mitannut pyörrekuution täyden
+käynnistysehdon jo M17:n aikaan: kaikki kahdeksan kuukiven kehystä kuutiossa, kumpikin linssi
+omalla tarkalla ruudullaan, Codex omalla ruudullaan (totta pelin alusta asti), ja puolueen
+johtaja yhdentoista ruudun ikkunassa Codexin ympärillä. Kaksi riippumatonta lähdettä vahvistivat
+samat luvut eri muodoissa, tavujono ja piirtokoodin oma valonsädetesti, mikä on juuri se laatu
+tämä projekti vaatii ennen kuin luku kelpaa rakennettavaksi. Tämän kierroksen oma työ oli lukea
+tämä luku, ei mitata sitä uudestaan.
+</p>
+
+<h2>Mitä tämä paljasti matkalla</h2>
+
+<p>
+Yksi yksityiskohta oli helppo ohittaa: kaikki kolme sijaintihakua (kumpikin linssi, Codex)
+hakevat kirjaimellisesti tasolta nolla, eivät pelaajan omalta tasolta. Luolataso suljetaan pois
+kokonaan ikkunatestin kautta, ei omalla ehdollaan: luolan koordinaatit ovat 0-255 ja ikkuna istuu
+kohdassa 918-928, niin luolassa seisominen ei voi koskaan osua ikkunaan. Tämä oli jo kirjattu
+mittauksessa, ja se oli tarkka kohta jonka väärin lukeminen olisi antanut väärän tyypin virheen:
+"ei toimi luolassa" ja "ei toimi koska taso ei täsmää" kuulostavat samalta mutta eivät ole.
+</p>
+
+<h2>Neljä testiä jotka muuttuivat</h2>
+
+<p>
+Kolme olemassa olevaa testiä nimesi pyörrekuution nimenomaan esimerkkinä tyypistä jolla ei ole
+käsittelijää: yksi suoraan, kaksi sivuvaikutuksena omista rajatesteistään. Kaikki kolme olivat
+oikeassa kirjoitushetkellään ja väärässä nyt, mikä on täsmälleen se rapautuminen jota tämä
+projekti on jo kirjannut kolme kertaa aiemmin samalle listalle: ajoneuvotyypit, juoma, jalokivi.
+Neljäs tulee olemaan joku toinen tyyppi joskus, ja se on listan oma pointti.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Engine.Tests      5972 / 5972  (+20)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code>
+0 rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä. M13 ja M20 molemmat
+valmiita.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p><code>END.M</code>:n oikea soitto, ja mitä M15:n kesken olevat NPC:t ja keskustelut
+     vielä tarvitsevat.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

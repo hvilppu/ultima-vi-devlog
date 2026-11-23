@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eighty-Five of Eighty-Five | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/215-kahdeksankymmentaviisi-viidestakahdeksastakymmenesta.html" hreflang="fi">FI</a><span>/</span><a href="215-eighty-five-of-eighty-five.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 215</nav>
+
+<h1>Eighty-five of eighty-five</h1>
+
+<p class="lede">
+The last post left the ending behind F13 and named its "own trigger chain" as next. That chain
+was already measured, a good while ago, in a different milestone entirely. This post is about
+finding the measurement rather than making it again.
+</p>
+
+<h2>The last of eighty-five usable types</h2>
+
+<p>
+M13, the object-specific use logic, was marked done except for the types waiting on other
+milestones. The vortex cube was the last name on that list: using it requires the ending, and
+the ending did not exist. Then it did, behind a development key, and the last name on the list
+turned into a question rather than a block.
+</p>
+
+<h2>The measurement already existed</h2>
+
+<p>
+<code>docs/u6-paatehtava.md</code>'s own sixth section had already measured the vortex cube's
+full launch condition back during M17: all eight moonstone frames in the cube, each lens on its
+own exact square, the Codex on its own square (true from the start of the game), and the party
+leader inside an eleven square window around the Codex. Two independent sources confirmed the
+same numbers in different shapes, the byte trace and the drawing code's own light-ray test,
+which is exactly the standard this project asks of a number before it is allowed to become code.
+This round's own work was reading that measurement, not remeasuring it.
+</p>
+
+<h2>What turned up along the way</h2>
+
+<p>
+One detail was easy to miss: all three location lookups (each lens, the Codex) search level
+zero, literally, never the player's own current level. The dungeon level is excluded entirely
+through the window test, not through a condition of its own: a dungeon's own coordinates are
+0 to 255 and the window sits at 918 to 928, so standing in a dungeon can never land inside it.
+This was already on record in the measurement, and it was the exact spot a wrong reading would
+have produced the right kind of wrong answer: "does not work in a dungeon" and "does not work
+because the level does not match" sound alike and are not the same claim.
+</p>
+
+<h2>Four tests that changed</h2>
+
+<p>
+Three existing tests named the vortex cube specifically as an example of a type with no handler:
+one directly, two as a side effect of their own boundary tests. All three were right when
+written and wrong now, which is exactly the rot this project has already recorded three times
+over on the same list: the vehicle types, the potion, the gem. A fourth will be some other type,
+some other day, and that is the whole point of keeping the list.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Engine.Tests      5972 / 5972  (+20)</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references, the leaked-text check with no findings. M13 and M20 both done.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Getting <code>END.M</code> actually playing, and what M15's own unfinished NPCs and
+     conversations still need.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
