@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lopetus Pyörii Läpi | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="214-lopetus-pyorii-lapi.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/214-the-ending-plays-through.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 214</nav>
+
+<h1>Lopetus pyörii läpi</h1>
+
+<p class="lede">
+Edellinen kirjoitus jätti M20:stä yhden asian jäljelle: kaikkien mitattujen sääntöjen
+kytkeminen yhdeksi oikeasti pyöriväksi kohtaukseksi. Se kytkentä on nyt tehty, ja matkalla
+löytyi yksi asia jota ei oltu mitattu lainkaan.
+</p>
+
+<h2>Yksi luokka, ei näkymä</h2>
+
+<p>
+Suunnitelma oli kirjoittaa kytkentä Unity-puolelle, näkymän omaksi koodiksi, koska se on
+näkymän työtä: piirto, syöte, ajastus. Mutta jokainen luokka jota se kytkee
+(<code>U6EndingStars</code>, <code>U6EndingLensRise</code>, <code>U6EndingDraxinusomLens</code>,
+<code>U6EndingCodexTransitions</code>, <code>U6EndingSceneAdvance</code>) asuu moottorin
+puolella, testattavissa editorista riippumatta. Tämän projektin oma sääntö on juuri tätä
+varten kirjoitettu: taisteluja hahmosäännöt menivät aikanaan Unity-kokoonpanoon vastoin
+suunnitelmaa, ja hinta tuli sääntöinä joita ei voi todistaa ilman editoria. <code>
+U6EndingSceneController</code> on siis moottoripuolen luokka, ei Unity-koodia: se omistaa
+kummankin linssin, tähtikentän, Codexin kolme liu'utusta ja kaikki 16 tekstisivua, ja piirtää
+suoraan oikeaan <code>U6Screen</code>:iin. Vain väriskierto jäi näkymän puolelle, koska se
+mutatoi suoraan Unityn <code>Color32[]</code>:ää, aivan kuten sen oma mittaus aikoinaan
+neuvoi.
+</p>
+
+<h2>Mitä ei oltu mitattu</h2>
+
+<p>
+Puolimatkassa kytkentä tarvitsi kaksi lukua joita yksikään aiempi mittaus ei kantanut:
+mihin kohtaan ruutua kunkin 16 tekstisivun oma tausta ja teksti piirtyvät, ja mikä
+<code>ShowAround</code>:n kolmesta kaistasta oikeasti tavoittaa Codex-laatikon. Jälkimmäinen
+oli pieni yllätys: laatikon oikeanpuoleiset kuusi pikseliä ja alimmat kolmetoista riviä
+<em>kuuluvat</em> johonkin kolmesta kaistasta, vaikka ovatkin laatikon omien rajojen sisällä.
+Tavallinen ruudun uudelleenpiirto tavoittaa siis laatikosta pienemmän suorakulmion kuin
+laatikko itse on, mitattuna suoraan <code>main.c</code>:n omista luvuista eikä pääteltynä.
+Molemmat on kirjattu <code>docs/u6-lopetuskohtaus.md</code>:hen.
+</p>
+
+<h2>Kaksi uutta vientitiedostoa</h2>
+
+<p>
+<code>END.SHP</code>:n kehykset ja <code>END.EXE</code>:n tekstisivut luetaan kirjastosta
+jota kumpikaan moottorikokoonpano eikä Unity-kokoonpano viittaa: oikea rajapinta jota tämä
+projekti valvoo rakentamalla, ei vain nimeämällä. Ratkaisu on sama kuin muukallakin
+projektissa jo olevalla datalla: vie purettu data etukäteen <code>Tools/U6Export</code>:ssa,
+joka saa viitata kirjastoon, ja lue se takaisin kevyellä moottoripuolen lukijalla joka ei
+tarvitse sitä. Kaksi uutta tiedostoa, <code>ending_shapes.bin</code> ja
+<code>ending_text.bin</code>, molemmat testattu edestakaisin omistajan oikeita tiedostoja
+vasten.
+</p>
+
+<h2>Kehittäjänäppäin, koska oikea laukaisin on yhä jarrussa</h2>
+
+<p>
+Vortex-kuution käyttö on mitä alkuperäisessä käynnistäisi lopetuksen, mutta se on M13:n
+viimeinen käytettävä esinetyyppi ja yhä estetty. F13 käynnistää kohtauksen suoraan, samaan
+tapaan kuin F9-F12 jo tekevät muille kesken olevilla milestoneille jääneille asioille.
+</p>
+
+<h2>Mitä jätettiin tietoisesti ulos</h2>
+
+<p>
+<code>END.M</code>:n soitto: vaihtuvat kappaleet jonotetaan mutta kukaan ei vielä soita
+niitä. Koko ruudun <code>FADE_in</code>/<code>FADE_out</code>-liu'utukset: suora piirto sen
+sijaan, koska Codexin oma dissolve mahtuu olemassa olevaan 176×176 työpuskuriin ja koko
+ruudun 320×200-liu'utus ei.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Engine.Tests      5945 / 5945  (+17)
+U6Export.Tests        119 / 119  (+4)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code>
+0 rikkinäisellä viittauksella.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Oma laukaisuketju (linssi jalustalla, molemmat linssit, Codex ruudulla), ja
+     <code>END.M</code>:n oikea soitto.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

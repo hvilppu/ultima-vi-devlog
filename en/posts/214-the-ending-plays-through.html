@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Ending Plays Through | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/214-lopetus-pyorii-lapi.html" hreflang="fi">FI</a><span>/</span><a href="214-the-ending-plays-through.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes on a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 214</nav>
+
+<h1>The ending plays through</h1>
+
+<p class="lede">
+The last post left M20 with one thing remaining: wiring every measured rule into one scene
+that actually runs. That wiring is done now, and along the way one thing turned up that had
+never been measured at all.
+</p>
+
+<h2>One class, not a view</h2>
+
+<p>
+The plan was to write the wiring on the Unity side, as the view's own code, because it is the
+view's own job: drawing, input, timing. But every class it drives
+(<code>U6EndingStars</code>, <code>U6EndingLensRise</code>, <code>U6EndingDraxinusomLens</code>,
+<code>U6EndingCodexTransitions</code>, <code>U6EndingSceneAdvance</code>) lives in the engine
+assembly, testable without the editor. This project's own standing rule exists for exactly
+this: the combat and character rules once went into the Unity assembly against the plan, and
+the price arrived as rules that could not be proven without the editor. So
+<code>U6EndingSceneController</code> is an engine-assembly class, not Unity code: it owns both
+lenses, the star field, the Codex's three dissolves and all 16 text pages, drawing straight
+onto a real <code>U6Screen</code>. Only the colour cycle stayed on the view's own side, since
+it mutates Unity's own <code>Color32[]</code> directly, exactly as its own measurement
+advised back when it was written.
+</p>
+
+<h2>What had not been measured</h2>
+
+<p>
+Halfway through, the wiring needed two numbers no earlier measurement carried: where on
+screen each of the 16 text pages' own backdrop and text land, and which of
+<code>ShowAround</code>'s three strips actually reaches the Codex box. The second one was a
+small surprise: the box's own rightmost six pixels and bottom thirteen rows
+<em>do</em> belong to one of the three strips, even though they sit inside the box's own
+bounds. An ordinary screen repaint therefore reaches a smaller rectangle of the box than the
+box itself, measured straight off <code>main.c</code>'s own numbers rather than inferred.
+Both are now recorded in <code>docs/u6-lopetuskohtaus.md</code>.
+</p>
+
+<h2>Two new exported files</h2>
+
+<p>
+<code>END.SHP</code>'s frames and <code>END.EXE</code>'s text pages are read by a library
+neither the engine assembly nor the Unity assembly references: a real boundary this project
+enforces by building, not only by naming. The fix is the same one the rest of this project's
+data already takes: decode it ahead of time in <code>Tools/U6Export</code>, which may
+reference that library, and read it back with a small engine-side reader that needs no such
+reference. Two new files, <code>ending_shapes.bin</code> and <code>ending_text.bin</code>,
+both round-trip tested against the owner's own files.
+</p>
+
+<h2>A development key, because the real trigger is still blocked</h2>
+
+<p>
+Using the vortex cube is what the original would start the ending from, but it is M13's last
+usable object type and still blocked. F13 starts the scene directly instead, the same shape
+F9 through F12 already use for other things stuck behind an unfinished milestone.
+</p>
+
+<h2>What was deliberately left out</h2>
+
+<p>
+<code>END.M</code>'s own playback: the song changes are queued but nobody plays them yet.
+The whole-screen <code>FADE_in</code>/<code>FADE_out</code> crossfades: a direct draw instead,
+since the Codex's own dissolve fits the existing 176 by 176 work buffer and a 320 by 200
+whole-screen crossfade does not.
+</p>
+
+<h2>Numbers</h2>
+
+<pre><code>U6Engine.Tests      5945 / 5945  (+17)
+U6Export.Tests         119 / 119  (+4)</code></pre>
+
+<p>
+Three Unity check projects with 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> with 0
+broken references.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>The ending's own real trigger chain (lens on the pedestal, both lenses, the Codex on
+     screen), and getting <code>END.M</code> actually playing.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
