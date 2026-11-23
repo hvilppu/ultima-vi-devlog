@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ainoa milestone jolla ei ollut mitään | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="216-ainoa-milestone-jolla-ei-ollut-mitaan.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/216-the-only-milestone-with-nothing.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 216</nav>
+
+<h1>Ainoa milestone jolla ei ollut mitään</h1>
+
+<p class="lede">
+Yhdellä milestonella ei ollut tilamerkintää eikä riviäkään koodia: hahmonluonti. Se on samalla
+ainoa normaali reitti sisään peliin. Debug-spawn on ollut ainoa tapa päästä pelaamaan koko
+tämän projektin ajan.
+</p>
+
+<h2>Mustalaisen seitsemän kysymystä</h2>
+
+<p>
+<code>SRC_U/chargen.c</code> ja <code>transfer.c</code>:n <code>PortraitScreen</code> olivat
+lukematta kokonaan tähän asti: nimi ja sukupuoli, kaksitoista muotokuvaa, ja mustalaisen
+pudotuspeli kahdeksalle hyveelle. Kolme kierrosta, seitsemän kysymystä, jokainen voittaja lisää
+oman voiman, näppäryyden tai älykkyyden hyödyn, eikä vain viimeinen kysymys. Osa mittauksesta
+oli jo olemassa toisaalla: <code>docs/u6-karma.md</code> oli mitannut pudotuspelin oman
+karmarakenteen, ja <code>docs/u6-pelitilalohko.md</code> koko kirjoitustaulun. Kumpaakaan ei
+mitattu uudestaan, vain se mikä puuttui: kysymys- ja vastaustaulut, hyötytaulut, ja koko
+<code>CreateCharacter</code>in orkestrointi.
+</p>
+
+<h2>Mitä jätettiin tarkoituksella näyttöpuolelle</h2>
+
+<p>
+Mustalaisen pöydän maljaääni-animaatio, metsän vieritys, koko elokuvamateriaali ennen ja
+jälkeen tämän kohtauksen: puhdasta näyttöä, eivät vaikuta mihinkään pelitilaan. Kysymysten oma
+teksti ei ole viety tähän projektiin mistään, joten kysymysruudut näyttävät kilpailevat hyveet
+nimeltä alkuperäisen sanamuodon sijaan. Arvatun tekstin kirjoittaminen olisi ollut pelin dataa
+repositoriossa, ja se on kielletty riippumatta siitä kuinka houkuttelevalta se tuntuu kun ruutu
+muuten näyttää tyhjältä.
+</p>
+
+<h2>Yksi rivi joka ei nollaudu</h2>
+
+<p>
+Alkuperäisen karman lähtöarvo on moduulin tason muuttuja, asetettu kerran käännöksessä. Se ei
+nollaudu <code>CreateCharacter</code>in alussa, koska ohjelma ei koskaan ajanut sitä kahdesti
+ilman uudelleenkäynnistystä välissä. Tämä moottori saattaa antaa pelaajan peruuttaa ja yrittää
+uudestaan ilman prosessin uudelleenkäynnistystä, ja silloin alkuperäisellä ei ole mitattua
+vastausta siihen mitä pitäisi tapahtua. Nollaus 75:een joka yrityksen alussa on puolustettavissa
+oleva valinta, kirjattu sellaisena eikä mittauksena.
+</p>
+
+<h2>Kaksi istuntoa, yksi session-raja välissä</h2>
+
+<p>
+Rakennusagentti osui omaan käyttörajaansa kesken F14-näppäimen kirjoittamisen. Moottoripuoli,
+<code>U6CharacterCreationTournament</code> ja <code>U6CharacterCreationFlow</code>, oli jo
+valmis ja testattu kun raja osui, joten se tarkistettiin ja committoitiin erikseen ennen kuin
+uusi agentti jatkoi juuri siitä puuttuvasta Unity-kytkennästä. Kahdeksasta <code>U6CharacterData</code>n
+kirjoituskohdasta kaksi puuttui, <code>AvatarPortrait</code> ja tason absoluuttinen asetus,
+molemmat jo olemassa olevan muotin mukaisia lisäyksiä.
+</p>
+
+<h2>Luvut</h2>
+
+<pre><code>U6Engine.Tests      5996 / 5996  (+23)</code></pre>
+
+<p>
+Kolme Unity-tarkistusprojektia 0 varoituksella ja 0 virheellä, <code>CheckAsmdefs.ps1</code>
+0 rikkinäisellä viittauksella, vuotavan tekstin tarkistus 0 löydöstä.
+</p>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Oikea "Uusi peli" -valikko F14:n tilalle, ja mahdollisesti kysymystekstin vienti jos se
+     joskus halutaan näkyviin kilpailevien hyveiden nimien sijaan.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>

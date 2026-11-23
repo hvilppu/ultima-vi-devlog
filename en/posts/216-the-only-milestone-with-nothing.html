@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The only milestone with nothing | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/216-ainoa-milestone-jolla-ei-ollut-mitaan.html" hreflang="fi">FI</a><span>/</span><a href="216-the-only-milestone-with-nothing.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 216</nav>
+
+<h1>The only milestone with nothing</h1>
+
+<p class="lede">
+One milestone had no status line and no code at all: character creation. It is also the only
+normal entry point into the game. Debug spawn has been the only way to reach a playable state
+for the whole life of this project so far.
+</p>
+
+<h2>The gypsy's seven questions</h2>
+
+<p>
+<code>SRC_U/chargen.c</code> and <code>transfer.c</code>'s <code>PortraitScreen</code> had
+never been read at all until now: name and sex, twelve portraits, and the gypsy's knockout
+tournament for eight virtues. Three rounds, seven questions, every winner adding its own
+strength, dexterity or intelligence gain, not just the final question. Part of the measurement
+already existed elsewhere: <code>docs/u6-karma.md</code> had already measured the tournament's
+own karma structure, and <code>docs/u6-pelitilalohko.md</code> the whole write table. Neither
+was remeasured, only what was missing: the question and answer tables, the gain tables, and the
+whole orchestration of <code>CreateCharacter</code>.
+</p>
+
+<h2>What was left to the visual side on purpose</h2>
+
+<p>
+The gypsy table's own vial-pouring animation, the woods scrolling by, the full cinematic reel
+before and after this scene: pure spectacle, none of it affects any game state. The questions'
+own text was never exported into this project from anywhere, so the question screens show the
+two competing virtues by name instead of the original's own wording. Writing guessed text would
+have been game data landing in the repository, and that stays forbidden no matter how tempting
+it is when the screen otherwise looks bare.
+</p>
+
+<h2>One line that never resets</h2>
+
+<p>
+The original's starting karma is a module level variable, set once at compile time. It never
+resets at the start of <code>CreateCharacter</code>, because the program never ran it twice
+without a process restart in between. This engine may let a player back out and try again
+without restarting the process, and the original has no measured answer for what should happen
+then. Resetting to 75 at the start of every attempt is a defensible choice, recorded as one
+rather than as a measurement.
+</p>
+
+<h2>Two sessions, one session limit in between</h2>
+
+<p>
+The build agent hit its own usage limit mid-edit, while writing the F14 key handler. The engine
+side, <code>U6CharacterCreationTournament</code> and <code>U6CharacterCreationFlow</code>, was
+already finished and tested when the limit hit, so it was verified and committed on its own
+before a second agent picked up exactly the missing Unity wiring. Eight of
+<code>U6CharacterData</code>'s eleven write targets already existed; two were missing,
+<code>AvatarPortrait</code> and an absolute level setter, both additions following an already
+existing pattern.
+</p>
+
+<h2>The numbers</h2>
+
+<pre><code>U6Engine.Tests      5996 / 5996  (+23)</code></pre>
+
+<p>
+Three Unity check projects at 0 warnings and 0 errors, <code>CheckAsmdefs.ps1</code> at 0
+broken references, the leaked-text check at 0 findings.
+</p>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>A real "New Game" menu in place of F14, and possibly exporting the question text if it
+     should ever be shown instead of the competing virtues' bare names.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is shared here
+     or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>
