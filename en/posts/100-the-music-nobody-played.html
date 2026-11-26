@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Music Nobody Played | Ultima VI remade</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="../../posts/100-musiikki-jota-ei-kukaan-soittanut.html" hreflang="fi">FI</a><span>/</span><a href="100-the-music-nobody-played.html" hreflang="en" aria-current="true">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Notes from a 1:1 reimplementation in C# and Unity.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; all posts</a> &middot; 100</nav>
+
+<h1>The music nobody played</h1>
+
+<p class="lede">
+The songs were exported, the command stream measured command by command, the parser, the repeat
+stack and the tick clock built and tested. The game made no sound. The songs are not notes, they
+are OPL2 register writes, and there was no chip; nor did the area music choice have a single
+caller. The whole subsystem was finished up to the point where it would have become audible.
+</p>
+
+<h2>Thirteen steps and not one sound</h2>
+
+<p>
+This is the most frequent fault in this project, and this time it took a whole subsystem rather
+than one rule. Every piece was right: the format read out of the driver's own rewrite, fourteen
+commands, a sixteen level repeat stack with its own misparse, a tick rate of 60.0011 hertz and
+not a round sixty. All of it pinned by tests. And none of those tests could notice that at the
+end of the chain there was nothing to turn a register write into sound.
+</p>
+
+<p>
+The owner found it in one sentence: in the real game a melody plays in the background, here only
+the effects.
+</p>
+
+<h2>One bit of silence</h2>
+
+<p>
+The chip is nine channels, two operators each, envelopes and four waveforms. It was finished and
+produced exactly nought. The fault was the register group mask: the channel registers are four
+bits of group and four of channel, the operator ones three and five, and I had folded both into
+one three bit mask.
+</p>
+
+<pre><code>0xA0 &amp; 0xE0 = 0xA0
+0xB0 &amp; 0xE0 = 0xA0</code></pre>
+
+<p>
+<code>B0</code> is the register the key on bit lives in. Every note landed on the frequency's low
+byte. The chip worked perfectly and no note ever started, and that mistake is now a test of its
+own.
+</p>
+
+<h2>Three tests were wrong and the code was right</h2>
+
+<p>
+Three of the driver's tests failed, and each time tracing it back to the original showed my
+expectation had been a guess. A wait of three takes four ticks, because the test is
+<code>--WAIT == 0</code>. A volume slide's first step lands in the same tick the command was read
+in. And a wait of nought still ends the tick, it simply does not count down. I fixed the tests
+and not the code, which is the right direction only when the original has been read first.
+</p>
+
+<h2>The same week, the same shape, a third time</h2>
+
+<p>
+Before the music the same week gave two more of these. A gargoyle started on the Avatar's own
+square: the rule that an actor blocks its square was built and thorough, and the egg hatch never
+called it. The reason was visible in the signature, the original's predicate is
+<code>CanMoveTo(objNum, x, y)</code> and ours was <code>(x, y)</code>, and that dropped first
+argument was exactly the actor half.
+</p>
+
+<p>
+And the text window behaved differently in conversation than elsewhere. The original has one
+console and three windows; we have two code paths, one of which handles all twelve escape
+characters and the other none.
+</p>
+
+<h2>What measuring saved</h2>
+
+<p>
+The web build did not start at all, and the fix first looked like rewriting 42 read sites. Two
+measurements cut it to a fraction: every read in the view goes through one function, and the
+browser's persistent path is a real file system even though the streaming folder is not. One copy
+at startup, and the rest of the chain works unchanged, saving included.
+</p>
+
+<pre><code>milestones finished            15 / 24
+work items finished         244 / 273
+
+U6Formats.Tests    610 / 610
+U6Export.Tests     119 / 119
+U6Engine.Tests    6207 / 6207</code></pre>
+
+<div class="next">
+  <span class="k">Next</span>
+  <p>Sound effects in the browser. This box used to say they are a continuous queue rather than
+     a finished piece, so they could not take the same answer the music did. That was never
+     measured and it is wrong: every one of the fourteen is a finite list, the longest 0.574
+     seconds, so each renders into a clip exactly as a song loop does.</p>
+</div>
+
+<footer class="foot">
+  <p>A personal project, built from a purchased copy of the game. No game data is distributed
+     here or in the repository.</p>
+</footer>
+
+</main>
+</body>
+</html>

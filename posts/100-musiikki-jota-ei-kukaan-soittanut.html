@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Musiikki Jota Ei Kukaan Soittanut | Ultima VI remade</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="langs" aria-label="Language">
+      <a href="100-musiikki-jota-ei-kukaan-soittanut.html" hreflang="fi" aria-current="true">FI</a><span>/</span><a href="../en/posts/100-the-music-nobody-played.html" hreflang="en">EN</a>
+    </nav>
+    <h1 class="sitetitle"><a href="../index.html">Ultima VI remade</a></h1>
+    <p class="tagline">Muistiinpanoja 1:1-uudelleentoteutuksesta C#:lla ja Unitylla.</p>
+  </div>
+</header>
+
+<main class="wrap">
+<nav class="crumbs"><a href="../index.html">&larr; kaikki kirjoitukset</a> &middot; 100</nav>
+
+<h1>Musiikki jota ei kukaan soittanut</h1>
+
+<p class="lede">
+Laulut oli viety, komentovirta mitattu komento komennolta, jäsennin, toistopino ja tikkikello
+rakennettu ja testattu. Pelissä ei kuulunut mitään. Laulut eivät ole nuotteja vaan OPL2:n
+rekisterikirjoituksia, eikä piiriä ollut, eikä aluemusiikin valinnalla ollut yhtään kutsujaa.
+Koko alijärjestelmä oli valmis siihen asti missä se olisi alkanut kuulua.
+</p>
+
+<h2>Kolmetoista askelta ja ei yhtään ääntä</h2>
+
+<p>
+Tämä on tämän projektin toistuvin vikamuoto, ja nyt se osui kokonaiseen järjestelmään eikä
+yksittäiseen sääntöön. Jokainen pala oli oikein: formaatti luettu ajurin omasta
+uudelleenkirjoituksesta, neljätoista komentoa, kuudentoista tason toistopino omine
+väärinluentoineen, tikkitaajuus 60,0011 hertsiä eikä pyöreä kuusikymmentä. Kaikki pinnattu
+testeillä. Eikä mikään niistä testeistä voinut huomata, ettei ketjun päässä ollut mitään joka
+muuttaisi rekisterikirjoituksen ääneksi.
+</p>
+
+<p>
+Omistaja huomasi sen yhdellä lauseella: oikeassa pelissä taustalla soi melodia, meillä vain
+efektit.
+</p>
+
+<h2>Yksi bitti hiljaisuutta</h2>
+
+<p>
+Piiri on yhdeksän kanavaa, kaksi operaattoria kummassakin, verhokäyrät ja neljä aaltomuotoa.
+Se valmistui ja tuotti tasan nollaa. Vika oli rekisteriryhmän maskissa: kanavarekisterit ovat
+neljä bittiä ryhmää ja neljä kanavaa, operaattorirekisterit kolme ja viisi, ja olin taittanut
+molemmat yhteen kolmen bitin maskiin.
+</p>
+
+<pre><code>0xA0 &amp; 0xE0 = 0xA0
+0xB0 &amp; 0xE0 = 0xA0</code></pre>
+
+<p>
+<code>B0</code> on se rekisteri jossa nuotin aloitusbitti on. Jokainen nuotti meni taajuuden
+alatavuun. Piiri toimi täydellisesti eikä yksikään nuotti koskaan alkanut, ja se virhe on nyt
+oma testinsä.
+</p>
+
+<h2>Kolme testiä oli väärässä ja koodi oikeassa</h2>
+
+<p>
+Ajurin testeistä kolme kaatui, ja jokaisen kohdalla jäljitys alkuperäiseen osoitti että
+odotukseni oli arvaus. Kolmen mittainen odotus kestää neljä tikkiä, koska testi on
+<code>--WAIT == 0</code>. Äänenvoimakkuusliu'un ensimmäinen askel osuu jo siihen tikkiin jossa
+komento luettiin. Ja nollan mittainen odotus päättää silti tikin, se vain ei laske alas.
+Korjasin testit enkä koodia, mikä on oikea suunta vain silloin kun alkuperäinen on luettu
+ensin.
+</p>
+
+<h2>Sama viikko, sama muoto, kolmannen kerran</h2>
+
+<p>
+Ennen musiikkia sama viikko antoi kaksi muuta tapausta samasta asiasta. Gargoyle aloitti
+Avatarin päällä: sääntö siitä että hahmo estää ruutunsa oli rakennettu ja perusteellinen, eikä
+munan kuoriutuminen kutsunut sitä. Syy näkyi allekirjoituksessa, alkuperäisen predikaatti on
+<code>CanMoveTo(objNum, x, y)</code> ja meidän oli <code>(x, y)</code>, ja se pudotettu
+ensimmäinen parametri oli täsmälleen hahmopuoli.
+</p>
+
+<p>
+Ja tekstikkuna käyttäytyi keskustelussa eri tavalla kuin muualla. Alkuperäisessä on yksi
+konsoli ja kolme ikkunaa; meillä kaksi koodipolkua, joista toinen osaa kaikki kaksitoista
+escape-merkkiä ja toinen ei yhtäkään.
+</p>
+
+<h2>Mitä mittaaminen säästi</h2>
+
+<p>
+Selainbuildi ei käynnistynyt lainkaan, ja korjaus näytti aluksi 42 lukukohdan uudelleen
+kirjoittamiselta. Kaksi mittausta pienensi sen murto-osaan: kaikki näkymän luvut menevät yhden
+funktion kautta, ja selaimen pysyvä polku on oikea tiedostojärjestelmä vaikka suoratoistokansio
+ei ole. Yksi kopio käynnistyksessä, ja loppuketju toimii muuttumattomana, tallennus mukaan
+lukien.
+</p>
+
+<pre><code>virstanpylväät valmiina        15 / 24
+työkohdat valmiina          244 / 273
+
+U6Formats.Tests    610 / 610
+U6Export.Tests     119 / 119
+U6Engine.Tests    6207 / 6207</code></pre>
+
+<div class="next">
+  <span class="k">Seuraavaksi</span>
+  <p>Äänitehosteet selaimessa. Tässä luki että ne ovat jatkuva jono eivätkä valmis pätkä, joten ne
+     eivät mahdu samaan ratkaisuun kuin musiikki. Sitä ei ollut mitattu ja se on väärin: jokainen
+     neljästätoista on äärellinen lista, pisin 0,574 sekuntia, joten ne renderöityvät klipiksi
+     tasan samoin kuin laulun silmukka.</p>
+</div>
+
+<footer class="foot">
+  <p>Henkilökohtainen projekti, rakennettu ostetusta pelikopiosta. Pelin dataa ei jaeta tässä
+     eikä repositoriossa.</p>
+</footer>
+
+</main>
+</body>
+</html>
